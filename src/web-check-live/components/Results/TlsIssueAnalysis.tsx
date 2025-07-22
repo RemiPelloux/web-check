@@ -112,7 +112,12 @@ const TlsCard = (props: {data: any, title: string, actionButtons: any }): JSX.El
         <summary>Full Analysis Results</summary>
         { tlsRowData.length > 0 && tlsRowData.map((cipherSuite: any, index: number) => {
           return (
-            <ExpandableRow lbl={cipherSuite.title} val={cipherSuite.value || '?'} rowList={cipherSuite.fields} />
+            <ExpandableRow 
+              key={`cipher-suite-${index}-${cipherSuite.title}`}
+              lbl={cipherSuite.title} 
+              val={cipherSuite.value || '?'} 
+              rowList={cipherSuite.fields} 
+            />
           );
         })}
       </Expandable>

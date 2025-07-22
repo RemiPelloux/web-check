@@ -143,7 +143,7 @@ export const ExpandableRow = (props: RowProps) => {
     <Details open={open}>
       <StyledRow as="summary" key={`${lbl}-${val}`}>
         <span className="lbl" title={title?.toString()}>{lbl}</span>
-        <span className="val" title={val?.toString()}>{val.toString()}</span>
+        <span className="val" title={typeof val === 'string' ? val : val?.toString()}>{val.toString()}</span>
       </StyledRow>
       { rowList &&
         <SubRowList>
@@ -151,7 +151,7 @@ export const ExpandableRow = (props: RowProps) => {
             return (
               <StyledRow as="li" key={`${row.lbl}-${index}`}>
                 <span className="lbl" title={row.title?.toString()}>{row.lbl}</span>
-                <span className="val" title={row.val?.toString()} onClick={() => copyToClipboard(row.val)}>
+                <span className="val" title={typeof row.val === 'string' ? row.val : row.val?.toString()} onClick={() => copyToClipboard(row.val)}>
                   {formatValue(row.val)}
                 </span>
                 { row.plaintext && <PlainText>{row.plaintext}</PlainText> }
@@ -191,7 +191,7 @@ const Row = (props: RowProps) => {
   return (
   <StyledRow key={`${lbl}-${val}`}>
     { lbl && <span className="lbl" title={title?.toString()}>{lbl}</span> }
-    <span className="val" title={val} onClick={() => copyToClipboard(val)}>
+    <span className="val" title={typeof val === 'string' ? val : val?.toString()} onClick={() => copyToClipboard(val)}>
       {formatValue(val)}
     </span>
     { plaintext && <PlainText>{plaintext}</PlainText> }

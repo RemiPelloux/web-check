@@ -1,6 +1,10 @@
 import dns from 'dns';
+import { promisify } from 'util';
 import URL from 'url-parse';
 import middleware from './_common/middleware.js';
+
+const resolveMx = promisify(dns.resolveMx);
+const resolveTxt = promisify(dns.resolveTxt);
 
 // TODO: Fix.
 
@@ -9,10 +13,10 @@ const mailConfigHandler = async (url, event, context) => {
     const domain = new URL(url).hostname || new URL(url).pathname;
 
     // Get MX records
-    const mxRecords = await dns.resolveMx(domain);
+    const mxRecords = await resolveMx(domain);
 
     // Get TXT records
-    const txtRecords = await dns.resolveTxt(domain);
+    const txtRecords = await resolveTxt(domain);
 
     // Filter for only email related TXT records (SPF, DKIM, DMARC, and certain provider verifications)
     const emailTxtRecords = txtRecords.filter(record => {

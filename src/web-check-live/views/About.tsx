@@ -166,7 +166,7 @@ const About = (): JSX.Element => {
         <Heading as="h3" size="small" id="#feature-contents" color={colors.primary}>Contents</Heading>
           <ul>
             {docs.map((section, index: number) => (
-              <li key={index}>
+              <li key={`content-${index}-${section.title}`}>
                 <b>{index + 1}</b>
                 <a href={`#${makeAnchor(section.title)}`}>{section.title}</a></li>
             ))}
@@ -274,7 +274,7 @@ const About = (): JSX.Element => {
 
       <Heading as="h2" size="medium" color={colors.primary}>Support Us</Heading>
       <Section>
-        {supportUs.map((para, index: number) => (<p dangerouslySetInnerHTML={{__html: para}} />))}
+        {supportUs.map((para, index: number) => (<p key={`support-${index}`} dangerouslySetInnerHTML={{__html: para}} />))}
       </Section>
 
       <Heading as="h2" size="medium" color={colors.primary}>Terms & Info</Heading>
@@ -290,7 +290,7 @@ const About = (): JSX.Element => {
         <hr />
         <Heading as="h3" size="small" color={colors.primary}>Fair Use</Heading>
         <ul>
-          {fairUse.map((para, index: number) => (<li>{para}</li>))}
+          {fairUse.map((para, index: number) => (<li key={`fairuse-${index}`}>{para}</li>))}
         </ul>
         <hr />
         <Heading as="h3" size="small" color={colors.primary}>Privacy</Heading>

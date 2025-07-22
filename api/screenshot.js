@@ -19,7 +19,17 @@ const directChromiumScreenshot = async (url) => {
   console.log(`[DIRECT-SCREENSHOT] Will save screenshot to: ${screenshotPath}`);
   
   return new Promise((resolve, reject) => {
-    const chromePath = process.env.CHROME_PATH || '/usr/bin/chromium';
+    // Try to find Chrome/Chromium on different systems
+    const possiblePaths = [
+      process.env.CHROME_PATH,
+      '/usr/bin/chromium',
+      '/usr/bin/chromium-browser',
+      '/usr/bin/google-chrome',
+      '/Applications/Google Chrome.app/Contents/MacOS/Google Chrome',
+      '/Applications/Chromium.app/Contents/MacOS/Chromium'
+    ].filter(Boolean);
+    
+    const chromePath = possiblePaths[0] || '/usr/bin/chromium';
     const args = [
       '--headless',
       '--disable-gpu',
