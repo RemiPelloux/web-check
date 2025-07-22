@@ -16,69 +16,31 @@ import { determineAddressType } from 'web-check-live/utils/address-type-checker'
 const HomeContainer = styled.section`
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: flex-start;
   align-items: center;
-  height: 100%;
-  font-family: 'PTMono';
-  padding: 1.5rem 1rem 4rem 1rem;
+  min-height: 100vh;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 2rem 1rem 6rem 1rem;
   footer {
     z-index: 1;
   }
 `;
 
 const UserInputMain = styled.form`
-  background: ${colors.backgroundLighter};
-  box-shadow: 4px 4px 0px ${colors.bgShadowColor};
-  border-radius: 8px;
-  padding: 1rem;
-  z-index: 5;
-  margin: 1rem;
+  background: ${colors.backgroundCard};
+  border: 1px solid ${colors.borderColor};
+  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border-radius: 16px;
+  padding: 3rem 2rem;
+  margin: 2rem auto;
   width: calc(100% - 2rem);
-  max-width: 60rem;
+  max-width: 48rem;
   z-index: 2;
+  backdrop-filter: blur(10px);
 `;
 
-const SponsorCard = styled.div`
-  background: ${colors.backgroundLighter};
-  box-shadow: 4px 4px 0px ${colors.bgShadowColor};
-  border-radius: 8px;
-  padding: 1rem;
-  z-index: 5;
-  margin: 1rem;
-  width: calc(100% - 2rem);
-  max-width: 60rem;
-  z-index: 2;
-  .inner {
-    display: flex;
-    justify-content: space-between;
-    flex-wrap: wrap;
-    gap: 1rem;
-    p {
-      margin: 0.25rem 0;
-    }
-  }
-  a {
-    color: ${colors.textColor};
-  }
-  img {
-    border-radius: 0.25rem;
-    box-shadow: 2px 2px 0px ${colors.fgShadowColor};
-    transition: box-shadow 0.2s;
-    margin: 0 auto;
-    display: block;
-    width: 200px;
-    &:hover {
-      box-shadow: 4px 4px 0px ${colors.fgShadowColor};
-    }
-    &:active {
-      box-shadow: -2px -2px 0px ${colors.fgShadowColor};
-    }
-  }
-  .cta {
-    font-size: 0.78rem;
-    a { color: ${colors.primary}; }
-  }
-`;
+
 
 // const FindIpButton = styled.a`
 //   margin: 0.5rem;
@@ -95,45 +57,62 @@ const ErrorMessage = styled.p`
 `;
 
 const SiteFeaturesWrapper = styled(StyledCard)`
-  margin: 1rem;
+  margin: 2rem auto;
   width: calc(100% - 2rem);
-  max-width: 60rem;
+  max-width: 48rem;
   z-index: 2;
+  background: ${colors.backgroundCard};
+  border: 1px solid ${colors.borderColor};
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+  border-radius: 16px;
+  padding: 2rem;
   .links {
     display: flex;
     justify-content: center;
-    gap: 0.5rem;
+    gap: 1rem;
+    margin-top: 2rem;
     a {
-      width: 100%;
+      flex: 1;
       button {
-        width: calc(100% - 2rem);
+        width: 100%;
+        height: 48px;
+        font-weight: 500;
       }
     }
     @media(max-width: 600px) {
-      flex-wrap: wrap;
+      flex-direction: column;
+      gap: 0.75rem;
     }
   }
   ul {
-    -webkit-column-width: 150px;
-    -moz-column-width: 150px;
-    column-width: 150px;
+    -webkit-column-width: 180px;
+    -moz-column-width: 180px;
+    column-width: 180px;
     list-style: none;
-    padding: 0 1rem;
-    font-size: 0.9rem;
-    color: ${colors.textColor};
+    padding: 0;
+    font-size: 0.95rem;
+    color: ${colors.textColorSecondary};
+    line-height: 1.6;
     li {
-      margin: 0.1rem 0;
-      text-indent: -1.2rem;
+      margin: 0.5rem 0;
+      text-indent: -1.5rem;
       break-inside: avoid-column;
+      padding-left: 1.5rem;
     }
     li:before {
       content: '✓';
       color: ${colors.primary};
-      margin-right: 0.5rem;
+      margin-right: 0.75rem;
+      font-weight: 600;
     }
   }
   a {
     color: ${colors.primary};
+  }
+  h2 {
+    margin-bottom: 1.5rem;
+    font-size: 1.5rem;
+    font-weight: 600;
   }
 `;
 
@@ -217,79 +196,59 @@ const Home = (): JSX.Element => {
     <HomeContainer>
       <FancyBackground />
       <UserInputMain onSubmit={formSubmitEvent}>
-        <a href="/">
-          <Heading as="h1" size="xLarge" align="center" color={colors.primary}>
-            <img width="64" src="/web-check.png" alt="Web Check Icon" />
-            Web Check
+        <a href="/" style={{ textDecoration: 'none', marginBottom: '2rem', display: 'block' }}>
+          <Heading as="h1" size="xLarge" align="center" color={colors.primary} style={{ 
+            fontSize: '3rem', 
+            fontWeight: '700', 
+            letterSpacing: '-0.02em',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '1rem'
+          }}>
+            <img width="48" src="/web-check.png" alt="BeCompliant Icon" style={{ borderRadius: '8px' }} />
+            BeCompliant
           </Heading>
         </a>
-        <Input
-          id="user-input"
-          value={userInput}
-          label="Enter a URL"
-          size="large"
-          orientation="vertical"
-          name="url"
-          placeholder={placeholder}
-          disabled={inputDisabled}
-          handleChange={inputChange}
-          handleKeyDown={handleKeyPress}
-        />
+        <div style={{ width: '100%', marginBottom: '1.5rem' }}>
+          <Input
+            id="user-input"
+            value={userInput}
+            label="Enter URL for Compliance Assessment"
+            size="large"
+            orientation="vertical"
+            name="url"
+            placeholder={placeholder}
+            disabled={inputDisabled}
+            handleChange={inputChange}
+            handleKeyDown={handleKeyPress}
+          />
+        </div>
         {/* <FindIpButton onClick={findIpAddress}>Or, find my IP</FindIpButton> */}
         { errorMsg && <ErrorMessage>{errorMsg}</ErrorMessage>}
-        <Button type="submit" styles="width: calc(100% - 1rem);" size="large" onClick={submit}>Analyze!</Button>
+        <Button 
+          type="submit" 
+          styles="width: 100%; height: 56px; font-size: 1.1rem; font-weight: 600;" 
+          size="large" 
+          onClick={submit}
+        >
+          Start Compliance Assessment
+        </Button>
       </UserInputMain>
-      <SponsorCard>
-        <Heading as="h2" size="small" color={colors.primary}>Sponsored by</Heading>
-        <div className="inner">
-          <p>
-            <a
-              target="_blank"
-              rel="noreferrer"
-              href="https://terminaltrove.com/?utm_campaign=github&utm_medium=referral&utm_content=web-check&utm_source=wcgh"
-            >
-              Terminal Trove
-            </a> - The $HOME of all things in the terminal.
-            <br />
-            <span className="cta">
-              Get updates on the latest CLI/TUI tools via
-              the <a
-                target="_blank"
-                rel="noreferrer"
-                className="cta"
-                href="https://terminaltrove.com/newsletter?utm_campaign=github&utm_medium=referral&utm_content=web-check&utm_source=wcgh"
-                >
-                Terminal Trove newsletter
-              </a>
-            </span>
-            
-          </p>
-          <a
-            target="_blank"
-            rel="noreferrer"
-            href="https://terminaltrove.com/?utm_campaign=github&utm_medium=referral&utm_content=web-check&utm_source=wcgh">
-            <img width="120" alt="Terminal Trove" src="https://i.ibb.co/NKtYjJ1/terminal-trove-web-check.png" />
-          </a>
-        </div>
-
-      </SponsorCard>
       <SiteFeaturesWrapper>
         <div className="features">
-          <Heading as="h2" size="small" color={colors.primary}>Supported Checks</Heading>
+          <Heading as="h2" size="small" color={colors.primary}>Compliance Assessments</Heading>
           <ul>
             {docs.map((doc, index) => (<li key={index}>{doc.title}</li>))}
-            <li><Link to="/check/about">+ more!</Link></li>
+            <li><Link to="/check/about">+ more assessments!</Link></li>
           </ul>
         </div>
         <div className="links">
-          <a target="_blank" rel="noreferrer" href="https://github.com/lissy93/web-check" title="Check out the source code and documentation on GitHub, and get support or contribute">
-            <Button>View on GitHub</Button>
-          </a>
-          <a target="_blank" rel="noreferrer" href="https://app.netlify.com/start/deploy?repository=https://github.com/lissy93/web-check" title="Deploy your own private or public instance of Web-Check to Netlify">
-            <Button>Deploy your own</Button>
-          </a>
-          <Link to="/check/about#api-documentation" title="View the API documentation, to use Web-Check programmatically">
-            <Button>API Docs</Button>
+          <Link to="/check" title="Start compliance assessment with our professional auditing platform">
+            <Button>Start Assessment</Button>
+          </Link>
+          <Link to="/check/about#api-documentation" title="View the API documentation, to use BeCompliant programmatically">
+            <Button>API Documentation</Button>
           </Link>
         </div>
       </SiteFeaturesWrapper>

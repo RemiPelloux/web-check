@@ -1,23 +1,27 @@
 
 const colors = {
-  primary: '#c1fb41',
-  primaryLighter: '#cff97a',
+  primary: '#1e40af',
+  primaryLighter: '#3b82f6',
+  primaryDarker: '#1e3a8a',
   textColor: '#ffffff',
-  textColorSecondary: '#a4b1cd',
-  background: '#141517',
-  backgroundDarker: '#000000',
-  backgroundLighter: '#242525',
-  bgShadowColor: '#101010',
-  fgShadowColor: '#3f550e',
-  primaryTransparent: '#9fef0012',
+  textColorSecondary: '#d1d5db',
+  textColorThirdly: '#9ca3af',
+  background: '#0f1419',
+  backgroundDarker: '#0a0e13',
+  backgroundLighter: '#1a202c',
+  backgroundCard: '#2d3748',
+  bgShadowColor: '#0a0e13',
+  fgShadowColor: '#1e3a8a',
+  primaryTransparent: '#1e40af30',
+  borderColor: '#4a5568',
 
   // Action Colors
-  info: '#04e4f4',
-  success: '#20e253',
-  warning: '#f6f000',
-  error: '#fca016',
-  danger: '#f80363',
-  neutral: '#272f4d',
+  info: '#0369a1',
+  success: '#047857',
+  warning: '#d97706',
+  error: '#dc2626',
+  danger: '#b91c1c',
+  neutral: '#6b7280',
 };
 
 export default colors;

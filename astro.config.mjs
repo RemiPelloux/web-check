@@ -56,13 +56,12 @@ const adapter = getAdapter(deployTarget);
 
 // Print build information to console
 console.log(
-  `\n\x1b[1m\x1b[35m Preparing to start build of Web Check.... \x1b[0m\n`,
+  `\n\x1b[1m\x1b[35m Preparing to start build of BeCompliant.... \x1b[0m\n`,
   `\x1b[35m\x1b[2mCompiling for "${deployTarget}" using "${output}" mode, `
   + `to deploy to "${site}" at "${base}"\x1b[0m\n`,
-  `\x1b[2m\x1b[36m🛟 For documentation and support, visit the GitHub repo: ` +
-  `https://github.com/lissy93/web-check \n`,
-  `💖 Found Web-Check useful? Consider sponsoring us on GitHub ` +
-  `to help fund maintenance & development.\x1b[0m\n`,
+  `\x1b[2m\x1b[36m🛟 For documentation and support, visit: ` +
+  `https://becompliant.xyz/about \n`,
+  `💼 Professional compliance assessment platform by OpenPro.\x1b[0m\n`,
 );
 
 const redirects = {

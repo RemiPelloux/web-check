@@ -17,7 +17,7 @@ import SelfScanMsg from 'web-check-live/components/misc/SelfScanMsg';
 import DocContent from 'web-check-live/components/misc/DocContent';
 import ProgressBar, { type LoadingJob, type LoadingState, initialJobs } from 'web-check-live/components/misc/ProgressBar';
 import ActionButtons from 'web-check-live/components/misc/ActionButtons';
-import AdditionalResources from 'web-check-live/components/misc/AdditionalResources';
+
 import ViewRaw from 'web-check-live/components/misc/ViewRaw';
 
 import ServerLocationCard from 'web-check-live/components/Results/ServerLocation';
@@ -907,8 +907,6 @@ const Results = (props: { address?: string } ): JSX.Element => {
             <span className="toggle-filters" onClick={() => setShowFilters(true)}>Show Filters</span>
             <a href="#view-download-raw-data"><span className="toggle-filters">Export Data</span></a>
             <a href="/about"><span className="toggle-filters">Learn about the Results</span></a>
-            <a href="/about#additional-resources"><span className="toggle-filters">More tools</span></a>
-            <a target="_blank" rel="noreferrer" href="https://github.com/lissy93/web-check"><span className="toggle-filters">View GitHub</span></a>
           </div>
       ) }
       </FilterButtons>
@@ -937,7 +935,6 @@ const Results = (props: { address?: string } ): JSX.Element => {
           </Masonry>
       </ResultsContent>
       <ViewRaw everything={resultCardData} />
-      <AdditionalResources url={address} />
       <Footer />
       <Modal isOpen={modalOpen} closeModal={()=> setModalOpen(false)}>{modalContent}</Modal>
       <ToastContainer limit={3} draggablePercent={60} autoClose={2500} theme="dark" position="bottom-right" />

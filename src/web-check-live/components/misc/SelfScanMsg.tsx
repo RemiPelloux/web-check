@@ -37,11 +37,11 @@ const SelfScanMsg = () => {
       <b>{messages[Math.floor(Math.random() * messages.length)]}</b>
       <br />
       <span>
-        But if you want to see how this site is built, why not check out
-        the <a href='https://github.com/lissy93/web-check'>source code</a>?
+        But if you want to learn more about our professional platform,
+        check out the <a href='/about'>documentation</a>!
       </span>
       <br />
-      <i>Do me a favour, and drop the repo a Star while you're there</i> 😉
+      <i>Explore our comprehensive analysis capabilities</i> 🔍
     </StyledSelfScanMsg>
   );
 };

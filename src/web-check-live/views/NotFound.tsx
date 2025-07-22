@@ -57,7 +57,7 @@ const NotFound = (): JSX.Element => {
       <HeaderLinkContainer>
         <a href="/"><Button>Back to Homepage</Button></a>
       </HeaderLinkContainer>
-      <a target="_blank" rel="noreferrer" href="https://github.com/lissy93/web-check">Report Issue</a>
+      <a href="/about">Contact Support</a>
     </NotFoundInner>
     </AboutContainer>
     <Footer isFixed={true} />

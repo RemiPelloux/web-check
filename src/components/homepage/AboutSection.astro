@@ -2,7 +2,6 @@
 
 import ButtonGroup from '@components/homepage/ButtonGroup.astro';
 import Features from '@components/homepage/Features.astro';
-import SponsorSegment from '@components/homepage/SponsorSegment.astro';
 
 const supportedChecks = [
   'Archive History',
@@ -41,19 +40,13 @@ const supportedChecks = [
 
 const links = [
   {
-    title: 'View on GitHub',
-    url: 'https://github.com/lissy93/web-check',
-    icon: 'github',
+    title: 'Start Assessment',
+    url: '/check',
+    icon: 'rocket',
     isCta: true,
   },
   {
-    title: 'Deploy your Own',
-    url: '/self-hosted-setup',
-    icon: 'rocket',
-    isCta: false,
-  },
-  {
-    title: 'Use the API',
+    title: 'API Documentation',
     url: '/web-check-api',
     icon: 'code',
     isCta: false,
@@ -64,17 +57,15 @@ const links = [
 
 <div class="about-section">
   <div class="features-wrap">
-    <h4>Ready to get started?</h4>
+    <h4>Ready to assess compliance?</h4>
     <p class="what">
-      With over <span>30 supported checks</span>
-      you can view and analyse key website information in an instant
+      With over <span>30 compliance assessments</span>
+      you can evaluate regulatory compliance and security posture in an instant
     </p>
   </div>
   <hr />
   <Features supportedChecks={supportedChecks} />
   <ButtonGroup links={links} />
-  <hr />
-  <SponsorSegment />
 </div>
 
 <style lang="scss">

@@ -521,17 +521,16 @@ export const featureIntro = [
 ];
 
 export const about = [
-`Web-Check is a powerful all-in-one tool for discovering information about a website/host.
-The core philosophy is simple: feed Web-Check a URL and let it gather, collate, and present a broad array of open data for you to delve into.`,
+`BeCompliant is a professional-grade compliance assessment platform designed for comprehensive regulatory gap analysis and security auditing.
+Our platform empowers compliance officers, risk managers, and security auditors with deep insights into website security posture and regulatory compliance status.`,
 
-`The report shines a spotlight onto potential attack vectors, existing security measures,
-and the web of connections within a site's architecture.
-The results can also help optimizing server responses, configuring redirects,
-managing cookies, or fine-tuning DNS records for your site.`,
+`The assessment engine provides detailed analysis of compliance gaps, security configurations,
+and regulatory alignment across multiple industry standards and frameworks.
+The results enable informed decision-making for risk mitigation, compliance remediation,
+and regulatory reporting across your digital assets.`,
 
-`So, whether you're a developer, system administrator, security researcher, penetration
-tester or are just interested in discovering the underlying technologies of a given site 
-- I'm sure you'll find this a useful addition to your toolbox.`,
+`Whether you're conducting compliance audits, performing regulatory assessments, or managing enterprise risk,
+BeCompliant delivers professional-grade compliance capabilities through an intuitive, auditor-focused interface.`,
 ];
 
 export const license = `The MIT License (MIT)
@@ -556,11 +555,11 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 `;
 
 export const supportUs = [
-  "Web-Check is free to use without restriction.",
-  "All the code is open source, so you're also free to deploy your own instance, as well as fork, modify and distribute the code in both private and commercial settings.",
-  "Running web-check does cost me a small amount of money each month, so if you're finding the app useful, consider <a href='https://github.com/sponsors/Lissy93'>sponsoring me on GitHub</a> if you're able to. Even just $1 or $2/month would be a huge help in supporting the ongoing project running costs.",
-  "Otherwise, there are other ways you can help out, like submitting or reviewing a pull request to the <a href='https://github.com/Lissy93/web-check'>GitHub repo</a>, upvoting us on <a href='https://www.producthunt.com/posts/web-check'>Product Hunt</a>, or by sharing with your network.",
-  "But don't feel obliged to do anything, as this app (and all my other projects) will always remain 100% free and open source, and I will do my best to ensure the managed instances remain up and available for as long as possible :)",
+  "BeCompliant is a professional compliance assessment platform available for enterprise use.",
+  "The platform is open source under the MIT license, allowing you to deploy your own instances and customize the platform for your organization's specific compliance requirements.",
+  "Our mission is to provide enterprise-grade compliance assessment tools that are accessible to compliance officers, risk managers, and organizations of all sizes.",
+  "We're committed to maintaining high-quality, reliable service while continuously expanding our assessment capabilities and regulatory framework coverage.",
+  "BeCompliant will always remain open and accessible, supporting the compliance community with professional-grade auditing tools.",
 ];
 
 export const fairUse = [

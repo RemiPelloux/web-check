@@ -7,7 +7,7 @@ import Heading from 'web-check-live/components/Form/Heading';
 import Footer from 'web-check-live/components/misc/Footer';
 import Nav from 'web-check-live/components/Form/Nav';
 import Button from 'web-check-live/components/Form/Button';
-import AdditionalResources from 'web-check-live/components/misc/AdditionalResources';
+
 import { StyledCard } from 'web-check-live/components/Form/Card';
 import docs, { about, featureIntro, license, fairUse, supportUs } from 'web-check-live/utils/docs';
 
@@ -140,7 +140,7 @@ const About = (): JSX.Element => {
     <AboutContainer>
       <Nav>
         <HeaderLinkContainer>
-          <a target="_blank" rel="noreferrer" href="https://github.com/lissy93/web-check"><Button>View on GitHub</Button></a>
+          <a href="/check"><Button>Start Assessment</Button></a>
         </HeaderLinkContainer>
       </Nav>
 
@@ -150,33 +150,12 @@ const About = (): JSX.Element => {
           <p key={index}>{para}</p>
         ))}
         <hr />
-        <SponsorshipContainer>
-          <p>
-            Web-Check is kindly sponsored
-            by <a target="_blank" rel="noreferrer" href="https://terminaltrove.com/?utm_campaign=github&utm_medium=referral&utm_content=web-check&utm_source=wcgh">
-              Terminal Trove
-            </a>
-            <br />
-            The $HOME of all things in the terminal.
-            <br />
-            <small>
-              <a target="_blank" rel="noreferrer" href="https://terminaltrove.com/newsletter?utm_campaign=github&utm_medium=referral&utm_content=web-check&utm_source=wcgh">
-                Find your next CLI / TUI tool, and get updates to your inbox
-              </a>
-            </small>
-          </p>
-          <a target="_blank" rel="noreferrer" href="https://terminaltrove.com/?utm_campaign=github&utm_medium=referral&utm_content=web-check&utm_source=wcgh">
-            <img width="300" alt="Terminal Trove" src="https://i.ibb.co/T1KzVmR/terminal-trove-green.png" />
-          </a>
-        </SponsorshipContainer>
-        <hr />
         <p>
-          Web-Check is developed and maintained by <a target="_blank" rel="noreferrer" href="https://aliciasykes.com">Alicia Sykes</a>.
-          It's licensed under the <a target="_blank" rel="noreferrer" href="https://github.com/Lissy93/web-check/blob/master/LICENSE">MIT license</a>,
+          BeCompliant is developed and maintained by <strong>OpenPro</strong>.
+          It's licensed under the <a href="/license">MIT license</a>,
           and is completely free to use, modify and distribute in both personal and commercial settings.<br />
-          Source code and self-hosting docs are available on <a target="_blank" rel="noreferrer" href="https://github.com/lissy93/web-check">GitHub</a>.
-          If you've found this service useful, consider <a target="_blank" rel="noreferrer" href="https://github.com/sponsors/Lissy93">sponsoring me</a> from $1/month,
-          to help with the ongoing hosting and development costs.
+          This professional-grade compliance assessment platform provides comprehensive regulatory gap analysis 
+          and security auditing capabilities for compliance officers and risk managers.
         </p>
       </Section>
       
@@ -230,40 +209,33 @@ const About = (): JSX.Element => {
 
       <Heading as="h2" size="medium" color={colors.primary}>Deploy your own Instance</Heading>
       <Section>
-        <p>Web-Check is designed to be easily self-hosted.</p>
-        <Heading as="h3" size="small" color={colors.primary}>Option #1 - Netlify</Heading>
-        <p>Click the button below to deploy to Netlify</p>
-        <a target="_blank" rel="noreferrer" href="https://app.netlify.com/start/deploy?repository=https://github.com/lissy93/web-check">
-          <img src="https://www.netlify.com/img/deploy/button.svg" alt="Deploy to Netlify" />
-        </a>
-
-        <Heading as="h3" size="small" color={colors.primary}>Option #2 - Vercel</Heading>
-        <p>Click the button below to deploy to Vercel</p>
-        <a target="_blank" rel="noreferrer" href="https://vercel.com/new/clone?repository-url=https%3A%2F%2Fgithub.com%2Flissy93%2Fweb-check&project-name=web-check&repository-name=web-check-fork&demo-title=Web-Check%20Demo&demo-description=Check%20out%20web-check.xyz%20to%20see%20a%20live%20demo%20of%20this%20application%20running.&demo-url=https%3A%2F%2Fweb-check.xyz&demo-image=https%3A%2F%2Fraw.githubusercontent.com%2FLissy93%2Fweb-check%2Fmaster%2F.github%2Fscreenshots%2Fweb-check-screenshot10.png">
-          <img src="https://vercel.com/button" alt="Deploy with Vercel" />
-        </a>
-
-        <Heading as="h3" size="small" color={colors.primary}>Option #3 - Docker</Heading>
+        <p>BeCompliant is designed to be easily self-hosted for enterprise compliance needs.</p>
+        <Heading as="h3" size="small" color={colors.primary}>Option #1 - Docker</Heading>
         <p>
-        A Docker container is published to <a target="_blank" rel="noreferrer" href="https://hub.docker.com/r/lissy93/web-check">DockerHub</a>
-        <br />
-        Run this command, then open <code>localhost:3000</code>
-        <pre>docker run -p 3000:3000 lissy93/web-check</pre>
+        Run this command to start your own instance, then open <code>localhost:3000</code>
+        <pre>docker run -p 3000:3000 webcheck/web-check</pre>
         </p>
 
-        <Heading as="h3" size="small" color={colors.primary}>Option #4 - Manual</Heading>
+        <Heading as="h3" size="small" color={colors.primary}>Option #2 - Manual Installation</Heading>
         <pre>
-        git clone https://github.com/Lissy93/web-check.git<br />
-        cd web-check # Move into the project directory<br />
-        yarn install # Install dependencies<br />
-        yarn build # Build the app for production<br />
-        yarn serve # Start the app (API and GUI)<br />
+        # Clone the repository<br />
+        git clone [repository-url]<br />
+        cd web-check<br />
+        yarn install<br />
+        yarn build<br />
+        yarn start<br />
         </pre>
 
-        <Heading as="h3" size="small" color={colors.primary}>Further Docs</Heading>
+        <Heading as="h3" size="small" color={colors.primary}>Option #3 - Cloud Deployment</Heading>
         <p>
-          More detailed installation and setup instructions can be found in the
-          GitHub repository - <a target="_blank" rel="noreferrer" href="https://github.com/lissy93/web-check#readme">github.com/lissy93/web-check</a>
+          Deploy to your preferred cloud platform using Docker containers or 
+          by building from source. Supports all major cloud providers.
+        </p>
+
+        <Heading as="h3" size="small" color={colors.primary}>Further Documentation</Heading>
+        <p>
+          More detailed installation and setup instructions are available
+          in the self-hosting guide section above.
         </p>
 
         <Heading as="h3" size="small" color={colors.primary}>Configuring</Heading>
@@ -298,8 +270,7 @@ const About = (): JSX.Element => {
         <p>// Coming soon...</p>
       </Section>
 
-      <Heading as="h2" size="medium" color={colors.primary}>Additional Resources</Heading>
-      <AdditionalResources />
+
 
       <Heading as="h2" size="medium" color={colors.primary}>Support Us</Heading>
       <Section>
@@ -308,10 +279,10 @@ const About = (): JSX.Element => {
 
       <Heading as="h2" size="medium" color={colors.primary}>Terms & Info</Heading>
       <Section>
-      <Heading as="h3" size="small" color={colors.primary}>License</Heading>
+              <Heading as="h3" size="small" color={colors.primary}>License</Heading>
         <b>
-          <a target="_blank" rel="noreferrer" href="https://github.com/lissy93/web-check">Web-Check</a> is distributed under the MIT license,
-          © <a target="_blank" rel="noreferrer" href="https://aliciasykes.com">Alicia Sykes</a> { new Date().getFullYear()}
+          BeCompliant is distributed under the MIT license,
+          © <strong>OpenPro</strong> { new Date().getFullYear()}
         </b>
         <br />
         <small>For more info, see <a target="_blank" rel="noreferrer" href="https://tldrlegal.com/license/mit-license">TLDR Legal → MIT</a></small>

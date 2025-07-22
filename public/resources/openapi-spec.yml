@@ -1,23 +1,25 @@
 openapi: 3.0.0
 info:
-  title: Web Check 🕵
+  title: BeCompliant - Professional Compliance Assessment Platform
   description: >
-    **API documentation for the [Web Check](https://github.com/lissy93/web-check) backend endpoints.**<br>
-    _Web Check gives you x-ray vision, revealing the configration and inner workings of any website._
+    **API documentation for the BeCompliant professional compliance assessment platform.**<br>
+    _BeCompliant provides comprehensive regulatory compliance analysis and security auditing capabilities for professional use._
     <br><br>
-    [![Website - Web-Check.xyz](https://img.shields.io/badge/Website-webcheck.zyz-9fef00?style=flat&logo=googlecloudstorage&logoColor=white&labelColor=1c1d28)](https://web-check.xyz/)
-    [![DockerHub - Lissy93/Web-Check](https://img.shields.io/badge/DockerHub-Lissy93/Web_Check-1fb1f4?style=flat&logo=docker&logoColor=white&labelColor=1c1d28)](https://hub.docker.com/r/lissy93/web-check)
-    [![GitHub - Lissy93/Web-Check](https://img.shields.io/badge/GitHub-Lissy93/Web_Check-a832fc?style=flat&logo=github&logoColor=white&labelColor=1c1d28)](https://github.com/lissy93/web-check)
-    [![Sponsor - Alicia Sykes](https://img.shields.io/badge/Sponsor-Alicia_Sykes-f2159a?style=flat&logo=githubsponsors&logoColor=white&labelColor=1c1d28)](https://github.com/sponsors/Lissy93)
+    [![Website - BeCompliant.xyz](https://img.shields.io/badge/Website-becompliant.xyz-1e40af?style=flat&logo=web&logoColor=white&labelColor=1a202c)](https://becompliant.xyz/)
+    [![Docker - BeCompliant](https://img.shields.io/badge/Docker-becompliant/compliance-1fb1f4?style=flat&logo=docker&logoColor=white&labelColor=1a202c)](https://hub.docker.com/r/becompliant/compliance)
+    [![Professional - OpenPro](https://img.shields.io/badge/Professional-OpenPro-1e40af?style=flat&logo=shield&logoColor=white&labelColor=1a202c)](#)
   
-  version: 1.0.0
+  version: 2.0.0
   license:
     name: 'License: MIT'
-    url: https://github.com/Lissy93/web-check/blob/master/LICENSE
-  termsOfService: https://web-check.xyz/about#terms-info
+    url: /license
+  termsOfService: https://becompliant.xyz/about#terms-info
+  contact:
+    name: OpenPro Support
+    url: https://becompliant.xyz/about
 externalDocs:
-  description: 'Source: GitHub'
-  url: https://github.com/Lissy93/web-check
+  description: 'Documentation'
+  url: https://becompliant.xyz/about
 servers:
   - url: http://localhost:3001/api
     description: Local (Development)
