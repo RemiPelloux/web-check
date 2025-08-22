@@ -68,10 +68,10 @@ const redirects = {
   '/about': '/check/about',
 };
 
-// Skip the marketing homepage for self-hosted users
-if (!isBossServer && isBossServer !== true) {
-  redirects['/'] = '/check';
-}
+// Skip the marketing homepage for self-hosted users - DISABLED to allow home page access
+// if (!isBossServer && isBossServer !== true) {
+//   redirects['/'] = '/check';
+// }
 
 // Export Astro configuration
 export default defineConfig({ output, base, integrations, site, adapter, redirects });

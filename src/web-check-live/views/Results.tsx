@@ -594,7 +594,7 @@ const Results = (props: { address?: string } ): JSX.Element => {
     }
   }
 
-  // Get comprehensive RGPD compliance analysis
+  // Get comprehensive APDP compliance analysis
   const [rgpdComplianceResults, updateRgpdComplianceResults] = useMotherHook({
     jobId: 'rgpd-compliance',
     updateLoadingJobs,
@@ -651,7 +651,7 @@ const Results = (props: { address?: string } ): JSX.Element => {
       compliantItems,
       url: address,
       timestamp: new Date().toISOString(),
-      error: 'Analyse RGPD complète indisponible - utilisation des données de base'
+      error: 'Analyse APDP complète indisponible - utilisation des données de base'
     };
   };
 
@@ -659,7 +659,7 @@ const Results = (props: { address?: string } ): JSX.Element => {
   const resultCardData = [
     {
       id: 'compliance-summary',
-      title: 'Résumé de Conformité RGPD',
+      title: 'Résumé de Conformité APDP',
       result: rgpdComplianceResults || calculateBasicCompliance(),
       Component: ComplianceSummaryCard,
       refresh: updateRgpdComplianceResults,

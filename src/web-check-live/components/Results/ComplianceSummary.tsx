@@ -36,9 +36,15 @@ const ScoreCircle = styled.div<{ score: string }>`
   color: white;
   background: ${props => {
     switch (props.score) {
+      case 'A+': return '#059669'; // emerald-600
       case 'A': return colors.success;
-      case 'B': return '#10b981'; // emerald-500
+      case 'A-': return '#10b981'; // emerald-500
+      case 'B+': return '#16a34a'; // green-600
+      case 'B': return '#22c55e'; // green-500
+      case 'B-': return '#84cc16'; // lime-500
+      case 'C+': return '#eab308'; // yellow-500
       case 'C': return colors.warning;
+      case 'C-': return '#f59e0b'; // amber-500
       case 'D': return '#f97316'; // orange-500
       case 'E': return '#ef4444'; // red-500
       case 'F': return colors.error;
@@ -60,9 +66,15 @@ const ScoreDescription = styled.div<{ score: string }>`
   font-weight: 500;
   color: ${props => {
     switch (props.score) {
+      case 'A+': return '#059669';
       case 'A': return colors.success;
-      case 'B': return '#10b981';
+      case 'A-': return '#10b981';
+      case 'B+': return '#16a34a';
+      case 'B': return '#22c55e';
+      case 'B-': return '#84cc16';
+      case 'C+': return '#eab308';
       case 'C': return colors.warning;
+      case 'C-': return '#f59e0b';
       case 'D': return '#f97316';
       case 'E': return '#ef4444';
       case 'F': return colors.error;
@@ -205,10 +217,16 @@ interface ComplianceSummaryProps {
 
 const getScoreDescription = (score: string): string => {
   switch (score) {
+    case 'A+': return 'Exemplaire';
     case 'A': return 'Excellent';
-    case 'B': return 'Très bien';
-    case 'C': return 'Correct';
-    case 'D': return 'À améliorer';
+    case 'A-': return 'Très excellent';
+    case 'B+': return 'Très bien';
+    case 'B': return 'Bien';
+    case 'B-': return 'Assez bien';
+    case 'C+': return 'Correct';
+    case 'C': return 'Passable';
+    case 'C-': return 'À améliorer';
+    case 'D': return 'Insuffisant';
     case 'E': return 'Problématique';
     case 'F': return 'Critique';
     default: return 'Non évalué';
@@ -231,7 +249,7 @@ const ComplianceSummaryCard = ({ data, title, actionButtons }: ComplianceSummary
     return (
       <Card heading={title} actionButtons={actionButtons} styles="grid-column: 1 / -1;">
         <div style={{ color: colors.error, textAlign: 'center', padding: '20px' }}>
-          <p>Erreur lors de l'évaluation RGPD: {data.error}</p>
+          <p>Erreur lors de l'évaluation APDP: {data.error}</p>
           <p style={{ fontSize: '12px', marginTop: '8px', color: colors.textColorSecondary }}>
             Utilisation des données d'analyse de base disponibles.
           </p>
@@ -291,6 +309,33 @@ const ComplianceSummaryCard = ({ data, title, actionButtons }: ComplianceSummary
           </StatCard>
         </StatsGrid>
       </SummaryContainer>
+
+      {/* Score Breakdown */}
+      {data.scoreBreakdown && (
+        <DetailSection>
+          <h4 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px', color: colors.textColor }}>
+            Détail du Score
+          </h4>
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(120px, 1fr))', gap: '8px', fontSize: '12px' }}>
+            <div style={{ textAlign: 'center', padding: '8px', background: colors.backgroundDarker, borderRadius: '4px' }}>
+              <div style={{ fontWeight: '600', color: colors.textColor }}>Base</div>
+              <div style={{ color: colors.success }}>{data.scoreBreakdown.baseScore}</div>
+            </div>
+            <div style={{ textAlign: 'center', padding: '8px', background: colors.backgroundDarker, borderRadius: '4px' }}>
+              <div style={{ fontWeight: '600', color: colors.textColor }}>Pénalités</div>
+              <div style={{ color: colors.error }}>-{data.scoreBreakdown.penalties}</div>
+            </div>
+            <div style={{ textAlign: 'center', padding: '8px', background: colors.backgroundDarker, borderRadius: '4px' }}>
+              <div style={{ fontWeight: '600', color: colors.textColor }}>Bonus</div>
+              <div style={{ color: colors.success }}>+{data.scoreBreakdown.bonuses}</div>
+            </div>
+            <div style={{ textAlign: 'center', padding: '8px', background: colors.backgroundDarker, borderRadius: '4px' }}>
+              <div style={{ fontWeight: '600', color: colors.textColor }}>Final</div>
+              <div style={{ color: colors.primary, fontWeight: '700' }}>{data.numericScore}</div>
+            </div>
+          </div>
+        </DetailSection>
+      )}
 
       {/* Detailed Analysis */}
       {data.detailedAnalysis && (

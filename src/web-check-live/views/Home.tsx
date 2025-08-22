@@ -217,7 +217,7 @@ const Home = (): JSX.Element => {
                 fontWeight: '600',
                 margin: '0'
               }}>
-                Analyse de Conformité RGPD
+                Analyse de Conformité APDP
               </Heading>
             </div>
           </div>
@@ -307,7 +307,7 @@ const Home = (): JSX.Element => {
                 margin: '0',
                 lineHeight: '1.5'
               }}>
-                <strong>Outil professionnel APDP Monaco</strong> - Réservé aux contrôleurs pour les audits de conformité RGPD et sécurité web. 
+                <strong>Outil professionnel APDP Monaco</strong> - Réservé aux contrôleurs pour les audits de conformité APDP et sécurité web. 
                 Les rapports générés peuvent être utilisés dans le cadre des procédures officielles de contrôle.
               </p>
             </div>

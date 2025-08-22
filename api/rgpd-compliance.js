@@ -3,18 +3,32 @@ import middleware from './_common/middleware.js';
 
 const handler = async (url) => {
   try {
-    // Comprehensive RGPD compliance evaluation
-    const complianceResults = await evaluateRGPDCompliance(url);
+    // Validate URL format
+    if (!url) {
+      return { error: 'URL parameter is required', statusCode: 400 };
+    }
+    
+    try {
+      new URL(url);
+    } catch {
+      return { error: 'Invalid URL format provided', statusCode: 400 };
+    }
+
+    // Comprehensive APDP compliance evaluation
+    const complianceResults = await evaluateAPDPCompliance(url);
     return complianceResults;
   } catch (error) {
+    console.error('APDP Compliance Analysis Error:', error);
     return { 
-      error: `Failed to evaluate RGPD compliance: ${error.message}`,
-      statusCode: error.response?.status || 500 
+      error: `Failed to evaluate APDP compliance: ${error.message}`,
+      statusCode: error.response?.status || 500,
+      timestamp: new Date().toISOString(),
+      url: url || 'unknown'
     };
   }
 };
 
-async function evaluateRGPDCompliance(url) {
+async function evaluateAPDPCompliance(url) {
   const results = {
     url,
     timestamp: new Date().toISOString(),
@@ -71,7 +85,7 @@ async function analyzeCookies(url, results) {
             title: `Cookie non sécurisé: ${cookie.name}`,
             description: `Le cookie "${cookie.name}" n'a pas l'attribut Secure sur un site HTTPS.`,
             recommendation: 'Ajouter l\'attribut Secure à tous les cookies sur les sites HTTPS.',
-            article: 'Article 32 RGPD - Sécurité du traitement'
+            article: 'Article 32 APDP - Sécurité du traitement'
           });
           cookieIssues++;
         }
@@ -83,7 +97,7 @@ async function analyzeCookies(url, results) {
             title: `Cookie d'authentification vulnérable: ${cookie.name}`,
             description: `Le cookie d'authentification "${cookie.name}" n'a pas l'attribut HttpOnly.`,
             recommendation: 'Ajouter l\'attribut HttpOnly aux cookies d\'authentification pour prévenir les attaques XSS.',
-            article: 'Article 32 RGPD - Sécurité du traitement'
+            article: 'Article 32 APDP - Sécurité du traitement'
           });
           cookieIssues++;
         }
@@ -95,7 +109,7 @@ async function analyzeCookies(url, results) {
             title: `Cookie sans protection CSRF: ${cookie.name}`,
             description: `Le cookie "${cookie.name}" n'a pas d'attribut SameSite approprié.`,
             recommendation: 'Configurer l\'attribut SameSite=Strict ou SameSite=Lax selon les besoins.',
-            article: 'Article 32 RGPD - Sécurité du traitement'
+            article: 'Article 32 APDP - Sécurité du traitement'
           });
         }
       });
@@ -115,7 +129,7 @@ async function analyzeCookies(url, results) {
           title: `${trackingCookies.length} cookie(s) de tracking détecté(s)`,
           description: `Cookies de tracking tiers détectés: ${trackingCookies.map(c => c.name).join(', ')}`,
           recommendation: 'Implémenter un système de gestion du consentement avant le dépôt de cookies non essentiels.',
-          article: 'Article 6 et 7 RGPD - Licéité et consentement'
+          article: 'Article 6 et 7 APDP - Licéité et consentement'
         });
       }
       
@@ -153,7 +167,7 @@ async function analyzePrivacyPolicy(url, results) {
             type: 'privacy_policy',
             title: 'Politique de confidentialité accessible',
             description: `Politique de confidentialité trouvée à: ${testUrl}`,
-            article: 'Article 13 et 14 RGPD - Information des personnes concernées'
+            article: 'Article 13 et 14 APDP - Information des personnes concernées'
           });
           break;
         }
@@ -169,7 +183,7 @@ async function analyzePrivacyPolicy(url, results) {
         title: 'Politique de confidentialité non trouvée',
         description: 'Aucune politique de confidentialité accessible n\'a été détectée.',
         recommendation: 'Créer et publier une politique de confidentialité détaillée et facilement accessible.',
-        article: 'Article 13 et 14 RGPD - Information des personnes concernées'
+        article: 'Article 13 et 14 APDP - Information des personnes concernées'
       });
     }
   } catch (error) {
@@ -203,7 +217,7 @@ async function analyzeSecurityHeaders(url, results) {
           title: `En-tête de sécurité manquant: ${header}`,
           description: `L'en-tête de sécurité ${header} n'est pas configuré.`,
           recommendation: `Configurer l'en-tête ${header} pour améliorer la sécurité.`,
-          article: 'Article 32 RGPD - Sécurité du traitement'
+          article: 'Article 32 APDP - Sécurité du traitement'
         });
       });
       
@@ -217,14 +231,14 @@ async function analyzeSecurityHeaders(url, results) {
             title: 'Politique CSP permissive',
             description: 'La Content Security Policy autorise des pratiques non sécurisées.',
             recommendation: 'Renforcer la CSP en supprimant unsafe-inline et unsafe-eval.',
-            article: 'Article 32 RGPD - Sécurité du traitement'
+            article: 'Article 32 APDP - Sécurité du traitement'
           });
         } else {
           results.compliantItems.push({
             type: 'strong_csp',
             title: 'Content Security Policy robuste',
             description: 'Une CSP restrictive est configurée correctement.',
-            article: 'Article 32 RGPD - Sécurité du traitement'
+            article: 'Article 32 APDP - Sécurité du traitement'
           });
         }
       }
@@ -251,7 +265,7 @@ async function analyzeSSLCertificate(url, results) {
           type: 'valid_ssl',
           title: 'Certificat SSL valide',
           description: `Certificat SSL valide émis par ${sslData.issuer || 'autorité reconnue'}`,
-          article: 'Article 32 RGPD - Sécurité du traitement'
+          article: 'Article 32 APDP - Sécurité du traitement'
         });
       } else {
         results.criticalIssues.push({
@@ -260,7 +274,7 @@ async function analyzeSSLCertificate(url, results) {
           title: 'Certificat SSL invalide ou expiré',
           description: 'Le certificat SSL n\'est pas valide ou a expiré.',
           recommendation: 'Renouveler ou corriger le certificat SSL immédiatement.',
-          article: 'Article 32 RGPD - Sécurité du traitement'
+          article: 'Article 32 APDP - Sécurité du traitement'
         });
       }
       
@@ -272,7 +286,7 @@ async function analyzeSSLCertificate(url, results) {
           title: 'Algorithme SSL obsolète',
           description: 'Le certificat utilise un algorithme de hachage obsolète (SHA-1).',
           recommendation: 'Migrer vers un certificat utilisant SHA-256 ou supérieur.',
-          article: 'Article 32 RGPD - Sécurité du traitement'
+          article: 'Article 32 APDP - Sécurité du traitement'
         });
       }
     } else {
@@ -282,7 +296,7 @@ async function analyzeSSLCertificate(url, results) {
         title: 'Pas de chiffrement SSL/TLS',
         description: 'Le site n\'utilise pas de chiffrement SSL/TLS.',
         recommendation: 'Implémenter HTTPS avec un certificat SSL valide.',
-        article: 'Article 32 RGPD - Sécurité du traitement'
+        article: 'Article 32 APDP - Sécurité du traitement'
       });
     }
   } catch (error) {
@@ -310,7 +324,7 @@ async function analyzeDataCollection(url, results) {
           title: `${analyticsTools.length} outil(s) d'analyse détecté(s)`,
           description: `Outils d'analyse détectés: ${analyticsTools.map(t => t.name).join(', ')}`,
           recommendation: 'Vérifier que le consentement est obtenu avant l\'activation des outils d\'analyse.',
-          article: 'Article 6 RGPD - Licéité du traitement'
+          article: 'Article 6 APDP - Licéité du traitement'
         });
       }
       
@@ -333,7 +347,7 @@ async function analyzeUserConsent(url, results) {
     title: 'Système de gestion du consentement',
     description: 'Vérification manuelle requise pour le système de gestion du consentement.',
     recommendation: 'Implémenter un système de gestion du consentement conforme (CMP) pour tous les cookies non essentiels.',
-    article: 'Article 7 RGPD - Conditions applicables au consentement'
+    article: 'Article 7 APDP - Conditions applicables au consentement'
   });
 }
 
@@ -344,7 +358,7 @@ async function analyzeDataRetention(url, results) {
     title: 'Politique de conservation des données',
     description: 'Vérification manuelle requise pour les politiques de conservation.',
     recommendation: 'Définir et documenter des durées de conservation appropriées pour toutes les catégories de données.',
-    article: 'Article 5(1)(e) RGPD - Limitation de la conservation'
+    article: 'Article 5(1)(e) APDP - Limitation de la conservation'
   });
 }
 
@@ -372,7 +386,7 @@ async function analyzeThirdPartyServices(url, results) {
           title: `${thirdPartyDomains.length} service(s) tiers détecté(s)`,
           description: `Services tiers: ${thirdPartyDomains.slice(0, 5).join(', ')}${thirdPartyDomains.length > 5 ? '...' : ''}`,
           recommendation: 'Vérifier les accords de traitement des données avec tous les services tiers.',
-          article: 'Article 28 RGPD - Sous-traitant'
+          article: 'Article 28 APDP - Sous-traitant'
         });
       }
       
@@ -387,10 +401,10 @@ async function analyzeThirdPartyServices(url, results) {
 }
 
 function calculateComplianceScore(results) {
-  const criticalWeight = 10;
-  const warningWeight = 5;
-  const improvementWeight = 2;
-  const compliantWeight = 1;
+  const criticalWeight = 15;  // Increased weight for critical issues
+  const warningWeight = 8;    // Increased weight for warnings
+  const improvementWeight = 3; // Slightly increased weight
+  const compliantWeight = 2;   // Increased reward for compliant items
   
   const totalIssues = 
     (results.criticalIssues.length * criticalWeight) +
@@ -399,27 +413,57 @@ function calculateComplianceScore(results) {
   
   const totalCompliant = results.compliantItems.length * compliantWeight;
   
-  // Calculate score from 0-100
-  const maxPossibleScore = 100;
-  const penaltyScore = Math.min(totalIssues * 2, 80);
-  const bonusScore = Math.min(totalCompliant * 3, 20);
+  // Enhanced scoring algorithm
+  const baseScore = 100;
+  const maxPenalty = 85; // Maximum penalty possible
+  const maxBonus = 25;   // Maximum bonus possible
   
-  const rawScore = Math.max(0, maxPossibleScore - penaltyScore + bonusScore);
+  // Apply penalties with diminishing returns
+  const penaltyScore = Math.min(
+    totalIssues * 1.5 + (totalIssues > 10 ? (totalIssues - 10) * 0.5 : 0), 
+    maxPenalty
+  );
   
-  // Convert to letter grade
-  if (rawScore >= 90) {
+  // Apply bonuses with scaling
+  const bonusScore = Math.min(
+    totalCompliant * 2.5 + (totalCompliant > 5 ? (totalCompliant - 5) * 1.5 : 0), 
+    maxBonus
+  );
+  
+  const rawScore = Math.max(0, baseScore - penaltyScore + bonusScore);
+  
+  // Enhanced grading scale
+  if (rawScore >= 95) {
+    results.overallScore = 'A+';
+    results.complianceLevel = 'Exemplaire';
+  } else if (rawScore >= 90) {
     results.overallScore = 'A';
     results.complianceLevel = 'Excellent';
+  } else if (rawScore >= 85) {
+    results.overallScore = 'A-';
+    results.complianceLevel = 'Très excellent';
   } else if (rawScore >= 80) {
-    results.overallScore = 'B';
+    results.overallScore = 'B+';
     results.complianceLevel = 'Très bien';
+  } else if (rawScore >= 75) {
+    results.overallScore = 'B';
+    results.complianceLevel = 'Bien';
   } else if (rawScore >= 70) {
-    results.overallScore = 'C';
+    results.overallScore = 'B-';
+    results.complianceLevel = 'Assez bien';
+  } else if (rawScore >= 65) {
+    results.overallScore = 'C+';
     results.complianceLevel = 'Correct';
   } else if (rawScore >= 60) {
-    results.overallScore = 'D';
+    results.overallScore = 'C';
+    results.complianceLevel = 'Passable';
+  } else if (rawScore >= 55) {
+    results.overallScore = 'C-';
     results.complianceLevel = 'À améliorer';
   } else if (rawScore >= 50) {
+    results.overallScore = 'D';
+    results.complianceLevel = 'Insuffisant';
+  } else if (rawScore >= 40) {
     results.overallScore = 'E';
     results.complianceLevel = 'Problématique';
   } else {
@@ -428,6 +472,15 @@ function calculateComplianceScore(results) {
   }
   
   results.numericScore = Math.round(rawScore);
+  results.scoreBreakdown = {
+    baseScore,
+    penalties: Math.round(penaltyScore),
+    bonuses: Math.round(bonusScore),
+    criticalIssues: results.criticalIssues.length,
+    warnings: results.warnings.length,
+    improvements: results.improvements.length,
+    compliantItems: results.compliantItems.length
+  };
 }
 
 function generateRecommendations(results) {
@@ -461,14 +514,14 @@ function generateRecommendations(results) {
     });
   }
   
-  // General RGPD recommendations
+  // General APDP recommendations
   recommendations.push({
     priority: 'Continue',
-    title: 'Bonnes pratiques RGPD',
-    description: 'Maintenir et améliorer la conformité RGPD.',
+    title: 'Bonnes pratiques APDP',
+    description: 'Maintenir et améliorer la conformité APDP.',
     actions: [
       'Effectuer des audits réguliers de conformité',
-      'Former le personnel aux exigences RGPD',
+      'Former le personnel aux exigences APDP',
       'Maintenir un registre des traitements à jour',
       'Établir des procédures pour les droits des personnes',
       'Réviser régulièrement les politiques de confidentialité'
