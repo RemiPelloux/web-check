@@ -22,6 +22,9 @@ import ActionButtons from 'web-check-live/components/misc/ActionButtons';
 import ViewRaw from 'web-check-live/components/misc/ViewRaw';
 
 import ComplianceSummaryCard from 'web-check-live/components/Results/ComplianceSummary';
+import VulnerabilitiesCard from 'web-check-live/components/Results/Vulnerabilities';
+import CDNResourcesCard from 'web-check-live/components/Results/CDNResources';
+import LegalPagesCard from 'web-check-live/components/Results/LegalPages';
 import ServerLocationCard from 'web-check-live/components/Results/ServerLocation';
 import ServerInfoCard from 'web-check-live/components/Results/ServerInfo';
 import HostNamesCard from 'web-check-live/components/Results/HostNames';
@@ -610,6 +613,30 @@ const Results = (props: { address?: string } ): JSX.Element => {
       }),
   });
 
+  // Get vulnerability analysis
+  const [vulnerabilitiesResults, updateVulnerabilitiesResults] = useMotherHook({
+    jobId: 'vulnerabilities',
+    updateLoadingJobs,
+    addressInfo: { address, addressType, expectedAddressTypes: urlTypeOnly },
+    fetchRequest: () => fetch(`${api}/vulnerabilities?url=${address}`).then(res => parseJson(res)),
+  });
+
+  // Get CDN and external resources analysis
+  const [cdnResourcesResults, updateCdnResourcesResults] = useMotherHook({
+    jobId: 'cdn-resources',
+    updateLoadingJobs,
+    addressInfo: { address, addressType, expectedAddressTypes: urlTypeOnly },
+    fetchRequest: () => fetch(`${api}/cdn-resources?url=${address}`).then(res => parseJson(res)),
+  });
+
+  // Get legal pages analysis
+  const [legalPagesResults, updateLegalPagesResults] = useMotherHook({
+    jobId: 'legal-pages',
+    updateLoadingJobs,
+    addressInfo: { address, addressType, expectedAddressTypes: urlTypeOnly },
+    fetchRequest: () => fetch(`${api}/legal-pages?url=${address}`).then(res => parseJson(res)),
+  });
+
   // Fallback compliance calculation if API fails
   const calculateBasicCompliance = () => {
     let criticalIssues = 0;
@@ -664,6 +691,27 @@ const Results = (props: { address?: string } ): JSX.Element => {
       Component: ComplianceSummaryCard,
       refresh: updateRgpdComplianceResults,
       tags: ['summary', 'compliance'],
+    }, {
+      id: 'vulnerabilities',
+      title: 'Analyse de Vulnérabilités',
+      result: vulnerabilitiesResults,
+      Component: VulnerabilitiesCard,
+      refresh: updateVulnerabilitiesResults,
+      tags: ['security'],
+    }, {
+      id: 'cdn-resources',
+      title: 'CDN et Ressources Externes',
+      result: cdnResourcesResults,
+      Component: CDNResourcesCard,
+      refresh: updateCdnResourcesResults,
+      tags: ['performance', 'security'],
+    }, {
+      id: 'legal-pages',
+      title: 'Pages Légales APDP',
+      result: legalPagesResults,
+      Component: LegalPagesCard,
+      refresh: updateLegalPagesResults,
+      tags: ['compliance'],
     },
     {
       id: 'location',
@@ -999,20 +1047,41 @@ const Results = (props: { address?: string } ): JSX.Element => {
           columnClassName="masonry-grid-col">
           {
             resultCardData
-            .map(({ id, title, result, tags, refresh, Component }, index: number) => {
-              const show = (tags.length === 0 || tags.some(tag => tags.includes(tag)))
-              && title.toLowerCase().includes(searchTerm.toLowerCase())
-              && (result && !result.error);
-              return show ? (
-                <ErrorBoundary title={title} key={`eb-${index}`}>
-                  <Component
-                    key={`${title}-${index}`}
-                    data={{...result}}
-                    title={title}
-                    actionButtons={refresh ? makeActionButtons(title, refresh, () => showInfo(id)) : undefined}
-                  />
-                </ErrorBoundary>
-            ) : null})
+            .filter(({ id, title, result, tags }) => {
+              // Show if no tags selected OR if any of the card's tags match selected tags
+              const tagMatch = tags.length === 0 || tags.some(tag => tags.includes(tag));
+              // Show if search term matches title
+              const searchMatch = title.toLowerCase().includes(searchTerm.toLowerCase());
+              // Show if result exists and has no error
+              const hasValidResult = result && !result.error;
+              
+              return tagMatch && searchMatch && hasValidResult;
+            })
+            .sort((a, b) => {
+              // Sort by priority: compliance first, then security, then others
+              const getPriority = (tags: string[]) => {
+                if (tags.includes('summary') || tags.includes('compliance')) return 1;
+                if (tags.includes('security')) return 2;
+                if (tags.includes('performance')) return 3;
+                return 4;
+              };
+              
+              const priorityA = getPriority(a.tags);
+              const priorityB = getPriority(b.tags);
+              
+              if (priorityA !== priorityB) return priorityA - priorityB;
+              return a.title.localeCompare(b.title);
+            })
+            .map(({ id, title, result, tags, refresh, Component }, index: number) => (
+              <ErrorBoundary title={title} key={`eb-${index}`}>
+                <Component
+                  key={`${title}-${index}`}
+                  data={{...result}}
+                  title={title}
+                  actionButtons={refresh ? makeActionButtons(title, refresh, () => showInfo(id)) : undefined}
+                />
+              </ErrorBoundary>
+            ))
           }
           </Masonry>
       </ResultsContent>

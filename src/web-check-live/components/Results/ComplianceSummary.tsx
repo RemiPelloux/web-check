@@ -2,6 +2,7 @@ import styled from '@emotion/styled';
 import colors from 'web-check-live/styles/colors';
 import { Card } from 'web-check-live/components/Form/Card';
 import Row from 'web-check-live/components/Form/Row';
+import { generateComplianceReport } from 'web-check-live/utils/pdfGenerator';
 
 const SummaryContainer = styled.div`
   display: grid;
@@ -245,6 +246,20 @@ const getIssueArray = (issues: ComplianceIssue[] | number | undefined): Complian
 };
 
 const ComplianceSummaryCard = ({ data, title, actionButtons }: ComplianceSummaryProps): JSX.Element => {
+  const handlePDFExport = async () => {
+    try {
+      // Get additional data from window.webCheck if available
+      const vulnerabilities = (window as any)?.webCheck?.['vulnerabilities'];
+      const legalPages = (window as any)?.webCheck?.['legal-pages'];
+      const cdnResources = (window as any)?.webCheck?.['cdn-resources'];
+      
+      await generateComplianceReport(data, vulnerabilities, legalPages, cdnResources);
+    } catch (error) {
+      console.error('Error generating PDF report:', error);
+      alert('Erreur lors de la génération du rapport PDF. Veuillez réessayer.');
+    }
+  };
+
   if (data.error) {
     return (
       <Card heading={title} actionButtons={actionButtons} styles="grid-column: 1 / -1;">
@@ -412,27 +427,88 @@ const ComplianceSummaryCard = ({ data, title, actionButtons }: ComplianceSummary
         color: colors.textColorSecondary,
         marginTop: '16px'
       }}>
-        <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginBottom: '8px' }}>
-          <div style={{
-            width: '16px',
-            height: '16px',
-            backgroundColor: colors.primary,
-            borderRadius: '50%',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: 'white',
-            fontSize: '10px'
-          }}>
-            ℹ
+        <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '8px' }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+            <div style={{
+              width: '16px',
+              height: '16px',
+              backgroundColor: colors.primary,
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              color: 'white',
+              fontSize: '10px'
+            }}>
+              ℹ
+            </div>
+            <strong>Plan d'Action Prioritaire</strong>
           </div>
-          <strong>Plan d'Action Prioritaire</strong>
+          <div style={{
+            fontSize: '10px',
+            color: colors.textColorThirdly,
+            cursor: 'pointer',
+            padding: '2px 6px',
+            border: `1px solid ${colors.borderColor}`,
+            borderRadius: '3px',
+            backgroundColor: colors.backgroundLighter
+          }}
+          onClick={() => window.open('https://openpro.ai/apdp-compliance-docs', '_blank')}
+          title="Documentation complète APDP"
+          >
+            📚 Aide
+          </div>
         </div>
         <div style={{ paddingLeft: '24px', lineHeight: '1.5' }}>
           1. <strong>Traitement immédiat</strong>: {criticalCount} problème(s) critique(s) (0-7 jours)<br/>
           2. <strong>Correction rapide</strong>: {warningCount} avertissement(s) de sécurité (7-30 jours)<br/>
           3. <strong>Planification</strong>: {improvementCount} amélioration(s) recommandée(s) (1-3 mois)<br/>
           4. <strong>Maintien</strong>: {compliantCount} élément(s) déjà conforme(s)
+        </div>
+      </div>
+      
+      {/* PDF Export Button */}
+      <div style={{ 
+        marginTop: '20px', 
+        textAlign: 'center',
+        paddingTop: '16px',
+        borderTop: `1px solid ${colors.borderColor}`
+      }}>
+        <button
+          onClick={handlePDFExport}
+          style={{
+            background: colors.primary,
+            color: 'white',
+            border: 'none',
+            borderRadius: '6px',
+            padding: '10px 20px',
+            fontSize: '14px',
+            fontWeight: '600',
+            cursor: 'pointer',
+            display: 'inline-flex',
+            alignItems: 'center',
+            gap: '8px',
+            transition: 'all 0.2s ease',
+            boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+          }}
+          onMouseOver={(e) => {
+            e.currentTarget.style.background = '#b91c1c';
+            e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.background = colors.primary;
+            e.currentTarget.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, 0.05)';
+          }}
+          title="Télécharger le rapport complet en PDF"
+        >
+          📄 Générer Rapport PDF
+        </button>
+        <div style={{ 
+          fontSize: '11px', 
+          color: colors.textColorSecondary, 
+          marginTop: '8px' 
+        }}>
+          Rapport de conformité APDP complet avec toutes les analyses
         </div>
       </div>
     </Card>
