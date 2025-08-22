@@ -8,11 +8,12 @@ import colors from 'web-check-live/styles/colors';
 export const StyledCard = styled.section<{ styles?: string}>`
   background: ${colors.backgroundLighter};
   color: ${colors.textColor};
-  box-shadow: 4px 4px 0px ${colors.bgShadowColor};
+  border: 1px solid ${colors.borderColor};
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
   border-radius: 8px;
   padding: 1rem;
   position: relative;
-  margin 0.5rem;
+  margin: 0.5rem;
   max-height: 64rem;
   overflow: auto;
   ${props => props.styles}

@@ -6,38 +6,33 @@ import Heading from 'web-check-live/components/Form/Heading';
 import Input from 'web-check-live/components/Form/Input'
 import Button from 'web-check-live/components/Form/Button';
 import { StyledCard } from 'web-check-live/components/Form/Card';
+import Header from 'web-check-live/components/misc/Header';
 import Footer from 'web-check-live/components/misc/Footer';
-import FancyBackground from 'web-check-live/components/misc/FancyBackground';
 
 import docs from 'web-check-live/utils/docs';
 import colors from 'web-check-live/styles/colors';
 import { determineAddressType } from 'web-check-live/utils/address-type-checker';
 
 const HomeContainer = styled.section`
-  display: flex;
-  flex-direction: column;
-  justify-content: flex-start;
-  align-items: center;
   min-height: 100vh;
-  max-width: 1200px;
+  background: ${colors.background};
+`;
+
+const MainContent = styled.div`
+  max-width: 1280px;
   margin: 0 auto;
-  padding: 2rem 1rem 6rem 1rem;
-  footer {
-    z-index: 1;
-  }
+  padding: 32px 16px;
 `;
 
 const UserInputMain = styled.form`
-  background: ${colors.backgroundCard};
+  background: ${colors.backgroundLighter};
   border: 1px solid ${colors.borderColor};
-  box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  border-radius: 16px;
-  padding: 3rem 2rem;
-  margin: 2rem auto;
-  width: calc(100% - 2rem);
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 24px;
+  margin: 24px auto;
+  width: 100%;
   max-width: 48rem;
-  z-index: 2;
-  backdrop-filter: blur(10px);
 `;
 
 
@@ -57,15 +52,14 @@ const ErrorMessage = styled.p`
 `;
 
 const SiteFeaturesWrapper = styled(StyledCard)`
-  margin: 2rem auto;
-  width: calc(100% - 2rem);
+  margin: 24px auto;
+  width: 100%;
   max-width: 48rem;
-  z-index: 2;
-  background: ${colors.backgroundCard};
+  background: ${colors.backgroundLighter};
   border: 1px solid ${colors.borderColor};
-  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-  border-radius: 16px;
-  padding: 2rem;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+  border-radius: 8px;
+  padding: 24px;
   .links {
     display: flex;
     justify-content: center;
@@ -194,65 +188,134 @@ const Home = (): JSX.Element => {
 
   return (
     <HomeContainer>
-      <FancyBackground />
-      <UserInputMain onSubmit={formSubmitEvent}>
-        <a href="/" style={{ textDecoration: 'none', marginBottom: '2rem', display: 'block' }}>
-          <Heading as="h1" size="xLarge" align="center" color={colors.primary} style={{ 
-            fontSize: '3rem', 
-            fontWeight: '700', 
-            letterSpacing: '-0.02em',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '1rem'
-          }}>
-            <img width="48" src="/web-check.png" alt="BeCompliant Icon" style={{ borderRadius: '8px' }} />
-            BeCompliant
-          </Heading>
-        </a>
-        <div style={{ width: '100%', marginBottom: '1.5rem' }}>
-          <Input
-            id="user-input"
-            value={userInput}
-            label="Enter URL for Compliance Assessment"
-            size="large"
-            orientation="vertical"
-            name="url"
-            placeholder={placeholder}
-            disabled={inputDisabled}
-            handleChange={inputChange}
-            handleKeyDown={handleKeyPress}
-          />
+      <Header />
+      <MainContent>
+        <UserInputMain onSubmit={formSubmitEvent}>
+          <div style={{ textAlign: 'center', marginBottom: '24px' }}>
+            <div style={{ 
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '12px',
+              marginBottom: '8px'
+            }}>
+              <div style={{
+                width: '32px',
+                height: '32px',
+                backgroundColor: colors.primary,
+                borderRadius: '4px',
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                color: 'white',
+                fontSize: '16px'
+              }}>
+                🔍
+              </div>
+              <Heading as="h2" size="large" color={colors.textColor} style={{
+                fontSize: '20px',
+                fontWeight: '600',
+                margin: '0'
+              }}>
+                Analyse de Conformité RGPD
+              </Heading>
+            </div>
+          </div>
+          
+          <div style={{ marginBottom: '16px' }}>
+            <Input
+              id="user-input"
+              value={userInput}
+              label=""
+              size="large"
+              orientation="vertical"
+              name="url"
+              placeholder="URL du site à analyser (ex: visitmonaco.com)"
+              disabled={inputDisabled}
+              handleChange={inputChange}
+              handleKeyDown={handleKeyPress}
+            />
+          </div>
+          { errorMsg && <ErrorMessage style={{
+            color: colors.error,
+            fontSize: '14px',
+            backgroundColor: '#fef2f2',
+            border: '1px solid #fecaca',
+            borderRadius: '4px',
+            padding: '12px',
+            margin: '0 0 16px 0'
+          }}>{errorMsg}</ErrorMessage>}
+          <Button 
+            type="submit" 
+            styles="width: 100%; height: 48px; font-size: 16px; font-weight: 500;" 
+            size="large" 
+            onClick={submit}
+          >
+            Analyser
+          </Button>
+        </UserInputMain>
+        
+        <SiteFeaturesWrapper>
+          <div className="features">
+            <Heading as="h2" size="small" color={colors.primary} style={{
+              fontSize: '18px',
+              fontWeight: '600',
+              marginBottom: '16px'
+            }}>Capacités d'Analyse</Heading>
+            <ul>
+              {docs.map((doc, index) => (<li key={index}>{doc.title}</li>))}
+              <li><Link to="/check/about">+ plus d'analyses!</Link></li>
+            </ul>
+          </div>
+          <div className="links">
+            <Link to="/check" title="Démarrer une analyse de conformité avec notre plateforme d'audit professionnel">
+              <Button>Commencer l'Analyse</Button>
+            </Link>
+            <Link to="/check/about#api-documentation" title="Voir la documentation API pour utiliser BeCompliant programmatiquement">
+              <Button>Documentation API</Button>
+            </Link>
+          </div>
+        </SiteFeaturesWrapper>
+        
+        {/* Info Notice */}
+        <div style={{
+          backgroundColor: colors.backgroundDarker,
+          border: `1px solid ${colors.borderColor}`,
+          borderRadius: '8px',
+          padding: '16px',
+          margin: '24px auto',
+          maxWidth: '48rem'
+        }}>
+          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
+            <div style={{
+              width: '20px',
+              height: '20px',
+              backgroundColor: colors.textColorThirdly,
+              borderRadius: '50%',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
+              flexShrink: '0',
+              marginTop: '2px'
+            }}>
+              <span style={{ color: 'white', fontSize: '12px' }}>ℹ</span>
+            </div>
+            <div>
+              <p style={{ 
+                fontSize: '14px', 
+                color: colors.textColorSecondary,
+                margin: '0',
+                lineHeight: '1.5'
+              }}>
+                <strong>Outil professionnel APDP Monaco</strong> - Réservé aux contrôleurs pour les audits de conformité RGPD et sécurité web. 
+                Les rapports générés peuvent être utilisés dans le cadre des procédures officielles de contrôle.
+              </p>
+            </div>
+          </div>
         </div>
-        {/* <FindIpButton onClick={findIpAddress}>Or, find my IP</FindIpButton> */}
-        { errorMsg && <ErrorMessage>{errorMsg}</ErrorMessage>}
-        <Button 
-          type="submit" 
-          styles="width: 100%; height: 56px; font-size: 1.1rem; font-weight: 600;" 
-          size="large" 
-          onClick={submit}
-        >
-          Start Compliance Assessment
-        </Button>
-      </UserInputMain>
-      <SiteFeaturesWrapper>
-        <div className="features">
-          <Heading as="h2" size="small" color={colors.primary}>Compliance Assessments</Heading>
-          <ul>
-            {docs.map((doc, index) => (<li key={index}>{doc.title}</li>))}
-            <li><Link to="/check/about">+ more assessments!</Link></li>
-          </ul>
-        </div>
-        <div className="links">
-          <Link to="/check" title="Start compliance assessment with our professional auditing platform">
-            <Button>Start Assessment</Button>
-          </Link>
-          <Link to="/check/about#api-documentation" title="View the API documentation, to use BeCompliant programmatically">
-            <Button>API Documentation</Button>
-          </Link>
-        </div>
-      </SiteFeaturesWrapper>
-      <Footer isFixed={true} />
+        
+        <Footer isFixed={false} />
+      </MainContent>
     </HomeContainer>
   );
 }

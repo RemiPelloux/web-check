@@ -22,26 +22,40 @@ interface ButtonProps {
 const StyledButton = styled.button<ButtonProps>`
   cursor: pointer;
   border: none;
-  border-radius: 0.25rem;
-  font-family: PTMono;
+  border-radius: 6px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 500;
   box-sizing: border-box; 
   width: -moz-available;
   display: flex;
+  align-items: center;
   justify-content: center;
-  gap: 1rem;
-  box-shadow: 3px 3px 0px ${colors.fgShadowColor};
+  gap: 0.5rem;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   &:hover {
-    box-shadow: 5px 5px 0px ${colors.fgShadowColor};
+    box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1), 0 1px 2px 0 rgba(0, 0, 0, 0.06);
+    transform: translateY(-1px);
   }
   &:active {
-    box-shadow: -3px -3px 0px ${colors.fgShadowColor};
+    transform: translateY(0);
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  }
+  &:focus {
+    outline: none;
+    box-shadow: 0 0 0 3px ${colors.primaryTransparent};
   }
   ${props => applySize(props.size)};
   ${(props) => props.bgColor ?
     `background: ${props.bgColor};` : `background: ${colors.primary};`
   }
   ${(props) => props.fgColor ?
-    `color: ${props.fgColor};` : `color: ${colors.background};`
+    `color: ${props.fgColor};` : `color: white;`
+  }
+  &:hover {
+    ${(props) => props.bgColor ?
+      `background: ${props.bgColor};` : `background: ${colors.primaryDarker};`
+    }
   }
   ${props => props.styles}
 `;

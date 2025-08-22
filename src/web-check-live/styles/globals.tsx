@@ -11,9 +11,12 @@ const GlobalStyles = () => (
     }
     body, div, a, p, span, ul, li, small, h1, h2, h3, h4, button, section {
       font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
-      color: #fff;
+      color: #111827;
       letter-spacing: -0.01em;
       line-height: 1.5;
+    }
+    body {
+      background-color: #f9fafb;
     }
     code, pre {
       font-family: PTMono, 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;

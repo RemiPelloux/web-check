@@ -30,14 +30,24 @@ const InputContainer = styled.div<StyledInputTypes>`
 `;
 
 const StyledInput = styled.input<StyledInputTypes>`
-  background: ${colors.background};
+  background: ${colors.backgroundLighter};
   color: ${colors.textColor};
-  border: none;
-  border-radius: 0.25rem;
-  font-family: PTMono;
-  box-shadow: 3px 3px 0px ${colors.backgroundDarker};
+  border: 1px solid ${colors.borderColor};
+  border-radius: 6px;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-size: 14px;
+  transition: all 0.2s ease;
+  box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
   &:focus {
-    outline: 1px solid ${colors.primary}
+    outline: none;
+    border-color: ${colors.primary};
+    box-shadow: 0 0 0 3px ${colors.primaryTransparent};
+  }
+  &:hover {
+    border-color: ${colors.textColorThirdly};
+  }
+  &::placeholder {
+    color: ${colors.textColorThirdly};
   }
 
   ${props => applySize(props.inputSize)};
@@ -45,9 +55,12 @@ const StyledInput = styled.input<StyledInputTypes>`
 
 const StyledLabel = styled.label<StyledInputTypes>`
   color: ${colors.textColor};
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-weight: 500;
+  font-size: 14px;
+  margin-bottom: 6px;
   ${props => applySize(props.inputSize)};
   padding: 0;
-  font-size: 1.6rem;
 `;
 
 const Input = (inputProps: Props): JSX.Element => {

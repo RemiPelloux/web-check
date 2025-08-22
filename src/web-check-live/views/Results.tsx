@@ -7,6 +7,7 @@ import Masonry from 'react-masonry-css'
 import colors from 'web-check-live/styles/colors';
 import Heading from 'web-check-live/components/Form/Heading';
 import Modal from 'web-check-live/components/Form/Modal';
+import Header from 'web-check-live/components/misc/Header';
 import Footer from 'web-check-live/components/misc/Footer';
 import Nav from 'web-check-live/components/Form/Nav';
 import type { RowProps }  from 'web-check-live/components/Form/Row';
@@ -20,6 +21,7 @@ import ActionButtons from 'web-check-live/components/misc/ActionButtons';
 
 import ViewRaw from 'web-check-live/components/misc/ViewRaw';
 
+import ComplianceSummaryCard from 'web-check-live/components/Results/ComplianceSummary';
 import ServerLocationCard from 'web-check-live/components/Results/ServerLocation';
 import ServerInfoCard from 'web-check-live/components/Results/ServerInfo';
 import HostNamesCard from 'web-check-live/components/Results/HostNames';
@@ -69,6 +71,8 @@ import {
 } from 'web-check-live/utils/result-processor';
 
 const ResultsOuter = styled.div`
+  min-height: 100vh;
+  background: ${colors.background};
   display: flex;
   flex-direction: column;
   .masonry-grid {
@@ -79,19 +83,20 @@ const ResultsOuter = styled.div`
 `;
 
 const ResultsContent = styled.section`
-  width: 95vw;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 24px 16px;
   display: grid;
   grid-auto-flow: dense;
   grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
-  gap: 1rem;
-  margin: auto;
-  width: calc(100% - 2rem);
-  padding-bottom: 1rem;
+  gap: 16px;
+  width: 100%;
 `;
 
 const FilterButtons = styled.div`
-  width: 95vw;
-  margin: auto;
+  max-width: 1280px;
+  margin: 0 auto;
+  padding: 0 16px;
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
@@ -105,40 +110,47 @@ const FilterButtons = styled.div`
   button, input, .toggle-filters {
     background: ${colors.backgroundLighter};
     color: ${colors.textColor};
-    border: none;
-    border-radius: 4px;
-    font-family: 'PTMono';
-    padding: 0.25rem 0.5rem;
-    border: 1px solid transparent;
-    transition: all 0.2s ease-in-out;
+    border: 1px solid ${colors.borderColor};
+    border-radius: 6px;
+    font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 14px;
+    padding: 8px 12px;
+    transition: all 0.2s ease;
   }
   button, .toggle-filters {
     cursor: pointer;
     text-transform: capitalize;
-    box-shadow: 2px 2px 0px ${colors.bgShadowColor};
-    transition: all 0.2s ease-in-out;
+    font-weight: 500;
+    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
     &:hover {
-      box-shadow: 4px 4px 0px ${colors.bgShadowColor};
+      box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+      border-color: ${colors.primary};
       color: ${colors.primary};
     }
     &.selected {
-      border: 1px solid ${colors.primary};
+      border-color: ${colors.primary};
       color: ${colors.primary};
+      background: rgba(220, 38, 38, 0.05);
     }
   }
   input:focus {
-    border: 1px solid ${colors.primary};
+    border-color: ${colors.primary};
     outline: none;
+    box-shadow: 0 0 0 3px ${colors.primaryTransparent};
   }
   .clear {
-    color: ${colors.textColor};
+    color: ${colors.textColorSecondary};
     text-decoration: underline;
     cursor: pointer;
-    font-size: 0.8rem;
+    font-size: 14px;
     opacity: 0.8;
+    &:hover {
+      opacity: 1;
+      color: ${colors.primary};
+    }
   }
   .toggle-filters  {
-    font-size: 0.8rem;
+    font-size: 14px;
   }
   .control-options {
     display: flex;
@@ -582,8 +594,77 @@ const Results = (props: { address?: string } ): JSX.Element => {
     }
   }
 
+  // Get comprehensive RGPD compliance analysis
+  const [rgpdComplianceResults, updateRgpdComplianceResults] = useMotherHook({
+    jobId: 'rgpd-compliance',
+    updateLoadingJobs,
+    addressInfo: { address, addressType, expectedAddressTypes: urlTypeOnly },
+    fetchRequest: () => fetch(`${api}/rgpd-compliance?url=${address}`)
+      .then(res => parseJson(res))
+      .then(res => {
+        // If the API fails, fall back to basic calculation
+        if (res.error) {
+          return calculateBasicCompliance();
+        }
+        return res;
+      }),
+  });
+
+  // Fallback compliance calculation if API fails
+  const calculateBasicCompliance = () => {
+    let criticalIssues = 0;
+    let warnings = 0;
+    let improvements = 0;
+    let compliantItems = 0;
+    
+    // Count issues based on different security and compliance checks
+    if (sslResults?.error) criticalIssues++;
+    if (headersResults?.missingHeaders?.length > 0) warnings += headersResults.missingHeaders.length;
+    if (cookieResults?.cookies?.some((cookie: any) => !cookie.secure || !cookie.httpOnly)) criticalIssues++;
+    if (robotsTxtResults?.isAccessible === false) improvements++;
+    if (dnsSecResults?.isValid === false) warnings++;
+    if (hstsResults?.isEnabled === false) warnings++;
+    if (serverStatusResults?.isUp === true) compliantItems++;
+    if (sslResults?.validCertificate === true) compliantItems++;
+    if (headersResults?.securityHeaders?.length > 0) compliantItems += headersResults.securityHeaders.length;
+    
+    // Add some basic scoring logic with actual data
+    if (serverStatusResults?.isUp) compliantItems++;
+    if (sslResults && !sslResults.error) compliantItems++;
+    if (hstsResults?.isEnabled) compliantItems++;
+    if (dnsSecResults?.isValid) compliantItems++;
+    
+    // Calculate overall score based on issue distribution
+    let overallScore: 'A' | 'B' | 'C' | 'D' | 'E' | 'F' = 'A';
+    if (criticalIssues > 3) overallScore = 'F';
+    else if (criticalIssues > 2) overallScore = 'E';
+    else if (criticalIssues > 1) overallScore = 'D';
+    else if (warnings > 5) overallScore = 'D';
+    else if (warnings > 3) overallScore = 'C';
+    else if (warnings > 1) overallScore = 'B';
+    
+    return {
+      overallScore,
+      criticalIssues,
+      warnings,
+      improvements,
+      compliantItems,
+      url: address,
+      timestamp: new Date().toISOString(),
+      error: 'Analyse RGPD complète indisponible - utilisation des données de base'
+    };
+  };
+
   // A list of state sata, corresponding component and title for each card
   const resultCardData = [
+    {
+      id: 'compliance-summary',
+      title: 'Résumé de Conformité RGPD',
+      result: rgpdComplianceResults || calculateBasicCompliance(),
+      Component: ComplianceSummaryCard,
+      refresh: updateRgpdComplianceResults,
+      tags: ['summary', 'compliance'],
+    },
     {
       id: 'location',
       title: 'Server Location',
@@ -868,6 +949,7 @@ const Results = (props: { address?: string } ): JSX.Element => {
   
   return (
     <ResultsOuter>
+      <Header />
       <Nav>
       { address && 
         <Heading color={colors.textColor} size="medium">

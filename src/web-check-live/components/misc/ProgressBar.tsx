@@ -184,6 +184,7 @@ export interface LoadingJob {
 }
 
 const jobNames = [
+  'rgpd-compliance',
   'get-ip',
   'location',
   'ssl',

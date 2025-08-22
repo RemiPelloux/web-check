@@ -15,10 +15,11 @@ export const applySize = (inputSize?: InputSize) => {
       margin: 0.5rem;
     `,
     large: `
-      font-size: 2rem;
-      border-radius: 0.25rem;
-      padding: 1rem 1.75rem;
-      margin: 0.5rem;
+      font-size: 1rem;
+      border-radius: 6px;
+      padding: 12px 16px;
+      margin: 0;
+      height: 48px;
     `,
   };
   switch (inputSize) {
