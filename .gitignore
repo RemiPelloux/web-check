@@ -2,6 +2,7 @@
 #   ENVIRONMENT SETTINGS
 # ------------------------
 .env
+.env.local
 
 # ------------------------
 #       PRODUCTION
@@ -60,4 +61,5 @@ Thumbs.db
 *.swp
 *.swo
 
+.env
 .env
