@@ -229,6 +229,244 @@ const EnhancedComplianceSummaryCard: React.FC<EnhancedComplianceSummaryProps> = 
     }
   };
 
+  const handlePDFExport = () => {
+    // Enhanced PDF export with comprehensive analysis
+    const printWindow = window.open('', '_blank');
+    if (!printWindow) return;
+
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <meta charset="UTF-8">
+        <title>Rapport de Conformité APDP - ${siteName}</title>
+        <style>
+          body { font-family: 'Inter', Arial, sans-serif; margin: 40px; color: #1f2937; }
+          .header { text-align: center; margin-bottom: 40px; border-bottom: 3px solid #dc2626; padding-bottom: 20px; }
+          .score-circle { display: inline-block; width: 80px; height: 80px; border-radius: 50%; 
+                         background: ${numericScore >= 80 ? '#22c55e' : numericScore >= 60 ? '#f59e0b' : '#ef4444'};
+                         color: white; text-align: center; line-height: 80px; font-size: 24px; font-weight: bold; }
+          .section { margin: 30px 0; }
+          .issue { margin: 15px 0; padding: 15px; border-left: 4px solid #ef4444; background: #fef2f2; }
+          .warning { border-left-color: #f59e0b; background: #fffbeb; }
+          .improvement { border-left-color: #3b82f6; background: #eff6ff; }
+          .compliant { border-left-color: #22c55e; background: #f0fdf4; }
+          h1 { color: #dc2626; font-size: 28px; }
+          h2 { color: #1f2937; font-size: 20px; margin-top: 30px; }
+          h3 { color: #374151; font-size: 16px; }
+          .stats { display: grid; grid-template-columns: repeat(4, 1fr); gap: 20px; margin: 20px 0; }
+          .stat { text-align: center; padding: 15px; background: #f9fafb; border-radius: 8px; }
+          .footer { margin-top: 50px; text-align: center; color: #6b7280; font-size: 12px; }
+        </style>
+      </head>
+      <body>
+        <div class="header">
+          <h1>Rapport de Conformité APDP</h1>
+          <h2>${siteName}</h2>
+          <div class="score-circle">${complianceAnalysis.overallScore}</div>
+          <p>Score: ${numericScore}/100 - Niveau: ${getComplianceLevel(numericScore)}</p>
+          <p>Généré le ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}</p>
+        </div>
+        
+        <div class="stats">
+          <div class="stat">
+            <h3>Problèmes Critiques</h3>
+            <div style="font-size: 24px; color: #ef4444;">${Array.isArray(complianceAnalysis.criticalIssues) ? complianceAnalysis.criticalIssues.length : 0}</div>
+          </div>
+          <div class="stat">
+            <h3>Avertissements</h3>
+            <div style="font-size: 24px; color: #f59e0b;">${Array.isArray(complianceAnalysis.warnings) ? complianceAnalysis.warnings.length : 0}</div>
+          </div>
+          <div class="stat">
+            <h3>Améliorations</h3>
+            <div style="font-size: 24px; color: #3b82f6;">${Array.isArray(complianceAnalysis.improvements) ? complianceAnalysis.improvements.length : 0}</div>
+          </div>
+          <div class="stat">
+            <h3>Éléments Conformes</h3>
+            <div style="font-size: 24px; color: #22c55e;">${Array.isArray(complianceAnalysis.compliantItems) ? complianceAnalysis.compliantItems.length : 0}</div>
+          </div>
+        </div>
+
+        <div class="section">
+          <h2>📊 Résumé Exécutif</h2>
+          <p>Ce rapport présente l'analyse de conformité APDP pour ${siteName}. L'évaluation porte sur ${Object.keys(allResults).length} aspects techniques incluant la sécurité, la confidentialité, et les bonnes pratiques.</p>
+        </div>
+
+        ${complianceAnalysis.criticalIssues && Array.isArray(complianceAnalysis.criticalIssues) && complianceAnalysis.criticalIssues.length > 0 ? `
+        <div class="section">
+          <h2>🚨 Problèmes Critiques (${complianceAnalysis.criticalIssues.length})</h2>
+          ${complianceAnalysis.criticalIssues.map((issue, index) => `
+            <div class="issue">
+              <h3>${index + 1}. ${issue.title || 'Problème critique'}</h3>
+              <p><strong>Sévérité:</strong> ${issue.severity || 'Critique'}</p>
+              <p><strong>Description:</strong> ${issue.description || 'Description non disponible'}</p>
+              ${issue.recommendation ? `<p><strong>Recommandation:</strong> ${issue.recommendation}</p>` : ''}
+              ${issue.article ? `<p><strong>Article APDP:</strong> ${issue.article}</p>` : ''}
+            </div>
+          `).join('')}
+        </div>
+        ` : ''}
+
+        ${complianceAnalysis.warnings && Array.isArray(complianceAnalysis.warnings) && complianceAnalysis.warnings.length > 0 ? `
+        <div class="section">
+          <h2>⚠️ Avertissements (${complianceAnalysis.warnings.length})</h2>
+          ${complianceAnalysis.warnings.map((warning, index) => `
+            <div class="warning">
+              <h3>${index + 1}. ${warning.title || 'Avertissement'}</h3>
+              <p><strong>Sévérité:</strong> ${warning.severity || 'Moyenne'}</p>
+              <p><strong>Description:</strong> ${warning.description || 'Description non disponible'}</p>
+              ${warning.recommendation ? `<p><strong>Recommandation:</strong> ${warning.recommendation}</p>` : ''}
+              ${warning.article ? `<p><strong>Article APDP:</strong> ${warning.article}</p>` : ''}
+            </div>
+          `).join('')}
+        </div>
+        ` : ''}
+
+        ${complianceAnalysis.recommendations && Array.isArray(complianceAnalysis.recommendations) && complianceAnalysis.recommendations.length > 0 ? `
+        <div class="section">
+          <h2>💡 Recommandations (${complianceAnalysis.recommendations.length})</h2>
+          ${complianceAnalysis.recommendations.map((rec, index) => `
+            <div class="improvement">
+              <h3>${index + 1}. ${rec.title || 'Recommandation'}</h3>
+              <p><strong>Priorité:</strong> ${rec.priority || 'Normale'}</p>
+              <p><strong>Description:</strong> ${rec.description || 'Description non disponible'}</p>
+              ${rec.timeline ? `<p><strong>Délai:</strong> ${rec.timeline}</p>` : ''}
+              ${rec.impact ? `<p><strong>Impact:</strong> ${rec.impact}</p>` : ''}
+              ${rec.actions && Array.isArray(rec.actions) ? `
+                <p><strong>Actions à entreprendre:</strong></p>
+                <ul>
+                  ${rec.actions.map(action => `<li>${action}</li>`).join('')}
+                </ul>
+              ` : ''}
+            </div>
+          `).join('')}
+        </div>
+        ` : ''}
+
+        <div class="section">
+          <h2>🔍 Analyse Technique Détaillée</h2>
+          
+          <h3>🍪 Cookies & Tracking</h3>
+          ${allResults.cookies && (allResults.cookies.cookies || allResults.cookies.clientCookies) ? `
+            ${(() => {
+              const cookies = allResults.cookies.clientCookies || allResults.cookies.cookies || [];
+              return `
+                <p><strong>Total:</strong> ${cookies.length} cookies détectés</p>
+                <p><strong>Sécurisés:</strong> ${cookies.filter(c => c.secure).length}/${cookies.length}</p>
+                <p><strong>HttpOnly:</strong> ${cookies.filter(c => c.httpOnly).length}/${cookies.length}</p>
+                <p><strong>SameSite:</strong> ${cookies.filter(c => c.sameSite && c.sameSite !== 'None').length}/${cookies.length}</p>
+                <p><strong>Cookies par catégorie:</strong></p>
+                <ul>
+                  ${cookies.map(cookie => `
+                    <li><strong>${cookie.name}:</strong> ${cookie.categories ? cookie.categories.join(', ') : 'Non catégorisé'} 
+                    ${cookie.security?.warnings?.length > 0 ? `<span style="color: #dc2626;">(⚠️ ${cookie.security.warnings.length} problème(s))</span>` : ''}</li>
+                  `).join('')}
+                </ul>
+              `;
+            })()}
+          ` : '<p>Aucun cookie détecté</p>'}
+
+          <h3>🔐 En-têtes de Sécurité</h3>
+          ${allResults.headers ? `
+            <p><strong>Total analysés:</strong> ${Object.keys(allResults.headers).length} en-têtes</p>
+            <p><strong>Strict-Transport-Security:</strong> ${allResults.headers['strict-transport-security'] ? '✅ Présent' : '❌ Manquant'}</p>
+            <p><strong>Content-Security-Policy:</strong> ${allResults.headers['content-security-policy'] ? '✅ Présent' : '❌ Manquant'}</p>
+            <p><strong>X-Frame-Options:</strong> ${allResults.headers['x-frame-options'] ? '✅ Présent' : '❌ Manquant'}</p>
+            <p><strong>X-Content-Type-Options:</strong> ${allResults.headers['x-content-type-options'] ? '✅ Présent' : '❌ Manquant'}</p>
+          ` : '<p>Aucun en-tête analysé</p>'}
+
+          <h3>🔒 Chiffrement SSL/TLS</h3>
+          ${allResults.ssl ? `
+            <p><strong>TLS:</strong> ${allResults.ssl.protocol || 'TLSv1.2'}</p>
+            <p><strong>Certificat:</strong> ${(allResults.ssl.valid || allResults.ssl.validCertificate || (!allResults.ssl.error && allResults.ssl.issuer)) ? '✅ Valide' : '❌ Invalide'}</p>
+            <p><strong>Émetteur:</strong> ${typeof allResults.ssl.issuer === 'object' ? Object.entries(allResults.ssl.issuer).map(([k,v]) => k + '=' + v).join(', ') : allResults.ssl.issuer || 'N/A'}</p>
+            <p><strong>HSTS:</strong> ${allResults.hsts?.isEnabled ? '✅ Activé' : '❌ Désactivé'}</p>
+          ` : '<p>Informations SSL/TLS non disponibles</p>'}
+
+          <h3>🌐 Services Tiers</h3>
+          ${allResults['cdn-resources'] && allResults['cdn-resources'].summary ? `
+            <p><strong>Domaines externes:</strong> ${allResults['cdn-resources'].summary.externalDomains || 0} domaines</p>
+            <p><strong>Services Google:</strong> ${allResults['cdn-resources'].summary.googleServices || 0} services</p>
+            <p><strong>Ressources CDN:</strong> ${allResults['cdn-resources'].summary.cdnResources || 0} fichiers</p>
+            <p><strong>Tracking/Analytics:</strong> ${allResults['cdn-resources'].summary.trackingResources || 0} outils</p>
+            ${allResults['cdn-resources'].summary.googleServices > 0 ? '<p style="color: #f59e0b;"><strong>⚠️ Attention:</strong> Services US détectés - Risque Cloud Act</p>' : ''}
+          ` : '<p>Aucun service tiers détecté</p>'}
+
+          <h3>⚡ Performance</h3>
+          ${allResults.quality && allResults.quality.categories ? `
+            <p><strong>Performance:</strong> ${Math.round((allResults.quality.categories.performance?.score || 0) * 100)}/100</p>
+            <p><strong>Accessibilité:</strong> ${Math.round((allResults.quality.categories.accessibility?.score || 0) * 100)}/100</p>
+            <p><strong>Bonnes pratiques:</strong> ${Math.round((allResults.quality.categories['best-practices']?.score || 0) * 100)}/100</p>
+            <p><strong>SEO:</strong> ${Math.round((allResults.quality.categories.seo?.score || 0) * 100)}/100</p>
+          ` : '<p>Données de performance non disponibles</p>'}
+
+          ${allResults['legal-pages'] ? `
+            <h3>📋 Pages Légales</h3>
+            <p><strong>Score:</strong> ${allResults['legal-pages'].complianceScore || 0}%</p>
+            <p><strong>Trouvées:</strong> ${allResults['legal-pages'].summary?.found || 0}/${allResults['legal-pages'].summary?.totalRequired || 0}</p>
+            <p><strong>Manquantes:</strong> ${allResults['legal-pages'].summary?.missing || 0} pages</p>
+            <p><strong>Niveau:</strong> ${allResults['legal-pages'].complianceLevel || 'Non évalué'}</p>
+            
+            ${allResults['legal-pages'].legalPages ? `
+              <p><strong>📄 Pages trouvées:</strong></p>
+              <ul>
+                ${allResults['legal-pages'].legalPages.filter(page => page.found).map(page => `
+                  <li>✅ <strong>${page.name}</strong> - ${page.url || 'URL non spécifiée'}
+                  ${page.foundVia ? ` (trouvée via: ${page.foundVia})` : ''}
+                  ${page.contentLength ? ` - ${page.contentLength} caractères` : ''}
+                  </li>
+                `).join('')}
+              </ul>
+              
+              <p><strong>❌ Pages manquantes:</strong></p>
+              <ul>
+                ${allResults['legal-pages'].legalPages.filter(page => !page.found && page.required).map(page => `
+                  <li>❌ <strong>${page.name}</strong> - ${page.article || 'Obligatoire pour la conformité'}
+                  ${page.priority ? ` (Priorité: ${page.priority})` : ''}
+                  </li>
+                `).join('')}
+              </ul>
+            ` : ''}
+          ` : ''}
+        </div>
+
+        <div class="section">
+          <h2>📋 Conclusions et Recommandations</h2>
+          <p>Ce site web présente un score de conformité APDP de <strong>${numericScore}/100</strong> (niveau ${getComplianceLevel(numericScore)}).</p>
+          
+          ${complianceAnalysis.criticalIssues && Array.isArray(complianceAnalysis.criticalIssues) && complianceAnalysis.criticalIssues.length > 0 ? 
+            `<p><strong>Action immédiate requise:</strong> ${complianceAnalysis.criticalIssues.length} problème(s) critique(s) nécessitent une correction immédiate pour assurer la conformité APDP.</p>` : 
+            ''
+          }
+          
+          ${complianceAnalysis.warnings && Array.isArray(complianceAnalysis.warnings) && complianceAnalysis.warnings.length > 0 ? 
+            `<p><strong>Améliorations recommandées:</strong> ${complianceAnalysis.warnings.length} avertissement(s) doivent être traités dans les prochaines semaines.</p>` : 
+            ''
+          }
+
+          <p><strong>Date d'analyse:</strong> ${new Date().toLocaleDateString('fr-FR')} à ${new Date().toLocaleTimeString('fr-FR')}</p>
+          <p><strong>Prochaine révision recommandée:</strong> ${new Date(Date.now() + 90 * 24 * 60 * 60 * 1000).toLocaleDateString('fr-FR')} (dans 90 jours)</p>
+        </div>
+
+        <div class="footer">
+          <p>Rapport généré par l'Outil d'Audit de Conformité APDP Monaco</p>
+          <p>Usage interne - Contrôleurs APDP Monaco</p>
+          <p>Confidentiel - Ne pas diffuser sans autorisation</p>
+        </div>
+      </body>
+      </html>
+    `;
+    
+    printWindow.document.write(htmlContent);
+    printWindow.document.close();
+    printWindow.focus();
+    
+    setTimeout(() => {
+      printWindow.print();
+      printWindow.close();
+    }, 500);
+  };
+
   const siteName = allResults.url ? new URL(allResults.url).hostname.replace('www.', '') : 'Site Web';
   const numericScore = complianceAnalysis.numericScore || 0;
   const complianceLevel = getComplianceLevel(numericScore);
@@ -258,11 +496,36 @@ const EnhancedComplianceSummaryCard: React.FC<EnhancedComplianceSummaryProps> = 
             </div>
           </HeaderInfo>
 
-          {actionButtons && (
-            <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-              {actionButtons}
-            </div>
-          )}
+          <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
+            {actionButtons && actionButtons}
+            <button
+              onClick={handlePDFExport}
+              style={{
+                background: colors.primary,
+                color: 'white',
+                border: 'none',
+                borderRadius: '8px',
+                padding: '12px 16px',
+                fontSize: '14px',
+                fontWeight: '600',
+                cursor: 'pointer',
+                transition: 'all 0.2s ease',
+                boxShadow: '0 2px 4px rgba(0,0,0,0.1)'
+              }}
+              onMouseOver={(e) => {
+                e.currentTarget.style.background = colors.primaryDarker || '#b91c1c';
+                e.currentTarget.style.transform = 'translateY(-1px)';
+                e.currentTarget.style.boxShadow = '0 4px 8px rgba(0,0,0,0.15)';
+              }}
+              onMouseOut={(e) => {
+                e.currentTarget.style.background = colors.primary;
+                e.currentTarget.style.transform = 'translateY(0)';
+                e.currentTarget.style.boxShadow = '0 2px 4px rgba(0,0,0,0.1)';
+              }}
+            >
+              📄 Générer Rapport PDF
+            </button>
+          </div>
         </HeaderGrid>
 
         <StatsGrid>

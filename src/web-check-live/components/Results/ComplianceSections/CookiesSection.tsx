@@ -10,11 +10,29 @@ interface CookiesSectionProps {
       httpOnly?: boolean;
       sameSite?: string;
     }>;
+    clientCookies?: Array<{
+      name: string;
+      domain?: string;
+      secure?: boolean;
+      httpOnly?: boolean;
+      sameSite?: string;
+      categories?: string[];
+      security?: {
+        warnings?: string[];
+      };
+    }>;
+    summary?: {
+      total?: number;
+      securityScore?: number;
+    };
   };
 }
 
 const CookiesSection: React.FC<CookiesSectionProps> = ({ cookies }) => {
-  if (!cookies?.cookies) {
+  // Use clientCookies if available, otherwise fall back to cookies
+  const cookieArray = cookies?.clientCookies || cookies?.cookies || [];
+  
+  if (cookieArray.length === 0) {
     return (
       <div style={{ color: colors.textColorThirdly }}>
         Aucun cookie détecté
@@ -22,10 +40,10 @@ const CookiesSection: React.FC<CookiesSectionProps> = ({ cookies }) => {
     );
   }
 
-  const totalCookies = cookies.cookies.length;
-  const secureCookies = cookies.cookies.filter(c => c.secure).length;
-  const httpOnlyCookies = cookies.cookies.filter(c => c.httpOnly).length;
-  const sameSiteCookies = cookies.cookies.filter(c => c.sameSite).length;
+  const totalCookies = cookieArray.length;
+  const secureCookies = cookieArray.filter(c => c.secure).length;
+  const httpOnlyCookies = cookieArray.filter(c => c.httpOnly).length;
+  const sameSiteCookies = cookieArray.filter(c => c.sameSite && c.sameSite !== 'None').length;
 
   return (
     <div style={{ fontSize: '13px', color: colors.textColorSecondary, lineHeight: '1.5' }}>
@@ -48,7 +66,7 @@ const CookiesSection: React.FC<CookiesSectionProps> = ({ cookies }) => {
             Voir les cookies ({totalCookies})
           </summary>
           <div style={{ marginTop: '8px', maxHeight: '120px', overflow: 'auto' }}>
-            {cookies.cookies.slice(0, 10).map((cookie, i) => (
+            {cookieArray.slice(0, 10).map((cookie, i) => (
               <div key={i} style={{ 
                 fontSize: '11px', 
                 padding: '4px 8px', 
@@ -61,6 +79,16 @@ const CookiesSection: React.FC<CookiesSectionProps> = ({ cookies }) => {
                 {cookie.domain && (
                   <span style={{ color: colors.textColorThirdly }}>
                     {' '}({cookie.domain})
+                  </span>
+                )}
+                {cookie.categories && (
+                  <span style={{ color: colors.textColorSecondary, fontSize: '10px' }}>
+                    {' '}- {cookie.categories.join(', ')}
+                  </span>
+                )}
+                {cookie.security?.warnings && cookie.security.warnings.length > 0 && (
+                  <span style={{ color: colors.danger, fontSize: '10px' }}>
+                    {' '}⚠️ {cookie.security.warnings.length}
                   </span>
                 )}
               </div>
