@@ -389,30 +389,82 @@ const ProfessionalComplianceDashboard: React.FC<ProfessionalComplianceDashboardP
   }, [allResults]);
 
   const handleExportPDF = async () => {
-    if (analysis && allResults) {
-      try {
-        await generateComplianceReport(
-          {
-            score: analysis.score,
-            level: analysis.level,
-            siteName: siteName || 'Site Web',
-            scanDate: new Date().toISOString(),
-            totalChecks: Object.keys(allResults).length,
-            criticalIssues: analysis.criticalIssues.length,
-            warnings: analysis.warnings.length,
-            improvements: analysis.improvements.length,
-            compliantItems: analysis.compliantItems.length,
-            categories: analysis.categories,
-            recommendations: analysis.recommendations
-          },
-          allResults.vulnerabilities,
-          allResults['legal-pages'],
-          allResults['cdn-resources']
-        );
-      } catch (error) {
-        console.error('Erreur lors de l\'exportation PDF:', error);
-      }
+    if (!analysis || !allResults) {
+      alert('Aucune donnée d\'analyse disponible pour l\'export PDF.');
+      return;
     }
+
+    try {
+      console.log('Starting PDF export with data:', { 
+        analysis: !!analysis, 
+        allResults: !!allResults, 
+        siteName,
+        score: analysis.score 
+      });
+
+      // Show loading feedback
+      const button = document.querySelector('[data-export-pdf]') as HTMLButtonElement;
+      if (button) {
+        button.disabled = true;
+        button.textContent = 'Génération en cours...';
+      }
+
+      await generateComplianceReport(
+        {
+          url: siteName || 'Site Web',
+          overallScore: getScoreGrade(analysis.score),
+          complianceLevel: analysis.level,
+          numericScore: analysis.score,
+          criticalIssues: analysis.criticalIssues.length,
+          warnings: analysis.warnings.length,
+          improvements: analysis.improvements.length,
+          compliantItems: analysis.compliantItems.length,
+          timestamp: new Date().toISOString(),
+          detailedAnalysis: {
+            cookieCompliance: {
+              status: allResults.cookies ? 'Analysé' : 'Non analysé',
+              cookieCount: allResults.cookies?.clientCookies?.length || allResults.cookies?.cookies?.length || 0
+            },
+            sslSecurity: {
+              isValid: allResults.ssl?.valid || allResults.ssl?.validCertificate || false,
+              protocol: allResults.ssl?.protocol || 'TLS'
+            }
+          }
+        },
+        allResults.vulnerabilities,
+        allResults['legal-pages'],
+        allResults['cdn-resources']
+      );
+
+      // Success feedback
+      if (button) {
+        button.textContent = '✓ PDF Généré';
+        setTimeout(() => {
+          button.disabled = false;
+          button.innerHTML = '<span style="font-size: 16px">⬇️</span> Exporter PDF';
+        }, 2000);
+      }
+    } catch (error) {
+      console.error('Erreur lors de l\'exportation PDF:', error);
+      
+      // Error feedback
+      const button = document.querySelector('[data-export-pdf]') as HTMLButtonElement;
+      if (button) {
+        button.textContent = 'Erreur - Réessayer';
+        button.disabled = false;
+      }
+      
+      alert('Erreur lors de la génération du PDF. Vérifiez que votre navigateur autorise les téléchargements et réessayez.');
+    }
+  };
+
+  const getScoreGrade = (score: number): string => {
+    if (score >= 90) return 'A';
+    if (score >= 80) return 'B';
+    if (score >= 70) return 'C';
+    if (score >= 60) return 'D';
+    if (score >= 50) return 'E';
+    return 'F';
   };
 
   const formatDate = (timestamp: string) => {
@@ -495,7 +547,7 @@ const ProfessionalComplianceDashboard: React.FC<ProfessionalComplianceDashboardP
               </ScoreCircle>
               <ScoreLabel>Score Global</ScoreLabel>
             </div>
-            <ExportButton onClick={handleExportPDF}>
+            <ExportButton onClick={handleExportPDF} data-export-pdf>
               <span style={{ fontSize: '16px' }}>⬇️</span>
               Exporter PDF
             </ExportButton>
