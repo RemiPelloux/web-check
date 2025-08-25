@@ -1,58 +1,25 @@
+import React from 'react';
 import styled from '@emotion/styled';
 import colors from 'web-check-live/styles/colors';
 import { Card } from 'web-check-live/components/Form/Card';
-import Row from 'web-check-live/components/Form/Row';
 
 const VulnContainer = styled.div`
-  margin: 1rem 0;
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 `;
 
-const VulnItem = styled.div<{ severity: string }>`
-  padding: 12px;
-  margin: 8px 0;
-  border-left: 4px solid;
-  border-left-color: ${props => {
-    switch (props.severity) {
-      case 'critical': return '#dc2626';
-      case 'high': return '#ea580c';
-      case 'medium': return '#d97706';
-      case 'low': return '#65a30d';
-      case 'info': return '#2563eb';
-      default: return colors.borderColor;
-    }
-  }};
-  background: ${props => {
-    switch (props.severity) {
-      case 'critical': return '#fef2f2';
-      case 'high': return '#fff7ed';
-      case 'medium': return '#fffbeb';
-      case 'low': return '#f7fee7';
-      case 'info': return '#eff6ff';
-      default: return colors.backgroundLighter;
-    }
-  }};
-  border-radius: 0 6px 6px 0;
+const VulnHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
 `;
 
-const SeverityBadge = styled.span<{ severity: string }>`
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  color: white;
-  background: ${props => {
-    switch (props.severity) {
-      case 'critical': return '#dc2626';
-      case 'high': return '#ea580c';
-      case 'medium': return '#d97706';
-      case 'low': return '#65a30d';
-      case 'info': return '#2563eb';
-      default: return colors.neutral;
-    }
-  }};
-  margin-right: 8px;
+const ScoreDisplay = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
 `;
 
 const ScoreCircle = styled.div<{ score: number }>`
@@ -66,191 +33,282 @@ const ScoreCircle = styled.div<{ score: number }>`
   font-weight: 700;
   color: white;
   background: ${props => {
-    if (props.score >= 80) return colors.success;
-    if (props.score >= 60) return colors.warning;
-    if (props.score >= 40) return '#ea580c';
-    return colors.error;
+    if (props.score >= 90) return '#22c55e';
+    if (props.score >= 70) return '#eab308';
+    if (props.score >= 50) return '#f59e0b';
+    return '#ef4444';
   }};
-  margin: 0 auto 12px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
 
-interface VulnerabilitiesProps {
+const VulnStats = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+`;
+
+const StatCard = styled.div<{ severity: 'critical' | 'high' | 'medium' | 'low' }>`
+  background: ${colors.backgroundLighter};
+  border: 1px solid ${colors.borderColor};
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  border-left: 4px solid ${props => {
+    switch (props.severity) {
+      case 'critical': return '#dc2626';
+      case 'high': return '#ea580c';
+      case 'medium': return '#d97706';
+      case 'low': return '#65a30d';
+      default: return colors.borderColor;
+    }
+  }};
+`;
+
+const StatNumber = styled.div`
+  font-size: 24px;
+  font-weight: 700;
+  color: ${colors.textColor};
+  margin-bottom: 4px;
+`;
+
+const StatLabel = styled.div`
+  font-size: 12px;
+  color: ${colors.textColorSecondary};
+  font-weight: 500;
+  text-transform: uppercase;
+`;
+
+const VulnList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+const VulnItem = styled.div<{ severity: 'critical' | 'high' | 'medium' | 'low' }>`
+  background: ${colors.backgroundLighter};
+  border: 1px solid ${colors.borderColor};
+  border-radius: 8px;
+  padding: 16px;
+  border-left: 4px solid ${props => {
+    switch (props.severity) {
+      case 'critical': return '#dc2626';
+      case 'high': return '#ea580c';
+      case 'medium': return '#d97706';
+      case 'low': return '#65a30d';
+      default: return colors.borderColor;
+    }
+  }};
+`;
+
+const VulnTitle = styled.h4`
+  margin: 0 0 8px 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: ${colors.textColor};
+`;
+
+const VulnDescription = styled.p`
+  margin: 0 0 8px 0;
+  font-size: 13px;
+  color: ${colors.textColorSecondary};
+  line-height: 1.4;
+`;
+
+const VulnMeta = styled.div`
+  display: flex;
+  gap: 12px;
+  font-size: 11px;
+  color: ${colors.textColorThirdly};
+`;
+
+const SeverityBadge = styled.span<{ severity: 'critical' | 'high' | 'medium' | 'low' }>`
+  background: ${props => {
+    switch (props.severity) {
+      case 'critical': return '#fef2f2';
+      case 'high': return '#fff7ed';
+      case 'medium': return '#fffbeb';
+      case 'low': return '#f7fee7';
+      default: return colors.backgroundLighter;
+    }
+  }};
+  color: ${props => {
+    switch (props.severity) {
+      case 'critical': return '#991b1b';
+      case 'high': return '#9a3412';
+      case 'medium': return '#92400e';
+      case 'low': return '#365314';
+      default: return colors.textColor;
+    }
+  }};
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+`;
+
+interface VulnerabilitiesCardProps {
   data: {
     vulnerabilities?: Array<{
-      type: string;
-      severity: string;
+      id: string;
       title: string;
       description: string;
-      recommendation?: string;
+      severity: 'critical' | 'high' | 'medium' | 'low';
+      cvss?: number;
       cve?: string;
-      impact?: string;
+      solution?: string;
     }>;
-    securityScore?: number;
-    riskLevel?: string;
     summary?: {
+      total: number;
       critical: number;
       high: number;
       medium: number;
       low: number;
-      info: number;
+      score: number;
     };
-    timestamp?: string;
+    lastScan?: string;
     error?: string;
   };
   title: string;
   actionButtons?: any;
 }
 
-const VulnerabilitiesCard = ({ data, title, actionButtons }: VulnerabilitiesProps): JSX.Element => {
-  if (data.error) {
+const VulnerabilitiesCard: React.FC<VulnerabilitiesCardProps> = ({ data, title, actionButtons }) => {
+  if (data?.error) {
     return (
       <Card heading={title} actionButtons={actionButtons}>
-        <div style={{ color: colors.error, textAlign: 'center', padding: '20px' }}>
-          Erreur lors de l'analyse des vulnérabilités: {data.error}
+        <div style={{ textAlign: 'center', padding: '40px 20px', color: colors.textColorSecondary }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔍</div>
+          <h3 style={{ margin: '0 0 8px 0', color: colors.textColor }}>Analyse des vulnérabilités indisponible</h3>
+          <p style={{ margin: 0, fontSize: '14px' }}>
+            {data.error || 'Impossible d\'analyser les vulnérabilités pour ce site.'}
+          </p>
         </div>
       </Card>
     );
   }
 
-  const vulnerabilities = data.vulnerabilities || [];
-  const securityScore = data.securityScore || 0;
-  const riskLevel = data.riskLevel || 'Unknown';
-  const summary = data.summary || { critical: 0, high: 0, medium: 0, low: 0, info: 0 };
+  const vulnerabilities = data?.vulnerabilities || [];
+  const summary = data?.summary || {
+    total: vulnerabilities.length,
+    critical: vulnerabilities.filter(v => v.severity === 'critical').length,
+    high: vulnerabilities.filter(v => v.severity === 'high').length,
+    medium: vulnerabilities.filter(v => v.severity === 'medium').length,
+    low: vulnerabilities.filter(v => v.severity === 'low').length,
+    score: 85 // Default score if not provided
+  };
 
   return (
     <Card heading={title} actionButtons={actionButtons}>
-      {/* Security Score Overview */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '20px' }}>
-        <div style={{ textAlign: 'center' }}>
-          <ScoreCircle score={securityScore}>
-            {securityScore}
-          </ScoreCircle>
-          <div style={{ fontSize: '12px', fontWeight: '600', color: colors.textColor }}>
-            Score Sécurité
+      <VulnContainer>
+        <VulnHeader>
+          <div>
+            <h3 style={{ margin: '0 0 4px 0', color: colors.textColor, fontSize: '16px' }}>
+              Analyse de Sécurité
+            </h3>
+            <p style={{ margin: 0, fontSize: '13px', color: colors.textColorSecondary }}>
+              {summary.total} vulnérabilité{summary.total > 1 ? 's' : ''} détectée{summary.total > 1 ? 's' : ''}
+            </p>
           </div>
-          <div style={{ 
-            fontSize: '11px', 
-            color: riskLevel === 'Critical' || riskLevel === 'High' ? colors.error : 
-                   riskLevel === 'Medium' ? colors.warning : colors.success 
-          }}>
-            Risque {riskLevel}
-          </div>
-        </div>
-        
-        <div style={{ flex: 1 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(5, 1fr)', gap: '8px', fontSize: '12px' }}>
-            <div style={{ textAlign: 'center', padding: '8px', background: '#fef2f2', borderRadius: '4px' }}>
-              <div style={{ fontWeight: '700', color: '#dc2626', fontSize: '16px' }}>{summary.critical}</div>
-              <div style={{ color: '#7f1d1d' }}>Critique</div>
+          <ScoreDisplay>
+            <ScoreCircle score={summary.score}>
+              {summary.score}
+            </ScoreCircle>
+            <div>
+              <div style={{ fontSize: '12px', color: colors.textColorSecondary }}>Score Sécurité</div>
+              <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textColor }}>
+                {summary.score >= 90 ? 'Excellent' : 
+                 summary.score >= 70 ? 'Bon' : 
+                 summary.score >= 50 ? 'Moyen' : 'Critique'}
+              </div>
             </div>
-            <div style={{ textAlign: 'center', padding: '8px', background: '#fff7ed', borderRadius: '4px' }}>
-              <div style={{ fontWeight: '700', color: '#ea580c', fontSize: '16px' }}>{summary.high}</div>
-              <div style={{ color: '#9a3412' }}>Élevé</div>
-            </div>
-            <div style={{ textAlign: 'center', padding: '8px', background: '#fffbeb', borderRadius: '4px' }}>
-              <div style={{ fontWeight: '700', color: '#d97706', fontSize: '16px' }}>{summary.medium}</div>
-              <div style={{ color: '#a16207' }}>Moyen</div>
-            </div>
-            <div style={{ textAlign: 'center', padding: '8px', background: '#f7fee7', borderRadius: '4px' }}>
-              <div style={{ fontWeight: '700', color: '#65a30d', fontSize: '16px' }}>{summary.low}</div>
-              <div style={{ color: '#365314' }}>Faible</div>
-            </div>
-            <div style={{ textAlign: 'center', padding: '8px', background: '#eff6ff', borderRadius: '4px' }}>
-              <div style={{ fontWeight: '700', color: '#2563eb', fontSize: '16px' }}>{summary.info}</div>
-              <div style={{ color: '#1e40af' }}>Info</div>
-            </div>
-          </div>
-        </div>
-      </div>
+          </ScoreDisplay>
+        </VulnHeader>
 
-      {/* Summary Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '20px' }}>
-        <Row lbl="Vulnérabilités trouvées" val={vulnerabilities.length.toString()} />
-        <Row lbl="Niveau de risque" val={riskLevel} />
-        <Row lbl="Score de sécurité" val={`${securityScore}/100`} />
-        <Row lbl="Dernière analyse" val={data.timestamp ? new Date(data.timestamp).toLocaleString('fr-FR') : 'N/A'} />
-      </div>
+        <VulnStats>
+          <StatCard severity="critical">
+            <StatNumber>{summary.critical}</StatNumber>
+            <StatLabel>Critique</StatLabel>
+          </StatCard>
+          <StatCard severity="high">
+            <StatNumber>{summary.high}</StatNumber>
+            <StatLabel>Élevé</StatLabel>
+          </StatCard>
+          <StatCard severity="medium">
+            <StatNumber>{summary.medium}</StatNumber>
+            <StatLabel>Moyen</StatLabel>
+          </StatCard>
+          <StatCard severity="low">
+            <StatNumber>{summary.low}</StatNumber>
+            <StatLabel>Faible</StatLabel>
+          </StatCard>
+        </VulnStats>
 
-      {/* Vulnerabilities List */}
-      {vulnerabilities.length > 0 && (
-        <VulnContainer>
-          <h4 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px', color: colors.textColor }}>
-            Vulnérabilités Détectées
-          </h4>
-          
-          {vulnerabilities
-            .sort((a, b) => {
-              const severityOrder = { critical: 4, high: 3, medium: 2, low: 1, info: 0 };
-              return (severityOrder[b.severity as keyof typeof severityOrder] || 0) - 
-                     (severityOrder[a.severity as keyof typeof severityOrder] || 0);
-            })
-            .slice(0, 10) // Show top 10 vulnerabilities
-            .map((vuln, index) => (
-              <VulnItem key={index} severity={vuln.severity}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', gap: '8px', marginBottom: '8px' }}>
-                  <SeverityBadge severity={vuln.severity}>
-                    {vuln.severity}
-                  </SeverityBadge>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ fontWeight: '600', fontSize: '13px', color: colors.textColor, marginBottom: '4px' }}>
-                      {vuln.title}
-                    </div>
-                    <div style={{ fontSize: '12px', color: colors.textColorSecondary, marginBottom: '6px' }}>
-                      {vuln.description}
-                    </div>
-                    {vuln.recommendation && (
-                      <div style={{ fontSize: '11px', color: colors.textColorSecondary, fontStyle: 'italic' }}>
-                        <strong>Recommandation:</strong> {vuln.recommendation}
-                      </div>
-                    )}
-                    {vuln.cve && (
-                      <div style={{ fontSize: '10px', color: colors.textColorThirdly, marginTop: '4px' }}>
-                        CVE: {vuln.cve}
-                      </div>
-                    )}
-                    {vuln.impact && (
-                      <div style={{ fontSize: '11px', color: colors.primary, marginTop: '4px' }}>
-                        <strong>Impact:</strong> {vuln.impact}
-                      </div>
-                    )}
-                  </div>
+        {vulnerabilities.length > 0 ? (
+          <VulnList>
+            <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', color: colors.textColor }}>
+              Vulnérabilités Détectées
+            </h4>
+            {vulnerabilities.slice(0, 10).map((vuln, index) => (
+              <VulnItem key={vuln.id || index} severity={vuln.severity}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
+                  <VulnTitle>{vuln.title}</VulnTitle>
+                  <SeverityBadge severity={vuln.severity}>{vuln.severity}</SeverityBadge>
                 </div>
+                <VulnDescription>{vuln.description}</VulnDescription>
+                <VulnMeta>
+                  {vuln.cvss && <span>CVSS: {vuln.cvss}</span>}
+                  {vuln.cve && <span>CVE: {vuln.cve}</span>}
+                </VulnMeta>
+                {vuln.solution && (
+                  <div style={{ 
+                    marginTop: '8px', 
+                    padding: '8px', 
+                    background: colors.background, 
+                    borderRadius: '4px',
+                    fontSize: '12px',
+                    color: colors.textColorSecondary
+                  }}>
+                    <strong>Solution:</strong> {vuln.solution}
+                  </div>
+                )}
               </VulnItem>
             ))}
-          
-          {vulnerabilities.length > 10 && (
-            <div style={{ 
-              textAlign: 'center', 
-              marginTop: '16px', 
-              fontSize: '12px', 
-              color: colors.textColorSecondary 
-            }}>
-              ... et {vulnerabilities.length - 10} autre(s) vulnérabilité(s)
-            </div>
-          )}
-        </VulnContainer>
-      )}
-
-      {vulnerabilities.length === 0 && (
-        <div style={{ 
-          textAlign: 'center', 
-          padding: '20px', 
-          color: colors.success,
-          background: '#f0fdf4',
-          borderRadius: '8px',
-          border: '1px solid #bbf7d0'
-        }}>
-          <div style={{ fontSize: '16px', marginBottom: '8px' }}>🛡️</div>
-          <div style={{ fontWeight: '600', marginBottom: '4px' }}>Aucune vulnérabilité détectée</div>
-          <div style={{ fontSize: '12px' }}>
-            Les vérifications de sécurité automatiques n'ont trouvé aucun problème critique
+            {vulnerabilities.length > 10 && (
+              <div style={{ 
+                textAlign: 'center', 
+                padding: '12px', 
+                color: colors.textColorSecondary, 
+                fontSize: '13px' 
+              }}>
+                ... et {vulnerabilities.length - 10} autre{vulnerabilities.length - 10 > 1 ? 's' : ''} vulnérabilité{vulnerabilities.length - 10 > 1 ? 's' : ''}
+              </div>
+            )}
+          </VulnList>
+        ) : (
+          <div style={{ textAlign: 'center', padding: '40px 20px', color: colors.textColorSecondary }}>
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>🛡️</div>
+            <h3 style={{ margin: '0 0 8px 0', color: colors.textColor }}>Aucune vulnérabilité détectée</h3>
+            <p style={{ margin: 0, fontSize: '14px' }}>
+              Votre site semble sécurisé selon notre analyse automatisée.
+            </p>
           </div>
-        </div>
-      )}
+        )}
+
+        {data?.lastScan && (
+          <div style={{ 
+            fontSize: '11px', 
+            color: colors.textColorThirdly, 
+            textAlign: 'center',
+            paddingTop: '12px',
+            borderTop: `1px solid ${colors.borderColor}`
+          }}>
+            Dernière analyse: {new Date(data.lastScan).toLocaleDateString('fr-FR')}
+          </div>
+        )}
+      </VulnContainer>
     </Card>
   );
 };
 
 export default VulnerabilitiesCard;
-

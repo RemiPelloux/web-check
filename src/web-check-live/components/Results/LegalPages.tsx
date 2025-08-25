@@ -1,126 +1,181 @@
+import React from 'react';
 import styled from '@emotion/styled';
 import colors from 'web-check-live/styles/colors';
 import { Card } from 'web-check-live/components/Form/Card';
-import Row from 'web-check-live/components/Form/Row';
 
-const PageContainer = styled.div`
-  margin: 1rem 0;
+const LegalContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 `;
 
-const PageItem = styled.div<{ found: boolean; accessible: boolean }>`
-  padding: 12px;
-  margin: 8px 0;
-  border-left: 4px solid;
-  border-left-color: ${props => {
-    if (!props.found) return colors.error;
-    if (!props.accessible) return colors.warning;
-    return colors.success;
-  }};
-  background: ${props => {
-    if (!props.found) return '#fef2f2';
-    if (!props.accessible) return '#fffbeb';
-    return '#f0fdf4';
-  }};
-  border-radius: 0 6px 6px 0;
+const ComplianceHeader = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
 `;
 
-const StatusBadge = styled.span<{ status: 'found' | 'missing' | 'inaccessible' }>`
-  display: inline-block;
-  padding: 2px 8px;
-  border-radius: 12px;
-  font-size: 11px;
-  font-weight: 600;
-  text-transform: uppercase;
-  color: white;
-  background: ${props => {
-    switch (props.status) {
-      case 'found': return colors.success;
-      case 'inaccessible': return colors.warning;
-      case 'missing': return colors.error;
-      default: return colors.neutral;
-    }
-  }};
-  margin-right: 8px;
-`;
-
-const PriorityBadge = styled.span<{ priority: string }>`
-  display: inline-block;
-  padding: 1px 6px;
-  border-radius: 8px;
-  font-size: 10px;
-  font-weight: 500;
-  margin-left: 8px;
-  color: ${props => {
-    switch (props.priority) {
-      case 'critical': return '#7f1d1d';
-      case 'high': return '#9a3412';
-      case 'medium': return '#a16207';
-      case 'low': return '#365314';
-      default: return colors.textColorSecondary;
-    }
-  }};
-  background: ${props => {
-    switch (props.priority) {
-      case 'critical': return '#fecaca';
-      case 'high': return '#fed7aa';
-      case 'medium': return '#fef3c7';
-      case 'low': return '#bbf7d0';
-      default: return colors.backgroundLighter;
-    }
-  }};
-`;
-
-const ComplianceCircle = styled.div<{ score: number }>`
+const ComplianceScore = styled.div<{ score: number }>`
   width: 60px;
   height: 60px;
   border-radius: 50%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 700;
   color: white;
   background: ${props => {
-    if (props.score >= 90) return colors.success;
-    if (props.score >= 75) return '#16a34a';
-    if (props.score >= 60) return colors.warning;
-    if (props.score >= 40) return '#ea580c';
-    return colors.error;
+    if (props.score >= 8) return '#22c55e';
+    if (props.score >= 6) return '#eab308';
+    if (props.score >= 4) return '#f59e0b';
+    return '#ef4444';
   }};
-  margin: 0 auto 12px;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
 
-interface LegalPagesProps {
+const StatsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+  gap: 12px;
+  margin-bottom: 20px;
+`;
+
+const StatCard = styled.div<{ status: 'found' | 'missing' | 'accessible' | 'error' }>`
+  background: ${colors.backgroundLighter};
+  border: 1px solid ${colors.borderColor};
+  border-radius: 8px;
+  padding: 16px;
+  text-align: center;
+  border-left: 4px solid ${props => {
+    switch (props.status) {
+      case 'found': return '#22c55e';
+      case 'accessible': return '#22c55e';
+      case 'missing': return '#ef4444';
+      case 'error': return '#f59e0b';
+      default: return colors.borderColor;
+    }
+  }};
+`;
+
+const StatNumber = styled.div`
+  font-size: 20px;
+  font-weight: 700;
+  color: ${colors.textColor};
+  margin-bottom: 4px;
+`;
+
+const StatLabel = styled.div`
+  font-size: 11px;
+  color: ${colors.textColorSecondary};
+  font-weight: 500;
+  text-transform: uppercase;
+`;
+
+const PagesList = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+const PageItem = styled.div<{ status: 'found' | 'missing' | 'accessible' | 'error' }>`
+  background: ${colors.backgroundLighter};
+  border: 1px solid ${colors.borderColor};
+  border-radius: 8px;
+  padding: 16px;
+  border-left: 4px solid ${props => {
+    switch (props.status) {
+      case 'found': return '#22c55e';
+      case 'accessible': return '#22c55e';
+      case 'missing': return '#ef4444';
+      case 'error': return '#f59e0b';
+      default: return colors.borderColor;
+    }
+  }};
+`;
+
+const PageTitle = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 8px;
+`;
+
+const PageName = styled.h4`
+  margin: 0;
+  font-size: 14px;
+  font-weight: 600;
+  color: ${colors.textColor};
+`;
+
+const StatusBadge = styled.span<{ status: 'found' | 'missing' | 'accessible' | 'error' }>`
+  background: ${props => {
+    switch (props.status) {
+      case 'found': return '#f0fdf4';
+      case 'accessible': return '#f0fdf4';
+      case 'missing': return '#fef2f2';
+      case 'error': return '#fffbeb';
+      default: return colors.backgroundLighter;
+    }
+  }};
+  color: ${props => {
+    switch (props.status) {
+      case 'found': return '#166534';
+      case 'accessible': return '#166534';
+      case 'missing': return '#991b1b';
+      case 'error': return '#92400e';
+      default: return colors.textColor;
+    }
+  }};
+  padding: 4px 8px;
+  border-radius: 12px;
+  font-size: 10px;
+  font-weight: 600;
+  text-transform: uppercase;
+`;
+
+const PageDescription = styled.p`
+  margin: 0 0 8px 0;
+  font-size: 12px;
+  color: ${colors.textColorSecondary};
+  line-height: 1.4;
+`;
+
+const PageUrl = styled.a`
+  font-size: 11px;
+  color: ${colors.primary};
+  text-decoration: none;
+  word-break: break-all;
+  
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
+const RequirementsList = styled.div`
+  margin-top: 16px;
+  padding: 16px;
+  background: ${colors.backgroundLighter};
+  border-radius: 8px;
+  border: 1px solid ${colors.borderColor};
+`;
+
+interface LegalPagesCardProps {
   data: {
-    legalPages?: Array<{
+    pages?: Array<{
+      type: string;
       name: string;
-      required: boolean;
-      priority: string;
-      article: string;
-      found: boolean;
-      accessible: boolean;
       url?: string;
-      status?: number;
-      contentLength?: number;
-      lastModified?: string;
-      issues: string[];
-      foundVia?: string;
+      status: 'found' | 'missing' | 'accessible' | 'error';
+      description?: string;
+      requirements?: string[];
     }>;
-    missingPages?: string[];
-    complianceScore?: number;
-    complianceLevel?: string;
-    recommendations?: Array<{
-      priority: string;
-      title: string;
-      description: string;
-      actions: string[];
-    }>;
-    summary?: {
-      totalRequired: number;
+    score?: number;
+    compliance?: {
+      total: number;
       found: number;
-      missing: number;
       accessible: number;
+      missing: number;
     };
     error?: string;
   };
@@ -128,215 +183,185 @@ interface LegalPagesProps {
   actionButtons?: any;
 }
 
-const LegalPagesCard = ({ data, title, actionButtons }: LegalPagesProps): JSX.Element => {
-  if (data.error) {
+const LegalPagesCard: React.FC<LegalPagesCardProps> = ({ data, title, actionButtons }) => {
+  if (data?.error) {
     return (
       <Card heading={title} actionButtons={actionButtons}>
-        <div style={{ color: colors.error, textAlign: 'center', padding: '20px' }}>
-          Erreur lors de l'analyse des pages légales: {data.error}
+        <div style={{ textAlign: 'center', padding: '40px 20px', color: colors.textColorSecondary }}>
+          <div style={{ fontSize: '48px', marginBottom: '16px' }}>📄</div>
+          <h3 style={{ margin: '0 0 8px 0', color: colors.textColor }}>Analyse des pages légales indisponible</h3>
+          <p style={{ margin: 0, fontSize: '14px' }}>
+            {data.error || 'Impossible d\'analyser les pages légales pour ce site.'}
+          </p>
         </div>
       </Card>
     );
   }
 
-  const legalPages = data.legalPages || [];
-  const complianceScore = data.complianceScore || 0;
-  const complianceLevel = data.complianceLevel || 'Non-conforme';
-  const summary = data.summary || { totalRequired: 0, found: 0, missing: 0, accessible: 0 };
-  const recommendations = data.recommendations || [];
+  const pages = data?.pages || [];
+  const compliance = data?.compliance || {
+    total: pages.length,
+    found: pages.filter(p => p.status === 'found' || p.status === 'accessible').length,
+    accessible: pages.filter(p => p.status === 'accessible').length,
+    missing: pages.filter(p => p.status === 'missing').length
+  };
+  const score = data?.score || Math.round((compliance.found / Math.max(compliance.total, 1)) * 10);
+
+  const requiredPages = [
+    {
+      type: 'privacy-policy',
+      name: 'Politique de Confidentialité',
+      description: 'Document obligatoire RGPD décrivant le traitement des données personnelles',
+      requirements: [
+        'Identité du responsable de traitement',
+        'Finalités et base légale du traitement',
+        'Durées de conservation',
+        'Droits des personnes concernées',
+        'Coordonnées du DPO si applicable'
+      ]
+    },
+    {
+      type: 'terms-of-service',
+      name: 'Conditions Générales d\'Utilisation',
+      description: 'Conditions contractuelles régissant l\'utilisation du service',
+      requirements: [
+        'Identification de l\'éditeur',
+        'Conditions d\'accès et d\'utilisation',
+        'Responsabilités et limitations',
+        'Propriété intellectuelle',
+        'Droit applicable et juridiction'
+      ]
+    },
+    {
+      type: 'cookie-policy',
+      name: 'Politique de Cookies',
+      description: 'Information sur l\'utilisation des cookies et traceurs',
+      requirements: [
+        'Types de cookies utilisés',
+        'Finalités des cookies',
+        'Durées de conservation',
+        'Moyens de s\'opposer aux cookies',
+        'Cookies tiers et partenaires'
+      ]
+    },
+    {
+      type: 'legal-notice',
+      name: 'Mentions Légales',
+      description: 'Informations légales obligatoires sur l\'éditeur du site',
+      requirements: [
+        'Raison sociale et forme juridique',
+        'Adresse du siège social',
+        'Numéro d\'immatriculation',
+        'Capital social',
+        'Coordonnées de contact'
+      ]
+    }
+  ];
+
+  // Merge required pages with found pages
+  const allPages = requiredPages.map(required => {
+    const found = pages.find(p => p.type === required.type);
+    return {
+      ...required,
+      url: found?.url,
+      status: found?.status || 'missing' as const
+    };
+  });
 
   return (
     <Card heading={title} actionButtons={actionButtons}>
-      {/* Compliance Score Overview */}
-      <div style={{ display: 'flex', alignItems: 'center', gap: '20px', marginBottom: '20px' }}>
-        <div style={{ textAlign: 'center' }}>
-          <ComplianceCircle score={complianceScore}>
-            {complianceScore}
-          </ComplianceCircle>
-          <div style={{ fontSize: '12px', fontWeight: '600', color: colors.textColor }}>
-            Conformité Légale
+      <LegalContainer>
+        <ComplianceHeader>
+          <div>
+            <h3 style={{ margin: '0 0 4px 0', color: colors.textColor, fontSize: '16px' }}>
+              Conformité Légale APDP
+            </h3>
+            <p style={{ margin: 0, fontSize: '13px', color: colors.textColorSecondary }}>
+              {compliance.found}/{compliance.total} page{compliance.total > 1 ? 's' : ''} requise{compliance.total > 1 ? 's' : ''} trouvée{compliance.found > 1 ? 's' : ''}
+            </p>
           </div>
-          <div style={{ 
-            fontSize: '11px', 
-            color: complianceScore >= 75 ? colors.success : 
-                   complianceScore >= 60 ? colors.warning : colors.error,
-            fontWeight: '600'
-          }}>
-            {complianceLevel}
-          </div>
-        </div>
-        
-        <div style={{ flex: 1 }}>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '8px', fontSize: '12px' }}>
-            <div style={{ textAlign: 'center', padding: '8px', background: '#f0fdf4', borderRadius: '4px' }}>
-              <div style={{ fontWeight: '700', color: colors.success, fontSize: '16px' }}>{summary.found}</div>
-              <div style={{ color: '#14532d' }}>Trouvées</div>
-            </div>
-            <div style={{ textAlign: 'center', padding: '8px', background: '#f0fdf4', borderRadius: '4px' }}>
-              <div style={{ fontWeight: '700', color: colors.success, fontSize: '16px' }}>{summary.accessible}</div>
-              <div style={{ color: '#14532d' }}>Accessibles</div>
-            </div>
-            <div style={{ textAlign: 'center', padding: '8px', background: '#fef2f2', borderRadius: '4px' }}>
-              <div style={{ fontWeight: '700', color: colors.error, fontSize: '16px' }}>{summary.missing}</div>
-              <div style={{ color: '#7f1d1d' }}>Manquantes</div>
-            </div>
-            <div style={{ textAlign: 'center', padding: '8px', background: colors.backgroundDarker, borderRadius: '4px' }}>
-              <div style={{ fontWeight: '700', color: colors.textColor, fontSize: '16px' }}>{summary.totalRequired}</div>
-              <div style={{ color: colors.textColorSecondary }}>Requises</div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
+            <ComplianceScore score={score}>
+              {score}
+            </ComplianceScore>
+            <div>
+              <div style={{ fontSize: '12px', color: colors.textColorSecondary }}>Score de conformité</div>
+              <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textColor }}>
+                {score >= 8 ? 'Conforme' : 
+                 score >= 6 ? 'Partiellement conforme' : 
+                 score >= 4 ? 'Non conforme' : 'Critique'}
+              </div>
             </div>
           </div>
-        </div>
-      </div>
+        </ComplianceHeader>
 
-      {/* Summary Stats */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(200px, 1fr))', gap: '12px', marginBottom: '20px' }}>
-        <Row lbl="Score de conformité" val={`${complianceScore}/100`} />
-        <Row lbl="Niveau" val={complianceLevel} />
-        <Row lbl="Pages requises" val={`${summary.found}/${summary.totalRequired}`} />
-        <Row lbl="Pages manquantes" val={summary.missing.toString()} />
-      </div>
+        <StatsGrid>
+          <StatCard status="found">
+            <StatNumber>{compliance.found}</StatNumber>
+            <StatLabel>Trouvées</StatLabel>
+          </StatCard>
+          <StatCard status="accessible">
+            <StatNumber>{compliance.accessible}</StatNumber>
+            <StatLabel>Accessibles</StatLabel>
+          </StatCard>
+          <StatCard status="missing">
+            <StatNumber>{compliance.missing}</StatNumber>
+            <StatLabel>Manquantes</StatLabel>
+          </StatCard>
+          <StatCard status="error">
+            <StatNumber>{pages.filter(p => p.status === 'error').length}</StatNumber>
+            <StatLabel>Erreurs</StatLabel>
+          </StatCard>
+        </StatsGrid>
 
-      {/* Legal Pages List */}
-      {legalPages.length > 0 && (
-        <PageContainer>
-          <h4 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px', color: colors.textColor }}>
+        <PagesList>
+          <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', color: colors.textColor }}>
             Pages Légales Analysées
           </h4>
-          
-          {legalPages.map((page, index) => {
-            const status = !page.found ? 'missing' : !page.accessible ? 'inaccessible' : 'found';
-            
-            return (
-              <PageItem key={index} found={page.found} accessible={page.accessible}>
-                <div style={{ display: 'flex', alignItems: 'flex-start', justifyContent: 'space-between', marginBottom: '8px' }}>
-                  <div style={{ flex: 1 }}>
-                    <div style={{ display: 'flex', alignItems: 'center', marginBottom: '6px' }}>
-                      <StatusBadge status={status}>
-                        {status === 'found' ? 'Trouvée' : status === 'missing' ? 'Manquante' : 'Inaccessible'}
-                      </StatusBadge>
-                      <span style={{ fontWeight: '600', fontSize: '13px', color: colors.textColor }}>
-                        {page.name}
-                      </span>
-                      {page.required && (
-                        <PriorityBadge priority={page.priority}>
-                          {page.priority === 'critical' ? 'Obligatoire' : 
-                           page.priority === 'high' ? 'Important' :
-                           page.priority === 'medium' ? 'Recommandé' : 'Optionnel'}
-                        </PriorityBadge>
-                      )}
-                    </div>
-                    
-                    {page.url && (
-                      <div style={{ fontSize: '11px', color: colors.textColorSecondary, marginBottom: '4px', wordBreak: 'break-all' }}>
-                        <strong>URL:</strong> {page.url}
-                      </div>
-                    )}
-                    
-                    {page.foundVia && (
-                      <div style={{ fontSize: '11px', color: colors.textColorSecondary, marginBottom: '4px' }}>
-                        <strong>Trouvée via:</strong> {page.foundVia === 'direct' ? 'URL directe' : 'Lien dans la page'}
-                      </div>
-                    )}
-                    
-                    {page.contentLength && page.contentLength > 0 && (
-                      <div style={{ fontSize: '11px', color: colors.textColorSecondary, marginBottom: '4px' }}>
-                        <strong>Taille du contenu:</strong> {page.contentLength.toLocaleString()} caractères
-                      </div>
-                    )}
-                    
-                    {page.lastModified && (
-                      <div style={{ fontSize: '11px', color: colors.textColorSecondary, marginBottom: '4px' }}>
-                        <strong>Dernière modification:</strong> {new Date(page.lastModified).toLocaleDateString('fr-FR')}
-                      </div>
-                    )}
-                    
-                    <div style={{ fontSize: '10px', color: colors.primary, fontStyle: 'italic' }}>
-                      {page.article}
-                    </div>
-                    
-                    {page.issues.length > 0 && (
-                      <div style={{ marginTop: '8px' }}>
-                        <div style={{ fontSize: '11px', fontWeight: '600', color: colors.warning, marginBottom: '4px' }}>
-                          Problèmes identifiés:
-                        </div>
-                        {page.issues.slice(0, 3).map((issue, issueIndex) => (
-                          <div key={issueIndex} style={{ fontSize: '10px', color: colors.textColorSecondary, marginLeft: '8px' }}>
-                            • {issue}
-                          </div>
-                        ))}
-                        {page.issues.length > 3 && (
-                          <div style={{ fontSize: '10px', color: colors.textColorThirdly, marginLeft: '8px' }}>
-                            ... et {page.issues.length - 3} autre(s) problème(s)
-                          </div>
-                        )}
-                      </div>
-                    )}
+          {allPages.map((page, index) => (
+            <PageItem key={page.type} status={page.status}>
+              <PageTitle>
+                <PageName>{page.name}</PageName>
+                <StatusBadge status={page.status}>
+                  {page.status === 'found' ? 'Trouvée' :
+                   page.status === 'accessible' ? 'Accessible' :
+                   page.status === 'missing' ? 'Manquante' : 'Erreur'}
+                </StatusBadge>
+              </PageTitle>
+              <PageDescription>{page.description}</PageDescription>
+              {page.url && (
+                <PageUrl href={page.url} target="_blank" rel="noopener noreferrer">
+                  {page.url}
+                </PageUrl>
+              )}
+              {page.status === 'missing' && (
+                <RequirementsList>
+                  <div style={{ fontSize: '12px', fontWeight: '600', color: colors.textColor, marginBottom: '8px' }}>
+                    ⚠️ Éléments requis pour cette page:
                   </div>
-                </div>
-              </PageItem>
-            );
-          })}
-        </PageContainer>
-      )}
-
-      {/* Recommendations */}
-      {recommendations.length > 0 && (
-        <PageContainer>
-          <h4 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '12px', color: colors.textColor }}>
-            Recommandations Prioritaires
-          </h4>
-          
-          {recommendations.slice(0, 3).map((rec, index) => (
-            <div key={index} style={{ 
-              padding: '12px', 
-              marginBottom: '8px', 
-              background: colors.backgroundDarker, 
-              border: `1px solid ${colors.borderColor}`,
-              borderRadius: '6px',
-              fontSize: '12px'
-            }}>
-              <div style={{ fontWeight: '600', color: colors.primary, marginBottom: '4px' }}>
-                {rec.priority}: {rec.title}
-              </div>
-              <div style={{ color: colors.textColorSecondary, marginBottom: '6px' }}>
-                {rec.description}
-              </div>
-              <div style={{ fontSize: '11px', color: colors.textColorSecondary }}>
-                <strong>Actions:</strong>
-                <ul style={{ margin: '4px 0 0 16px', padding: 0 }}>
-                  {rec.actions.slice(0, 3).map((action, actionIndex) => (
-                    <li key={actionIndex} style={{ marginBottom: '2px' }}>{action}</li>
-                  ))}
-                </ul>
-              </div>
-            </div>
+                  <ul style={{ margin: 0, paddingLeft: '16px', fontSize: '11px', color: colors.textColorSecondary }}>
+                    {page.requirements?.map((req, i) => (
+                      <li key={i} style={{ marginBottom: '2px' }}>{req}</li>
+                    ))}
+                  </ul>
+                </RequirementsList>
+              )}
+            </PageItem>
           ))}
-        </PageContainer>
-      )}
+        </PagesList>
 
-      {/* Missing Pages Alert */}
-      {data.missingPages && data.missingPages.length > 0 && (
         <div style={{ 
-          padding: '12px', 
-          background: '#fef2f2',
-          border: '1px solid #fecaca',
-          borderRadius: '6px',
-          marginTop: '16px'
+          fontSize: '11px', 
+          color: colors.textColorThirdly, 
+          textAlign: 'center',
+          paddingTop: '12px',
+          borderTop: `1px solid ${colors.borderColor}`
         }}>
-          <div style={{ fontWeight: '600', color: colors.error, marginBottom: '8px', fontSize: '13px' }}>
-            ⚠️ Pages légales manquantes ({data.missingPages.length})
-          </div>
-          <div style={{ fontSize: '12px', color: '#7f1d1d' }}>
-            {data.missingPages.join(', ')}
-          </div>
-          <div style={{ fontSize: '11px', color: '#7f1d1d', marginTop: '6px', fontStyle: 'italic' }}>
-            Ces pages sont obligatoires pour la conformité légale APDP Monaco
-          </div>
+          Conformité RGPD • APDP Monaco • Articles 13-14 du RGPD
         </div>
-      )}
+      </LegalContainer>
     </Card>
   );
 };
 
 export default LegalPagesCard;
-

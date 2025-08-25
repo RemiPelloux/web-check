@@ -39,7 +39,7 @@ async function analyzeLegalPages(url) {
 
   const domain = new URL(url).origin;
 
-  // Define required legal pages for APDP Monaco compliance
+  // Define standard legal pages for compliance
   const requiredPages = [
     {
       name: 'Politique de Confidentialité',
@@ -53,7 +53,7 @@ async function analyzeLegalPages(url) {
       ],
       required: true,
       priority: 'critical',
-      article: 'Article 13 et 14 APDP - Information des personnes concernées'
+      article: 'RGPD Article 13 et 14 - Information des personnes concernées'
     },
     {
       name: 'Mentions Légales',
@@ -66,7 +66,7 @@ async function analyzeLegalPages(url) {
       ],
       required: true,
       priority: 'critical',
-      article: 'Loi n° 1.165 du 23 décembre 1993 - Commerce électronique'
+      article: 'Loi pour la confiance dans l\'économie numérique - Obligations d\'information'
     },
     {
       name: 'Conditions Générales d\'Utilisation',
@@ -80,7 +80,7 @@ async function analyzeLegalPages(url) {
       ],
       required: true,
       priority: 'high',
-      article: 'Code Civil Monégasque - Obligations contractuelles'
+      article: 'Droit civil - Contrats et obligations'
     },
     {
       name: 'Politique de Cookies',
@@ -92,7 +92,7 @@ async function analyzeLegalPages(url) {
       ],
       required: true,
       priority: 'high',
-      article: 'Article 82 Loi n° 1.165 - Cookies et traceurs'
+      article: 'RGPD Article 7 - Consentement aux cookies'
     },
     {
       name: 'Contact/Support',

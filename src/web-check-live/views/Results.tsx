@@ -22,6 +22,7 @@ import ActionButtons from 'web-check-live/components/misc/ActionButtons';
 import ViewRaw from 'web-check-live/components/misc/ViewRaw';
 
 import ComplianceSummaryCard from 'web-check-live/components/Results/ComplianceSummary';
+import EnhancedComplianceSummaryCard from 'web-check-live/components/Results/EnhancedComplianceSummary';
 import VulnerabilitiesCard from 'web-check-live/components/Results/Vulnerabilities';
 import CDNResourcesCard from 'web-check-live/components/Results/CDNResources';
 import LegalPagesCard from 'web-check-live/components/Results/LegalPages';
@@ -86,7 +87,7 @@ const ResultsOuter = styled.div`
 `;
 
 const ResultsContent = styled.section`
-  max-width: 1280px;
+  max-width: 80%;
   margin: 0 auto;
   padding: 24px 16px;
   display: grid;
@@ -574,6 +575,46 @@ const Results = (props: { address?: string } ): JSX.Element => {
     }),
   });
 
+  // Get vulnerabilities analysis
+  const [vulnerabilitiesResults, updateVulnerabilitiesResults] = useMotherHook({
+    jobId: 'vulnerabilities',
+    updateLoadingJobs,
+    addressInfo: { address, addressType, expectedAddressTypes: urlTypeOnly },
+    fetchRequest: () => fetch(`${api}/vulnerabilities?url=${address}`).then(res => parseJson(res)),
+  });
+
+  // Get CDN resources analysis
+  const [cdnResourcesResults, updateCdnResourcesResults] = useMotherHook({
+    jobId: 'cdn-resources',
+    updateLoadingJobs,
+    addressInfo: { address, addressType, expectedAddressTypes: urlTypeOnly },
+    fetchRequest: () => fetch(`${api}/cdn-resources?url=${address}`).then(res => parseJson(res)),
+  });
+
+  // Get legal pages analysis
+  const [legalPagesResults, updateLegalPagesResults] = useMotherHook({
+    jobId: 'legal-pages',
+    updateLoadingJobs,
+    addressInfo: { address, addressType, expectedAddressTypes: urlTypeOnly },
+    fetchRequest: () => fetch(`${api}/legal-pages?url=${address}`).then(res => parseJson(res)),
+  });
+
+  // Get comprehensive APDP compliance analysis
+  const [rgpdComplianceResults, updateRgpdComplianceResults] = useMotherHook({
+    jobId: 'rgpd-compliance',
+    updateLoadingJobs,
+    addressInfo: { address, addressType, expectedAddressTypes: urlTypeOnly },
+    fetchRequest: () => fetch(`${api}/rgpd-compliance?url=${address}`)
+      .then(res => parseJson(res))
+      .then(res => {
+        // If the API fails, fall back to basic calculation
+        if (res.error) {
+          return calculateBasicCompliance();
+        }
+        return res;
+      }),
+  });
+
   /* Cancel remaining jobs after  10 second timeout */
   useEffect(() => {
     const checkJobs = () => {
@@ -596,46 +637,6 @@ const Results = (props: { address?: string } ): JSX.Element => {
       return address;
     }
   }
-
-  // Get comprehensive APDP compliance analysis
-  const [rgpdComplianceResults, updateRgpdComplianceResults] = useMotherHook({
-    jobId: 'rgpd-compliance',
-    updateLoadingJobs,
-    addressInfo: { address, addressType, expectedAddressTypes: urlTypeOnly },
-    fetchRequest: () => fetch(`${api}/rgpd-compliance?url=${address}`)
-      .then(res => parseJson(res))
-      .then(res => {
-        // If the API fails, fall back to basic calculation
-        if (res.error) {
-          return calculateBasicCompliance();
-        }
-        return res;
-      }),
-  });
-
-  // Get vulnerability analysis
-  const [vulnerabilitiesResults, updateVulnerabilitiesResults] = useMotherHook({
-    jobId: 'vulnerabilities',
-    updateLoadingJobs,
-    addressInfo: { address, addressType, expectedAddressTypes: urlTypeOnly },
-    fetchRequest: () => fetch(`${api}/vulnerabilities?url=${address}`).then(res => parseJson(res)),
-  });
-
-  // Get CDN and external resources analysis
-  const [cdnResourcesResults, updateCdnResourcesResults] = useMotherHook({
-    jobId: 'cdn-resources',
-    updateLoadingJobs,
-    addressInfo: { address, addressType, expectedAddressTypes: urlTypeOnly },
-    fetchRequest: () => fetch(`${api}/cdn-resources?url=${address}`).then(res => parseJson(res)),
-  });
-
-  // Get legal pages analysis
-  const [legalPagesResults, updateLegalPagesResults] = useMotherHook({
-    jobId: 'legal-pages',
-    updateLoadingJobs,
-    addressInfo: { address, addressType, expectedAddressTypes: urlTypeOnly },
-    fetchRequest: () => fetch(`${api}/legal-pages?url=${address}`).then(res => parseJson(res)),
-  });
 
   // Fallback compliance calculation if API fails
   const calculateBasicCompliance = () => {
@@ -682,15 +683,59 @@ const Results = (props: { address?: string } ): JSX.Element => {
     };
   };
 
-  // A list of state sata, corresponding component and title for each card
+  // Function to get all current results for comprehensive analysis
+  const getAllResults = () => ({
+    url: address,
+    cookies: cookieResults,
+    headers: headersResults,
+    ssl: sslResults,
+    'tech-stack': techStackResults,
+    'cdn-resources': cdnResourcesResults,
+    location: locationResults,
+    dns: dnsResults,
+    hsts: hstsResults,
+    vulnerabilities: vulnerabilitiesResults,
+    'legal-pages': legalPagesResults,
+    quality: lighthouseResults,
+    'server-info': shoadnResults,
+    status: serverStatusResults,
+    robots: robotsTxtResults,
+    'dns-sec': dnsSecResults,
+    whois: domainLookupResults,
+    ports: portsResults,
+    traceroute: traceRouteResults,
+    'carbon-footprint': carbonResults,
+    archives: archivesResults,
+    rank: rankResults,
+    'block-lists': blockListsResults,
+    threats: threatResults,
+    tls: tlsResults,
+    'tls-handshake': tlsResults, // TLS results contain handshake data
+    'tls-cipher-suites': tlsResults, // TLS results contain cipher suite data
+    'http-security': httpSecurityResults,
+    screenshot: screenshotResult,
+    sitemap: sitemapResults,
+    'social-tags': socialTagResults,
+    'linked-pages': linkedPagesResults,
+    'mail-config': mailConfigResults,
+    firewall: firewallResults,
+    'dns-server': dnsServerResults,
+    features: siteFeaturesResults,
+    'host-names': shoadnResults, // Shodan results contain hostnames
+    'security-txt': securityTxtResults,
+  });
+
+  // A list of state data, corresponding component and title for each card
   const resultCardData = [
     {
-      id: 'compliance-summary',
+      id: 'enhanced-compliance-summary',
       title: 'Résumé de Conformité APDP',
       result: rgpdComplianceResults || calculateBasicCompliance(),
-      Component: ComplianceSummaryCard,
+      Component: EnhancedComplianceSummaryCard,
       refresh: updateRgpdComplianceResults,
       tags: ['summary', 'compliance'],
+      allResults: getAllResults(),
+      priority: 1, // Highest priority to appear first
     }, {
       id: 'vulnerabilities',
       title: 'Analyse de Vulnérabilités',
@@ -698,6 +743,7 @@ const Results = (props: { address?: string } ): JSX.Element => {
       Component: VulnerabilitiesCard,
       refresh: updateVulnerabilitiesResults,
       tags: ['security'],
+      priority: 2,
     }, {
       id: 'cdn-resources',
       title: 'CDN et Ressources Externes',
@@ -705,14 +751,16 @@ const Results = (props: { address?: string } ): JSX.Element => {
       Component: CDNResourcesCard,
       refresh: updateCdnResourcesResults,
       tags: ['performance', 'security'],
-    }, {
-      id: 'legal-pages',
-      title: 'Pages Légales APDP',
-      result: legalPagesResults,
-      Component: LegalPagesCard,
-      refresh: updateLegalPagesResults,
-      tags: ['compliance'],
-    },
+      priority: 3,
+         }, {
+       id: 'legal-pages',
+       title: 'Pages Légales',
+       result: legalPagesResults,
+       Component: LegalPagesCard,
+       refresh: updateLegalPagesResults,
+       tags: ['compliance'],
+       priority: 2,
+     },
     {
       id: 'location',
       title: 'Server Location',
@@ -1040,6 +1088,19 @@ const Results = (props: { address?: string } ): JSX.Element => {
           </div>
       ) }
       </FilterButtons>
+      
+      {/* Full-width Enhanced Compliance Summary */}
+      <div style={{ maxWidth: '80%', margin: '0 auto', padding: '0 16px 24px 16px' }}>
+        <ErrorBoundary title="Résumé de Conformité APDP">
+          <EnhancedComplianceSummaryCard
+            data={{...rgpdComplianceResults || calculateBasicCompliance()}}
+            title="Résumé de Conformité APDP"
+            actionButtons={makeActionButtons("Résumé de Conformité APDP", updateRgpdComplianceResults, () => showInfo('enhanced-compliance-summary'))}
+            allResults={getAllResults()}
+          />
+        </ErrorBoundary>
+      </div>
+
       <ResultsContent>
         <Masonry
           breakpointCols={{ 10000: 12, 4000: 9, 3600: 8, 3200: 7, 2800: 6, 2400: 5, 2000: 4, 1600: 3, 1200: 2, 800: 1 }}
@@ -1047,6 +1108,7 @@ const Results = (props: { address?: string } ): JSX.Element => {
           columnClassName="masonry-grid-col">
           {
             resultCardData
+            .filter(card => card.id !== 'enhanced-compliance-summary') // Exclude the compliance summary from the grid
             .filter(({ id, title, result, tags }) => {
               // Show if no tags selected OR if any of the card's tags match selected tags
               const tagMatch = tags.length === 0 || tags.some(tag => tags.includes(tag));
@@ -1058,7 +1120,14 @@ const Results = (props: { address?: string } ): JSX.Element => {
               return tagMatch && searchMatch && hasValidResult;
             })
             .sort((a, b) => {
-              // Sort by priority: compliance first, then security, then others
+              // First sort by explicit priority (enhanced compliance summary first)
+              if (a.priority && b.priority) {
+                return a.priority - b.priority;
+              }
+              if (a.priority && !b.priority) return -1;
+              if (!a.priority && b.priority) return 1;
+              
+              // Then sort by tag-based priority: compliance first, then security, then others
               const getPriority = (tags: string[]) => {
                 if (tags.includes('summary') || tags.includes('compliance')) return 1;
                 if (tags.includes('security')) return 2;
@@ -1072,13 +1141,14 @@ const Results = (props: { address?: string } ): JSX.Element => {
               if (priorityA !== priorityB) return priorityA - priorityB;
               return a.title.localeCompare(b.title);
             })
-            .map(({ id, title, result, tags, refresh, Component }, index: number) => (
+            .map(({ id, title, result, tags, refresh, Component, allResults }, index: number) => (
               <ErrorBoundary title={title} key={`eb-${index}`}>
                 <Component
                   key={`${title}-${index}`}
                   data={{...result}}
                   title={title}
                   actionButtons={refresh ? makeActionButtons(title, refresh, () => showInfo(id)) : undefined}
+                  {...(allResults && { allResults })}
                 />
               </ErrorBoundary>
             ))
