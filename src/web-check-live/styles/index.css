@@ -44,6 +44,45 @@ svg.rsm-svg {
   --toastify-color-success: #20e253 !important;
   --toastify-color-warning: #f6f000 !important;
   --toastify-color-error: #f80363 !important;
+  --toastify-text-color-dark: #ffffff !important;
+  --toastify-text-color-info: #000000 !important;
+  --toastify-text-color-success: #000000 !important;
+  --toastify-text-color-warning: #000000 !important;
+  --toastify-text-color-error: #ffffff !important;
+}
+
+/* Fix toastify text colors */
+.Toastify__toast--dark {
+  background: var(--toastify-color-dark) !important;
+  color: var(--toastify-text-color-dark) !important;
+}
+
+.Toastify__toast--info {
+  background: var(--toastify-color-info) !important;
+  color: var(--toastify-text-color-info) !important;
+}
+
+.Toastify__toast--success {
+  background: var(--toastify-color-success) !important;
+  color: var(--toastify-text-color-success) !important;
+}
+
+.Toastify__toast--warning {
+  background: var(--toastify-color-warning) !important;
+  color: var(--toastify-text-color-warning) !important;
+}
+
+.Toastify__toast--error {
+  background: var(--toastify-color-error) !important;
+  color: var(--toastify-text-color-error) !important;
+}
+
+.Toastify__toast {
+  color: #ffffff !important;
+}
+
+.Toastify__toast-body {
+  color: inherit !important;
 }
 
 #fancy-background {

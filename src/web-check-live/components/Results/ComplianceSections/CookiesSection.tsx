@@ -81,14 +81,14 @@ const CookiesSection: React.FC<CookiesSectionProps> = ({ cookies }) => {
                     {' '}({cookie.domain})
                   </span>
                 )}
-                {cookie.categories && (
+                {(cookie as any).categories && (
                   <span style={{ color: colors.textColorSecondary, fontSize: '10px' }}>
-                    {' '}- {cookie.categories.join(', ')}
+                    {' '}- {(cookie as any).categories.join(', ')}
                   </span>
                 )}
-                {cookie.security?.warnings && cookie.security.warnings.length > 0 && (
+                {(cookie as any).security?.warnings && (cookie as any).security.warnings.length > 0 && (
                   <span style={{ color: colors.danger, fontSize: '10px' }}>
-                    {' '}⚠️ {cookie.security.warnings.length}
+                    {' '}⚠️ {(cookie as any).security.warnings.length}
                   </span>
                 )}
               </div>

@@ -20,7 +20,7 @@ interface PerformanceSectionProps {
 
 const PerformanceSection: React.FC<PerformanceSectionProps> = ({ quality, techStack }) => {
   const hasQualityData = quality?.categories;
-  const hasTechData = techStack?.technologies?.length > 0;
+  const hasTechData = techStack?.technologies && techStack.technologies.length > 0;
 
   if (!hasQualityData && !hasTechData) {
     return (
@@ -52,10 +52,10 @@ const PerformanceSection: React.FC<PerformanceSectionProps> = ({ quality, techSt
       {hasTechData && (
         <details style={{ marginTop: '12px' }}>
           <summary style={{ cursor: 'pointer', fontWeight: '600', fontSize: '12px' }}>
-            Technologies ({techStack.technologies.length})
+            Technologies ({techStack?.technologies?.length || 0})
           </summary>
           <div style={{ marginTop: '8px', maxHeight: '100px', overflow: 'auto' }}>
-            {techStack.technologies.slice(0, 8).map((tech, i) => (
+            {techStack?.technologies?.slice(0, 8).map((tech, i) => (
               <div key={i} style={{ 
                 fontSize: '11px', 
                 padding: '4px 8px', 

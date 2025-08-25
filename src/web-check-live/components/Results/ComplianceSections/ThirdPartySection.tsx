@@ -51,7 +51,7 @@ const ThirdPartySection: React.FC<ThirdPartySectionProps> = ({ cdnResources }) =
       </div>
       
       {/* Show detailed breakdown if available */}
-      {summary && (summary.externalDomains > 0 || summary.googleServices > 0) && (
+      {summary && ((summary.externalDomains || 0) > 0 || (summary.googleServices || 0) > 0) && (
         <div style={{ 
           marginTop: '12px', 
           padding: '8px', 
@@ -60,17 +60,17 @@ const ThirdPartySection: React.FC<ThirdPartySectionProps> = ({ cdnResources }) =
           fontSize: '12px'
         }}>
           <div style={{ fontWeight: '600', marginBottom: '4px' }}>Impact Conformité:</div>
-          {summary.googleServices > 0 && (
+          {(summary.googleServices || 0) > 0 && (
             <div style={{ color: colors.warning, marginBottom: '2px' }}>
               ⚠️ Services US détectés - Risque Cloud Act
             </div>
           )}
-          {summary.trackingResources > 0 && (
+          {(summary.trackingResources || 0) > 0 && (
             <div style={{ color: colors.info, marginBottom: '2px' }}>
               ℹ️ Outils de tracking - Consentement requis (APDP Art. 7)
             </div>
           )}
-          {summary.externalDomains > 5 && (
+          {(summary.externalDomains || 0) > 5 && (
             <div style={{ color: colors.textColorSecondary }}>
               📋 Complexité élevée - Audit des transferts recommandé
             </div>

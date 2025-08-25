@@ -22,7 +22,7 @@ import ActionButtons from 'web-check-live/components/misc/ActionButtons';
 import ViewRaw from 'web-check-live/components/misc/ViewRaw';
 
 import ComplianceSummaryCard from 'web-check-live/components/Results/ComplianceSummary';
-import EnhancedComplianceSummaryCard from 'web-check-live/components/Results/EnhancedComplianceSummary';
+import ProfessionalComplianceDashboard from 'web-check-live/components/Results/ProfessionalComplianceDashboard';
 import VulnerabilitiesCard from 'web-check-live/components/Results/Vulnerabilities';
 import CDNResourcesCard from 'web-check-live/components/Results/CDNResources';
 import LegalPagesCard from 'web-check-live/components/Results/LegalPages';
@@ -731,10 +731,11 @@ const Results = (props: { address?: string } ): JSX.Element => {
       id: 'enhanced-compliance-summary',
       title: 'Résumé de Conformité APDP',
       result: rgpdComplianceResults || calculateBasicCompliance(),
-      Component: EnhancedComplianceSummaryCard,
+                Component: ProfessionalComplianceDashboard,
       refresh: updateRgpdComplianceResults,
       tags: ['summary', 'compliance'],
       allResults: getAllResults(),
+      siteName: address || 'Site Web',
       priority: 1, // Highest priority to appear first
     }, {
       id: 'vulnerabilities',
@@ -1089,17 +1090,15 @@ const Results = (props: { address?: string } ): JSX.Element => {
       ) }
       </FilterButtons>
       
-      {/* Full-width Enhanced Compliance Summary */}
-      <div style={{ maxWidth: '80%', margin: '0 auto', padding: '0 16px 24px 16px' }}>
-        <ErrorBoundary title="Résumé de Conformité APDP">
-          <EnhancedComplianceSummaryCard
-            data={{...rgpdComplianceResults || calculateBasicCompliance()}}
-            title="Résumé de Conformité APDP"
-            actionButtons={makeActionButtons("Résumé de Conformité APDP", updateRgpdComplianceResults, () => showInfo('enhanced-compliance-summary'))}
-            allResults={getAllResults()}
-          />
-        </ErrorBoundary>
-      </div>
+      {/* Full-width Enhanced Compliance Dashboard */}
+              <div style={{ maxWidth: '100%', margin: '0 auto' }}>
+          <ErrorBoundary title="Tableau de Bord de Conformité APDP">
+            <ProfessionalComplianceDashboard
+              allResults={getAllResults()}
+              siteName={address || 'Site Web'}
+            />
+          </ErrorBoundary>
+        </div>
 
       <ResultsContent>
         <Masonry
@@ -1141,7 +1140,7 @@ const Results = (props: { address?: string } ): JSX.Element => {
               if (priorityA !== priorityB) return priorityA - priorityB;
               return a.title.localeCompare(b.title);
             })
-            .map(({ id, title, result, tags, refresh, Component, allResults }, index: number) => (
+            .map(({ id, title, result, tags, refresh, Component, allResults, siteName }, index: number) => (
               <ErrorBoundary title={title} key={`eb-${index}`}>
                 <Component
                   key={`${title}-${index}`}
@@ -1149,6 +1148,7 @@ const Results = (props: { address?: string } ): JSX.Element => {
                   title={title}
                   actionButtons={refresh ? makeActionButtons(title, refresh, () => showInfo(id)) : undefined}
                   {...(allResults && { allResults })}
+                  {...(siteName && { siteName })}
                 />
               </ErrorBoundary>
             ))
