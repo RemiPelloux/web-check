@@ -423,3 +423,4 @@ function compareVersions(version1, version2) {
 }
 
 export default middleware(handler);
+

@@ -253,3 +253,4 @@ const VulnerabilitiesCard = ({ data, title, actionButtons }: VulnerabilitiesProp
 };
 
 export default VulnerabilitiesCard;
+

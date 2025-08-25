@@ -508,3 +508,4 @@ function generateRecommendations(results) {
 }
 
 export default middleware(handler);
+

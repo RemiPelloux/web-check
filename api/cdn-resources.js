@@ -364,3 +364,4 @@ function calculatePerformanceScore(results) {
 }
 
 export default middleware(handler);
+

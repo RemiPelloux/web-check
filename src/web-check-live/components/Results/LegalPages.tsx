@@ -339,3 +339,4 @@ const LegalPagesCard = ({ data, title, actionButtons }: LegalPagesProps): JSX.El
 };
 
 export default LegalPagesCard;
+
