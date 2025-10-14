@@ -1,34 +1,34 @@
 
 const colors = {
-  // Primary Colors - APDP Red Theme
-  primary: '#dc2626',           // red-600
-  primaryLighter: '#ef4444',    // red-500
-  primaryDarker: '#b91c1c',     // red-700
+  // Using CSS variables for theme support
+  primary: 'var(--primary)',
+  primaryLighter: 'var(--primary-lighter)',
+  primaryDarker: 'var(--primary-darker)',
   
-  // Background Colors - Light Theme
-  background: '#f9fafb',        // gray-50
-  backgroundDarker: '#f3f4f6',  // gray-100
-  backgroundLighter: '#ffffff', // white
-  backgroundCard: '#ffffff',    // white
+  // Background Colors
+  background: 'var(--background)',
+  backgroundDarker: 'var(--background-darker)',
+  backgroundLighter: 'var(--background-lighter)',
+  backgroundCard: 'var(--background-card)',
   
-  // Text Colors - Dark on Light
-  textColor: '#111827',         // gray-900
-  textColorSecondary: '#374151', // gray-700
-  textColorThirdly: '#6b7280',  // gray-500
+  // Text Colors
+  textColor: 'var(--text-color)',
+  textColorSecondary: 'var(--text-color-secondary)',
+  textColorThirdly: 'var(--text-color-thirdly)',
   
   // Border and Shadow Colors
-  borderColor: '#d1d5db',       // gray-300
-  bgShadowColor: '#e5e7eb',     // gray-200
-  fgShadowColor: '#dc2626',     // red-600
-  primaryTransparent: '#dc262620',
+  borderColor: 'var(--border-color)',
+  bgShadowColor: 'var(--bg-shadow-color)',
+  fgShadowColor: 'var(--fg-shadow-color)',
+  primaryTransparent: 'var(--primary-transparent)',
   
   // Status Colors
-  info: '#2563eb',              // blue-600
-  success: '#059669',           // emerald-600
-  warning: '#d97706',           // amber-600
-  error: '#dc2626',             // red-600
-  danger: '#b91c1c',            // red-700
-  neutral: '#6b7280',           // gray-500
+  info: 'var(--info)',
+  success: 'var(--success)',
+  warning: 'var(--warning)',
+  error: 'var(--error)',
+  danger: 'var(--danger)',
+  neutral: 'var(--neutral)',
 };
 
 export default colors;

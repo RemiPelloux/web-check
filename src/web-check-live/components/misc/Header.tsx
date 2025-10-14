@@ -1,5 +1,6 @@
 import styled from '@emotion/styled';
 import colors from 'web-check-live/styles/colors';
+import ThemeToggle from './ThemeToggle';
 
 const HeaderContainer = styled.header`
   background: ${colors.backgroundLighter};
@@ -53,6 +54,12 @@ const LogoText = styled.div`
   }
 `;
 
+const RightSection = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+
 const VersionBadge = styled.div`
   background: ${colors.backgroundDarker};
   color: ${colors.textColorSecondary};
@@ -78,9 +85,12 @@ const Header = (): JSX.Element => {
               </LogoText>
             </LogoDivider>
           </LogoSection>
-          <VersionBadge>
-            Version 2.1.0
-          </VersionBadge>
+          <RightSection>
+            <VersionBadge>
+              Version 2.1.0
+            </VersionBadge>
+            <ThemeToggle />
+          </RightSection>
         </HeaderInner>
       </HeaderContent>
     </HeaderContainer>

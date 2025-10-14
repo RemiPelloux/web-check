@@ -1,5 +1,5 @@
 ---
-
+import ThemeToggle from '../molecules/ThemeToggle';
 ---
 
 <nav class="navbar">
@@ -16,6 +16,7 @@
     <a href="/check" class="nav-link">Check</a>
     <a href="/web-check-api" class="nav-link">API</a>
     <a href="/account" class="nav-link">Login</a>
+    <ThemeToggle client:load />
   </div>
 </nav>
 
@@ -70,6 +71,8 @@
 
     .nav-right {
       display: flex;
+      align-items: center;
+      gap: 0.5rem;
 
       .nav-link {
         text-decoration: none;
@@ -101,6 +104,35 @@
         &:hover:after { 
           width: 100%; 
           left: 0; 
+        }
+      }
+
+      :global(.theme-toggle) {
+        background: transparent;
+        border: 1px solid var(--border-color);
+        border-radius: 0.5rem;
+        padding: 0.5rem;
+        cursor: pointer;
+        color: var(--text-color);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        transition: all 0.2s ease;
+        margin-left: 0.5rem;
+
+        &:hover {
+          background: var(--background-card);
+          border-color: var(--primary);
+          transform: scale(1.05);
+        }
+
+        &:active {
+          transform: scale(0.95);
+        }
+
+        svg {
+          width: 20px;
+          height: 20px;
         }
       }
     }

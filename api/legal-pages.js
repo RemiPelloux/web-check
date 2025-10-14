@@ -51,7 +51,10 @@ async function analyzeLegalPages(url) {
         '/politique-confidentialite',
         '/vie-privee',
         '/protection-donnees',
-        '/donnees-personnelles'
+        '/donnees-personnelles',
+        '/protection-des-donnees',
+        '/donnees-privees',
+        '/charte-de-confidentialite'
       ],
       required: true,
       priority: 'critical',
@@ -66,7 +69,10 @@ async function analyzeLegalPages(url) {
         '/legal-notice',
         '/about/legal',
         '/informations-legales',
-        '/infos-legales'
+        '/infos-legales',
+        '/mention-legale',
+        '/legal-information',
+        '/avis-legal'
       ],
       required: true,
       priority: 'critical',
@@ -78,11 +84,17 @@ async function analyzeLegalPages(url) {
         '/conditions-generales-utilisation',
         '/cgu',
         '/c.g.u',
+        '/c-g-u',
         '/terms-of-service',
         '/terms',
         '/conditions',
         '/terms-and-conditions',
-        '/conditions-utilisation'
+        '/conditions-utilisation',
+        '/conditions-generales',
+        '/cgv',
+        '/c.g.v',
+        '/terms-of-use',
+        '/tos'
       ],
       required: true,
       priority: 'high',
@@ -95,7 +107,11 @@ async function analyzeLegalPages(url) {
         '/cookies',
         '/cookie-policy',
         '/politique-de-cookies',
-        '/gestion-cookies'
+        '/gestion-cookies',
+        '/gestion-des-cookies',
+        '/charte-cookies',
+        '/cookie',
+        '/politique-cookie'
       ],
       required: true,
       priority: 'high',
@@ -188,39 +204,61 @@ async function checkLegalPage(domain, pageType, mainPageContent) {
 
   // Method 1: Try direct URL paths with improved validation
   for (const path of pageType.paths) {
-    try {
-      const testUrl = domain + path;
-      const response = await axios.get(testUrl, { 
-        timeout: 8000,
-        validateStatus: (status) => status < 500,
-        maxContentLength: 100000 // Limit to 100KB for performance
-      });
-      
-      if (response.status === 200) {
-        const content = response.data;
+    // Generate path variations (with/without trailing slash, with common extensions)
+    const pathVariations = [
+      path,
+      path + '/',
+      path + '.html',
+      path + '.php',
+      path + '.htm',
+      path.endsWith('/') ? path.slice(0, -1) : null
+    ].filter(Boolean);
+
+    for (const testPath of pathVariations) {
+      try {
+        const testUrl = domain + testPath;
+        const response = await axios.get(testUrl, { 
+          timeout: 8000,
+          validateStatus: (status) => status < 500,
+          maxContentLength: 100000, // Limit to 100KB for performance
+          maxRedirects: 3,
+          headers: {
+            'User-Agent': 'Mozilla/5.0 (compatible; APDP-Scanner/1.0)',
+            'Accept': 'text/html,application/xhtml+xml'
+          }
+        });
         
-        // Validate that this is actually a legal page, not a security block
-        if (isValidLegalPage(content, pageType.name)) {
-          result.found = true;
-          result.accessible = true;
-          result.url = testUrl;
-          result.status = response.status;
-          result.foundVia = 'direct';
-          result.lastModified = response.headers['last-modified'] || null;
-          result.contentLength = content.length;
+        if (response.status === 200) {
+          const content = response.data;
           
-          // Basic content validation
-          validatePageContent(content, result, pageType.name);
-          
-          break; // Found the page, stop checking other paths
-        } else {
-          // This might be a security block page or redirect
-          result.issues.push(`Page trouvée à ${path} mais contenu suspect (page de sécurité ou redirection)`);
+          // Validate that this is actually a legal page, not a security block
+          if (isValidLegalPage(content, pageType.name)) {
+            result.found = true;
+            result.accessible = true;
+            result.url = testUrl;
+            result.status = response.status;
+            result.foundVia = 'direct';
+            result.lastModified = response.headers['last-modified'] || null;
+            result.contentLength = content.length;
+            
+            // Basic content validation
+            validatePageContent(content, result, pageType.name);
+            
+            break; // Found the page, stop checking variations for this path
+          } else {
+            // This might be a security block page or redirect
+            if (!result.issues.some(issue => issue.includes('contenu suspect'))) {
+              result.issues.push(`Page trouvée à ${testPath} mais contenu suspect (page de sécurité ou redirection)`);
+            }
+          }
         }
+      } catch (error) {
+        // Page not found at this path variation, continue checking
       }
-    } catch (error) {
-      // Page not found at this path, continue checking
     }
+    
+    // If found with any variation, stop checking other paths
+    if (result.found) break;
   }
 
   // Method 2: If not found directly, look for links in main page
@@ -322,33 +360,72 @@ function findLegalPageLinks(html, pageType) {
   const links = [];
   const pageName = pageType.name.toLowerCase();
   
+  // Create keyword mapping for each legal page type
+  const keywordsByType = {
+    'Politique de Confidentialité': ['confidentialité', 'privacy', 'données personnelles', 'protection des données', 'vie privée'],
+    'Mentions Légales': ['mentions légales', 'legal', 'mentions', 'informations légales', 'legal notice'],
+    'Conditions Générales d\'Utilisation': ['cgu', 'c.g.u', 'c-g-u', 'conditions', 'terms', 'cgv', 'utilisation'],
+    'Politique de Cookies': ['cookies', 'cookie', 'gestion des cookies'],
+    'Contact/Support': ['contact', 'nous contacter', 'contactez-nous', 'support', 'aide'],
+    'Plan du Site': ['sitemap', 'plan du site', 'plan']
+  };
+  
+  const keywords = keywordsByType[pageType.name] || [];
+  
   // Enhanced regex patterns to find links
   const patterns = [
-    // Look for href attributes with relevant text in link content
-    new RegExp(`<a[^>]+href=["']([^"']+)["'][^>]*>([^<]*(?:${pageName.replace(/\s+/g, '|')})[^<]*)</a>`, 'gi'),
-    // Look for common legal page patterns in href
-    /<a[^>]+href=["']([^"']*(?:privacy|confidentialite|legal|mentions|cgu|c\.g\.u|cookies|contact|terms)[^"']*)["']/gi,
-    // Look for footer links (common location for legal pages) - simplified pattern
-    /<a[^>]+href=["']([^"']+)["'][^>]*>([^<]*(?:legal|mentions|privacy|cookies|contact|terms|cgu)[^<]*)<\/a>/gi
+    // Look for href with relevant keywords in URL
+    /<a[^>]+href=["']([^"']*(?:privacy|confidentialite|confidentialité|legal|mentions|cgu|c\.g\.u|c-g-u|cgv|c\.g\.v|cookies|cookie|contact|terms|conditions|donnees|données|protection)[^"']*)["']/gi,
+    // Look for links with keywords in the link text
+    /<a[^>]+href=["']([^"']+)["'][^>]*>([^<]*(?:confidentialité|privacy|mentions|legal|cgu|c\.g\.u|conditions|cookies|cookie|contact|données|protection|terms)[^<]*)<\/a>/gi,
+    // Look for footer-specific patterns
+    /<footer[^>]*>(.*?)<\/footer>/gi
   ];
   
-  patterns.forEach(pattern => {
-    let match;
-    while ((match = pattern.exec(html)) !== null) {
-      if (match[1] && !links.includes(match[1])) {
-        // Filter out obviously non-legal links
-        const href = match[1].toLowerCase();
-        if (!href.includes('javascript:') && 
-            !href.includes('mailto:') && 
-            !href.includes('tel:') &&
-            !href.startsWith('#')) {
-          links.push(match[1]);
+  // First, try to extract footer content
+  let footerContent = '';
+  const footerMatch = html.match(/<footer[^>]*>(.*?)<\/footer>/is);
+  if (footerMatch) {
+    footerContent = footerMatch[1];
+  }
+  
+  // Search in footer first if available
+  const searchAreas = footerContent ? [footerContent, html] : [html];
+  
+  searchAreas.forEach(searchArea => {
+    patterns.forEach(pattern => {
+      let match;
+      pattern.lastIndex = 0; // Reset regex state
+      while ((match = pattern.exec(searchArea)) !== null) {
+        const href = match[1];
+        const linkText = match[2] || '';
+        
+        if (href && !links.includes(href)) {
+          // Filter out obviously non-legal links
+          const hrefLower = href.toLowerCase();
+          const linkTextLower = linkText.toLowerCase();
+          
+          if (!hrefLower.includes('javascript:') && 
+              !hrefLower.includes('mailto:') && 
+              !hrefLower.includes('tel:') &&
+              !hrefLower.startsWith('#')) {
+            
+            // Check if this link matches any of our keywords
+            const matchesKeyword = keywords.some(keyword => 
+              hrefLower.includes(keyword.toLowerCase()) || 
+              linkTextLower.includes(keyword.toLowerCase())
+            );
+            
+            if (matchesKeyword) {
+              links.push(href);
+            }
+          }
         }
       }
-    }
+    });
   });
   
-  return links;
+  return [...new Set(links)]; // Remove duplicates
 }
 
 function validatePageContent(content, result, pageType) {

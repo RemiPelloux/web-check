@@ -74,5 +74,22 @@ const redirects = {
 // }
 
 // Export Astro configuration
-export default defineConfig({ output, base, integrations, site, adapter, redirects });
+export default defineConfig({ 
+  output, 
+  base, 
+  integrations, 
+  site, 
+  adapter, 
+  redirects,
+  vite: {
+    css: {
+      preprocessorOptions: {
+        scss: {
+          api: 'modern-compiler', // Use modern Sass API
+          silenceDeprecations: ['legacy-js-api', 'import'],
+        },
+      },
+    },
+  },
+});
 
