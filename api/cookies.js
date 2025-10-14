@@ -188,7 +188,7 @@ const getPuppeteerCookies = async (url) => {
     }
     
     // Wait a bit more for dynamic content
-    await page.waitForTimeout(3000);
+    await new Promise(resolve => setTimeout(resolve, 3000));
     
     // Get cookies from the page
     let cookies = await page.cookies();

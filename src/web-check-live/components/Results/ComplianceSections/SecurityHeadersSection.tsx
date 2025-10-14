@@ -78,3 +78,8 @@ const SecurityHeadersSection: React.FC<SecurityHeadersSectionProps> = ({ headers
 };
 
 export default SecurityHeadersSection;
+
+
+
+
+

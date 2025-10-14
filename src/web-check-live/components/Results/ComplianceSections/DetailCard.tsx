@@ -37,3 +37,8 @@ const DetailCard: React.FC<DetailCardProps> = ({ icon, title, children }) => {
 };
 
 export default DetailCard;
+
+
+
+
+

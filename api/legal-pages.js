@@ -39,7 +39,7 @@ async function analyzeLegalPages(url) {
 
   const domain = new URL(url).origin;
 
-  // Define standard legal pages for compliance
+  // Enhanced legal pages detection with more comprehensive paths
   const requiredPages = [
     {
       name: 'Politique de Confidentialité',
@@ -49,7 +49,9 @@ async function analyzeLegalPages(url) {
         '/privacy-policy',
         '/privacy',
         '/politique-confidentialite',
-        '/vie-privee'
+        '/vie-privee',
+        '/protection-donnees',
+        '/donnees-personnelles'
       ],
       required: true,
       priority: 'critical',
@@ -62,7 +64,9 @@ async function analyzeLegalPages(url) {
         '/legal',
         '/mentions',
         '/legal-notice',
-        '/about/legal'
+        '/about/legal',
+        '/informations-legales',
+        '/infos-legales'
       ],
       required: true,
       priority: 'critical',
@@ -73,10 +77,12 @@ async function analyzeLegalPages(url) {
       paths: [
         '/conditions-generales-utilisation',
         '/cgu',
+        '/c.g.u',
         '/terms-of-service',
         '/terms',
         '/conditions',
-        '/terms-and-conditions'
+        '/terms-and-conditions',
+        '/conditions-utilisation'
       ],
       required: true,
       priority: 'high',
@@ -88,7 +94,8 @@ async function analyzeLegalPages(url) {
         '/politique-cookies',
         '/cookies',
         '/cookie-policy',
-        '/politique-de-cookies'
+        '/politique-de-cookies',
+        '/gestion-cookies'
       ],
       required: true,
       priority: 'high',
@@ -101,7 +108,8 @@ async function analyzeLegalPages(url) {
         '/nous-contacter',
         '/support',
         '/aide',
-        '/help'
+        '/help',
+        '/contactez-nous'
       ],
       required: true,
       priority: 'medium',
@@ -112,7 +120,8 @@ async function analyzeLegalPages(url) {
       paths: [
         '/sitemap',
         '/plan-du-site',
-        '/plan-site'
+        '/plan-site',
+        '/site-map'
       ],
       required: false,
       priority: 'low',
@@ -127,7 +136,8 @@ async function analyzeLegalPages(url) {
       timeout: 10000,
       headers: {
         'User-Agent': 'Mozilla/5.0 (compatible; APDP-Scanner/1.0)'
-      }
+      },
+      validateStatus: (status) => status < 500
     });
     mainPageContent = mainResponse.data;
   } catch (error) {
@@ -176,38 +186,37 @@ async function checkLegalPage(domain, pageType, mainPageContent) {
     foundVia: null // 'direct', 'link', 'footer'
   };
 
-  // Method 1: Try direct URL paths
+  // Method 1: Try direct URL paths with improved validation
   for (const path of pageType.paths) {
     try {
       const testUrl = domain + path;
-      const response = await axios.head(testUrl, { 
-        timeout: 5000,
-        validateStatus: (status) => status < 500
+      const response = await axios.get(testUrl, { 
+        timeout: 8000,
+        validateStatus: (status) => status < 500,
+        maxContentLength: 100000 // Limit to 100KB for performance
       });
       
       if (response.status === 200) {
-        result.found = true;
-        result.accessible = true;
-        result.url = testUrl;
-        result.status = response.status;
-        result.foundVia = 'direct';
-        result.lastModified = response.headers['last-modified'] || null;
+        const content = response.data;
         
-        // Get content length for basic validation
-        try {
-          const contentResponse = await axios.get(testUrl, { 
-            timeout: 8000,
-            maxContentLength: 50000 // Limit to 50KB for performance
-          });
-          result.contentLength = contentResponse.data.length;
+        // Validate that this is actually a legal page, not a security block
+        if (isValidLegalPage(content, pageType.name)) {
+          result.found = true;
+          result.accessible = true;
+          result.url = testUrl;
+          result.status = response.status;
+          result.foundVia = 'direct';
+          result.lastModified = response.headers['last-modified'] || null;
+          result.contentLength = content.length;
           
           // Basic content validation
-          validatePageContent(contentResponse.data, result, pageType.name);
-        } catch (error) {
-          result.issues.push('Failed to fetch page content for validation');
+          validatePageContent(content, result, pageType.name);
+          
+          break; // Found the page, stop checking other paths
+        } else {
+          // This might be a security block page or redirect
+          result.issues.push(`Page trouvée à ${path} mais contenu suspect (page de sécurité ou redirection)`);
         }
-        
-        break; // Found the page, stop checking other paths
       }
     } catch (error) {
       // Page not found at this path, continue checking
@@ -219,26 +228,34 @@ async function checkLegalPage(domain, pageType, mainPageContent) {
     const pageLinks = findLegalPageLinks(mainPageContent, pageType);
     if (pageLinks.length > 0) {
       // Test the first found link
-      try {
-        const linkUrl = new URL(pageLinks[0], domain).href;
-        const response = await axios.head(linkUrl, { 
-          timeout: 5000,
-          validateStatus: (status) => status < 500
-        });
-        
-        if (response.status === 200) {
-          result.found = true;
-          result.accessible = true;
-          result.url = linkUrl;
-          result.status = response.status;
-          result.foundVia = 'link';
-          result.lastModified = response.headers['last-modified'] || null;
+      for (const linkPath of pageLinks.slice(0, 3)) { // Test up to 3 links
+        try {
+          const linkUrl = new URL(linkPath, domain).href;
+          const response = await axios.get(linkUrl, { 
+            timeout: 8000,
+            validateStatus: (status) => status < 500,
+            maxContentLength: 100000
+          });
+          
+          if (response.status === 200 && isValidLegalPage(response.data, pageType.name)) {
+            result.found = true;
+            result.accessible = true;
+            result.url = linkUrl;
+            result.status = response.status;
+            result.foundVia = 'link';
+            result.lastModified = response.headers['last-modified'] || null;
+            result.contentLength = response.data.length;
+            
+            validatePageContent(response.data, result, pageType.name);
+            break;
+          }
+        } catch (error) {
+          // Continue to next link
         }
-      } catch (error) {
-        result.found = true;
-        result.accessible = false;
-        result.url = pageLinks[0];
-        result.issues.push('Page found in links but not accessible');
+      }
+      
+      if (!result.found) {
+        result.issues.push('Liens trouvés dans la page principale mais pages non accessibles');
       }
     }
   }
@@ -253,23 +270,80 @@ async function checkLegalPage(domain, pageType, mainPageContent) {
   return result;
 }
 
+function isValidLegalPage(content, pageType) {
+  if (!content || typeof content !== 'string') {
+    return false;
+  }
+
+  const contentLower = content.toLowerCase();
+  
+  // Check for security block pages (like Monaco example)
+  const securityBlockIndicators = [
+    'navigation bloquée',
+    'votre navigation sur cette page internet a été bloquée',
+    'blocked for security reasons',
+    'access denied',
+    'securite-web@',
+    'support id:',
+    'security block',
+    'page bloquée'
+  ];
+  
+  if (securityBlockIndicators.some(indicator => contentLower.includes(indicator))) {
+    return false;
+  }
+
+  // Check for redirect pages
+  if (contentLower.includes('<meta http-equiv="refresh"') || 
+      contentLower.includes('window.location') ||
+      content.length < 100) {
+    return false;
+  }
+
+  // Basic validation that this looks like a legal page
+  const legalPageIndicators = {
+    'Politique de Confidentialité': ['données personnelles', 'privacy', 'confidentialité', 'traitement', 'rgpd'],
+    'Mentions Légales': ['mentions légales', 'legal notice', 'raison sociale', 'siège social', 'directeur'],
+    'Conditions Générales d\'Utilisation': ['conditions', 'utilisation', 'terms', 'service', 'cgu'],
+    'Politique de Cookies': ['cookies', 'cookie', 'consentement', 'traceurs'],
+    'Contact/Support': ['contact', 'email', 'téléphone', 'adresse', 'nous contacter'],
+    'Plan du Site': ['sitemap', 'plan du site', 'navigation']
+  };
+
+  const indicators = legalPageIndicators[pageType] || [];
+  const hasRelevantContent = indicators.some(indicator => 
+    contentLower.includes(indicator.toLowerCase())
+  );
+
+  return hasRelevantContent && content.length > 200;
+}
+
 function findLegalPageLinks(html, pageType) {
   const links = [];
   const pageName = pageType.name.toLowerCase();
   
-  // Create regex patterns to find links
+  // Enhanced regex patterns to find links
   const patterns = [
-    // Look for href attributes with relevant text
+    // Look for href attributes with relevant text in link content
     new RegExp(`<a[^>]+href=["']([^"']+)["'][^>]*>([^<]*(?:${pageName.replace(/\s+/g, '|')})[^<]*)</a>`, 'gi'),
-    // Look for common legal page patterns
-    /<a[^>]+href=["']([^"']*(?:privacy|confidentialite|legal|mentions|cgu|cookies|contact)[^"']*)["']/gi
+    // Look for common legal page patterns in href
+    /<a[^>]+href=["']([^"']*(?:privacy|confidentialite|legal|mentions|cgu|c\.g\.u|cookies|contact|terms)[^"']*)["']/gi,
+    // Look for footer links (common location for legal pages) - simplified pattern
+    /<a[^>]+href=["']([^"']+)["'][^>]*>([^<]*(?:legal|mentions|privacy|cookies|contact|terms|cgu)[^<]*)<\/a>/gi
   ];
   
   patterns.forEach(pattern => {
     let match;
     while ((match = pattern.exec(html)) !== null) {
       if (match[1] && !links.includes(match[1])) {
-        links.push(match[1]);
+        // Filter out obviously non-legal links
+        const href = match[1].toLowerCase();
+        if (!href.includes('javascript:') && 
+            !href.includes('mailto:') && 
+            !href.includes('tel:') &&
+            !href.startsWith('#')) {
+          links.push(match[1]);
+        }
       }
     }
   });
@@ -307,11 +381,11 @@ function validatePageContent(content, result, pageType) {
 
 function validatePrivacyPolicy(content, result) {
   const requiredElements = [
-    { term: 'données personnelles', label: 'Mention des données personnelles' },
-    { term: 'finalité|utilisation', label: 'Finalités du traitement' },
-    { term: 'droit|droits', label: 'Droits des personnes' },
-    { term: 'contact|responsable', label: 'Contact du responsable' },
-    { term: 'durée|conservation', label: 'Durée de conservation' }
+    { term: 'données personnelles|personal data', label: 'Mention des données personnelles' },
+    { term: 'finalité|utilisation|purpose', label: 'Finalités du traitement' },
+    { term: 'droit|droits|rights', label: 'Droits des personnes' },
+    { term: 'contact|responsable|controller', label: 'Contact du responsable' },
+    { term: 'durée|conservation|retention', label: 'Durée de conservation' }
   ];
   
   requiredElements.forEach(element => {
@@ -320,18 +394,18 @@ function validatePrivacyPolicy(content, result) {
     }
   });
   
-  // Check for APDP specific mentions
-  if (!content.includes('apdp') && !content.includes('monaco')) {
-    result.issues.push('Aucune référence à l\'APDP Monaco trouvée');
+  // Check for GDPR/APDP specific mentions
+  if (!content.includes('rgpd') && !content.includes('gdpr') && !content.includes('apdp')) {
+    result.issues.push('Aucune référence à la réglementation (RGPD/APDP) trouvée');
   }
 }
 
 function validateLegalNotice(content, result) {
   const requiredElements = [
-    { term: 'raison sociale|dénomination', label: 'Raison sociale' },
-    { term: 'adresse|siège', label: 'Adresse' },
-    { term: 'téléphone|contact', label: 'Coordonnées' },
-    { term: 'directeur|responsable', label: 'Directeur de publication' }
+    { term: 'raison sociale|dénomination|company name', label: 'Raison sociale' },
+    { term: 'adresse|siège|address', label: 'Adresse' },
+    { term: 'téléphone|contact|phone', label: 'Coordonnées' },
+    { term: 'directeur|responsable|director', label: 'Directeur de publication' }
   ];
   
   requiredElements.forEach(element => {
@@ -343,9 +417,9 @@ function validateLegalNotice(content, result) {
 
 function validateTermsOfService(content, result) {
   const requiredElements = [
-    { term: 'conditions|utilisation', label: 'Conditions d\'utilisation' },
-    { term: 'responsabilité', label: 'Limitation de responsabilité' },
-    { term: 'propriété|intellectuelle', label: 'Propriété intellectuelle' }
+    { term: 'conditions|utilisation|terms', label: 'Conditions d\'utilisation' },
+    { term: 'responsabilité|liability', label: 'Limitation de responsabilité' },
+    { term: 'propriété|intellectuelle|intellectual', label: 'Propriété intellectuelle' }
   ];
   
   requiredElements.forEach(element => {
@@ -358,9 +432,9 @@ function validateTermsOfService(content, result) {
 function validateCookiePolicy(content, result) {
   const requiredElements = [
     { term: 'cookies', label: 'Explication des cookies' },
-    { term: 'consentement|accepter', label: 'Gestion du consentement' },
-    { term: 'désactiver|refuser', label: 'Options de refus' },
-    { term: 'finalité|utilisation', label: 'Finalités des cookies' }
+    { term: 'consentement|accepter|consent', label: 'Gestion du consentement' },
+    { term: 'désactiver|refuser|disable', label: 'Options de refus' },
+    { term: 'finalité|utilisation|purpose', label: 'Finalités des cookies' }
   ];
   
   requiredElements.forEach(element => {
@@ -374,7 +448,7 @@ function validateContactPage(content, result) {
   const requiredElements = [
     { term: 'email|@|courriel', label: 'Adresse email' },
     { term: 'téléphone|tel|phone', label: 'Numéro de téléphone' },
-    { term: 'adresse|rue|avenue', label: 'Adresse postale' }
+    { term: 'adresse|rue|avenue|address', label: 'Adresse postale' }
   ];
   
   let contactMethods = 0;
@@ -508,4 +582,3 @@ function generateRecommendations(results) {
 }
 
 export default middleware(handler);
-
