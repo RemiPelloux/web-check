@@ -37,7 +37,7 @@ const tlsCipherSuitesHandler = async (url) => {
 };
 
 async function analyzeTLSConnection(hostname, port) {
-  return new Promise((resolve) => {
+  return new Promise((resolve, reject) => {
     const result = {
       hostname,
       port: parseInt(port),
@@ -49,9 +49,18 @@ async function analyzeTLSConnection(hostname, port) {
       securityLevel: 'unknown'
     };
 
+    // Set a timeout for the entire TLS analysis
+    const timeout = setTimeout(() => {
+      socket.destroy();
+      result.summary = 'TLS connection timeout';
+      result.error = 'Connection timeout after 3 seconds';
+      resolve(result);
+    }, 3000);
+
     const socket = tls.connect(port, hostname, {
       servername: hostname,
-      rejectUnauthorized: false // We want to analyze even invalid certs
+      rejectUnauthorized: false, // We want to analyze even invalid certs
+      timeout: 3000
     }, () => {
       try {
         const cipher = socket.getCipher();
@@ -88,10 +97,12 @@ async function analyzeTLSConnection(hostname, port) {
         result.securityLevel = assessSecurityLevel(cipher, protocol);
         result.summary = `TLS ${protocol} with ${cipher?.name || 'unknown cipher'}`;
 
+        clearTimeout(timeout);
         socket.end();
         resolve(result);
 
       } catch (error) {
+        clearTimeout(timeout);
         socket.end();
         result.summary = 'TLS connection established but analysis failed';
         resolve(result);
@@ -99,8 +110,17 @@ async function analyzeTLSConnection(hostname, port) {
     });
 
     socket.on('error', (error) => {
+      clearTimeout(timeout);
       result.error = error.message;
       result.summary = 'TLS connection failed';
+      resolve(result);
+    });
+
+    socket.on('timeout', () => {
+      clearTimeout(timeout);
+      socket.destroy();
+      result.summary = 'TLS socket timeout';
+      result.error = 'Socket timeout';
       resolve(result);
     });
 

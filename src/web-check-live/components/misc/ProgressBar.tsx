@@ -191,6 +191,7 @@ const jobNames = [
   'get-ip',
   'location',
   'ssl',
+  'tls',
   'domain',
   'quality',
   'tech-stack',
@@ -226,6 +227,13 @@ const jobNames = [
   'features',
   'sitemap',
   'carbon',
+  'accessibility-check',
+  'api-surface',
+  'mixed-content',
+  'performance-metrics',
+  'pwa-audit',
+  'seo-analysis',
+  'third-party-risk',
 ] as const;
 
 interface JobListItemProps {

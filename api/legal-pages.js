@@ -152,9 +152,22 @@ async function analyzeLegalPages(url, startTime, hardTimeout) {
 async function fetchHomepageVariants(baseURL, startTime, hardTimeout) {
   const results = [];
   
+  // Realistic browser headers to avoid 403 blocks
+  const browserHeaders = {
+    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+    'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+    'Accept-Encoding': 'gzip, deflate, br',
+    'Connection': 'keep-alive',
+    'Upgrade-Insecure-Requests': '1',
+    'Sec-Fetch-Dest': 'document',
+    'Sec-Fetch-Mode': 'navigate',
+    'Sec-Fetch-Site': 'none',
+    'Cache-Control': 'max-age=0'
+  };
+  
   const fetchOptions = [
-    { url: baseURL, lang: 'fr', headers: { ...LANG_PROFILES.fr, 'User-Agent': 'Mozilla/5.0 (APDP-Scanner)' } },
-    { url: baseURL, lang: 'en', headers: { ...LANG_PROFILES.en, 'User-Agent': 'Mozilla/5.0 (APDP-Scanner)' } }
+    { url: baseURL, lang: 'fr', headers: { ...browserHeaders, ...LANG_PROFILES.fr } },
+    { url: baseURL, lang: 'en', headers: { ...browserHeaders, ...LANG_PROFILES.en } }
   ];
 
   const promises = fetchOptions.map(async (opt) => {
@@ -163,7 +176,7 @@ async function fetchHomepageVariants(baseURL, startTime, hardTimeout) {
     try {
       const response = await axios.get(opt.url, {
         headers: opt.headers,
-        timeout: 2000,
+        timeout: 4000, // Increased timeout
         maxContentLength: 300000, // 300KB max
         maxRedirects: 5,
         validateStatus: (s) => s < 500
@@ -172,7 +185,7 @@ async function fetchHomepageVariants(baseURL, startTime, hardTimeout) {
       if (response.status === 200) {
         return {
           html: response.data,
-          finalUrl: response.request.res.responseUrl || opt.url,
+          finalUrl: response.request.res?.responseUrl || opt.url,
           lang: opt.lang
         };
       }
@@ -353,18 +366,24 @@ async function probeCandidate(candidate, startTime, hardTimeout) {
 
   try {
     const response = await axios.get(candidate.url, {
-      timeout: 3000,
+      timeout: 4000,
       maxContentLength: 300000,
       maxRedirects: 5,
       validateStatus: (s) => s < 500,
       headers: {
-        'User-Agent': 'Mozilla/5.0 (APDP-Scanner)'
+        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,*/*;q=0.8',
+        'Accept-Encoding': 'gzip, deflate, br',
+        'Connection': 'keep-alive',
+        'Sec-Fetch-Dest': 'document',
+        'Sec-Fetch-Mode': 'navigate',
+        'Sec-Fetch-Site': 'same-origin'
       }
     });
 
     if (response.status !== 200) return null;
 
-    const finalUrl = response.request.res.responseUrl || candidate.url;
+    const finalUrl = response.request.res?.responseUrl || candidate.url;
     const content = response.data;
     const contentType = response.headers['content-type'] || '';
 
@@ -542,10 +561,16 @@ async function tryLocaleRoots(baseURL, state, startTime, hardTimeout) {
 
     try {
       const response = await axios.get(url, {
-        timeout: 2000,
+        timeout: 3000,
         maxContentLength: 200000,
         maxRedirects: 3,
-        validateStatus: (s) => s < 500
+        validateStatus: (s) => s < 500,
+        headers: {
+          'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+          'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8',
+          'Accept-Encoding': 'gzip, deflate, br',
+          'Connection': 'keep-alive'
+        }
       });
 
       if (response.status === 200) {
