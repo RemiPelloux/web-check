@@ -185,3 +185,4 @@ function detectFromHeaders(headers, result) {
 
 export const handler = middleware(featuresHandler);
 export default handler;
+

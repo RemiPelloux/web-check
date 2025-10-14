@@ -558,3 +558,4 @@ function generateAccessibilityRecommendations(results) {
 }
 
 export default middleware(handler);
+

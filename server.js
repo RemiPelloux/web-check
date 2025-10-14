@@ -39,7 +39,7 @@ const limits = [
 // Construct a message to be returned if the user has been rate-limited
 const makeLimiterResponseMsg = (retryAfter) => {
   const why = 'This keeps the service running smoothly for everyone. '
-  + 'You can get around these limits by running your own instance of Web Check.';
+  + 'You can get around these limits by running your own instance of Outil d\'Audit de Conformité.';
   return `You've been rate-limited, please try again in ${retryAfter} seconds.\n${why}`;
 };
 

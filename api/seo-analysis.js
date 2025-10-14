@@ -651,3 +651,4 @@ function generateSEORecommendations(results) {
 }
 
 export default middleware(handler);
+

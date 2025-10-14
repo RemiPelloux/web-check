@@ -216,3 +216,4 @@ function generateSuggestions(categories) {
 
 export const handler = middleware(qualityHandler);
 export default handler;
+

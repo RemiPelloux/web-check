@@ -30,3 +30,4 @@ const screenshotHandler = async (url) => {
 
 export const handler = middleware(screenshotHandler);
 export default handler;
+
