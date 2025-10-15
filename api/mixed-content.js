@@ -2,7 +2,7 @@ import cheerio from 'cheerio';
 import middleware from './_common/middleware.js';
 import { fetchHtml } from './_common/http.js';
 
-const MAX_DURATION_MS = 9000;
+const MAX_DURATION_MS = 6000; // Reduced for faster completion
 const RESOURCE_SELECTORS = [
   { selector: 'script[src]', attr: 'src', type: 'script' },
   { selector: 'link[rel="stylesheet"]', attr: 'href', type: 'stylesheet' },
@@ -42,10 +42,10 @@ const mixedContentHandler = async (url) => {
   }
 
   try {
-    const response = await fetchHtml(url);
+    const response = await fetchHtml(url, { timeout: 5000 }); // Faster timeout
     const html = response.data;
     const headers = response.headers || {};
-    const $ = cheerio.load(html);
+    const $ = cheerio.load(html, { decodeEntities: false }); // Faster parsing
 
     const totals = { script: 0, stylesheet: 0, image: 0, media: 0, iframe: 0, object: 0, embed: 0, form: 0 };
     const insecureResources = [];

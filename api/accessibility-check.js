@@ -45,23 +45,19 @@ async function analyzeAccessibility(url) {
 
   try {
     const response = await axios.get(url, {
-      timeout: 8000,
-      maxContentLength: 3 * 1024 * 1024,
+      timeout: 5000, // Reduced for faster completion
+      maxContentLength: 2 * 1024 * 1024, // Smaller limit
       validateStatus: () => true,
-      maxRedirects: 5
+      maxRedirects: 3 // Fewer redirects
     });
 
     if (typeof response.data === 'string') {
       const html = response.data;
       
-      // Run accessibility checks
-      await Promise.all([
-        checkImages(html, results),
-        checkForms(html, results),
-        checkNavigation(html, results),
-        checkContent(html, results),
-        checkStructure(html, results)
-      ]);
+      // Run lightweight accessibility checks (simplified for speed)
+      checkImages(html, results);
+      checkForms(html, results);
+      checkContent(html, results); // Most critical checks only
 
       // Calculate overall score and level
       calculateAccessibilityScore(results);

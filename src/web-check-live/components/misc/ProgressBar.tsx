@@ -226,13 +226,10 @@ const jobNames = [
   'features',
   'sitemap',
   'carbon',
-  'accessibility-check',
-  'api-surface',
-  'mixed-content',
-  'performance-metrics',
-  'pwa-audit',
-  'seo-analysis',
-  'third-party-risk',
+  'apdp-cookie-banner',
+  'apdp-privacy-policy',
+  'apdp-legal-notices',
+  'apdp-user-rights',
 ] as const;
 
 interface JobListItemProps {

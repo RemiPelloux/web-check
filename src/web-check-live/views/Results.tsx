@@ -62,6 +62,10 @@ import ThreatsCard from 'web-check-live/components/Results/Threats';
 import TlsCipherSuitesCard from 'web-check-live/components/Results/TlsCipherSuites';
 import TlsIssueAnalysisCard from 'web-check-live/components/Results/TlsIssueAnalysis';
 import TlsClientSupportCard from 'web-check-live/components/Results/TlsClientSupport';
+import ApdpCookieBannerCard from 'web-check-live/components/Results/ApdpCookieBanner';
+import ApdpPrivacyPolicyCard from 'web-check-live/components/Results/ApdpPrivacyPolicy';
+import ApdpLegalNoticesCard from 'web-check-live/components/Results/ApdpLegalNotices';
+import ApdpUserRightsCard from 'web-check-live/components/Results/ApdpUserRights';
 
 import keys from 'web-check-live/utils/get-keys';
 import { determineAddressType, type AddressType } from 'web-check-live/utils/address-type-checker';
@@ -209,7 +213,7 @@ const Results = (props: { address?: string } ): JSX.Element => {
 
       if (newState === 'success') {
         console.log(
-          `%cFetch Success - ${job}%c\n\n${timeString}%c The ${job} job succeeded in ${timeTaken}ms`
+          `%cSuccès - ${job}%c\n\n${timeString}%c Le job ${job} a réussi en ${timeTaken}ms`
           + `\n%cRun %cwindow.webCheck['${job}']%c to inspect the raw the results`,
           `background:${colors.success};color:${colors.background};padding: 4px 8px;font-size:16px;`,
           `font-weight: bold; color: ${colors.success};`,
@@ -222,7 +226,7 @@ const Results = (props: { address?: string } ): JSX.Element => {
   
       if (newState === 'error') {
         console.log(
-          `%cFetch Error - ${job}%c\n\n${timeString}%c The ${job} job failed `
+          `%cErreur - ${job}%c\n\n${timeString}%c Le job ${job} a échoué `
           +`after ${timeTaken}ms, with the following error:%c\n${error}`,
           `background: ${colors.danger}; color:${colors.background}; padding: 4px 8px; font-size: 16px;`,
           `font-weight: bold; color: ${colors.danger};`,
@@ -233,7 +237,7 @@ const Results = (props: { address?: string } ): JSX.Element => {
 
       if (newState === 'timed-out') {
         console.log(
-          `%cFetch Timeout - ${job}%c\n\n${timeString}%c The ${job} job timed out `
+          `%cDélai Expiré - ${job}%c\n\n${timeString}%c Le job ${job} a expiré `
           +`after ${timeTaken}ms, with the following error:%c\n${error}`,
           `background: ${colors.info}; color:${colors.background}; padding: 4px 8px; font-size: 16px;`,
           `font-weight: bold; color: ${colors.info};`,
@@ -559,6 +563,35 @@ const Results = (props: { address?: string } ): JSX.Element => {
     fetchRequest: () => fetch(`${api}/carbon?url=${address}`).then(res => parseJson(res)),
   });
 
+  // APDP Compliance checks
+  const [apdpCookieBannerResults, updateApdpCookieBannerResults] = useMotherHook({
+    jobId: 'apdp-cookie-banner',
+    updateLoadingJobs,
+    addressInfo: { address, addressType, expectedAddressTypes: urlTypeOnly },
+    fetchRequest: () => fetch(`${api}/apdp-cookie-banner?url=${address}`).then(res => parseJson(res)),
+  });
+
+  const [apdpPrivacyPolicyResults, updateApdpPrivacyPolicyResults] = useMotherHook({
+    jobId: 'apdp-privacy-policy',
+    updateLoadingJobs,
+    addressInfo: { address, addressType, expectedAddressTypes: urlTypeOnly },
+    fetchRequest: () => fetch(`${api}/apdp-privacy-policy?url=${address}`).then(res => parseJson(res)),
+  });
+
+  const [apdpLegalNoticesResults, updateApdpLegalNoticesResults] = useMotherHook({
+    jobId: 'apdp-legal-notices',
+    updateLoadingJobs,
+    addressInfo: { address, addressType, expectedAddressTypes: urlTypeOnly },
+    fetchRequest: () => fetch(`${api}/apdp-legal-notices?url=${address}`).then(res => parseJson(res)),
+  });
+
+  const [apdpUserRightsResults, updateApdpUserRightsResults] = useMotherHook({
+    jobId: 'apdp-user-rights',
+    updateLoadingJobs,
+    addressInfo: { address, addressType, expectedAddressTypes: urlTypeOnly },
+    fetchRequest: () => fetch(`${api}/apdp-user-rights?url=${address}`).then(res => parseJson(res)),
+  });
+
   // Get site features from BuiltWith
   const [siteFeaturesResults, updateSiteFeaturesResults] = useMotherHook({
     jobId: 'features',
@@ -606,7 +639,7 @@ const Results = (props: { address?: string } ): JSX.Element => {
       }),
   });
 
-  /* Cancel remaining jobs after  10 second timeout */
+  /* Cancel remaining jobs after 20 second timeout */
   useEffect(() => {
     const checkJobs = () => {
       loadingJobs.forEach(job => {
@@ -615,7 +648,7 @@ const Results = (props: { address?: string } ): JSX.Element => {
         }
       });
     };
-    const timeoutId = setTimeout(checkJobs, 10000);
+    const timeoutId = setTimeout(checkJobs, 20000); // 20s timeout - optimized plugins
     return () => {
       clearTimeout(timeoutId);
     };
@@ -746,42 +779,42 @@ const Results = (props: { address?: string } ): JSX.Element => {
          },
     {
       id: 'location',
-      title: 'Server Location',
+      title: 'Localisation Serveur',
       result: locationResults,
       Component: ServerLocationCard,
       refresh: updateLocationResults,
       tags: ['server'],
     }, {
       id: 'ssl',
-      title: 'SSL Certificate',
+      title: 'Certificat SSL',
       result: sslResults,
       Component: SslCertCard,
       refresh: updateSslResults,
       tags: ['server', 'security'],
     }, {
       id: 'domain',
-      title: 'Domain Whois',
+      title: 'Informations Domaine',
       result: domainLookupResults,
       Component: DomainLookup,
       refresh: updateDomainLookupResults,
       tags: ['server'],
     }, {
       id: 'quality',
-      title: 'Quality Summary',
+      title: 'Résumé Qualité',
       result: lighthouseResults,
       Component: LighthouseCard,
       refresh: updateLighthouseResults,
       tags: ['client'],
     }, {
       id: 'tech-stack',
-      title: 'Tech Stack',
+      title: 'Technologies Utilisées',
       result: techStackResults,
       Component: TechStackCard,
       refresh: updateTechStackResults,
       tags: ['client', 'meta'],
     }, {
       id: 'server-info',
-      title: 'Server Info',
+      title: 'Informations Serveur',
       result: shoadnResults?.serverInfo,
       Component: ServerInfoCard,
       refresh: updateShodanResults,
@@ -795,63 +828,63 @@ const Results = (props: { address?: string } ): JSX.Element => {
       tags: ['client', 'security'],
     }, {
       id: 'headers',
-      title: 'Headers',
+      title: 'En-têtes HTTP',
       result: headersResults,
       Component: HeadersCard,
       refresh: updateHeadersResults,
       tags: ['client', 'security'],
     }, {
       id: 'dns',
-      title: 'DNS Records',
+      title: 'Enregistrements DNS',
       result: dnsResults,
       Component: DnsRecordsCard,
       refresh: updateDnsResults,
       tags: ['server'],
     }, {
       id: 'hosts',
-      title: 'Host Names',
+      title: 'Noms d\'Hôtes',
       result: shoadnResults?.hostnames,
       Component: HostNamesCard,
       refresh: updateShodanResults,
       tags: ['server'],
     }, {
       id: 'http-security',
-      title: 'HTTP Security',
+      title: 'Sécurité HTTP',
       result: httpSecurityResults,
       Component: HttpSecurityCard,
       refresh: updateHttpSecurityResults,
       tags: ['security'],
     }, {
       id: 'social-tags',
-      title: 'Social Tags',
+      title: 'Métadonnées Sociales',
       result: socialTagResults,
       Component: SocialTagsCard,
       refresh: updateSocialTagResults,
       tags: ['client', 'meta'],
     }, {
       id: 'trace-route',
-      title: 'Trace Route',
+      title: 'Traçage Route',
       result: traceRouteResults,
       Component: TraceRouteCard,
       refresh: updateTraceRouteResults,
       tags: ['server'],
     }, {
       id: 'security-txt',
-      title: 'Security.Txt',
+      title: 'Fichier Security.txt',
       result: securityTxtResults,
       Component: SecurityTxtCard,
       refresh: updateSecurityTxtResults,
       tags: ['security'],
     }, {
       id: 'dns-server',
-      title: 'DNS Server',
+      title: 'Serveur DNS',
       result: dnsServerResults,
       Component: DnsServerCard,
       refresh: updateDnsServerResults,
       tags: ['server'],
     }, {
       id: 'firewall',
-      title: 'Firewall',
+      title: 'Pare-feu',
       result: firewallResults,
       Component: FirewallCard,
       refresh: updateFirewallResults,
@@ -865,144 +898,176 @@ const Results = (props: { address?: string } ): JSX.Element => {
       tags: ['security'],
     }, {
       id: 'hsts',
-      title: 'HSTS Check',
+      title: 'Vérification HSTS',
       result: hstsResults,
       Component: HstsCard,
       refresh: updateHstsResults,
       tags: ['security'],
     }, {
       id: 'threats',
-      title: 'Threats',
+      title: 'Menaces',
       result: threatResults,
       Component: ThreatsCard,
       refresh: updateThreatResults,
       tags: ['security'],
     }, {
       id: 'mail-config',
-      title: 'Email Configuration',
+      title: 'Configuration Email',
       result: mailConfigResults,
       Component: MailConfigCard,
       refresh: updateMailConfigResults,
       tags: ['server'],
     }, {
       id: 'archives',
-      title: 'Archive History',
+      title: 'Historique Archives',
       result: archivesResults,
       Component: ArchivesCard,
       refresh: updateArchivesResults,
       tags: ['meta'],
     }, {
       id: 'rank',
-      title: 'Global Ranking',
+      title: 'Classement Global',
       result: rankResults,
       Component: RankCard,
       refresh: updateRankResults,
       tags: ['meta'],
     }, {
       id: 'screenshot',
-      title: 'Screenshot',
+      title: 'Capture d\'Écran',
       result: screenshotResult || lighthouseResults?.fullPageScreenshot?.screenshot,
       Component: ScreenshotCard,
       refresh: updateScreenshotResult,
       tags: ['client', 'meta'],
     }, {
       id: 'tls-cipher-suites',
-      title: 'TLS Cipher Suites',
+      title: 'Suites de Chiffrement TLS',
       result: tlsResults,
       Component: TlsCipherSuitesCard,
       refresh: updateTlsResults,
       tags: ['server', 'security'],
     }, {
       id: 'tls-security-config',
-      title: 'TLS Security Issues',
+      title: 'Problèmes Sécurité TLS',
       result: tlsResults,
       Component: TlsIssueAnalysisCard,
       refresh: updateTlsResults,
       tags: ['security'],
     }, {
       id: 'tls-client-support',
-      title: 'TLS Handshake Simulation',
+      title: 'Simulation Handshake TLS',
       result: tlsResults,
       Component: TlsClientSupportCard,
       refresh: updateTlsResults,
       tags: ['security'],
     }, {
       id: 'redirects',
-      title: 'Redirects',
+      title: 'Redirections',
       result: redirectResults,
       Component: RedirectsCard,
       refresh: updateRedirectResults,
       tags: ['meta'],
     }, {
       id: 'linked-pages',
-      title: 'Linked Pages',
+      title: 'Pages Liées',
       result: linkedPagesResults,
       Component: ContentLinksCard,
       refresh: updateLinkedPagesResults,
       tags: ['client', 'meta'],
     }, {
       id: 'robots-txt',
-      title: 'Crawl Rules',
+      title: 'Règles d\'Exploration',
       result: robotsTxtResults,
       Component: RobotsTxtCard,
       refresh: updateRobotsTxtResults,
       tags: ['meta'],
     }, {
       id: 'status',
-      title: 'Server Status',
+      title: 'Statut Serveur',
       result: serverStatusResults,
       Component: ServerStatusCard,
       refresh: updateServerStatusResults,
       tags: ['server'],
     }, {
       id: 'ports',
-      title: 'Open Ports',
+      title: 'Ports Ouverts',
       result: portsResults,
       Component: OpenPortsCard,
       refresh: updatePortsResults,
       tags: ['server'],
     }, {
       id: 'whois',
-      title: 'Domain Info',
+      title: 'Informations Domaine',
       result: whoIsResults,
       Component: WhoIsCard,
       refresh: updateWhoIsResults,
       tags: ['server'],
     }, {
       id: 'txt-records',
-      title: 'TXT Records',
+      title: 'Enregistrements TXT',
       result: txtRecordResults,
       Component: TxtRecordCard,
       refresh: updateTxtRecordResults,
       tags: ['server'],
     }, {
       id: 'block-lists',
-      title: 'Block Lists',
+      title: 'Listes de Blocage',
       result: blockListsResults,
       Component: BlockListsCard,
       refresh: updateBlockListsResults,
       tags: ['security', 'meta'],
     }, {
       id: 'features',
-      title: 'Site Features',
+      title: 'Fonctionnalités Site',
       result: siteFeaturesResults,
       Component: SiteFeaturesCard,
       refresh: updateSiteFeaturesResults,
       tags: ['meta'],
     }, {
       id: 'sitemap',
-      title: 'Pages',
+      title: 'Plan du Site',
       result: sitemapResults,
       Component: SitemapCard,
       refresh: updateSitemapResults,
       tags: ['meta'],
     }, {
       id: 'carbon',
-      title: 'Carbon Footprint',
+      title: 'Empreinte Carbone',
       result: carbonResults,
       Component: CarbonFootprintCard,
       refresh: updateCarbonResults,
       tags: ['meta'],
+    }, {
+      id: 'apdp-cookie-banner',
+      title: 'Bannière Cookies APDP',
+      result: apdpCookieBannerResults,
+      Component: ApdpCookieBannerCard,
+      refresh: updateApdpCookieBannerResults,
+      tags: ['compliance', 'apdp'],
+      priority: 1,
+    }, {
+      id: 'apdp-privacy-policy',
+      title: 'Politique Confidentialité',
+      result: apdpPrivacyPolicyResults,
+      Component: ApdpPrivacyPolicyCard,
+      refresh: updateApdpPrivacyPolicyResults,
+      tags: ['compliance', 'apdp'],
+      priority: 1,
+    }, {
+      id: 'apdp-legal-notices',
+      title: 'Mentions Légales',
+      result: apdpLegalNoticesResults,
+      Component: ApdpLegalNoticesCard,
+      refresh: updateApdpLegalNoticesResults,
+      tags: ['compliance', 'apdp'],
+      priority: 1,
+    }, {
+      id: 'apdp-user-rights',
+      title: 'Droits Utilisateurs RGPD',
+      result: apdpUserRightsResults,
+      Component: ApdpUserRightsCard,
+      refresh: updateApdpUserRightsResults,
+      tags: ['compliance', 'apdp'],
+      priority: 1,
     },
   ];
 

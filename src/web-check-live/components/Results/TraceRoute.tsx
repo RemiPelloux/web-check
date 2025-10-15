@@ -34,7 +34,7 @@ const cardStyles = ``;
 
 const TraceRouteCard = (props: { data: any, title: string, actionButtons: any }): JSX.Element => {
   const traceRouteResponse = props.data;
-  const routes = traceRouteResponse.result;
+  const routes = traceRouteResponse?.result || [];
   return (
     <Card heading={props.title} actionButtons={props.actionButtons} styles={cardStyles}>
       {routes.filter((x: any) => x).map((route: any, index: number) => (
