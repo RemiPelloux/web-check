@@ -4,11 +4,16 @@ import middleware from './_common/middleware.js';
 const qualityHandler = async (url) => {
   try {
     if (!url) {
-      throw new Error('URL parameter is required');
+      return {
+        error: 'URL parameter is required',
+        url,
+        score: 0,
+        metrics: {},
+        suggestions: ['URL parameter is required']
+      };
     }
 
-    // Since we removed the Google PageSpeed API dependency, 
-    // we'll provide a basic quality analysis based on what we can detect
+    // Basic quality analysis
     const qualityData = await analyzeBasicQuality(url);
     return qualityData;
 
@@ -19,7 +24,13 @@ const qualityHandler = async (url) => {
       url,
       score: 0,
       metrics: {},
-      suggestions: ['Unable to perform quality analysis']
+      suggestions: ['Unable to perform quality analysis'],
+      categories: {
+        performance: { score: 0, issues: ['Analysis failed'] },
+        accessibility: { score: 0, issues: ['Analysis failed'] },
+        bestPractices: { score: 0, issues: ['Analysis failed'] },
+        seo: { score: 0, issues: ['Analysis failed'] }
+      }
     };
   }
 };

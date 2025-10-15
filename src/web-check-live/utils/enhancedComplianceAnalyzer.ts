@@ -55,7 +55,6 @@ export class EnhancedComplianceAnalyzer {
     this.analyzeCookies();
     this.analyzeHeaders();
     this.analyzePerformance();
-    this.analyzeLegalPages();
     this.analyzeThirdPartyServices();
     this.analyzeDNSSec();
     this.analyzeHSTS();
@@ -316,36 +315,6 @@ export class EnhancedComplianceAnalyzer {
     }
 
     this.updateCategoryScore('Performance', performanceScore);
-  }
-
-  private analyzeLegalPages(): void {
-    const legalPages = this.results['legal-pages'];
-    
-    if (!legalPages) {
-      this.updateCategoryScore('Pages Légales', 0);
-      return;
-    }
-
-    const score = legalPages.complianceScore || 0;
-    const missing = legalPages.summary?.missing || 0;
-
-    if (missing > 0) {
-      const missingPages = legalPages.missingPages || [];
-      this.addIssue({
-        type: 'critical',
-        severity: 'Critique',
-        title: 'Pages légales obligatoires manquantes',
-        description: `${missing} pages légales obligatoires sont manquantes: ${missingPages.join(', ')}.`,
-        category: 'Pages Légales',
-        recommendation: 'Créer et publier toutes les pages légales obligatoires avec un contenu conforme aux exigences APDP.',
-        article: 'Loi pour la confiance dans l\'économie numérique',
-        priority: 'high',
-        impact: 'Élevé - Non-conformité légale',
-        effort: 'Moyen - Rédaction juridique'
-      });
-    }
-
-    this.updateCategoryScore('Pages Légales', score);
   }
 
   private analyzeThirdPartyServices(): void {

@@ -5,7 +5,21 @@ const txtRecordHandler = async (url, event, context) => {
   try {
     const parsedUrl = new URL(url);
     
-    const txtRecords = await dns.resolveTxt(parsedUrl.hostname);
+    const txtRecords = await dns.resolveTxt(parsedUrl.hostname).catch(err => {
+      // Handle common DNS errors gracefully
+      if (err.code === 'ENODATA' || err.code === 'ENOTFOUND' || err.code === 'ETIMEDOUT') {
+        return [];
+      }
+      throw err;
+    });
+
+    if (!txtRecords || txtRecords.length === 0) {
+      return {
+        hostname: parsedUrl.hostname,
+        records: [],
+        message: 'No TXT records found for this domain'
+      };
+    }
 
     // Parsing and formatting TXT records into a single object
     const readableTxtRecords = txtRecords.reduce((acc, recordArray) => {
@@ -18,13 +32,23 @@ const txtRecordHandler = async (url, event, context) => {
       return { ...acc, ...recordObject };
     }, {});
 
-    return readableTxtRecords;
+    return {
+      hostname: parsedUrl.hostname,
+      records: readableTxtRecords,
+      count: txtRecords.length
+    };
 
   } catch (error) {
     if (error.code === 'ERR_INVALID_URL') {
-      throw new Error(`Invalid URL ${error}`);
+      return {
+        error: `Invalid URL: ${error.message}`,
+        records: []
+      };
     } else {
-      throw error;
+      return {
+        error: `Failed to resolve TXT records: ${error.message}`,
+        records: []
+      };
     }
   }
 };

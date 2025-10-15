@@ -55,9 +55,10 @@ async function measureLoadTime(url, results) {
     const startTime = Date.now();
     
     const response = await axios.get(url, {
-      timeout: 30000,
-      maxContentLength: 10 * 1024 * 1024, // 10MB limit
-      validateStatus: () => true
+      timeout: 8000,
+      maxContentLength: 5 * 1024 * 1024, // 5MB limit
+      validateStatus: () => true,
+      maxRedirects: 5
     });
     
     const endTime = Date.now();
@@ -96,8 +97,9 @@ async function measureLoadTime(url, results) {
 async function analyzeHeaders(url, results) {
   try {
     const response = await axios.head(url, {
-      timeout: 10000,
-      validateStatus: () => true
+      timeout: 5000,
+      validateStatus: () => true,
+      maxRedirects: 5
     });
 
     const headers = response.headers;
@@ -154,9 +156,10 @@ async function analyzeHeaders(url, results) {
 async function analyzeContent(url, results) {
   try {
     const response = await axios.get(url, {
-      timeout: 15000,
-      maxContentLength: 5 * 1024 * 1024, // 5MB limit
-      validateStatus: () => true
+      timeout: 8000,
+      maxContentLength: 3 * 1024 * 1024, // 3MB limit
+      validateStatus: () => true,
+      maxRedirects: 5
     });
 
     if (typeof response.data === 'string') {

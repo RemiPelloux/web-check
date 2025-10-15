@@ -187,7 +187,6 @@ const jobNames = [
   'rgpd-compliance',
   'vulnerabilities',
   'cdn-resources',
-  'legal-pages',
   'get-ip',
   'location',
   'ssl',

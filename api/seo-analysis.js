@@ -38,9 +38,10 @@ async function analyzeSEO(url) {
 
   try {
     const response = await axios.get(url, {
-      timeout: 15000,
-      maxContentLength: 5 * 1024 * 1024,
-      validateStatus: () => true
+      timeout: 8000,
+      maxContentLength: 3 * 1024 * 1024,
+      validateStatus: () => true,
+      maxRedirects: 5
     });
 
     if (typeof response.data === 'string') {

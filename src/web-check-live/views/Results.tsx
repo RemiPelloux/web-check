@@ -25,7 +25,6 @@ import ComplianceSummaryCard from 'web-check-live/components/Results/ComplianceS
 import ProfessionalComplianceDashboard from 'web-check-live/components/Results/ProfessionalComplianceDashboard';
 import VulnerabilitiesCard from 'web-check-live/components/Results/Vulnerabilities';
 import CDNResourcesCard from 'web-check-live/components/Results/CDNResources';
-import LegalPagesCard from 'web-check-live/components/Results/LegalPages';
 import ServerLocationCard from 'web-check-live/components/Results/ServerLocation';
 import ServerInfoCard from 'web-check-live/components/Results/ServerInfo';
 import HostNamesCard from 'web-check-live/components/Results/HostNames';
@@ -591,14 +590,6 @@ const Results = (props: { address?: string } ): JSX.Element => {
     fetchRequest: () => fetch(`${api}/cdn-resources?url=${address}`).then(res => parseJson(res)),
   });
 
-  // Get legal pages analysis
-  const [legalPagesResults, updateLegalPagesResults] = useMotherHook({
-    jobId: 'legal-pages',
-    updateLoadingJobs,
-    addressInfo: { address, addressType, expectedAddressTypes: urlTypeOnly },
-    fetchRequest: () => fetch(`${api}/legal-pages?url=${address}`).then(res => parseJson(res)),
-  });
-
   // Get comprehensive APDP compliance analysis
   const [rgpdComplianceResults, updateRgpdComplianceResults] = useMotherHook({
     jobId: 'rgpd-compliance',
@@ -695,7 +686,6 @@ const Results = (props: { address?: string } ): JSX.Element => {
     dns: dnsResults,
     hsts: hstsResults,
     vulnerabilities: vulnerabilitiesResults,
-    'legal-pages': legalPagesResults,
     quality: lighthouseResults,
     'server-info': shoadnResults,
     status: serverStatusResults,
@@ -753,15 +743,7 @@ const Results = (props: { address?: string } ): JSX.Element => {
       refresh: updateCdnResourcesResults,
       tags: ['performance', 'security'],
       priority: 3,
-         }, {
-       id: 'legal-pages',
-       title: 'Pages Légales',
-       result: legalPagesResults,
-       Component: LegalPagesCard,
-       refresh: updateLegalPagesResults,
-       tags: ['compliance'],
-       priority: 2,
-     },
+         },
     {
       id: 'location',
       title: 'Server Location',

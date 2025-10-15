@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import styled from '@emotion/styled';
 import colors from 'web-check-live/styles/colors';
 import { EnhancedComplianceAnalyzer } from 'web-check-live/utils/enhancedComplianceAnalyzer';
-import { generateComplianceReport } from 'web-check-live/utils/pdfGenerator';
+import { generateComplianceReportHTML } from 'web-check-live/utils/htmlPdfGenerator';
 
 interface ProfessionalComplianceDashboardProps {
   allResults: any;
@@ -409,7 +409,7 @@ const ProfessionalComplianceDashboard: React.FC<ProfessionalComplianceDashboardP
         button.textContent = 'Génération en cours...';
       }
 
-      await generateComplianceReport(
+      await generateComplianceReportHTML(
         {
           url: siteName || 'Site Web',
           overallScore: getScoreGrade(analysis.score),
@@ -429,10 +429,17 @@ const ProfessionalComplianceDashboard: React.FC<ProfessionalComplianceDashboardP
               isValid: allResults.ssl?.valid || allResults.ssl?.validCertificate || false,
               protocol: allResults.ssl?.protocol || 'TLS'
             }
-          }
+          },
+          issues: {
+            critical: analysis.criticalIssues || [],
+            warnings: analysis.warnings || [],
+            improvements: analysis.improvements || [],
+            compliant: analysis.compliantItems || []
+          },
+          categories: analysis.categories || {}
         },
         allResults.vulnerabilities,
-        allResults['legal-pages'],
+        undefined, // legal-pages removed
         allResults['cdn-resources']
       );
 
