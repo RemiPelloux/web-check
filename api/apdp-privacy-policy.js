@@ -29,7 +29,9 @@ const PRIVACY_PATTERNS = {
     /personal-data/i,
     /protection-donnees/i,
     /charte-confidentialite/i,
-    /vie-privee/i
+    /vie-privee/i,
+    /\/cookies$/i,              // Many sites put privacy info on /cookies page
+    /cookie.*polic/i
   ],
   
   requiredSections: [

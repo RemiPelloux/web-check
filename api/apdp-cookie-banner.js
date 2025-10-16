@@ -53,7 +53,21 @@ const COOKIE_BANNER_PATTERNS = {
     'axeptio',
     'tarteaucitron',
     'cookie-consent',
-    'cookieconsent'
+    'cookieconsent',
+    'osano',
+    'iubenda'
+  ],
+  
+  // Specific DOM IDs/Classes for cookie banners
+  specificSelectors: [
+    '#tarteaucitronAlertBig',
+    '#tarteaucitronRoot',
+    '[id*="tarteaucitron"]',
+    '[class*="tarteaucitron"]',
+    '#CybotCookiebotDialog',
+    '#onetrust-banner-sdk',
+    '[id*="cookiebot"]',
+    '[class*="cookiebot"]'
   ]
 };
 
@@ -97,6 +111,21 @@ const handler = async (url) => {
       }
     }
     
+    // Check for specific cookie banner IDs/classes (tarteaucitron, etc.)
+    if (!result.hasCookieBanner) {
+      for (const selector of COOKIE_BANNER_PATTERNS.specificSelectors) {
+        const elements = $(selector);
+        if (elements.length > 0) {
+          result.hasCookieBanner = true;
+          result.bannerType = 'library';
+          result.detectedLibrary = selector.includes('tarteaucitron') ? 'tarteaucitron' : 
+                                   selector.includes('cookiebot') ? 'cookiebot' : 
+                                   'cookie-library';
+          break;
+        }
+      }
+    }
+    
     // Check for custom banner elements
     if (!result.hasCookieBanner) {
       for (const selector of COOKIE_BANNER_PATTERNS.selectors) {
@@ -126,9 +155,9 @@ const handler = async (url) => {
       const bodyText = $('body').text().toLowerCase();
       const buttons = $('button, a, [role="button"]').map((_, el) => $(el).text().toLowerCase()).get().join(' ');
       
-      result.features.hasAcceptButton = /accept|accepter|j'accepte|d'accord|ok/i.test(buttons);
-      result.features.hasRejectButton = /refus|reject|non merci|decline/i.test(buttons);
-      result.features.hasCustomizeButton = /personnalis|customize|paramètr|préférences|gérer/i.test(buttons);
+      result.features.hasAcceptButton = /accept|accepter|j'accepte|d'accord|ok|tout accepter/i.test(buttons);
+      result.features.hasRejectButton = /refus|reject|non merci|decline|refuser|deny|interdire/i.test(buttons);
+      result.features.hasCustomizeButton = /personnalis|customize|paramètr|préférences|gérer|choisir|configurer/i.test(buttons);
       
       // Check for cookie policy link
       const allLinks = $('a[href]').map((_, el) => {

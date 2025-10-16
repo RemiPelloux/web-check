@@ -931,14 +931,17 @@ const Results = (props: { address?: string } ): JSX.Element => {
       Component: RankCard,
       refresh: updateRankResults,
       tags: ['meta'],
-    }, {
-      id: 'screenshot',
-      title: 'Capture d\'Écran',
-      result: screenshotResult || lighthouseResults?.fullPageScreenshot?.screenshot,
-      Component: ScreenshotCard,
-      refresh: updateScreenshotResult,
-      tags: ['client', 'meta'],
-    }, {
+    }, 
+    // Screenshot removed - not needed for APDP compliance
+    // {
+    //   id: 'screenshot',
+    //   title: 'Capture d\'Écran',
+    //   result: screenshotResult || lighthouseResults?.fullPageScreenshot?.screenshot,
+    //   Component: ScreenshotCard,
+    //   refresh: updateScreenshotResult,
+    //   tags: ['client', 'meta'],
+    // }, 
+    {
       id: 'tls-cipher-suites',
       title: 'Suites de Chiffrement TLS',
       result: tlsResults,

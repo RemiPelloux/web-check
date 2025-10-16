@@ -23,10 +23,14 @@ const LEGAL_PATTERNS = {
   ],
   
   urlPatterns: [
+    /\/cgu$/i,              // Exact /cgu path
+    /\/c\.g\.u$/i,          // /c.g.u path
     /cgu/i,
     /cgv/i,
     /c-g-u/i,
     /c-g-v/i,
+    /c\.g\.u/i,             // c.g.u with dots
+    /c\.g\.v/i,             // c.g.v with dots
     /mentions-legales/i,
     /legal/i,
     /informations-legales/i,

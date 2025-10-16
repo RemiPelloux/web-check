@@ -83,14 +83,26 @@ async function extractExternalResources(html, domain, results) {
     /<script[^>]+src=["']([^"']+)["']/gi,
     // CSS files
     /<link[^>]+href=["']([^"']+\.css[^"']*)["']/gi,
-    // Images
+    // Images (img src)
     /<img[^>]+src=["']([^"']+)["']/gi,
+    // Images (srcset)
+    /<img[^>]+srcset=["']([^"']+?)["']/gi,
+    // Background images in style attributes
+    /style=["'][^"']*background[^"']*url\(['"]?([^'"()]+)['"]?\)/gi,
+    // Background images in CSS
+    /background[^:]*:\s*url\(['"]?([^'"()]+)['"]?\)/gi,
+    // Iframes (for embedded content)
+    /<iframe[^>]+src=["']([^"']+)["']/gi,
     // Fonts
     /<link[^>]+href=["']([^"']+\.(woff|woff2|ttf|otf)[^"']*)["']/gi,
     // Videos
     /<video[^>]+src=["']([^"']+)["']/gi,
+    /<source[^>]+src=["']([^"']+)["']/gi,
     // Audio
-    /<audio[^>]+src=["']([^"']+)["']/gi
+    /<audio[^>]+src=["']([^"']+)["']/gi,
+    // Object/embed tags
+    /<object[^>]+data=["']([^"']+)["']/gi,
+    /<embed[^>]+src=["']([^"']+)["']/gi
   ];
 
   patterns.forEach((pattern, index) => {
@@ -131,20 +143,50 @@ async function extractExternalResources(html, domain, results) {
 
 function analyzeCDNProviders(results) {
   const cdnProviders = {
+    // Public CDNs
     'cdnjs.cloudflare.com': { name: 'Cloudflare CDNJS', category: 'Public CDN', privacy: 'Medium' },
     'cdn.jsdelivr.net': { name: 'jsDelivr', category: 'Public CDN', privacy: 'Good' },
     'unpkg.com': { name: 'UNPKG', category: 'Public CDN', privacy: 'Medium' },
     'code.jquery.com': { name: 'jQuery CDN', category: 'Library CDN', privacy: 'Good' },
     'stackpath.bootstrapcdn.com': { name: 'Bootstrap CDN', category: 'Library CDN', privacy: 'Medium' },
+    
+    // Google CDNs
     'fonts.googleapis.com': { name: 'Google Fonts', category: 'Font CDN', privacy: 'Poor' },
     'fonts.gstatic.com': { name: 'Google Fonts Static', category: 'Font CDN', privacy: 'Poor' },
     'ajax.googleapis.com': { name: 'Google Ajax Libraries', category: 'Library CDN', privacy: 'Poor' },
-    'cdn.jsdelivr.net': { name: 'jsDelivr CDN', category: 'Public CDN', privacy: 'Good' },
+    'www.gstatic.com': { name: 'Google Static', category: 'Library CDN', privacy: 'Poor' },
+    
+    // Social Media CDNs - Instagram/Facebook
+    'scontent': { name: 'Facebook/Instagram CDN', category: 'Social Media', privacy: 'Poor' },
+    'cdninstagram.com': { name: 'Instagram CDN', category: 'Social Media', privacy: 'Poor' },
+    'fbcdn.net': { name: 'Facebook CDN', category: 'Social Media', privacy: 'Poor' },
+    'xx.fbcdn.net': { name: 'Facebook CDN', category: 'Social Media', privacy: 'Poor' },
+    
+    // Twitter/X
+    'pbs.twimg.com': { name: 'Twitter Images CDN', category: 'Social Media', privacy: 'Poor' },
+    'abs.twimg.com': { name: 'Twitter CDN', category: 'Social Media', privacy: 'Poor' },
+    'video.twimg.com': { name: 'Twitter Video CDN', category: 'Social Media', privacy: 'Poor' },
+    
+    // LinkedIn
+    'media.licdn.com': { name: 'LinkedIn Media CDN', category: 'Social Media', privacy: 'Poor' },
+    'static.licdn.com': { name: 'LinkedIn Static CDN', category: 'Social Media', privacy: 'Poor' },
+    
+    // YouTube
+    'i.ytimg.com': { name: 'YouTube Images CDN', category: 'Social Media', privacy: 'Poor' },
+    'yt3.ggpht.com': { name: 'YouTube CDN', category: 'Social Media', privacy: 'Poor' },
+    
+    // TikTok
+    'p16-sign': { name: 'TikTok CDN', category: 'Social Media', privacy: 'Poor' },
+    'v16-webapp': { name: 'TikTok CDN', category: 'Social Media', privacy: 'Poor' },
+    
+    // Commercial CDNs
     'fastly.com': { name: 'Fastly', category: 'Commercial CDN', privacy: 'Medium' },
     'amazonaws.com': { name: 'Amazon CloudFront', category: 'Commercial CDN', privacy: 'Medium' },
     'cloudfront.net': { name: 'Amazon CloudFront', category: 'Commercial CDN', privacy: 'Medium' },
     'azure.microsoft.com': { name: 'Azure CDN', category: 'Commercial CDN', privacy: 'Medium' },
-    'keycdn.com': { name: 'KeyCDN', category: 'Commercial CDN', privacy: 'Good' }
+    'keycdn.com': { name: 'KeyCDN', category: 'Commercial CDN', privacy: 'Good' },
+    'akamaized.net': { name: 'Akamai', category: 'Commercial CDN', privacy: 'Medium' },
+    'cloudflare.com': { name: 'Cloudflare', category: 'Commercial CDN', privacy: 'Medium' }
   };
 
   const detectedCDNs = new Set();
