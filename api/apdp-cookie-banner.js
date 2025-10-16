@@ -155,17 +155,28 @@ const handler = async (url) => {
       const bodyText = $('body').text().toLowerCase();
       const buttons = $('button, a, [role="button"]').map((_, el) => $(el).text().toLowerCase()).get().join(' ');
       
-      result.features.hasAcceptButton = /accept|accepter|j'accepte|d'accord|ok|tout accepter/i.test(buttons);
-      result.features.hasRejectButton = /refus|reject|non merci|decline|refuser|deny|interdire/i.test(buttons);
-      result.features.hasCustomizeButton = /personnalis|customize|paramètr|préférences|gérer|choisir|configurer/i.test(buttons);
+      // Special case: Tarteaucitron ALWAYS provides compliant buttons (injected by JS)
+      if (result.detectedLibrary === 'tarteaucitron') {
+        result.features.hasAcceptButton = true;  // Tarteaucitron always has "Accepter"
+        result.features.hasRejectButton = true;   // Tarteaucitron always has "Refuser"
+        result.features.hasCustomizeButton = true; // Tarteaucitron always has "Personnaliser"
+        result.features.hasCookiePolicy = true;    // Tarteaucitron always links to policy
+      } else {
+        // For other libraries, check actual buttons
+        result.features.hasAcceptButton = /accept|accepter|j'accepte|d'accord|ok|tout accepter/i.test(buttons);
+        result.features.hasRejectButton = /refus|reject|non merci|decline|refuser|deny|interdire/i.test(buttons);
+        result.features.hasCustomizeButton = /personnalis|customize|paramètr|préférences|gérer|choisir|configurer/i.test(buttons);
+      }
       
-      // Check for cookie policy link
-      const allLinks = $('a[href]').map((_, el) => {
-        const text = $(el).text().toLowerCase();
-        const href = $(el).attr('href') || '';
-        return `${text} ${href}`;
-      }).get().join(' ');
-      result.features.hasCookiePolicy = COOKIE_BANNER_PATTERNS.cookiePolicyLinks.some(pattern => pattern.test(allLinks));
+      // Check for cookie policy link (unless already set by library detection)
+      if (!result.features.hasCookiePolicy) {
+        const allLinks = $('a[href]').map((_, el) => {
+          const text = $(el).text().toLowerCase();
+          const href = $(el).attr('href') || '';
+          return `${text} ${href}`;
+        }).get().join(' ');
+        result.features.hasCookiePolicy = COOKIE_BANNER_PATTERNS.cookiePolicyLinks.some(pattern => pattern.test(allLinks));
+      }
     }
     
     // Compliance analysis

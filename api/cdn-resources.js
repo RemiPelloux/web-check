@@ -51,6 +51,14 @@ async function analyzeCDNResources(url) {
     const html = response.data;
     const domain = new URL(url).hostname;
 
+    // Detect if site is a JavaScript SPA
+    const isSPA = html.includes('__NEXT_DATA__') || 
+            html.includes('React') || 
+            html.includes('Vue') || 
+            html.includes('ng-app') ||
+            /<div[^>]+id=["']root["']/i.test(html) ||
+            /<div[^>]+id=["']app["']/i.test(html);
+
     // Extract all external resources
     await extractExternalResources(html, domain, results);
     
@@ -65,6 +73,12 @@ async function analyzeCDNResources(url) {
     
     // Calculate performance impact
     calculatePerformanceScore(results);
+
+    // Add SPA warning if detected
+    if (isSPA && results.resources.length === 0) {
+      results.spaWarning = 'Site détecté comme SPA (Single Page Application). Les ressources externes sont chargées dynamiquement par JavaScript et ne peuvent pas être détectées dans le HTML initial. Utilisez les outils de développement du navigateur pour voir toutes les ressources.';
+      results.isSPA = true;
+    }
 
   } catch (error) {
     console.error('CDN analysis failed:', error);

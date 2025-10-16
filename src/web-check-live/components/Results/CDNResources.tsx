@@ -362,10 +362,14 @@ const CDNResourcesCard: React.FC<CDNResourcesCardProps> = ({ data, title, action
           </ResourcesList>
         ) : (
           <div style={{ textAlign: 'center', padding: '40px 20px', color: colors.textColorSecondary }}>
-            <div style={{ fontSize: '48px', marginBottom: '16px' }}>🏠</div>
-            <h3 style={{ margin: '0 0 8px 0', color: colors.textColor }}>Aucune ressource externe détectée</h3>
+            <div style={{ fontSize: '48px', marginBottom: '16px' }}>
+              {data.isSPA ? '⚠️' : '🏠'}
+            </div>
+            <h3 style={{ margin: '0 0 8px 0', color: colors.textColor }}>
+              {data.isSPA ? 'Application SPA Détectée' : 'Aucune ressource externe détectée'}
+            </h3>
             <p style={{ margin: 0, fontSize: '14px' }}>
-              Toutes les ressources semblent être hébergées localement.
+              {data.spaWarning || 'Toutes les ressources semblent être hébergées localement.'}
             </p>
           </div>
         )}
