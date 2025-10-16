@@ -10,26 +10,26 @@ export interface Doc {
 const docs: Doc[] = [
   {
     id: "get-ip",
-    title: "IP Info",
+    title: "Informations IP",
     description:
-      "An IP address (Internet Protocol address) is a numerical label assigned to each device connected to a network / the internet. The IP associated with a given domain can be found by querying the Domain Name System (DNS) for the domain's A (address) record.",
-    use: "Finding the IP of a given server is the first step to conducting further investigations, as it allows us to probe the server for additional info. Including creating a detailed map of a target's network infrastructure, pinpointing the physical location of a server, identifying the hosting service, and even discovering other domains that are hosted on the same IP address.",
+      "Une adresse IP (Internet Protocol) est un identifiant numérique assigné à chaque appareil connecté à un réseau ou à Internet. L'adresse IP associée à un domaine peut être trouvée en interrogeant le système de noms de domaine (DNS) pour l'enregistrement A (adresse) du domaine.",
+    use: "Trouver l'adresse IP d'un serveur est la première étape pour mener des investigations approfondies, car cela permet d'interroger le serveur pour obtenir des informations supplémentaires. Cela inclut la création d'une carte détaillée de l'infrastructure réseau, la localisation physique du serveur, l'identification du service d'hébergement, et même la découverte d'autres domaines hébergés sur la même adresse IP.",
     resources: [
-      { title: 'Understanding IP Addresses', link: 'https://www.digitalocean.com/community/tutorials/understanding-ip-addresses-subnets-and-cidr-notation-for-networking'},
-      { title: 'IP Addresses - Wiki', link: 'https://en.wikipedia.org/wiki/IP_address'},
+      { title: 'Comprendre les adresses IP', link: 'https://www.digitalocean.com/community/tutorials/understanding-ip-addresses-subnets-and-cidr-notation-for-networking'},
+      { title: 'Adresses IP - Wiki', link: 'https://fr.wikipedia.org/wiki/Adresse_IP'},
       { title: 'RFC-791 Internet Protocol', link: 'https://tools.ietf.org/html/rfc791'},
       { title: 'whatismyipaddress.com', link: 'https://whatismyipaddress.com/'},
     ],
   },
   {
     id: "ssl",
-    title: "SSL Chain",
+    title: "Chaîne SSL",
     description:
-    "SSL certificates are digital certificates that authenticate the identity of a website or server, enable secure encrypted communication (HTTPS), and establish trust between clients and servers. A valid SSL certificate is required for a website to be able to use the HTTPS protocol, and encrypt user + site data in transit. SSL certificates are issued by Certificate Authorities (CAs), which are trusted third parties that verify the identity and legitimacy of the certificate holder.",  
-    use: "SSL certificates not only provide the assurance that data transmission to and from the website is secure, but they also provide valuable OSINT data. Information from an SSL certificate can include the issuing authority, the domain name, its validity period, and sometimes even organization details. This can be useful for verifying the authenticity of a website, understanding its security setup, or even for discovering associated subdomains or other services.",
+    "Les certificats SSL sont des certificats numériques qui authentifient l'identité d'un site web ou d'un serveur, permettent une communication chiffrée sécurisée (HTTPS) et établissent la confiance entre clients et serveurs. Un certificat SSL valide est requis pour qu'un site web puisse utiliser le protocole HTTPS et chiffrer les données utilisateur et du site en transit. Les certificats SSL sont émis par des Autorités de Certification (CA), des tiers de confiance qui vérifient l'identité et la légitimité du détenteur du certificat.",  
+    use: "Les certificats SSL fournissent non seulement l'assurance que la transmission de données vers et depuis le site web est sécurisée, mais ils offrent également des données précieuses. Les informations d'un certificat SSL peuvent inclure l'autorité émettrice, le nom de domaine, sa période de validité, et parfois même des détails organisationnels. Ceci est utile pour vérifier l'authenticité d'un site web, comprendre sa configuration de sécurité, ou même découvrir des sous-domaines ou autres services associés.",
     resources: [
-      { title: 'TLS - Wiki', link: 'https://en.wikipedia.org/wiki/Transport_Layer_Security'},
-      { title: 'What is SSL (via Cloudflare learning)', link: 'https://www.cloudflare.com/learning/ssl/what-is-ssl/'},
+      { title: 'TLS - Wiki', link: 'https://fr.wikipedia.org/wiki/Transport_Layer_Security'},
+      { title: 'Qu\'est-ce que SSL (Cloudflare)', link: 'https://www.cloudflare.com/fr-fr/learning/ssl/what-is-ssl/'},
       { title: 'RFC-8446 - TLS', link: 'https://tools.ietf.org/html/rfc8446'},
       { title: 'SSL Checker', link: 'https://www.sslshopper.com/ssl-checker.html'},
     ],
@@ -37,70 +37,70 @@ const docs: Doc[] = [
   },
   {
     id: "dns",
-    title: "DNS Records",
+    title: "Enregistrements DNS",
     description:
-      "This task involves looking up the DNS records associated with a specific domain. DNS is a system that translates human-readable domain names into IP addresses that computers use to communicate. Various types of DNS records exist, including A (address), MX (mail exchange), NS (name server), CNAME (canonical name), and TXT (text), among others.",
-    use: "Extracting DNS records can provide a wealth of information in an OSINT investigation. For example, A and AAAA records can disclose IP addresses associated with a domain, potentially revealing the location of servers. MX records can give clues about a domain's email provider. TXT records are often used for various administrative purposes and can sometimes inadvertently leak internal information. Understanding a domain's DNS setup can also be useful in understanding how its online infrastructure is built and managed.",
+      "Cette tâche consiste à consulter les enregistrements DNS associés à un domaine spécifique. Le DNS est un système qui traduit les noms de domaine lisibles par l'homme en adresses IP que les ordinateurs utilisent pour communiquer. Différents types d'enregistrements DNS existent, notamment A (adresse), MX (échange de courrier), NS (serveur de noms), CNAME (nom canonique) et TXT (texte), entre autres.",
+    use: "L'extraction des enregistrements DNS peut fournir une mine d'informations dans une investigation. Par exemple, les enregistrements A et AAAA peuvent révéler les adresses IP associées à un domaine, dévoilant potentiellement l'emplacement des serveurs. Les enregistrements MX peuvent donner des indices sur le fournisseur de messagerie d'un domaine. Les enregistrements TXT sont souvent utilisés à des fins administratives et peuvent parfois divulguer par inadvertance des informations internes. Comprendre la configuration DNS d'un domaine aide à comprendre comment son infrastructure en ligne est construite et gérée.",
     resources: [
-      { title: 'What are DNS records? (via Cloudflare learning)', link: 'https://www.cloudflare.com/learning/dns/dns-records/'},
-      { title: 'DNS Record Types', link: 'https://en.wikipedia.org/wiki/List_of_DNS_record_types'},
+      { title: 'Qu\'est-ce que les enregistrements DNS? (Cloudflare)', link: 'https://www.cloudflare.com/fr-fr/learning/dns/dns-records/'},
+      { title: 'Types d\'enregistrements DNS', link: 'https://fr.wikipedia.org/wiki/Enregistrement_DNS'},
       { title: 'RFC-1035 - DNS', link: 'https://tools.ietf.org/html/rfc1035'},
-      { title: 'DNS Lookup (via MxToolbox)', link: 'https://mxtoolbox.com/DNSLookup.aspx'},
+      { title: 'DNS Lookup (MxToolbox)', link: 'https://mxtoolbox.com/DNSLookup.aspx'},
     ],
     screenshot: 'https://i.ibb.co/7Q1kMwM/wc-dns.png',
   },
   {
     id: "cookies",
-    title: "Cookie Compliance Assessment",
+    title: "Évaluation de Conformité des Cookies",
     description:
-      "The Cookie Compliance Assessment performs comprehensive analysis of HTTP cookies set by the target website, evaluating security attributes, categorizing cookie types, and assessing compliance with privacy regulations. This assessment examines both server-set cookies (HTTP headers) and client-side cookies (JavaScript), providing detailed security scoring and regulatory compliance insights.",
-    use: "This assessment is crucial for compliance officers and security auditors to evaluate cookie implementation against security best practices and privacy regulations like GDPR, CCPA, and ePrivacy Directive. It identifies security vulnerabilities (XSS, CSRF risks), categorizes cookies by purpose (session, tracking, advertising, functional), and provides actionable recommendations for improving cookie security and regulatory compliance. The assessment helps organizations understand their cookie landscape and implement proper consent mechanisms.",
+      "L'évaluation de conformité des cookies effectue une analyse complète des cookies HTTP définis par le site web cible, évaluant les attributs de sécurité, catégorisant les types de cookies et évaluant la conformité avec les réglementations sur la confidentialité. Cette évaluation examine à la fois les cookies définis par le serveur (en-têtes HTTP) et les cookies côté client (JavaScript), fournissant un scoring de sécurité détaillé et des insights de conformité réglementaire.",
+    use: "Cette évaluation est cruciale pour les responsables de la conformité et les auditeurs de sécurité afin d'évaluer l'implémentation des cookies par rapport aux meilleures pratiques de sécurité et aux réglementations de confidentialité comme le RGPD, CCPA et la directive ePrivacy. Elle identifie les vulnérabilités de sécurité (risques XSS, CSRF), catégorise les cookies par objectif (session, tracking, publicité, fonctionnel) et fournit des recommandations actionnables pour améliorer la sécurité des cookies et la conformité réglementaire. L'évaluation aide les organisations à comprendre leur paysage de cookies et à implémenter des mécanismes de consentement appropriés.",
     resources: [
-      { title: 'OWASP Cookie Security Guide', link: 'https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/06-Session_Management_Testing/02-Testing_for_Cookies_Attributes' },
-      { title: 'GDPR Cookie Compliance', link: 'https://gdpr.eu/cookies/' },
-      { title: 'HTTP Cookie Security (Mozilla)', link: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Cookies' },
-      { title: 'Cookie SameSite Attribute', link: 'https://web.dev/samesite-cookies-explained/' },
-      { title: 'CCPA Cookie Requirements', link: 'https://oag.ca.gov/privacy/ccpa' },
+      { title: 'Guide Sécurité Cookies OWASP', link: 'https://owasp.org/www-project-web-security-testing-guide/v42/4-Web_Application_Security_Testing/06-Session_Management_Testing/02-Testing_for_Cookies_Attributes' },
+      { title: 'Conformité Cookies RGPD', link: 'https://www.cnil.fr/fr/cookies-et-autres-traceurs' },
+      { title: 'Sécurité Cookies HTTP (Mozilla)', link: 'https://developer.mozilla.org/fr/docs/Web/HTTP/Cookies' },
+      { title: 'Attribut SameSite des Cookies', link: 'https://web.dev/samesite-cookies-explained/' },
+      { title: 'Exigences RGPD Cookies', link: 'https://gdpr.eu/cookies/' },
       { title: 'RFC-6265 - HTTP Cookies', link: 'https://tools.ietf.org/html/rfc6265' },
     ],
     screenshot: 'https://i.ibb.co/TTQ6DtP/wc-cookies.png',
   },
   {
     id: "robots-txt",
-    title: "Crawl Rules",
+    title: "Règles de Crawl",
     description:
-      "Robots.txt is a file found (usually) at the root of a domain, and is used to implement the Robots Exclusion Protocol (REP) to indicate which pages should be ignored by which crawlers and bots. It's good practice to avoid search engine crawlers from over-loading your site, but should not be used to keep pages out of search results (use the noindex meta tag or header instead).",
-    use: "It's often useful to check the robots.txt file during an investigation, as it can sometimes disclose the directories and pages that the site owner doesn't want to be indexed, potentially because they contain sensitive information, or reveal the existence of otherwise hidden or unlinked directories. Additionally, understanding crawl rules may offer insights into a website's SEO strategies.",
+      "Le fichier robots.txt se trouve (généralement) à la racine d'un domaine et est utilisé pour implémenter le protocole d'exclusion des robots (REP) afin d'indiquer quelles pages doivent être ignorées par quels crawlers et bots. C'est une bonne pratique pour éviter que les crawlers des moteurs de recherche ne surchargent votre site, mais ne doit pas être utilisé pour exclure des pages des résultats de recherche (utilisez plutôt la balise ou l'en-tête meta noindex).",
+    use: "Il est souvent utile de vérifier le fichier robots.txt lors d'une investigation, car il peut parfois révéler les répertoires et pages que le propriétaire du site ne souhaite pas voir indexer, potentiellement parce qu'ils contiennent des informations sensibles, ou révéler l'existence de répertoires autrement cachés ou non liés. De plus, comprendre les règles de crawl peut offrir des insights sur les stratégies SEO d'un site web.",
     resources: [
-      { title: 'Google Search Docs - Robots.txt', link: 'https://developers.google.com/search/docs/advanced/robots/intro' },
-      { title: 'Learn about robots.txt (via Moz.com)', link: 'https://moz.com/learn/seo/robotstxt' },
-      { title: 'RFC-9309 -  Robots Exclusion Protocol', link: 'https://datatracker.ietf.org/doc/rfc9309/' },
-      { title: 'Robots.txt - wiki', link: 'https://en.wikipedia.org/wiki/Robots_exclusion_standard' },
+      { title: 'Google Search Docs - Robots.txt', link: 'https://developers.google.com/search/docs/advanced/robots/intro?hl=fr' },
+      { title: 'En savoir plus sur robots.txt (Moz.com)', link: 'https://moz.com/learn/seo/robotstxt' },
+      { title: 'RFC-9309 - Protocole d\'exclusion des robots', link: 'https://datatracker.ietf.org/doc/rfc9309/' },
+      { title: 'Robots.txt - wiki', link: 'https://fr.wikipedia.org/wiki/Protocole_d%27exclusion_des_robots' },
     ],
     screenshot: 'https://i.ibb.co/KwQCjPf/wc-robots.png',
   },
   {
     id: "headers",
-    title: "Headers",
+    title: "En-têtes HTTP",
     description:
-      "The Headers task involves extracting and interpreting the HTTP headers sent by the target website during the request-response cycle. HTTP headers are key-value pairs sent at the start of an HTTP response, or before the actual data. Headers contain important directives for how to handle the data being transferred, including cache policies, content types, encoding, server information, security policies, and more.",
-    use: "Analyzing HTTP headers can provide significant insights in an OSINT investigation. Headers can reveal specific server configurations, chosen technologies, caching directives, and various security settings. This information can help to determine a website's underlying technology stack, server-side security measures, potential vulnerabilities, and general operational practices.",
+      "La tâche En-têtes HTTP consiste à extraire et interpréter les en-têtes HTTP envoyés par le site web cible lors du cycle requête-réponse. Les en-têtes HTTP sont des paires clé-valeur envoyées au début d'une réponse HTTP, ou avant les données réelles. Les en-têtes contiennent des directives importantes sur la façon de gérer les données transférées, notamment les politiques de cache, les types de contenu, l'encodage, les informations sur le serveur, les politiques de sécurité, et plus encore.",
+    use: "L'analyse des en-têtes HTTP peut fournir des insights significatifs dans une investigation. Les en-têtes peuvent révéler des configurations serveur spécifiques, les technologies choisies, les directives de mise en cache et divers paramètres de sécurité. Ces informations peuvent aider à déterminer la pile technologique sous-jacente d'un site web, les mesures de sécurité côté serveur, les vulnérabilités potentielles et les pratiques opérationnelles générales.",
     resources: [
-      { title: 'HTTP Headers - Docs', link: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers' },
-      { title: 'RFC-7231 Section 7 - Headers', link: 'https://datatracker.ietf.org/doc/html/rfc7231#section-7' },
-      { title: 'List of header response fields', link: 'https://en.wikipedia.org/wiki/List_of_HTTP_header_fields' },
-      { title: 'OWASP Secure Headers Project', link: 'https://owasp.org/www-project-secure-headers/' },
+      { title: 'En-têtes HTTP - Docs', link: 'https://developer.mozilla.org/fr/docs/Web/HTTP/Headers' },
+      { title: 'RFC-7231 Section 7 - En-têtes', link: 'https://datatracker.ietf.org/doc/html/rfc7231#section-7' },
+      { title: 'Liste des champs d\'en-tête de réponse', link: 'https://fr.wikipedia.org/wiki/Liste_des_codes_HTTP' },
+      { title: 'Projet OWASP Secure Headers', link: 'https://owasp.org/www-project-secure-headers/' },
     ],
     screenshot: 'https://i.ibb.co/t3xcwP1/wc-headers.png',
   },
   {
     id: "quality",
-    title: "Quality Metrics",
+    title: "Métriques de Qualité",
     description:
-      "Using Lighthouse, the Quality Metrics task measures the performance, accessibility, best practices, and SEO of the target website. This returns a simple checklist of 100 core metrics, along with a score for each category, to gauge the overall quality of a given site.",
-    use: "Useful for assessing a site's technical health, SEO issues, identify vulnerabilities, and ensure compliance with standards.",
+      "En utilisant Lighthouse, la tâche Métriques de Qualité mesure la performance, l'accessibilité, les meilleures pratiques et le SEO du site web cible. Cela retourne une simple checklist de 100 métriques essentielles, avec un score pour chaque catégorie, afin d'évaluer la qualité globale d'un site donné.",
+    use: "Utile pour évaluer la santé technique d'un site, identifier les problèmes SEO, les vulnérabilités, et assurer la conformité aux standards.",
     resources: [
-      { title: 'Lighthouse Docs', link: 'https://developer.chrome.com/docs/lighthouse/' },
+      { title: 'Documentation Lighthouse', link: 'https://developer.chrome.com/docs/lighthouse/?hl=fr' },
       { title: 'Google Page Speed Tools', link: 'https://developers.google.com/speed' },
       { title: 'W3 Accessibility Tools', link: 'https://www.w3.org/WAI/test-evaluate/' },
       { title: 'Google Search Console', link: 'https://search.google.com/search-console' },
@@ -111,75 +111,75 @@ const docs: Doc[] = [
   },
   {
     id: "location",
-    title: "Server Location",
+    title: "Localisation du Serveur",
     description:
-      "The Server Location task determines the physical location of the server hosting a given website based on its IP address. This is done by looking up the IP in a location database, which maps the IP to a lat + long of known data centers and ISPs. From the latitude and longitude, it's then possible to show additional contextual info, like a pin on the map, along with address, flag, time zone, currency, etc.",
-    use: "Knowing the server location is a good first step in better understanding a website. For site owners this aids in optimizing content delivery, ensuring compliance with data residency requirements, and identifying potential latency issues that may impact user experience in specific geographical regions. And for security researcher, assess the risk posed by specific regions or jurisdictions regarding cyber threats and regulations.",
+      "La tâche Localisation du Serveur détermine l'emplacement physique du serveur hébergeant un site web donné en se basant sur son adresse IP. Cela se fait en consultant l'IP dans une base de données de localisation, qui mappe l'IP à une latitude et longitude de centres de données et FAI connus. À partir de la latitude et longitude, il est alors possible d'afficher des informations contextuelles supplémentaires, comme un repère sur la carte, avec adresse, drapeau, fuseau horaire, devise, etc.",
+    use: "Connaître la localisation du serveur est une bonne première étape pour mieux comprendre un site web. Pour les propriétaires de sites, cela aide à optimiser la livraison de contenu, assurer la conformité avec les exigences de résidence des données, et identifier les problèmes de latence potentiels pouvant impacter l'expérience utilisateur dans des régions géographiques spécifiques. Pour les chercheurs en sécurité, cela permet d'évaluer le risque posé par des régions ou juridictions spécifiques concernant les cybermenaces et réglementations.",
     resources: [
-      { title: 'IP Locator', link: 'https://geobytes.com/iplocator/' },
-      { title: 'Internet Geolocation - Wiki', link: 'https://en.wikipedia.org/wiki/Internet_geolocation' },
+      { title: 'Localisateur IP', link: 'https://geobytes.com/iplocator/' },
+      { title: 'Géolocalisation Internet - Wiki', link: 'https://fr.wikipedia.org/wiki/G%C3%A9olocalisation_Internet' },
     ],
     screenshot: 'https://i.ibb.co/cXH2hfR/wc-location.png',
   },
   {
     id: "hosts",
-    title: "Associated Hosts",
+    title: "Hôtes Associés",
     description:
-      "This task involves identifying and listing all domains and subdomains (hostnames) that are associated with the website's primary domain. This process often involves DNS enumeration to discover any linked domains and hostnames, as well as looking at known DNS records.",
-    use: "During an investigation, understanding the full scope of a target's web presence is critical. Associated domains could lead to uncovering related projects, backup sites, development/test sites, or services linked to the main site. These can sometimes provide additional information or potential security vulnerabilities. A comprehensive list of associated domains and hostnames can also give an overview of the organization's structure and online footprint.",
+      "Cette tâche consiste à identifier et lister tous les domaines et sous-domaines (noms d'hôte) associés au domaine principal du site web. Ce processus implique souvent l'énumération DNS pour découvrir tous les domaines et noms d'hôtes liés, ainsi que l'examen des enregistrements DNS connus.",
+    use: "Lors d'une investigation, comprendre l'étendue complète de la présence web d'une cible est critique. Les domaines associés peuvent conduire à découvrir des projets liés, des sites de sauvegarde, des sites de développement/test, ou des services liés au site principal. Ceux-ci peuvent parfois fournir des informations supplémentaires ou des vulnérabilités de sécurité potentielles. Une liste complète des domaines et noms d'hôtes associés peut également donner un aperçu de la structure de l'organisation et de son empreinte en ligne.",
     resources: [
-      { title: 'DNS Enumeration - Wiki', link: 'https://en.wikipedia.org/wiki/DNS_enumeration' },
-      { title: 'OWASP - Enumerate Applications on Webserver', link: 'https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/01-Information_Gathering/04-Enumerate_Applications_on_Webserver' },
-      { title: 'DNS Enumeration - DNS Dumpster', link: 'https://dnsdumpster.com/' },
+      { title: 'Énumération DNS - Wiki', link: 'https://fr.wikipedia.org/wiki/%C3%89num%C3%A9ration_DNS' },
+      { title: 'OWASP - Énumérer les applications sur serveur web', link: 'https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/01-Information_Gathering/04-Enumerate_Applications_on_Webserver' },
+      { title: 'Énumération DNS - DNS Dumpster', link: 'https://dnsdumpster.com/' },
       { title: 'Subdomain Finder', link: 'https://subdomainfinder.c99.nl/' },
     ],
     screenshot: 'https://i.ibb.co/25j1sT7/wc-hosts.png',
   },
   {
     id: "redirects",
-    title: "Redirect Chain",
+    title: "Chaîne de Redirection",
     description:
-      "This task traces the sequence of HTTP redirects that occur from the original URL to the final destination URL. An HTTP redirect is a response with a status code that advises the client to go to another URL. Redirects can occur for several reasons, such as URL normalization (directing to the www version of the site), enforcing HTTPS, URL shorteners, or forwarding users to a new site location.",
-    use: "Understanding the redirect chain can be useful for several reasons. From a security perspective, long or complicated redirect chains can be a sign of potential security risks, such as unencrypted redirects in the chain. Additionally, redirects can impact website performance and SEO, as each redirect introduces additional round-trip-time (RTT). For OSINT, understanding the redirect chain can help identify relationships between different domains or reveal the use of certain technologies or hosting providers.",
+      "Cette tâche trace la séquence des redirections HTTP qui se produisent de l'URL d'origine jusqu'à l'URL de destination finale. Une redirection HTTP est une réponse avec un code de statut qui conseille au client d'aller à une autre URL. Les redirections peuvent se produire pour plusieurs raisons, telles que la normalisation d'URL (redirection vers la version www du site), l'application de HTTPS, les raccourcisseurs d'URL, ou la redirection des utilisateurs vers un nouvel emplacement de site.",
+    use: "Comprendre la chaîne de redirection peut être utile pour plusieurs raisons. Du point de vue de la sécurité, des chaînes de redirection longues ou compliquées peuvent être un signe de risques de sécurité potentiels, comme des redirections non chiffrées dans la chaîne. De plus, les redirections peuvent impacter les performances du site web et le SEO, car chaque redirection introduit un temps d'aller-retour (RTT) supplémentaire. Pour l'OSINT, comprendre la chaîne de redirection peut aider à identifier les relations entre différents domaines ou révéler l'utilisation de certaines technologies ou fournisseurs d'hébergement.",
     resources: [
-      { title: 'HTTP Redirects - MDN', link: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Redirections' },
-      { title: 'URL Redirection - Wiki', link: 'https://en.wikipedia.org/wiki/URL_redirection' },
-      { title: '301 Redirects explained', link: 'https://ahrefs.com/blog/301-redirects/' },
+      { title: 'Redirections HTTP - MDN', link: 'https://developer.mozilla.org/fr/docs/Web/HTTP/Redirections' },
+      { title: 'Redirection d\'URL - Wiki', link: 'https://fr.wikipedia.org/wiki/Redirection_d%27URL' },
+      { title: 'Redirections 301 expliquées', link: 'https://ahrefs.com/blog/301-redirects/' },
     ],
     screenshot: 'https://i.ibb.co/hVVrmwh/wc-redirects.png',
   },
   {
     id: "txt-records",
-    title: "TXT Records",
+    title: "Enregistrements TXT",
     description:
-      "TXT records are a type of DNS record that provides text information to sources outside your domain. They can be used for a variety of purposes, such as verifying domain ownership, ensuring email security, and even preventing unauthorized changes to your website.",
-    use: "The TXT records often reveal which external services and technologies are being used with a given domain. They may reveal details about the domain's email configuration, the use of specific services like Google Workspace or Microsoft 365, or security measures in place such as SPF and DKIM. Understanding these details can give an insight into the technologies used by the organization, their email security practices, and potential vulnerabilities.",
+      "Les enregistrements TXT sont un type d'enregistrement DNS qui fournit des informations textuelles aux sources externes à votre domaine. Ils peuvent être utilisés à diverses fins, telles que la vérification de la propriété du domaine, la sécurisation des emails, et même la prévention de modifications non autorisées de votre site web.",
+    use: "Les enregistrements TXT révèlent souvent quels services et technologies externes sont utilisés avec un domaine donné. Ils peuvent révéler des détails sur la configuration email du domaine, l'utilisation de services spécifiques comme Google Workspace ou Microsoft 365, ou des mesures de sécurité en place telles que SPF et DKIM. Comprendre ces détails peut donner un aperçu des technologies utilisées par l'organisation, de leurs pratiques de sécurité email, et des vulnérabilités potentielles.",
     resources: [
-      { title: 'TXT Records (via Cloudflare Learning)', link: 'https://www.cloudflare.com/learning/dns/dns-records/dns-txt-record/' },
-      { title: 'TXT Records - Wiki', link: 'https://en.wikipedia.org/wiki/TXT_record' },
-      { title: 'RFC-1464 - TXT Records', link: 'https://datatracker.ietf.org/doc/html/rfc1464' },
-      { title: 'TXT Record Lookup (via MxToolbox)', link: 'https://mxtoolbox.com/TXTLookup.aspx' },
+      { title: 'Enregistrements TXT (Cloudflare)', link: 'https://www.cloudflare.com/fr-fr/learning/dns/dns-records/dns-txt-record/' },
+      { title: 'Enregistrements TXT - Wiki', link: 'https://fr.wikipedia.org/wiki/Enregistrement_DNS' },
+      { title: 'RFC-1464 - Enregistrements TXT', link: 'https://datatracker.ietf.org/doc/html/rfc1464' },
+      { title: 'TXT Record Lookup (MxToolbox)', link: 'https://mxtoolbox.com/TXTLookup.aspx' },
     ],
     screenshot: 'https://i.ibb.co/wyt21QN/wc-txt-records.png',
   },
   {
     id: "status",
-    title: "Server Status",
-    description: "Checks if a server is online and responding to requests.",
-    use: "",
+    title: "Statut du Serveur",
+    description: "Vérifie si un serveur est en ligne et répond aux requêtes.",
+    use: "Permet de vérifier rapidement la disponibilité d'un serveur et d'identifier les temps d'arrêt potentiels.",
     resources: [
     ],
     screenshot: 'https://i.ibb.co/V9CNLBK/wc-status.png',
   },
   {
     id: "ports",
-    title: "Open Ports",
+    title: "Ports Ouverts",
     description:
-      "Open ports on a server are endpoints of communication which are available for establishing connections with clients. Each port corresponds to a specific service or protocol, such as HTTP (port 80), HTTPS (port 443), FTP (port 21), etc. The open ports on a server can be determined using techniques such as port scanning.",
-    use: "Knowing which ports are open on a server can provide information about the services running on that server, useful for understanding the potential vulnerabilities of the system, or for understanding the nature of the services the server is providing.",
+      "Les ports ouverts sur un serveur sont des points de terminaison de communication disponibles pour établir des connexions avec des clients. Chaque port correspond à un service ou protocole spécifique, tel que HTTP (port 80), HTTPS (port 443), FTP (port 21), etc. Les ports ouverts sur un serveur peuvent être déterminés en utilisant des techniques telles que le scan de ports.",
+    use: "Savoir quels ports sont ouverts sur un serveur peut fournir des informations sur les services fonctionnant sur ce serveur, utile pour comprendre les vulnérabilités potentielles du système, ou pour comprendre la nature des services que le serveur fournit.",
     resources: [
-      { title: 'List of TCP & UDP Port Numbers', link: 'https://en.wikipedia.org/wiki/List_of_TCP_and_UDP_port_numbers' },
-      { title: 'NMAP - Port Scanning Basics', link: 'https://nmap.org/book/man-port-scanning-basics.html' },
+      { title: 'Liste des numéros de ports TCP & UDP', link: 'https://fr.wikipedia.org/wiki/Liste_de_ports_logiciels' },
+      { title: 'NMAP - Bases du scan de ports', link: 'https://nmap.org/book/man-port-scanning-basics.html' },
     ],
     screenshot: 'https://i.ibb.co/F8D1hmf/wc-ports.png',
   },
@@ -187,40 +187,40 @@ const docs: Doc[] = [
     id: "trace-route",
     title: "Traceroute",
     description:
-      "Traceroute is a network diagnostic tool used to track in real-time the pathway taken by a packet of information from one system to another. It records each hop along the route, providing details about the IPs of routers and the delay at each point.",
-    use: "In OSINT investigations, traceroute can provide insights about the routing paths and geography of the network infrastructure supporting a website or service. This can help to identify network bottlenecks, potential censorship or manipulation of network traffic, and give an overall sense of the network's structure and efficiency. Additionally, the IP addresses collected during the traceroute may provide additional points of inquiry for further OSINT investigation.",
+      "Traceroute est un outil de diagnostic réseau utilisé pour suivre en temps réel le chemin emprunté par un paquet d'informations d'un système à un autre. Il enregistre chaque saut le long de la route, fournissant des détails sur les adresses IP des routeurs et le délai à chaque point.",
+    use: "Dans les investigations OSINT, traceroute peut fournir des insights sur les chemins de routage et la géographie de l'infrastructure réseau supportant un site web ou service. Cela peut aider à identifier les goulets d'étranglement réseau, la censure potentielle ou la manipulation du trafic réseau, et donner un aperçu global de la structure et l'efficacité du réseau. De plus, les adresses IP collectées lors du traceroute peuvent fournir des points d'enquête supplémentaires.",
     resources: [
-      "https://www.cloudflare.com/learning/network-layer/what-is-traceroute/",
+      "https://www.cloudflare.com/fr-fr/learning/network-layer/what-is-traceroute/",
       "https://tools.ietf.org/html/rfc1393",
-      "https://en.wikipedia.org/wiki/Traceroute",
+      "https://fr.wikipedia.org/wiki/Traceroute",
       "https://www.ripe.net/publications/docs/ripe-611",
     ],
     screenshot: 'https://i.ibb.co/M59qgxP/wc-trace-route.png',
   },
   {
     id: "carbon",
-    title: "Carbon Footprint",
+    title: "Empreinte Carbone",
     description:
-      "This task calculates the estimated carbon footprint of a website. It's based on the amount of data being transferred and processed, and the energy usage of the servers that host and deliver the website. The larger the website and the more complex its features, the higher its carbon footprint is likely to be.",
-    use: "From an OSINT perspective, understanding a website's carbon footprint doesn't directly provide insights into its internal workings or the organization behind it. However, it can still be valuable data in broader analyses, especially in contexts where environmental impact is a consideration. For example, it can be useful for activists, researchers, or ethical hackers who are interested in the sustainability of digital infrastructure, and who want to hold organizations accountable for their environmental impact.",
+      "Cette tâche calcule l'empreinte carbone estimée d'un site web. Elle est basée sur la quantité de données transférées et traitées, et l'utilisation d'énergie des serveurs qui hébergent et livrent le site web. Plus le site web est volumineux et ses fonctionnalités complexes, plus son empreinte carbone sera probablement élevée.",
+    use: "D'un point de vue OSINT, comprendre l'empreinte carbone d'un site web ne fournit pas directement d'insights sur son fonctionnement interne ou l'organisation derrière. Cependant, cela peut être une donnée précieuse dans des analyses plus larges, en particulier dans des contextes où l'impact environnemental est une considération. Par exemple, cela peut être utile pour les activistes, chercheurs, ou hackers éthiques intéressés par la durabilité de l'infrastructure numérique, et qui veulent tenir les organisations responsables de leur impact environnemental.",
     resources: [
-      { title: 'WebsiteCarbon - Carbon Calculator', link: 'https://www.websitecarbon.com/' },
+      { title: 'WebsiteCarbon - Calculateur Carbone', link: 'https://www.websitecarbon.com/' },
       { title: 'The Green Web Foundation', link: 'https://www.thegreenwebfoundation.org/' },
       { title: 'The Eco Friendly Web Alliance', link: 'https://ecofriendlyweb.org/' },
       { title: 'Reset.org', link: 'https://en.reset.org/' },
-      { title: 'Your website is killing the planet - via Wired', link: 'https://www.wired.co.uk/article/internet-carbon-footprint' },
+      { title: 'Votre site web tue la planète - Wired', link: 'https://www.wired.co.uk/article/internet-carbon-footprint' },
     ],
     screenshot: 'https://i.ibb.co/5v6fSyw/Screenshot-from-2023-07-29-19-07-50.png',
   },
   {
     id: "server-info",
-    title: "Server Info",
+    title: "Informations Serveur",
     description:
-      "This task retrieves various pieces of information about the server hosting the target website. This can include the server type (e.g., Apache, Nginx), the hosting provider, the Autonomous System Number (ASN), and more. The information is usually obtained through a combination of IP address lookups and analysis of HTTP response headers.",
-    use: "In an OSINT context, server information can provide valuable clues about the organization behind a website. For instance, the choice of hosting provider could suggest the geographical region in which the organization operates, while the server type could hint at the technologies used by the organization. The ASN could also be used to find other domains hosted by the same organization.",
+      "Cette tâche récupère diverses informations sur le serveur hébergeant le site web cible. Cela peut inclure le type de serveur (ex: Apache, Nginx), le fournisseur d'hébergement, le numéro de système autonome (ASN), et plus encore. Les informations sont généralement obtenues via une combinaison de recherches d'adresses IP et d'analyse des en-têtes de réponse HTTP.",
+    use: "Dans un contexte OSINT, les informations sur le serveur peuvent fournir des indices précieux sur l'organisation derrière un site web. Par exemple, le choix du fournisseur d'hébergement pourrait suggérer la région géographique dans laquelle l'organisation opère, tandis que le type de serveur pourrait indiquer les technologies utilisées par l'organisation. L'ASN pourrait également être utilisé pour trouver d'autres domaines hébergés par la même organisation.",
     resources: [
-      "https://en.wikipedia.org/wiki/List_of_HTTP_header_fields",
-      "https://en.wikipedia.org/wiki/Autonomous_system_(Internet)",
+      "https://fr.wikipedia.org/wiki/Liste_des_codes_HTTP",
+      "https://fr.wikipedia.org/wiki/Autonomous_System",
       "https://tools.ietf.org/html/rfc7231#section-7.4.2",
       "https://builtwith.com/",
     ],
@@ -228,10 +228,10 @@ const docs: Doc[] = [
   },
   {
     id: "domain",
-    title: "Whois Lookup",
+    title: "Recherche Whois",
     description:
-      "This task retrieves Whois records for the target domain. Whois records are a rich source of information, including the name and contact information of the domain registrant, the domain's creation and expiration dates, the domain's nameservers, and more. The information is usually obtained through a query to a Whois database server.",
-    use: "In an OSINT context, Whois records can provide valuable clues about the entity behind a website. They can show when the domain was first registered and when it's set to expire, which could provide insights into the operational timeline of the entity. The contact information, though often redacted or anonymized, can sometimes lead to additional avenues of investigation. The nameservers could also be used to link together multiple domains owned by the same entity.",
+      "Cette tâche récupère les enregistrements Whois pour le domaine cible. Les enregistrements Whois sont une source riche d'informations, incluant le nom et les informations de contact du titulaire du domaine, les dates de création et d'expiration du domaine, les serveurs de noms du domaine, et plus encore. Les informations sont généralement obtenues via une requête à un serveur de base de données Whois.",
+    use: "Dans un contexte OSINT, les enregistrements Whois peuvent fournir des indices précieux sur l'entité derrière un site web. Ils peuvent montrer quand le domaine a été enregistré pour la première fois et quand il doit expirer, ce qui pourrait fournir des insights sur la chronologie opérationnelle de l'entité. Les informations de contact, bien que souvent expurgées ou anonymisées, peuvent parfois conduire à des pistes d'investigation supplémentaires. Les serveurs de noms pourraient également être utilisés pour lier ensemble plusieurs domaines détenus par la même entité.",
     resources: [
       "https://en.wikipedia.org/wiki/WHOIS",
       "https://www.icann.org/resources/pages/whois-2018-01-17-en",
@@ -254,45 +254,45 @@ const docs: Doc[] = [
   },
   {
     id: "dnssec",
-    title: "DNS Security Extensions",
+    title: "Extensions de Sécurité DNS",
     description:
-      "Without DNSSEC, it's possible for MITM attackers to spoof records and lead users to phishing sites. This is because the DNS system includes no built-in methods to verify that the response to the request was not forged, or that any other part of the process wasn’t interrupted by an attacker. The DNS Security Extensions (DNSSEC) secures DNS lookups by signing your DNS records using public keys, so browsers can detect if the response has been tampered with. Another solution to this issue is DoH (DNS over HTTPS) and DoT (DNS over TLD).",
-    use: "DNSSEC information provides insight into an organization's level of cybersecurity maturity and potential vulnerabilities, particularly around DNS spoofing and cache poisoning. If no DNS secururity (DNSSEC, DoH, DoT, etc) is implemented, this may provide an entry point for an attacker.",
+      "Sans DNSSEC, il est possible pour les attaquants MITM d'usurper des enregistrements et de rediriger les utilisateurs vers des sites de phishing. C'est parce que le système DNS n'inclut aucune méthode intégrée pour vérifier que la réponse à la requête n'a pas été falsifiée, ou qu'aucune autre partie du processus n'a été interrompue par un attaquant. Les extensions de sécurité DNS (DNSSEC) sécurisent les recherches DNS en signant vos enregistrements DNS avec des clés publiques, afin que les navigateurs puissent détecter si la réponse a été altérée. D'autres solutions à ce problème sont DoH (DNS over HTTPS) et DoT (DNS over TLS).",
+    use: "Les informations DNSSEC fournissent un aperçu du niveau de maturité en cybersécurité d'une organisation et des vulnérabilités potentielles, particulièrement concernant l'usurpation DNS et l'empoisonnement de cache. Si aucune sécurité DNS (DNSSEC, DoH, DoT, etc.) n'est implémentée, cela peut fournir un point d'entrée pour un attaquant.",
     resources: [
       "https://dnssec-analyzer.verisignlabs.com/",
-      "https://www.cloudflare.com/dns/dnssec/how-dnssec-works/",
-      "https://en.wikipedia.org/wiki/Domain_Name_System_Security_Extensions",
+      "https://www.cloudflare.com/fr-fr/dns/dnssec/how-dnssec-works/",
+      "https://fr.wikipedia.org/wiki/Domain_Name_System_Security_Extensions",
       "https://www.icann.org/resources/pages/dnssec-what-is-it-why-important-2019-03-05-en",
-      "https://support.google.com/domains/answer/6147083",
+      "https://support.google.com/domains/answer/6147083?hl=fr",
       "https://www.internetsociety.org/resources/deploy360/2013/dnssec-test-sites/",
     ],
     screenshot: 'https://i.ibb.co/J54zVmQ/wc-dnssec.png',
   },
   {
     id: "features",
-    title: "Site Features",
-    description: 'Checks which core features are present on a site. If a feature as marked as dead, that means it\'s not being actively used at load time',
-    use: "This is useful to understand what a site is capable of, and what technologies to look for",
+    title: "Fonctionnalités du Site",
+    description: 'Vérifie quelles fonctionnalités principales sont présentes sur un site. Si une fonctionnalité est marquée comme morte, cela signifie qu\'elle n\'est pas activement utilisée au moment du chargement',
+    use: "Ceci est utile pour comprendre les capacités d'un site et quelles technologies rechercher",
     resources: [],
     screenshot: 'https://i.ibb.co/gP4P6kp/wc-features.png',
   },
   {
     id: "hsts",
     title: "HTTP Strict Transport Security",
-    description: 'HTTP Strict Transport Security (HSTS) is a web security policy '
-    +'mechanism that helps protect websites against protocol downgrade attacks and '
-    + 'cookie hijacking. A website can be included in the HSTS preload list by '
-    + 'conforming to a set of requirements and then submitting itself to the list.',
-    use: `There are several reasons why it's important for a site to be HSTS enabled:
-  1. User bookmarks or manually types http://example.com and is subject to a man-in-the-middle attacker
-    HSTS automatically redirects HTTP requests to HTTPS for the target domain
-  2. Web application that is intended to be purely HTTPS inadvertently contains HTTP links or serves content over HTTP
-    HSTS automatically redirects HTTP requests to HTTPS for the target domain
-  3. A man-in-the-middle attacker attempts to intercept traffic from a victim user using an invalid certificate and hopes the user will accept the bad certificate
-    HSTS does not allow a user to override the invalid certificate message
+    description: 'HTTP Strict Transport Security (HSTS) est un mécanisme de politique de sécurité web '
+    +'qui aide à protéger les sites web contre les attaques de rétrogradation de protocole et '
+    + 'le détournement de cookies. Un site web peut être inclus dans la liste de préchargement HSTS en '
+    + 'se conformant à un ensemble d\'exigences puis en se soumettant à la liste.',
+    use: `Il existe plusieurs raisons pour lesquelles il est important qu'un site soit activé HSTS:
+  1. L'utilisateur met en signet ou tape manuellement http://exemple.com et est sujet à une attaque MITM
+    HSTS redirige automatiquement les requêtes HTTP vers HTTPS pour le domaine cible
+  2. Une application web destinée à être purement HTTPS contient par inadvertance des liens HTTP ou sert du contenu via HTTP
+    HSTS redirige automatiquement les requêtes HTTP vers HTTPS pour le domaine cible
+  3. Un attaquant MITM tente d'intercepter le trafic d'un utilisateur victime en utilisant un certificat invalide et espère que l'utilisateur acceptera le mauvais certificat
+    HSTS ne permet pas à un utilisateur de contourner le message de certificat invalide
     `,
     resources: [
-      'https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security',
+      'https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Strict-Transport-Security',
       'https://cheatsheetseries.owasp.org/cheatsheets/HTTP_Strict_Transport_Security_Cheat_Sheet.html',
       'https://hstspreload.org/'
     ],
@@ -300,80 +300,80 @@ const docs: Doc[] = [
   },
   {
     id: 'dns-server',
-    title: 'DNS Server',
-    description: 'This check determines the DNS server(s) that the requested URL / IP resolves to. Also fires off a rudimentary check to see if the DNS server supports DoH, and weather it\'s vulnerable to DNS cache poisoning.',
-    use: '',
+    title: 'Serveur DNS',
+    description: 'Cette vérification détermine le(s) serveur(s) DNS auquel l\'URL / IP demandée se résout. Lance également une vérification rudimentaire pour voir si le serveur DNS supporte DoH, et s\'il est vulnérable à l\'empoisonnement du cache DNS.',
+    use: 'Permet d\'identifier les serveurs DNS utilisés et d\'évaluer leur sécurité.',
     resources: [],
     screenshot: 'https://i.ibb.co/tKpL8F9/Screenshot-from-2023-08-12-15-43-12.png',
   },
   {
     id: 'tech-stack',
-    title: 'Tech Stack',
-    description: 'Checks what technologies a site is built with. '
-    + 'This is done by fetching and parsing the site, then comparing it against a bit list of RegEx maintained by Wappalyzer to identify the unique fingerprints that different technologies leave.',
-    use: 'Identifying a website\'s tech stack aids in evaluating its security by exposing potential vulnerabilities, '
-    + 'informs competitive analyses and development decisions, and can guide tailored marketing strategies. '
-    + 'Ethical application of this knowledge is crucial to avoid harmful activities like data theft or unauthorized intrusion.',
+    title: 'Stack Technique',
+    description: 'Vérifie avec quelles technologies un site est construit. '
+    + 'Ceci est fait en récupérant et en analysant le site, puis en le comparant à une liste de RegEx maintenue par Wappalyzer pour identifier les empreintes uniques que différentes technologies laissent.',
+    use: 'Identifier la stack technique d\'un site aide à évaluer sa sécurité en exposant les vulnérabilités potentielles, '
+    + 'informe les analyses concurrentielles et les décisions de développement, et peut guider des stratégies marketing ciblées. '
+    + 'L\'application éthique de cette connaissance est cruciale pour éviter les activités nuisibles comme le vol de données ou l\'intrusion non autorisée.',
     resources: [
-      { title: 'Wappalyzer fingerprints', link: 'https://github.com/wappalyzer/wappalyzer/tree/master/src/technologies'},
-      { title: 'BuiltWith - Check what tech a site is using', link: 'https://builtwith.com/'},
+      { title: 'Empreintes Wappalyzer', link: 'https://github.com/wappalyzer/wappalyzer/tree/master/src/technologies'},
+      { title: 'BuiltWith - Vérifier les technologies d\'un site', link: 'https://builtwith.com/'},
     ],
     screenshot: 'https://i.ibb.co/bBQSQNz/Screenshot-from-2023-08-12-15-43-46.png',
   },
   {
     id: 'sitemap',
-    title: 'Listed Pages',
-    description: 'This job finds and parses a site\'s listed sitemap. This file lists public sub-pages on the site, which the author wishes to be crawled by search engines. Sitemaps help with SEO, but are also useful for seeing all a sites public content at a glance.',
-    use: 'Understand the structure of a site\'s public-facing content, and for site-owners, check that you\'re site\'s sitemap is accessible, parsable and contains everything you wish it to.',
+    title: 'Pages Listées',
+    description: 'Ce job trouve et analyse le sitemap listé d\'un site. Ce fichier liste les sous-pages publiques du site, que l\'auteur souhaite voir crawler par les moteurs de recherche. Les sitemaps aident au SEO, mais sont également utiles pour voir tout le contenu public d\'un site d\'un coup d\'œil.',
+    use: 'Comprendre la structure du contenu public d\'un site, et pour les propriétaires de sites, vérifier que le sitemap est accessible, analysable et contient tout ce que vous souhaitez.',
     resources: [
-      { title: 'Learn about Sitemaps', link: 'https://developers.google.com/search/docs/crawling-indexing/sitemaps/overview'},
-      { title: 'Sitemap XML spec', link: 'https://www.sitemaps.org/protocol.html'},
-      { title: 'Sitemap tutorial', link: 'https://www.conductor.com/academy/xml-sitemap/'},
+      { title: 'En savoir plus sur les Sitemaps', link: 'https://developers.google.com/search/docs/crawling-indexing/sitemaps/overview?hl=fr'},
+      { title: 'Spécification XML Sitemap', link: 'https://www.sitemaps.org/protocol.html'},
+      { title: 'Tutoriel Sitemap', link: 'https://www.conductor.com/academy/xml-sitemap/'},
     ],
     screenshot: 'https://i.ibb.co/GtrCQYq/Screenshot-from-2023-07-21-12-28-38.png',
   },
   {
     id: 'security-txt',
     title: 'Security.txt',
-    description: "The security.txt file tells researchers how they can responsibly disclose any security issues found on your site. "
-    + "The standard was proposed in RFC 9116, and specifies that this file should include a point of contact (email address), "
-    + "as well as optionally other info, like a link to the security disclosure policy, PGP key, proffered language, policy expiry and more. "
-    + "The file should be located at the root of your domain, either at /security.txt or /.well-known/security.txt.",
-    use: "This is important, as without a defined point of contact a security researcher may be unable to report a critical security issue, "
-    + "or may use insecure or possibly public channels to do so. From an OSINT perspective, you may also glean info about a site including "
-    + "their posture on security, their CSAF provider, and meta data from the PGP public key.",
+    description: "Le fichier security.txt indique aux chercheurs comment ils peuvent divulguer de manière responsable tout problème de sécurité trouvé sur votre site. "
+    + "La norme a été proposée dans la RFC 9116, et spécifie que ce fichier doit inclure un point de contact (adresse email), "
+    + "ainsi qu'optionnellement d'autres infos, comme un lien vers la politique de divulgation de sécurité, clé PGP, langue préférée, expiration de la politique et plus. "
+    + "Le fichier doit être situé à la racine de votre domaine, soit à /security.txt ou /.well-known/security.txt.",
+    use: "Ceci est important, car sans point de contact défini un chercheur en sécurité peut être incapable de signaler un problème de sécurité critique, "
+    + "ou peut utiliser des canaux non sécurisés ou possiblement publics pour le faire. D'un point de vue OSINT, vous pouvez également glaner des infos sur un site incluant "
+    + "leur posture sur la sécurité, leur fournisseur CSAF, et les métadonnées de la clé publique PGP.",
     resources: [
       { title: 'securitytxt.org', link: 'https://securitytxt.org/'},
-      { title: 'RFC-9116 Proposal', link: 'https://datatracker.ietf.org/doc/html/rfc9116'},
-      { title: 'RFC-9116 History', link: 'https://datatracker.ietf.org/doc/rfc9116/'},
-      { title: 'Security.txt (Wikipedia)', link: 'https://en.wikipedia.org/wiki/Security.txt'},
-      { title: 'Example security.txt (Cloudflare)', link: 'https://www.cloudflare.com/.well-known/security.txt'},
-      { title: 'Tutorial for creating security.txt (Pieter Bakker)', link: 'https://pieterbakker.com/implementing-security-txt/'},
+      { title: 'Proposition RFC-9116', link: 'https://datatracker.ietf.org/doc/html/rfc9116'},
+      { title: 'Historique RFC-9116', link: 'https://datatracker.ietf.org/doc/rfc9116/'},
+      { title: 'Security.txt (Wikipedia)', link: 'https://fr.wikipedia.org/wiki/Security.txt'},
+      { title: 'Exemple security.txt (Cloudflare)', link: 'https://www.cloudflare.com/.well-known/security.txt'},
+      { title: 'Tutoriel création security.txt', link: 'https://pieterbakker.com/implementing-security-txt/'},
     ],
     screenshot: 'https://i.ibb.co/tq1FT5r/Screenshot-from-2023-07-24-20-31-21.png',
   },
   {
     id: 'linked-pages',
-    title: 'Linked Pages',
-    description: 'Displays all internal and external links found on a site, identified by the href attributes attached to anchor elements.',
-    use: "For site owners, this is useful for diagnosing SEO issues, improving the site structure, understanding how content is inter-connected. External links can show partnerships, dependencies, and potential reputation risks. " +
-    "From a security standpoint, the outbound links can help identify any potential malicious or compromised sites the website is unknowingly linking to. Analyzing internal links can aid in understanding the site's structure and potentially uncover hidden or vulnerable pages which are not intended to be public. " +
-    "And for an OSINT investigator, it can aid in building a comprehensive understanding of the target, uncovering related entities, resources, or even potential hidden parts of the site.",
+    title: 'Pages Liées',
+    description: 'Affiche tous les liens internes et externes trouvés sur un site, identifiés par les attributs href attachés aux éléments d\'ancre.',
+    use: "Pour les propriétaires de sites, ceci est utile pour diagnostiquer les problèmes SEO, améliorer la structure du site, comprendre comment le contenu est interconnecté. Les liens externes peuvent montrer des partenariats, dépendances, et risques de réputation potentiels. " +
+    "Du point de vue de la sécurité, les liens sortants peuvent aider à identifier tout site malveillant ou compromis auquel le site web lie sans le savoir. L'analyse des liens internes peut aider à comprendre la structure du site et potentiellement découvrir des pages cachées ou vulnérables qui ne sont pas destinées à être publiques. " +
+    "Et pour un investigateur OSINT, cela peut aider à construire une compréhension complète de la cible, découvrir des entités liées, des ressources, ou même des parties cachées potentielles du site.",
     resources: [
-      { title: 'W3C Link Checker', link: 'https://validator.w3.org/checklink'},
+      { title: 'Vérificateur de liens W3C', link: 'https://validator.w3.org/checklink'},
     ],
     screenshot: 'https://i.ibb.co/LtK14XR/Screenshot-from-2023-07-29-11-16-44.png',
   },
   {
     id: 'social-tags',
-    title: 'Social Tags',
-    description: 'Websites can include certain meta tags, that tell search engines and social media platforms what info to display. This usually includes a title, description, thumbnail, keywords, author, social accounts, etc.',
-    use: 'Adding this data to your site will boost SEO, and as an OSINT researcher it can be useful to understand how a given web app describes itself',
+    title: 'Balises Sociales',
+    description: 'Les sites web peuvent inclure certaines balises meta, qui indiquent aux moteurs de recherche et plateformes de médias sociaux quelles infos afficher. Cela inclut généralement un titre, description, vignette, mots-clés, auteur, comptes sociaux, etc.',
+    use: 'Ajouter ces données à votre site boostera le SEO, et en tant que chercheur OSINT il peut être utile de comprendre comment une application web donnée se décrit',
     resources: [
       { title: 'SocialSharePreview.com', link: 'https://socialsharepreview.com/'},
-      { title: 'The guide to social meta tags', link: 'https://css-tricks.com/essential-meta-tags-social-media/'},
-      { title: 'Web.dev metadata tags', link: 'https://web.dev/learn/html/metadata/'},
-      { title: 'Open Graph Protocol', link: 'https://ogp.me/'},
+      { title: 'Le guide des balises meta sociales', link: 'https://css-tricks.com/essential-meta-tags-social-media/'},
+      { title: 'Balises metadata Web.dev', link: 'https://web.dev/learn/html/metadata/'},
+      { title: 'Protocole Open Graph', link: 'https://ogp.me/'},
       { title: 'Twitter Cards', link: 'https://developer.twitter.com/en/docs/twitter-for-websites/cards/overview/abouts-cards'},
       { title: 'Facebook Open Graph', link: 'https://developers.facebook.com/docs/sharing/webmasters'},
     ],
@@ -381,14 +381,14 @@ const docs: Doc[] = [
   },
   {
     id: 'mail-config',
-    title: 'Email Configuration',
-    description: "DMARC (Domain-based Message Authentication, Reporting & Conformance): DMARC is an email authentication protocol that works with SPF and DKIM to prevent email spoofing and phishing. It allows domain owners to specify how to handle unauthenticated mail via a published policy in DNS, and provides a way for receiving mail servers to send feedback about emails' compliance to the sender. " +
-    "BIMI (Brand Indicators for Message Identification): BIMI is an emerging email standard that enables organizations to display a logo in their customers' email clients automatically. BIMI ties the logo to the domain's DMARC record, providing another level of visual assurance to recipients that the email is legitimate. " +
-    "DKIM (DomainKeys Identified Mail): DKIM is an email security standard designed to make sure that messages were not altered in transit between the sending and recipient servers. It uses digital signatures linked to the domain of the sender to verify the sender and ensure message integrity. " +
-    "SPF (Sender Policy Framework): SPF is an email authentication method designed to prevent email spoofing. It specifies which mail servers are authorized to send email on behalf of a domain by creating a DNS record. This helps protect against spam by providing a way for receiving mail servers to check that incoming mail from a domain comes from a host authorized by that domain's administrators.",
-    use: "This information is helpful for researchers as it helps assess a domain's email security posture, uncover potential vulnerabilities, and verify the legitimacy of emails for phishing detection. These details can also provide insight into the hosting environment, potential service providers, and the configuration patterns of a target organization, assisting in investigative efforts.",
+    title: 'Configuration Email',
+    description: "DMARC (Domain-based Message Authentication, Reporting & Conformance): DMARC est un protocole d'authentification email qui fonctionne avec SPF et DKIM pour prévenir l'usurpation d'email et le phishing. Il permet aux propriétaires de domaines de spécifier comment gérer le courrier non authentifié via une politique publiée dans DNS, et fournit un moyen pour les serveurs de réception de courrier d'envoyer des retours sur la conformité des emails à l'expéditeur. " +
+    "BIMI (Brand Indicators for Message Identification): BIMI est un standard email émergent qui permet aux organisations d'afficher automatiquement un logo dans les clients email de leurs clients. BIMI lie le logo à l'enregistrement DMARC du domaine, fournissant un autre niveau d'assurance visuelle aux destinataires que l'email est légitime. " +
+    "DKIM (DomainKeys Identified Mail): DKIM est un standard de sécurité email conçu pour s'assurer que les messages n'ont pas été altérés en transit entre les serveurs d'envoi et de réception. Il utilise des signatures numériques liées au domaine de l'expéditeur pour vérifier l'expéditeur et assurer l'intégrité du message. " +
+    "SPF (Sender Policy Framework): SPF est une méthode d'authentification email conçue pour prévenir l'usurpation d'email. Elle spécifie quels serveurs de messagerie sont autorisés à envoyer des emails au nom d'un domaine en créant un enregistrement DNS. Cela aide à protéger contre le spam en fournissant un moyen pour les serveurs de messagerie de réception de vérifier que le courrier entrant provient d'un hôte autorisé par les administrateurs du domaine.",
+    use: "Ces informations sont utiles pour les chercheurs car elles aident à évaluer la posture de sécurité email d'un domaine, découvrir des vulnérabilités potentielles, et vérifier la légitimité des emails pour la détection de phishing. Ces détails peuvent également fournir un aperçu de l'environnement d'hébergement, des fournisseurs de services potentiels, et des modèles de configuration d'une organisation cible, assistant dans les efforts d'investigation.",
     resources: [
-      { title: 'Intro to DMARC, DKIM, and SPF (via Cloudflare)', link: 'https://www.cloudflare.com/learning/email-security/dmarc-dkim-spf/' },
+      { title: 'Intro à DMARC, DKIM et SPF (Cloudflare)', link: 'https://www.cloudflare.com/fr-fr/learning/email-security/dmarc-dkim-spf/' },
       { title: 'EasyDMARC Domain Scanner', link: 'https://easydmarc.com/tools/domain-scanner' },
       { title: 'MX Toolbox', link: 'https://mxtoolbox.com/' },
       { title: 'RFC-7208 - SPF', link: 'https://datatracker.ietf.org/doc/html/rfc7208' },
@@ -400,46 +400,46 @@ const docs: Doc[] = [
   },
   {
     id: 'firewall',
-    title: 'Firewall Detection',
-    description: 'A WAF or web application firewall helps protect web applications by filtering and monitoring HTTP traffic between a web application and the Internet. It typically protects web applications from attacks such as cross-site forgery, cross-site-scripting (XSS), file inclusion, and SQL injection, among others.',
-    use: 'It\'s useful to understand if a site is using a WAF, and which firewall software / service it is using, as this provides an insight into the sites protection against several attack vectors, but also may reveal vulnerabilities in the firewall itself.',
+    title: 'Détection Firewall',
+    description: 'Un WAF ou pare-feu d\'application web aide à protéger les applications web en filtrant et surveillant le trafic HTTP entre une application web et Internet. Il protège généralement les applications web contre les attaques telles que la falsification intersite, le cross-site-scripting (XSS), l\'inclusion de fichiers, et l\'injection SQL, entre autres.',
+    use: 'Il est utile de comprendre si un site utilise un WAF, et quel logiciel/service de pare-feu il utilise, car cela fournit un aperçu de la protection du site contre plusieurs vecteurs d\'attaque, mais peut également révéler des vulnérabilités dans le pare-feu lui-même.',
     resources: [
-      { title: 'What is a WAF (via Cloudflare Learning)', link: 'https://www.cloudflare.com/learning/ddos/glossary/web-application-firewall-waf/' },
+      { title: 'Qu\'est-ce qu\'un WAF (Cloudflare)', link: 'https://www.cloudflare.com/fr-fr/learning/ddos/glossary/web-application-firewall-waf/' },
       { title: 'OWASP - Web Application Firewalls', link: 'https://owasp.org/www-community/Web_Application_Firewall' },
-      { title: 'Web Application Firewall Best Practices', link: 'https://owasp.org/www-pdf-archive/Best_Practices_Guide_WAF_v104.en.pdf' },
-      { title: 'WAF - Wiki', link: 'https://en.wikipedia.org/wiki/Web_application_firewall' },
+      { title: 'Meilleures pratiques WAF', link: 'https://owasp.org/www-pdf-archive/Best_Practices_Guide_WAF_v104.en.pdf' },
+      { title: 'WAF - Wiki', link: 'https://fr.wikipedia.org/wiki/Pare-feu_applicatif_web' },
     ],
     screenshot: 'https://i.ibb.co/MfcxQt2/Screenshot-from-2023-08-12-15-40-52.png',
   },
   {
     id: 'http-security',
-    title: 'HTTP Security Features',
-    description: 'Correctly configured security HTTP headers adds a layer of protection against common attacks to your site. The main headers to be aware of are: '
-    + 'HTTP Strict Transport Security (HSTS): Enforces the use of HTTPS, mitigating man-in-the-middle attacks and protocol downgrade attempts. '
-    + 'Content Security Policy (CSP): Constrains web page resources to prevent cross-site scripting and data injection attacks. '
-    + 'X-Content-Type-Options: Prevents browsers from MIME-sniffing a response away from the declared content type, curbing MIME-type confusion attacks. '
-    + 'X-Frame-Options: Protects users from clickjacking attacks by controlling whether a browser should render the page in a <frame>, <iframe>, <embed>, or <object>. ',
-    use: 'Reviewing security headers is important, as it offers insights into a site\'s defensive posture and potential vulnerabilities, enabling proactive mitigation and ensuring compliance with security best practices.',
+    title: 'Fonctionnalités de Sécurité HTTP',
+    description: 'Des en-têtes de sécurité HTTP correctement configurés ajoutent une couche de protection contre les attaques courantes sur votre site. Les principaux en-têtes à connaître sont: '
+    + 'HTTP Strict Transport Security (HSTS): Force l\'utilisation de HTTPS, atténuant les attaques MITM et les tentatives de rétrogradation de protocole. '
+    + 'Content Security Policy (CSP): Contraint les ressources de page web pour prévenir le cross-site scripting et les attaques par injection de données. '
+    + 'X-Content-Type-Options: Empêche les navigateurs de faire du MIME-sniffing d\'une réponse loin du type de contenu déclaré, contrant les attaques de confusion de type MIME. '
+    + 'X-Frame-Options: Protège les utilisateurs des attaques de clickjacking en contrôlant si un navigateur doit rendre la page dans un <frame>, <iframe>, <embed>, ou <object>. ',
+    use: 'Examiner les en-têtes de sécurité est important, car cela offre des insights sur la posture défensive d\'un site et les vulnérabilités potentielles, permettant une atténuation proactive et assurant la conformité avec les meilleures pratiques de sécurité.',
     resources: [
-      { title: 'OWASP Secure Headers Project', link: 'https://owasp.org/www-project-secure-headers/'},
-      { title: 'HTTP Header Cheatsheet', link: 'https://cheatsheetseries.owasp.org/cheatsheets/HTTP_Headers_Cheat_Sheet.html' },
+      { title: 'Projet OWASP Secure Headers', link: 'https://owasp.org/www-project-secure-headers/'},
+      { title: 'Aide-mémoire en-têtes HTTP', link: 'https://cheatsheetseries.owasp.org/cheatsheets/HTTP_Headers_Cheat_Sheet.html' },
       { title: 'content-security-policy.com', link: 'https://content-security-policy.com/' },
       { title: 'resourcepolicy.fyi', link: 'https://resourcepolicy.fyi/' },
       { title: 'HTTP Security Headers', link: 'https://securityheaders.com/' },
       { title: 'Mozilla Observatory', link: 'https://observatory.mozilla.org/' },
-      { title: 'CSP Docs', link: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP' },
-      { title: 'HSTS Docs', link: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/Strict-Transport-Security' },
-      { title: 'X-Content-Type-Options Docs', link: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options' },
-      { title: 'X-Frame-Options Docs', link: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Frame-Options' },
-      { title: 'X-XSS-Protection Docs', link: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection' },
+      { title: 'Docs CSP', link: 'https://developer.mozilla.org/fr/docs/Web/HTTP/CSP' },
+      { title: 'Docs HSTS', link: 'https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/Strict-Transport-Security' },
+      { title: 'Docs X-Content-Type-Options', link: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-Content-Type-Options' },
+      { title: 'Docs X-Frame-Options', link: 'https://developer.mozilla.org/fr/docs/Web/HTTP/Headers/X-Frame-Options' },
+      { title: 'Docs X-XSS-Protection', link: 'https://developer.mozilla.org/en-US/docs/Web/HTTP/Headers/X-XSS-Protection' },
     ],
     screenshot: 'https://i.ibb.co/LP05HMV/Screenshot-from-2023-08-12-15-40-28.png',
   },
   {
     id: 'archives',
-    title: 'Archive History',
-    description: 'Fetches full history of archives from the Wayback machine',
-    use: 'This is useful for understanding the history of a site, and how it has changed over time. It can also be useful for finding old versions of a site, or for finding content that has been removed.',
+    title: 'Historique Archives',
+    description: 'Récupère l\'historique complet des archives depuis la Wayback machine',
+    use: 'Ceci est utile pour comprendre l\'historique d\'un site, et comment il a changé au fil du temps. Cela peut également être utile pour trouver d\'anciennes versions d\'un site, ou pour trouver du contenu qui a été supprimé.',
     resources: [
       { title: 'Wayback Machine', link: 'https://archive.org/web/'},
     ],
@@ -447,30 +447,30 @@ const docs: Doc[] = [
   },
   {
     id: 'rank',
-    title: 'Global Ranking',
-    description: 'This check shows the global rank of the requested site. This is only accurate for websites which are in the top 100 million list. We\'re using data from the Tranco project (see below), which collates the top sites on the web from Umbrella, Majestic, Quantcast, the Chrome User Experience Report and Cloudflare Radar.',
-    use: 'Knowing a websites overall global rank can be useful for understanding the scale of the site, and for comparing it to other sites. It can also be useful for understanding the relative popularity of a site, and for identifying potential trends.',
+    title: 'Classement Mondial',
+    description: 'Cette vérification affiche le rang mondial du site demandé. Ceci n\'est précis que pour les sites web qui sont dans la liste des 100 millions premiers. Nous utilisons les données du projet Tranco (voir ci-dessous), qui rassemble les meilleurs sites du web depuis Umbrella, Majestic, Quantcast, le Chrome User Experience Report et Cloudflare Radar.',
+    use: 'Connaître le rang mondial global d\'un site web peut être utile pour comprendre l\'échelle du site, et pour le comparer à d\'autres sites. Cela peut également être utile pour comprendre la popularité relative d\'un site, et pour identifier des tendances potentielles.',
     resources: [
-      { title: 'Tranco List', link: 'https://tranco-list.eu/' },
-      { title: 'Tranco Research Paper', link: 'https://tranco-list.eu/assets/tranco-ndss19.pdf'},
+      { title: 'Liste Tranco', link: 'https://tranco-list.eu/' },
+      { title: 'Article de recherche Tranco', link: 'https://tranco-list.eu/assets/tranco-ndss19.pdf'},
     ],
     screenshot: 'https://i.ibb.co/nkbczgb/Screenshot-from-2023-08-14-22-02-40.png',
   },
   {
     id: 'block-lists',
-    title: 'Block Detection',
-    description: 'Checks access to the URL using 10+ of the most popular privacy, malware and parental control blocking DNS servers.',
-    use: '',
+    title: 'Détection de Blocage',
+    description: 'Vérifie l\'accès à l\'URL en utilisant plus de 10 serveurs DNS de blocage les plus populaires pour la confidentialité, les malwares et le contrôle parental.',
+    use: 'Permet d\'identifier si un site est bloqué par des services de sécurité ou de contrôle parental.',
     resources: [
-      { title: 'ThreatJammer Lists', link: 'https://threatjammer.com/osint-lists'},
+      { title: 'Listes ThreatJammer', link: 'https://threatjammer.com/osint-lists'},
     ],
     screenshot: 'https://i.ibb.co/M5JSXbW/Screenshot-from-2023-08-26-12-12-43.png',
   },
   {
     id: 'threats',
-    title: 'Malware & Phishing Detection',
-    description: 'Checks if a site appears in several common malware and phishing lists, to determine it\'s threat level.',
-    use: 'Knowing if a site is listed as a threat by any of these services can be useful for understanding the reputation of a site, and for identifying potential trends.',
+    title: 'Détection Malware & Phishing',
+    description: 'Vérifie si un site apparaît dans plusieurs listes courantes de malware et phishing, pour déterminer son niveau de menace.',
+    use: 'Savoir si un site est listé comme une menace par l\'un de ces services peut être utile pour comprendre la réputation d\'un site, et pour identifier des tendances potentielles.',
     resources: [
       { title: 'URLHaus', link: 'https://urlhaus-api.abuse.ch/'},
       { title: 'PhishTank', link: 'https://www.phishtank.com/'},
@@ -479,43 +479,101 @@ const docs: Doc[] = [
   },
   {
     id: 'tls-cipher-suites',
-    title: 'TLS Cipher Suites',
-    description: 'These are combinations of cryptographic algorithms used by the server to establish a secure connection. It includes the key exchange algorithm, bulk encryption algorithm, MAC algorithm, and PRF (pseudorandom function).',
-    use: 'This is important info to test for from a security perspective. Because a cipher suite is only as secure as the algorithms that it contains. If the version of encryption or authentication algorithm in a cipher suite have known vulnerabilities the cipher suite and TLS connection may then vulnerable to a downgrade or other attack',
+    title: 'Suites de Chiffrement TLS',
+    description: 'Ce sont des combinaisons d\'algorithmes cryptographiques utilisés par le serveur pour établir une connexion sécurisée. Cela inclut l\'algorithme d\'échange de clés, l\'algorithme de chiffrement en bloc, l\'algorithme MAC, et la PRF (fonction pseudoaléatoire).',
+    use: 'C\'est une info importante à tester d\'un point de vue sécurité. Parce qu\'une suite de chiffrement n\'est aussi sécurisée que les algorithmes qu\'elle contient. Si la version de l\'algorithme de chiffrement ou d\'authentification dans une suite de chiffrement a des vulnérabilités connues, la suite de chiffrement et la connexion TLS peuvent alors être vulnérables à une attaque de rétrogradation ou autre',
     resources: [
       { title: 'sslscan2 CLI', link: 'https://github.com/rbsec/sslscan' },
-      { title: 'ssl-enum-ciphers (NPMAP script)', link: 'https://nmap.org/nsedoc/scripts/ssl-enum-ciphers.html' }
+      { title: 'ssl-enum-ciphers (script NMAP)', link: 'https://nmap.org/nsedoc/scripts/ssl-enum-ciphers.html' }
     ],
     screenshot: 'https://i.ibb.co/6ydtH5R/Screenshot-from-2023-08-26-12-09-58.png',
   },
   {
     id: 'tls-security-config',
-    title: 'TLS Security Config',
-    description: 'This uses guidelines from Mozilla\'s TLS Observatory to check the security of the TLS configuration. It checks for bad configurations, which may leave the site vulnerable to attack, as well as giving advice on how to fix. It will also give suggestions around outdated and modern TLS configs',
-    use: 'Understanding issues with a site\'s TLS configuration will help you address potential vulnerabilities, and ensure the site is using the latest and most secure TLS configuration.',
+    title: 'Configuration de Sécurité TLS',
+    description: 'Ceci utilise les directives de TLS Observatory de Mozilla pour vérifier la sécurité de la configuration TLS. Il vérifie les mauvaises configurations, qui peuvent laisser le site vulnérable aux attaques, ainsi que donner des conseils sur comment corriger. Il donnera également des suggestions autour des configurations TLS obsolètes et modernes',
+    use: 'Comprendre les problèmes avec la configuration TLS d\'un site vous aidera à adresser les vulnérabilités potentielles, et assurer que le site utilise la configuration TLS la plus récente et la plus sécurisée.',
     resources: [],
     screenshot: 'https://i.ibb.co/FmksZJt/Screenshot-from-2023-08-26-12-12-09.png',
   },
   {
     id: 'tls-client-support',
-    title: 'TLS Handshake Simulation',
-    description: 'This simulates how different clients (browsers, operating systems) would perform a TLS handshake with the server. It helps identify compatibility issues and insecure configurations.',
-    use: '',
+    title: 'Simulation Poignée de Main TLS',
+    description: 'Ceci simule comment différents clients (navigateurs, systèmes d\'exploitation) effectueraient une poignée de main TLS avec le serveur. Cela aide à identifier les problèmes de compatibilité et les configurations non sécurisées.',
+    use: 'Permet d\'identifier les problèmes de compatibilité TLS avec différents navigateurs et systèmes.',
     resources: [
-      { title: 'TLS Handshakes (via Cloudflare Learning)', link: 'https://www.cloudflare.com/learning/ssl/what-happens-in-a-tls-handshake/' },
-      { title: 'SSL Test (via SSL Labs)', link: 'https://www.ssllabs.com/ssltest/' },
+      { title: 'Poignées de main TLS (Cloudflare)', link: 'https://www.cloudflare.com/fr-fr/learning/ssl/what-happens-in-a-tls-handshake/' },
+      { title: 'Test SSL (SSL Labs)', link: 'https://www.ssllabs.com/ssltest/' },
     ],
     screenshot: 'https://i.ibb.co/F7qRZkh/Screenshot-from-2023-08-26-12-11-28.png',
   },
   {
     id: 'screenshot',
-    title: 'Screenshot',
-    description: 'This check takes a screenshot of webpage that the requested URL / IP resolves to, and displays it.',
-    use: 'This may be useful to see what a given website looks like, free of the constraints of your browser, IP, or location.',
+    title: 'Capture d\'Écran',
+    description: 'Cette vérification prend une capture d\'écran de la page web vers laquelle l\'URL / IP demandée se résout, et l\'affiche.',
+    use: 'Cela peut être utile pour voir à quoi ressemble un site web donné, libre des contraintes de votre navigateur, IP, ou emplacement.',
     resources: [],
     screenshot: 'https://i.ibb.co/2F0x8kP/Screenshot-from-2023-07-29-18-34-48.png',
   },
+  {
+    id: 'apdp-cookie-banner',
+    title: 'Bannière de Consentement Cookies APDP',
+    description: 'Cette vérification détecte la présence d\'une bannière de consentement aux cookies conforme RGPD/APDP. Elle analyse si le site propose des boutons "Accepter", "Refuser" et "Personnaliser", ainsi qu\'un lien vers la politique cookies. Les solutions détectées incluent tarteaucitron, cookiebot, onetrust, didomi, axeptio et autres bibliothèques de gestion du consentement.',
+    use: 'Essentiel pour la conformité RGPD/APDP Monaco. Une bannière conforme doit permettre aux utilisateurs de refuser les cookies non essentiels de manière aussi simple que de les accepter. L\'absence de bouton "Refuser" ou de personnalisation constitue une non-conformité majeure pouvant entraîner des sanctions.',
+    resources: [
+      { title: 'APDP Monaco - Protection des données', link: 'https://apdp.mc/' },
+      { title: 'CNIL - Cookies et traceurs', link: 'https://www.cnil.fr/fr/cookies-et-autres-traceurs' },
+      { title: 'RGPD - Règlement Général sur la Protection des Données', link: 'https://www.cnil.fr/fr/reglement-europeen-protection-donnees' },
+      { title: 'Tarteaucitron.js - Outil français de gestion cookies', link: 'https://tarteaucitron.io/fr/' },
+    ],
+  },
+  {
+    id: 'apdp-privacy-policy',
+    title: 'Politique de Confidentialité APDP',
+    description: 'Cette vérification recherche et analyse la politique de confidentialité du site. Elle vérifie la présence des sections obligatoires RGPD: collecte de données, finalités du traitement, droits des utilisateurs, durée de conservation, sécurité des données, et contact du DPO/responsable. La détection se fait via les liens dans le footer, le contenu de la page, robots.txt et sitemap.xml.',
+    use: 'La politique de confidentialité est une obligation légale RGPD/APDP pour tout site collectant des données personnelles. Elle doit expliquer clairement quelles données sont collectées, pourquoi, combien de temps elles sont conservées, et comment les utilisateurs peuvent exercer leurs droits. L\'absence ou l\'incomplétude de cette politique est une violation grave.',
+    resources: [
+      { title: 'APDP Monaco - Politique de confidentialité', link: 'https://apdp.mc/protection-des-donnees/politique-de-confidentialite' },
+      { title: 'CNIL - Modèle de politique de confidentialité', link: 'https://www.cnil.fr/fr/modele/rgpd/politique-de-confidentialite' },
+      { title: 'RGPD - Article 13', link: 'https://www.cnil.fr/fr/reglement-europeen-protection-donnees/chapitre3#Article13' },
+    ],
+  },
+  {
+    id: 'apdp-legal-notices',
+    title: 'Mentions Légales APDP',
+    description: 'Cette vérification recherche et analyse les mentions légales du site. Elle vérifie la présence des informations obligatoires: raison sociale, adresse du siège, numéro SIRET/RCS, responsable de publication, hébergeur et contact. La détection couvre les liens "mentions légales", "c.g.u", "c.g.v", "conditions générales" dans le footer, sitemap et robots.txt.',
+    use: 'Les mentions légales sont obligatoires pour tout site web professionnel en France et Monaco. Elles permettent d\'identifier le responsable du site et de le contacter. L\'absence de mentions légales est une infraction punie par la loi (article 6-III de la LCEN). Pour Monaco, l\'APDP exige également ces informations pour la transparence.',
+    resources: [
+      { title: 'Légifrance - LCEN Article 6', link: 'https://www.legifrance.gouv.fr/loda/article_lc/LEGIARTI000042038977' },
+      { title: 'APDP Monaco - Mentions légales obligatoires', link: 'https://apdp.mc/' },
+      { title: 'Service Public - Mentions légales site web', link: 'https://www.service-public.fr/professionnels-entreprises/vosdroits/F31228' },
+    ],
+  },
+  {
+    id: 'apdp-user-rights',
+    title: 'Droits des Utilisateurs RGPD/APDP',
+    description: 'Cette vérification analyse si le site informe clairement les utilisateurs de leurs 6 droits fondamentaux RGPD: droit d\'accès, de rectification, d\'effacement (droit à l\'oubli), de limitation du traitement, de portabilité des données, et d\'opposition. Elle vérifie également la présence de moyens d\'exercer ces droits (formulaire, email, adresse postale).',
+    use: 'Les droits RGPD sont au cœur de la protection des données personnelles. Tout site collectant des données doit informer les utilisateurs de ces droits ET leur fournir des moyens simples de les exercer. Le non-respect de ces obligations expose à des sanctions importantes de l\'APDP Monaco ou de la CNIL.',
+    resources: [
+      { title: 'CNIL - Les droits pour maîtriser vos données', link: 'https://www.cnil.fr/fr/les-droits-pour-maitriser-vos-donnees-personnelles' },
+      { title: 'RGPD - Chapitre 3: Droits de la personne concernée', link: 'https://www.cnil.fr/fr/reglement-europeen-protection-donnees/chapitre3' },
+      { title: 'APDP Monaco - Vos droits', link: 'https://apdp.mc/vos-droits' },
+      { title: 'RGPD - Article 15 à 22 (Droits)', link: 'https://gdpr-info.eu/chapter-3/' },
+    ],
+  },
+  {
+    id: 'rgpd-compliance',
+    title: 'Conformité RGPD Globale',
+    description: 'Cette analyse complète évalue la conformité RGPD du site sur tous les aspects: sécurité SSL/TLS, cookies, en-têtes de sécurité (CSP, HSTS), pages légales, droits des utilisateurs, et ressources tierces. Elle génère un score de conformité et identifie les problèmes critiques, avertissements et améliorations recommandées.',
+    use: 'Cette vérification globale permet d\'obtenir une vue d\'ensemble de la conformité RGPD/APDP du site. Elle aide à prioriser les actions correctives et à suivre les progrès vers la conformité complète. Particulièrement utile pour les audits réguliers et la préparation aux contrôles APDP.',
+    resources: [
+      { title: 'RGPD - Texte officiel complet', link: 'https://eur-lex.europa.eu/legal-content/FR/TXT/?uri=CELEX:32016R0679' },
+      { title: 'CNIL - Guide de la sécurité des données personnelles', link: 'https://www.cnil.fr/fr/principes-cles/guide-de-la-securite-des-donnees-personnelles' },
+      { title: 'APDP Monaco - Obligations', link: 'https://apdp.mc/' },
+    ],
+  },
 ];
+
 
 export const featureIntro = [
   'When conducting an OSINT investigation on a given website or host, there are several key areas to look at. Each of these are documented below, along with links to the tools and techniques you can use to gather the relevant information.',
@@ -536,7 +594,7 @@ BeCompliant delivers professional-grade compliance capabilities through an intui
 ];
 
 export const license = `The MIT License (MIT)
-Copyright (c) Alicia Sykes <alicia@omg.com> 
+Copyright (c) OpenPro
 
 Permission is hereby granted, free of charge, to any person obtaining a copy 
 of this software and associated documentation files (the "Software"), to deal 

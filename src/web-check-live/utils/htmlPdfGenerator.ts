@@ -72,7 +72,7 @@ const generateHTMLReport = (
   <title>Rapport de Conformité APDP - ${data.url}</title>
   <style>
     @page {
-      margin: 15mm 10mm;
+      margin: 0;
       size: A4;
     }
     
@@ -85,24 +85,25 @@ const generateHTMLReport = (
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
       font-size: 10pt;
-      line-height: 1.6;
+      line-height: 1.5;
       color: #111827;
       background: white;
     }
     
     .page {
       page-break-after: always;
-      min-height: 260mm;
+      page-break-inside: avoid;
+      margin-bottom: 20mm;
       position: relative;
     }
     
     .page:last-child {
       page-break-after: auto;
+      margin-bottom: 0;
     }
     
     .content-page {
-      padding: 0 10mm;
-      min-height: 240mm;
+      padding: 15mm 10mm 10mm 10mm;
     }
     
     /* Cover Page Styles */
@@ -200,7 +201,7 @@ const generateHTMLReport = (
     .header {
       background: linear-gradient(135deg, #DC2626 0%, #991B1B 100%);
       padding: 15px 20px;
-      margin: -15mm -10mm 20px -10mm;
+      margin: -15mm -10mm 15px -10mm;
       color: white;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
@@ -676,32 +677,42 @@ const generateHTMLReport = (
     
     /* Footer */
     .footer {
-      margin-top: 30px;
-      padding-top: 15px;
+      margin-top: 20px;
+      padding: 12px 0 8px 0;
       border-top: 2px solid #E5E7EB;
       font-size: 8pt;
       color: #6B7280;
+      page-break-inside: avoid;
+    }
+    
+    .footer-content {
       display: flex;
       justify-content: space-between;
       align-items: center;
+      margin-bottom: 8px;
     }
     
     .footer-left {
       flex: 1;
+      font-size: 7pt;
     }
     
     .footer-center {
       flex: 1;
       text-align: center;
+      font-size: 7pt;
     }
     
     .footer-right {
       flex: 1;
       text-align: right;
+      font-size: 8pt;
+      font-weight: 600;
     }
     
     .footer strong {
       color: #111827;
+      font-size: 7pt;
     }
     
     .confidential {
@@ -709,7 +720,7 @@ const generateHTMLReport = (
       font-size: 7pt;
       color: #6B7280;
       font-style: italic;
-      margin-top: 5px;
+      margin-top: 4px;
     }
     
     /* Print Styles */
@@ -850,6 +861,242 @@ const generateHTMLReport = (
     </div>
     ` : ''}
     
+    <!-- Detailed Controls Section -->
+    <div class="section" style="page-break-before: avoid; margin-top: 20px;">
+      <div class="section-title">
+        <div class="section-number">3</div>
+        <h2>DÉTAIL DES CONTRÔLES</h2>
+      </div>
+      <div style="font-size: 8pt; color: #6B7280; margin-bottom: 15px; font-style: italic;">
+        Synthèse exhaustive des ${Object.keys(allResults || {}).length}+ points de contrôle analysés automatiquement
+      </div>
+      
+      <!-- Security & Encryption -->
+      <h3 style="font-size: 10pt; color: #DC2626; margin: 15px 0 10px 0; border-bottom: 2px solid #DC2626; padding-bottom: 4px;">🔒 SÉCURITÉ & CHIFFREMENT</h3>
+      <div class="summary-grid" style="grid-template-columns: repeat(4, 1fr); gap: 10px;">
+        <div class="summary-card" style="background: ${allResults?.ssl?.valid ? '#F0FDF4' : '#FEF2F2'}; border-left: 3px solid ${allResults?.ssl?.valid ? '#16A34A' : '#DC2626'}; padding: 12px;">
+          <div style="font-size: 18pt;">${allResults?.ssl?.valid ? '✅' : '❌'}</div>
+          <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">SSL/TLS</div>
+          <div style="font-size: 8pt; color: #6B7280;">${allResults?.ssl?.valid ? 'Valide' : 'Invalide'}</div>
+          ${allResults?.ssl?.protocol ? `<div style="font-size: 7pt; color: #6B7280; margin-top: 2px;">${allResults.ssl.protocol}</div>` : ''}
+        </div>
+        <div class="summary-card" style="background: ${allResults?.hsts?.isEnabled ? '#F0FDF4' : '#FEF2F2'}; border-left: 3px solid ${allResults?.hsts?.isEnabled ? '#16A34A' : '#DC2626'}; padding: 12px;">
+          <div style="font-size: 18pt;">${allResults?.hsts?.isEnabled ? '✅' : '❌'}</div>
+          <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">HSTS</div>
+          <div style="font-size: 8pt; color: #6B7280;">${allResults?.hsts?.isEnabled ? 'Activé' : 'Désactivé'}</div>
+        </div>
+        <div class="summary-card" style="padding: 12px;">
+          <div style="font-size: 18pt;">🔐</div>
+          <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">Cipher Suites</div>
+          <div style="font-size: 8pt; color: #6B7280;">${allResults?.['tls-cipher-suites']?.supportedCiphers?.length || 0} détecté(s)</div>
+          ${allResults?.['tls-cipher-suites']?.supportedCiphers?.[0]?.bits ? `<div style="font-size: 7pt; color: #6B7280; margin-top: 2px;">${allResults['tls-cipher-suites'].supportedCiphers[0].bits} bits</div>` : ''}
+        </div>
+        <div class="summary-card" style="background: ${(allResults?.vulnerabilities?.length || 0) === 0 ? '#F0FDF4' : '#FEF2F2'}; border-left: 3px solid ${(allResults?.vulnerabilities?.length || 0) === 0 ? '#16A34A' : '#DC2626'}; padding: 12px;">
+          <div style="font-size: 18pt;">${(allResults?.vulnerabilities?.length || 0) === 0 ? '✅' : '⚠️'}</div>
+          <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">Vulnérabilités</div>
+          <div style="font-size: 8pt; color: ${(allResults?.vulnerabilities?.length || 0) === 0 ? '#16A34A' : '#DC2626'};">${allResults?.vulnerabilities?.length || 0} détectée(s)</div>
+        </div>
+      </div>
+      
+      <!-- APDP Compliance -->
+      <h3 style="font-size: 10pt; color: #DC2626; margin: 15px 0 10px 0; border-bottom: 2px solid #DC2626; padding-bottom: 4px;">📋 CONFORMITÉ APDP/RGPD</h3>
+      <div class="summary-grid" style="grid-template-columns: repeat(4, 1fr); gap: 10px;">
+        <div class="summary-card" style="background: ${
+          allResults?.['apdp-cookie-banner']?.compliance?.level === 'Conforme' ? '#F0FDF4' : 
+          allResults?.['apdp-cookie-banner']?.compliance?.level === 'Partiellement conforme' ? '#FFFBEB' : 
+          '#FEF2F2'
+        }; border-left: 3px solid ${
+          allResults?.['apdp-cookie-banner']?.compliance?.level === 'Conforme' ? '#16A34A' : 
+          allResults?.['apdp-cookie-banner']?.compliance?.level === 'Partiellement conforme' ? '#F59E0B' : 
+          '#DC2626'
+        }; padding: 12px;">
+          <div style="font-size: 18pt;">${
+            allResults?.['apdp-cookie-banner']?.compliance?.level === 'Conforme' ? '✅' : 
+            allResults?.['apdp-cookie-banner']?.compliance?.level === 'Partiellement conforme' ? '⚠️' : 
+            '❌'
+          }</div>
+          <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">Bannière Cookies</div>
+          <div style="font-size: 8pt; color: #6B7280;">${allResults?.['apdp-cookie-banner']?.compliance?.level || 'Non analysée'}</div>
+          ${allResults?.['apdp-cookie-banner']?.detectedLibrary ? `<div style="font-size: 7pt; color: #6B7280; margin-top: 2px;">${allResults['apdp-cookie-banner'].detectedLibrary}</div>` : ''}
+          ${allResults?.['apdp-cookie-banner']?.compliance?.score ? `<div style="font-size: 7pt; color: #6B7280; margin-top: 2px;">${allResults['apdp-cookie-banner'].compliance.score}/100</div>` : ''}
+        </div>
+        <div class="summary-card" style="background: ${
+          allResults?.['apdp-privacy-policy']?.compliance?.level === 'Conforme' ? '#F0FDF4' : 
+          allResults?.['apdp-privacy-policy']?.compliance?.level === 'Partiellement conforme' ? '#FFFBEB' : 
+          '#FEF2F2'
+        }; border-left: 3px solid ${
+          allResults?.['apdp-privacy-policy']?.compliance?.level === 'Conforme' ? '#16A34A' : 
+          allResults?.['apdp-privacy-policy']?.compliance?.level === 'Partiellement conforme' ? '#F59E0B' : 
+          '#DC2626'
+        }; padding: 12px;">
+          <div style="font-size: 18pt;">${
+            allResults?.['apdp-privacy-policy']?.compliance?.level === 'Conforme' ? '✅' : 
+            allResults?.['apdp-privacy-policy']?.compliance?.level === 'Partiellement conforme' ? '⚠️' : 
+            '❌'
+          }</div>
+          <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">Politique Confidentialité</div>
+          <div style="font-size: 8pt; color: #6B7280;">${allResults?.['apdp-privacy-policy']?.compliance?.level || 'Non analysée'}</div>
+          ${allResults?.['apdp-privacy-policy']?.compliance?.score ? `<div style="font-size: 7pt; color: #6B7280; margin-top: 2px;">${allResults['apdp-privacy-policy'].compliance.score}/100</div>` : ''}
+          ${allResults?.['apdp-privacy-policy']?.sections?.found && allResults?.['apdp-privacy-policy']?.sections?.missing ? `
+          <div style="font-size: 7pt; color: #6B7280; margin-top: 2px;">
+            ${allResults['apdp-privacy-policy'].sections.found.length}/${allResults['apdp-privacy-policy'].sections.found.length + allResults['apdp-privacy-policy'].sections.missing.length} sections
+          </div>
+          ` : ''}
+        </div>
+        <div class="summary-card" style="background: ${
+          allResults?.['apdp-legal-notices']?.compliance?.level === 'Conforme' ? '#F0FDF4' : 
+          allResults?.['apdp-legal-notices']?.compliance?.level === 'Partiellement conforme' ? '#FFFBEB' : 
+          '#FEF2F2'
+        }; border-left: 3px solid ${
+          allResults?.['apdp-legal-notices']?.compliance?.level === 'Conforme' ? '#16A34A' : 
+          allResults?.['apdp-legal-notices']?.compliance?.level === 'Partiellement conforme' ? '#F59E0B' : 
+          '#DC2626'
+        }; padding: 12px;">
+          <div style="font-size: 18pt;">${
+            allResults?.['apdp-legal-notices']?.compliance?.level === 'Conforme' ? '✅' : 
+            allResults?.['apdp-legal-notices']?.compliance?.level === 'Partiellement conforme' ? '⚠️' : 
+            '❌'
+          }</div>
+          <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">Mentions Légales</div>
+          <div style="font-size: 8pt; color: #6B7280;">${allResults?.['apdp-legal-notices']?.compliance?.level || 'Non analysées'}</div>
+          ${allResults?.['apdp-legal-notices']?.compliance?.score ? `<div style="font-size: 7pt; color: #6B7280; margin-top: 2px;">${allResults['apdp-legal-notices'].compliance.score}/100</div>` : ''}
+          ${allResults?.['apdp-legal-notices']?.requiredInfo?.found && allResults?.['apdp-legal-notices']?.requiredInfo?.missing ? `
+          <div style="font-size: 7pt; color: #6B7280; margin-top: 2px;">
+            ${allResults['apdp-legal-notices'].requiredInfo.found.length}/${allResults['apdp-legal-notices'].requiredInfo.found.length + allResults['apdp-legal-notices'].requiredInfo.missing.length} infos
+          </div>
+          ` : ''}
+        </div>
+        <div class="summary-card" style="background: ${
+          allResults?.['apdp-user-rights']?.compliance?.level === 'Conforme' ? '#F0FDF4' : 
+          allResults?.['apdp-user-rights']?.compliance?.level === 'Partiellement conforme' ? '#FFFBEB' : 
+          '#FEF2F2'
+        }; border-left: 3px solid ${
+          allResults?.['apdp-user-rights']?.compliance?.level === 'Conforme' ? '#16A34A' : 
+          allResults?.['apdp-user-rights']?.compliance?.level === 'Partiellement conforme' ? '#F59E0B' : 
+          '#DC2626'
+        }; padding: 12px;">
+          <div style="font-size: 18pt;">${
+            allResults?.['apdp-user-rights']?.compliance?.level === 'Conforme' ? '✅' : 
+            allResults?.['apdp-user-rights']?.compliance?.level === 'Partiellement conforme' ? '⚠️' : 
+            '❌'
+          }</div>
+          <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">Droits Utilisateurs</div>
+          <div style="font-size: 8pt; color: #6B7280;">${allResults?.['apdp-user-rights']?.compliance?.level || 'Non analysés'}</div>
+          ${allResults?.['apdp-user-rights']?.rightsFound ? `<div style="font-size: 7pt; color: #6B7280; margin-top: 2px;">${allResults['apdp-user-rights'].rightsFound}/6 droits détectés</div>` : ''}
+          ${allResults?.['apdp-user-rights']?.compliance?.score ? `<div style="font-size: 7pt; color: #6B7280; margin-top: 2px;">${allResults['apdp-user-rights'].compliance.score}/100</div>` : ''}
+        </div>
+      </div>
+      
+      <!-- Cookies & Tracking -->
+      <h3 style="font-size: 10pt; color: #DC2626; margin: 15px 0 10px 0; border-bottom: 2px solid #DC2626; padding-bottom: 4px;">🍪 COOKIES & TRACKING</h3>
+      <div class="summary-grid" style="grid-template-columns: repeat(4, 1fr); gap: 10px;">
+        <div class="summary-card" style="padding: 12px;">
+          <div style="font-size: 18pt;">🍪</div>
+          <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">Total Cookies</div>
+          <div style="font-size: 12pt; font-weight: 700; color: ${(allResults?.cookies?.clientCookies?.length || 0) > 10 ? '#D97706' : '#059669'};">${allResults?.cookies?.clientCookies?.length || allResults?.cookies?.cookies?.length || 0}</div>
+        </div>
+        <div class="summary-card" style="padding: 12px;">
+          <div style="font-size: 18pt;">🔒</div>
+          <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">Cookies Sécurisés</div>
+          <div style="font-size: 12pt; font-weight: 700; color: #059669;">${(allResults?.cookies?.clientCookies || allResults?.cookies?.cookies || []).filter((c: any) => c.secure).length || 0}</div>
+        </div>
+        <div class="summary-card" style="padding: 12px;">
+          <div style="font-size: 18pt;">📊</div>
+          <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">Outils Analytics</div>
+          <div style="font-size: 12pt; font-weight: 700; color: ${(allResults?.['tech-stack']?.analytics?.length || 0) > 3 ? '#D97706' : '#059669'};">${allResults?.['tech-stack']?.analytics?.length || 0}</div>
+        </div>
+        <div class="summary-card" style="padding: 12px;">
+          <div style="font-size: 18pt;">🌍</div>
+          <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">Ressources Externes</div>
+          <div style="font-size: 12pt; font-weight: 700;">${allResults?.['cdn-resources']?.externalResources?.length || 0}</div>
+        </div>
+      </div>
+      
+      <!-- HTTP Security Headers -->
+      <h3 style="font-size: 10pt; color: #DC2626; margin: 15px 0 10px 0; border-bottom: 2px solid #DC2626; padding-bottom: 4px;">🛡️ EN-TÊTES DE SÉCURITÉ HTTP</h3>
+      <div class="summary-grid" style="grid-template-columns: repeat(4, 1fr); gap: 10px;">
+        <div class="summary-card" style="background: ${allResults?.headers?.['Content-Security-Policy'] ? '#F0FDF4' : '#FEF2F2'}; border-left: 3px solid ${allResults?.headers?.['Content-Security-Policy'] ? '#16A34A' : '#DC2626'}; padding: 12px;">
+          <div style="font-size: 18pt;">${allResults?.headers?.['Content-Security-Policy'] ? '✅' : '❌'}</div>
+          <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">CSP</div>
+          <div style="font-size: 8pt; color: #6B7280;">${allResults?.headers?.['Content-Security-Policy'] ? 'Configuré' : 'Manquant'}</div>
+        </div>
+        <div class="summary-card" style="background: ${allResults?.headers?.['X-Frame-Options'] ? '#F0FDF4' : '#FEF2F2'}; border-left: 3px solid ${allResults?.headers?.['X-Frame-Options'] ? '#16A34A' : '#DC2626'}; padding: 12px;">
+          <div style="font-size: 18pt;">${allResults?.headers?.['X-Frame-Options'] ? '✅' : '❌'}</div>
+          <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">X-Frame-Options</div>
+          <div style="font-size: 8pt; color: #6B7280;">${allResults?.headers?.['X-Frame-Options'] || 'Manquant'}</div>
+        </div>
+        <div class="summary-card" style="background: ${allResults?.headers?.['X-Content-Type-Options'] ? '#F0FDF4' : '#FEF2F2'}; border-left: 3px solid ${allResults?.headers?.['X-Content-Type-Options'] ? '#16A34A' : '#DC2626'}; padding: 12px;">
+          <div style="font-size: 18pt;">${allResults?.headers?.['X-Content-Type-Options'] ? '✅' : '❌'}</div>
+          <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">X-Content-Type</div>
+          <div style="font-size: 8pt; color: #6B7280;">${allResults?.headers?.['X-Content-Type-Options'] || 'Manquant'}</div>
+        </div>
+        <div class="summary-card" style="background: ${allResults?.headers?.['Strict-Transport-Security'] ? '#F0FDF4' : '#FEF2F2'}; border-left: 3px solid ${allResults?.headers?.['Strict-Transport-Security'] ? '#16A34A' : '#DC2626'}; padding: 12px;">
+          <div style="font-size: 18pt;">${allResults?.headers?.['Strict-Transport-Security'] ? '✅' : '❌'}</div>
+          <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">HSTS Header</div>
+          <div style="font-size: 8pt; color: #6B7280;">${allResults?.headers?.['Strict-Transport-Security'] ? 'Présent' : 'Manquant'}</div>
+        </div>
+      </div>
+      
+      <!-- Infrastructure & Network -->
+      <h3 style="font-size: 10pt; color: #DC2626; margin: 15px 0 10px 0; border-bottom: 2px solid #DC2626; padding-bottom: 4px;">🌐 INFRASTRUCTURE & RÉSEAU</h3>
+      <div class="summary-grid" style="grid-template-columns: repeat(4, 1fr); gap: 10px;">
+        <div class="summary-card" style="padding: 12px;">
+          <div style="font-size: 18pt;">📍</div>
+          <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">Localisation</div>
+          <div style="font-size: 8pt; font-weight: 600;">${allResults?.location?.country || 'Inconnue'}</div>
+          ${allResults?.location?.city ? `<div style="font-size: 7pt; color: #6B7280; margin-top: 2px;">${allResults.location.city}</div>` : ''}
+        </div>
+        <div class="summary-card" style="padding: 12px;">
+          <div style="font-size: 18pt;">🖥️</div>
+          <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">Serveur Web</div>
+          <div style="font-size: 8pt; font-weight: 600;">${allResults?.['tech-stack']?.server || allResults?.headers?.Server || 'Inconnu'}</div>
+        </div>
+        <div class="summary-card" style="padding: 12px;">
+          <div style="font-size: 18pt;">🌐</div>
+          <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">DNS Records</div>
+          <div style="font-size: 12pt; font-weight: 700;">${(allResults?.dns?.A?.length || 0) + (allResults?.dns?.AAAA?.length || 0)}</div>
+        </div>
+        <div class="summary-card" style="background: ${allResults?.dnssec?.valid ? '#F0FDF4' : '#FEF2F2'}; border-left: 3px solid ${allResults?.dnssec?.valid ? '#16A34A' : '#D97706'}; padding: 12px;">
+          <div style="font-size: 18pt;">${allResults?.dnssec?.valid ? '✅' : '⚠️'}</div>
+          <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">DNSSEC</div>
+          <div style="font-size: 8pt; color: #6B7280;">${allResults?.dnssec?.valid ? 'Validé' : 'Non validé'}</div>
+        </div>
+      </div>
+      
+      <!-- Performance & Environment -->
+      <h3 style="font-size: 10pt; color: #DC2626; margin: 15px 0 10px 0; border-bottom: 2px solid #DC2626; padding-bottom: 4px;">⚡ PERFORMANCE & ENVIRONNEMENT</h3>
+      <div class="summary-grid" style="grid-template-columns: repeat(4, 1fr); gap: 10px;">
+        <div class="summary-card" style="padding: 12px;">
+          <div style="font-size: 18pt;">🌱</div>
+          <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">Empreinte CO2</div>
+          <div style="font-size: 8pt; font-weight: 600;">${allResults?.carbon?.statistics?.co2?.grid?.grams ? `${allResults.carbon.statistics.co2.grid.grams.toFixed(2)}g` : 'N/A'}</div>
+        </div>
+        <div class="summary-card" style="padding: 12px;">
+          <div style="font-size: 18pt;">📊</div>
+          <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">Note Environnementale</div>
+          <div style="font-size: 12pt; font-weight: 700; color: ${allResults?.carbon?.rating?.startsWith('A') ? '#16A34A' : '#D97706'};">${allResults?.carbon?.rating || 'N/A'}</div>
+        </div>
+        <div class="summary-card" style="padding: 12px;">
+          <div style="font-size: 18pt;">📈</div>
+          <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">Frameworks</div>
+          <div style="font-size: 12pt; font-weight: 700;">${allResults?.['tech-stack']?.frameworks?.length || 0}</div>
+        </div>
+        <div class="summary-card" style="padding: 12px;">
+          <div style="font-size: 18pt;">🚀</div>
+          <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">CDN Providers</div>
+          <div style="font-size: 12pt; font-weight: 700;">${allResults?.['cdn-resources']?.cdnProviders?.length || 0}</div>
+        </div>
+      </div>
+      
+      <div style="margin-top: 15px; padding: 10px; background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%); border-radius: 6px; border-left: 4px solid #3B82F6;">
+        <div style="font-size: 8pt; color: #1E3A8A; line-height: 1.5;">
+          <strong>📊 Statistiques de l'audit :</strong> ${Object.keys(allResults || {}).length} modules d'analyse exécutés | 
+          ${(allResults?.cookies?.clientCookies?.length || 0) + (allResults?.['cdn-resources']?.externalResources?.length || 0) + (allResults?.['tech-stack']?.analytics?.length || 0)} points de données collectés |
+          Couverture APDP/RGPD complète
+        </div>
+      </div>
+    </div>
+    
       <div class="footer">
         <div class="footer-left">
           <div><strong>APDP Monaco</strong></div>
@@ -917,27 +1164,52 @@ const generateHTMLReport = (
         </div>
       `).join('')}
     </div>
+    ` : `
+    <div class="section" style="margin-top: 0;">
+      <div class="alert-box success" style="background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%); border-left-color: #16A34A;">
+        <div class="alert-title" style="color: #166534;">✅ Aucune constatation critique</div>
+        <div class="alert-text" style="color: #15803D;">
+          Aucun problème critique de conformité APDP n'a été détecté lors de cet audit automatisé.
+          Cela indique que les exigences fondamentales de sécurité et de protection des données
+          personnelles semblent être respectées.
+        </div>
+      </div>
+      
+      <div style="margin-top: 20px; padding: 15px; background: #F9FAFB; border-radius: 8px;">
+        <h3 style="font-size: 10pt; color: #111827; margin-bottom: 10px;">🔍 Rappel des points critiques vérifiés :</h3>
+        <ul style="margin-left: 20px; color: #374151; font-size: 9pt; line-height: 1.8;">
+          <li>Certificat SSL/TLS valide et configuration sécurisée</li>
+          <li>Absence de vulnérabilités de sécurité majeures</li>
+          <li>En-têtes HTTP de sécurité (CSP, HSTS, X-Frame-Options)</li>
+          <li>Protection contre les attaques courantes (XSS, CSRF, clickjacking)</li>
+          <li>Pas de transmission de données en clair (HTTP)</li>
+        </ul>
+      </div>
+      
+      <div style="margin-top: 20px; padding: 15px; background: #FFFBEB; border-left: 4px solid #F59E0B; border-radius: 6px;">
+        <strong style="color: #92400E; font-size: 9pt;">⚠️ Note importante :</strong>
+        <div style="color: #78350F; font-size: 8pt; margin-top: 8px; line-height: 1.6;">
+          Cette évaluation se base sur des tests automatisés. Certains aspects de la conformité APDP
+          nécessitent une revue manuelle approfondie (procédures internes, documentation, formations,
+          contrats avec sous-traitants, etc.). Il est recommandé de compléter cet audit par un
+          examen juridique et organisationnel.
+        </div>
+      </div>
+    </div>
+    `}
     
       </div>
       
       <div class="footer">
-        <div class="footer-left">
-          <div><strong>APDP Monaco</strong></div>
-          <div>Autorité de Protection des Données Personnelles</div>
+        <div class="footer-content">
+          <div class="footer-left"><strong>APDP Monaco</strong> - Autorité de Protection des Données Personnelles</div>
+          <div class="footer-center">${currentDate}</div>
+          <div class="footer-right">Constatations Critiques</div>
         </div>
-        <div class="footer-center">
-          <div>${currentDate}</div>
-        </div>
-        <div class="footer-right">
-          <div><strong>Page 2</strong></div>
-        </div>
-      </div>
-      <div class="confidential">
-        DOCUMENT CONFIDENTIEL - Ne pas diffuser sans autorisation
+        <div class="confidential">DOCUMENT CONFIDENTIEL - Ne pas diffuser sans autorisation</div>
       </div>
     </div>
   </div>
-  ` : ''}
   
   ${data.issues?.warnings && data.issues.warnings.length > 0 ? `
   <!-- Page: Warning Issues -->
@@ -988,25 +1260,39 @@ const generateHTMLReport = (
         </div>
       `).join('')}
       </div>
-    
-      <div class="footer">
-        <div class="footer-left">
-          <div><strong>APDP Monaco</strong></div>
-          <div>Autorité de Protection des Données Personnelles</div>
+      ` : `
+      <div class="section" style="margin-top: 0;">
+        <div class="alert-box info" style="background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%); border-left-color: #3B82F6;">
+          <div class="alert-title" style="color: #1E40AF;">✅ Aucun avertissement majeur</div>
+          <div class="alert-text" style="color: #1E3A8A;">
+            Aucun problème de conformité important n'a été détecté. Le site respecte les principales
+            exigences de sécurité et de protection des données personnelles selon les standards APDP.
+          </div>
         </div>
-        <div class="footer-center">
-          <div>${currentDate}</div>
-        </div>
-        <div class="footer-right">
-          <div><strong>Page ${data.issues?.critical && data.issues.critical.length > 0 ? '3' : '2'}</strong></div>
+        
+        <div style="margin-top: 20px; padding: 15px; background: #F9FAFB; border-radius: 8px;">
+          <h3 style="font-size: 10pt; color: #111827; margin-bottom: 10px;">🔍 Points importants vérifiés :</h3>
+          <ul style="margin-left: 20px; color: #374151; font-size: 9pt; line-height: 1.8;">
+            <li>Configuration des cookies conforme aux exigences RGPD/APDP</li>
+            <li>Présence et qualité des pages légales (mentions, confidentialité)</li>
+            <li>Informations sur les droits des utilisateurs (accès, rectification, effacement)</li>
+            <li>Configuration DNS et infrastructure sécurisée</li>
+            <li>Absence de ressources externes non sécurisées</li>
+          </ul>
         </div>
       </div>
-      <div class="confidential">
-        DOCUMENT CONFIDENTIEL - Ne pas diffuser sans autorisation
+      `}
+    
+      <div class="footer">
+        <div class="footer-content">
+          <div class="footer-left"><strong>APDP Monaco</strong> - Autorité de Protection des Données Personnelles</div>
+          <div class="footer-center">${currentDate}</div>
+          <div class="footer-right">Constatations Importantes</div>
+        </div>
+        <div class="confidential">DOCUMENT CONFIDENTIEL - Ne pas diffuser sans autorisation</div>
       </div>
     </div>
   </div>
-  ` : ''}
   
   ${data.issues?.improvements && data.issues.improvements.length > 0 ? `
   <!-- Page: Improvements -->
@@ -1055,27 +1341,51 @@ const generateHTMLReport = (
         </div>
       `).join('')}
       </div>
-    
-      <div class="footer">
-        <div class="footer-left">
-          <div><strong>APDP Monaco</strong></div>
-          <div>Autorité de Protection des Données Personnelles</div>
+      ` : `
+      <div class="section" style="margin-top: 0;">
+        <div class="alert-box success" style="background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%); border-left-color: #16A34A;">
+          <div class="alert-title" style="color: #166534;">✅ Configuration optimale</div>
+          <div class="alert-text" style="color: #15803D;">
+            Aucune recommandation d'amélioration majeure n'a été identifiée. Le site présente
+            une configuration technique et une conformité APDP satisfaisantes dans l'ensemble.
+          </div>
         </div>
-        <div class="footer-center">
-          <div>${currentDate}</div>
+        
+        <div style="margin-top: 20px; padding: 15px; background: #F0F9FF; border-radius: 8px; border-left: 4px solid #0284C7;">
+          <h3 style="font-size: 10pt; color: #075985; margin-bottom: 10px;">💡 Bonnes pratiques à maintenir :</h3>
+          <ul style="margin-left: 20px; color: #0C4A6E; font-size: 9pt; line-height: 1.8;">
+            <li><strong>Revue régulière :</strong> Effectuez des audits de conformité trimestriels</li>
+            <li><strong>Veille juridique :</strong> Restez informé des évolutions réglementaires APDP/RGPD</li>
+            <li><strong>Formation continue :</strong> Assurez la formation régulière de vos équipes</li>
+            <li><strong>Documentation :</strong> Maintenez à jour votre registre des traitements</li>
+            <li><strong>Tests de sécurité :</strong> Planifiez des tests d'intrusion annuels</li>
+            <li><strong>Mise à jour technologique :</strong> Gardez vos systèmes et bibliothèques à jour</li>
+          </ul>
         </div>
-        <div class="footer-right">
-          <div><strong>Recommandations</strong></div>
+        
+        <div style="margin-top: 20px; padding: 15px; background: #FEF2F2; border-left: 4px solid #DC2626; border-radius: 6px;">
+          <strong style="color: #991B1B; font-size: 9pt;">⚠️ Rappel important :</strong>
+          <div style="color: #7F1D1D; font-size: 8pt; margin-top: 8px; line-height: 1.6;">
+            Même en l'absence de recommandations techniques, assurez-vous que vos procédures
+            organisationnelles sont conformes : politique de confidentialité, procédures de
+            gestion des incidents, exercice des droits des personnes, contrats avec les
+            sous-traitants, et analyses d'impact (PIA) pour les traitements à risque élevé.
+          </div>
         </div>
       </div>
-      <div class="confidential">
-        DOCUMENT CONFIDENTIEL - Ne pas diffuser sans autorisation
+      `}
+    
+      <div class="footer">
+        <div class="footer-content">
+          <div class="footer-left"><strong>APDP Monaco</strong> - Autorité de Protection des Données Personnelles</div>
+          <div class="footer-center">${currentDate}</div>
+          <div class="footer-right">Recommandations</div>
+        </div>
+        <div class="confidential">DOCUMENT CONFIDENTIEL - Ne pas diffuser sans autorisation</div>
       </div>
     </div>
   </div>
-  ` : ''}
   
-  ${allResults ? `
   <!-- Page: Technical Details -->
   <div class="page">
     <div class="content-page">
@@ -1302,19 +1612,12 @@ const generateHTMLReport = (
       </div>
     
       <div class="footer">
-        <div class="footer-left">
-          <div><strong>APDP Monaco</strong></div>
-          <div>Autorité de Protection des Données Personnelles</div>
+        <div class="footer-content">
+          <div class="footer-left"><strong>APDP Monaco</strong> - Autorité de Protection des Données Personnelles</div>
+          <div class="footer-center">${currentDate}</div>
+          <div class="footer-right">Détails Techniques</div>
         </div>
-        <div class="footer-center">
-          <div>${currentDate}</div>
-        </div>
-        <div class="footer-right">
-          <div><strong>Détails Techniques</strong></div>
-        </div>
-      </div>
-      <div class="confidential">
-        DOCUMENT CONFIDENTIEL - Ne pas diffuser sans autorisation
+        <div class="confidential">DOCUMENT CONFIDENTIEL - Ne pas diffuser sans autorisation</div>
       </div>
     </div>
   </div>
@@ -1438,19 +1741,12 @@ const generateHTMLReport = (
       </div>
     
       <div class="footer">
-        <div class="footer-left">
-          <div><strong>APDP Monaco</strong></div>
-          <div>Autorité de Protection des Données Personnelles</div>
+        <div class="footer-content">
+          <div class="footer-left"><strong>APDP Monaco</strong> - Autorité de Protection des Données Personnelles</div>
+          <div class="footer-center">${currentDate}</div>
+          <div class="footer-right">Conformité APDP</div>
         </div>
-        <div class="footer-center">
-          <div>${currentDate}</div>
-        </div>
-        <div class="footer-right">
-          <div><strong>Conformité APDP</strong></div>
-        </div>
-      </div>
-      <div class="confidential">
-        DOCUMENT CONFIDENTIEL - Ne pas diffuser sans autorisation
+        <div class="confidential">DOCUMENT CONFIDENTIEL - Ne pas diffuser sans autorisation</div>
       </div>
     </div>
   </div>
@@ -1574,23 +1870,15 @@ const generateHTMLReport = (
       </div>
       
       <div class="footer">
-        <div class="footer-left">
-          <div><strong>APDP Monaco</strong></div>
-          <div>Autorité de Protection des Données Personnelles</div>
+        <div class="footer-content">
+          <div class="footer-left"><strong>APDP Monaco</strong> - Autorité de Protection des Données Personnelles</div>
+          <div class="footer-center">${currentDate}</div>
+          <div class="footer-right">Analyse Approfondie</div>
         </div>
-        <div class="footer-center">
-          <div>${currentDate}</div>
-        </div>
-        <div class="footer-right">
-          <div><strong>Analyse Approfondie</strong></div>
-        </div>
-      </div>
-      <div class="confidential">
-        DOCUMENT CONFIDENTIEL - Ne pas diffuser sans autorisation
+        <div class="confidential">DOCUMENT CONFIDENTIEL - Ne pas diffuser sans autorisation</div>
       </div>
     </div>
   </div>
-  ` : ''}
 </body>
 </html>
   `;

@@ -58,6 +58,12 @@ export class EnhancedComplianceAnalyzer {
     this.analyzeThirdPartyServices();
     this.analyzeDNSSec();
     this.analyzeHSTS();
+    
+    // APDP-specific checks
+    this.analyzeAPDPCookieBanner();
+    this.analyzeAPDPPrivacyPolicy();
+    this.analyzeAPDPLegalNotices();
+    this.analyzeAPDPUserRights();
 
     // Calculate scores and categorize
     const analysis = this.calculateAnalysis();
@@ -478,5 +484,290 @@ export class EnhancedComplianceAnalyzer {
     });
 
     return recs;
+  }
+
+  private analyzeAPDPCookieBanner(): void {
+    const data = this.results['apdp-cookie-banner'];
+    
+    if (!data || data.error) {
+      this.addIssue({
+        type: 'warning',
+        severity: 'Attention',
+        title: 'Bannière cookies non analysable',
+        description: 'Impossible de vérifier la présence d\'une bannière de consentement aux cookies.',
+        category: 'RGPD',
+        recommendation: 'Vérifier manuellement la présence et la conformité de la bannière cookies.',
+        article: 'Article 82 Loi RGPD / APDP',
+        priority: 'medium'
+      });
+      return;
+    }
+
+    if (!data.hasCookieBanner) {
+      this.addIssue({
+        type: 'critical',
+        severity: 'Critique',
+        title: 'Bannière de consentement cookies absente',
+        description: 'Aucune bannière de gestion du consentement aux cookies n\'a été détectée sur le site.',
+        category: 'RGPD',
+        recommendation: 'Implémenter une solution de gestion du consentement (ex: tarteaucitron, cookiebot, onetrust) permettant aux utilisateurs d\'accepter, refuser ou personnaliser les cookies.',
+        article: 'Article 82 Loi RGPD / APDP Monaco',
+        priority: 'high',
+        impact: 'Élevé - Non-conformité RGPD',
+        effort: 'Moyen - Intégration solution cookies'
+      });
+      return;
+    }
+
+    // Check features
+    const features = data.features || {};
+    const missingFeatures: string[] = [];
+
+    if (!features.hasAcceptButton) missingFeatures.push('bouton "Accepter"');
+    if (!features.hasRejectButton) missingFeatures.push('bouton "Refuser"');
+    if (!features.hasCustomizeButton) missingFeatures.push('bouton "Personnaliser"');
+    if (!features.hasCookiePolicy) missingFeatures.push('lien politique cookies');
+
+    if (missingFeatures.length > 0) {
+      const severity = missingFeatures.includes('bouton "Refuser"') ? 'critical' : 'warning';
+      this.addIssue({
+        type: severity,
+        severity: severity === 'critical' ? 'Critique' : 'Attention',
+        title: `Bannière cookies incomplète (${data.compliance?.level || 'Partiellement conforme'})`,
+        description: `La bannière de consentement cookies manque des éléments essentiels: ${missingFeatures.join(', ')}.`,
+        category: 'RGPD',
+        recommendation: data.compliance?.issues?.join(' ') || 'Compléter la bannière avec tous les éléments obligatoires pour permettre un consentement libre et éclairé.',
+        article: 'Article 82 Loi RGPD / APDP',
+        priority: severity === 'critical' ? 'high' : 'medium',
+        impact: severity === 'critical' ? 'Élevé - Non-conformité RGPD' : 'Moyen - Conformité partielle',
+        effort: 'Faible - Configuration bannière'
+      });
+    } else {
+      // Compliant
+      this.addIssue({
+        type: 'improvement',
+        severity: 'Amélioration',
+        title: `Bannière cookies conforme (${data.detectedLibrary || 'Solution détectée'})`,
+        description: `La bannière de consentement cookies est complète et conforme RGPD/APDP avec tous les boutons requis (Score: ${data.compliance?.score || 100}/100).`,
+        category: 'RGPD',
+        recommendation: 'Continuer à maintenir la conformité et vérifier régulièrement le fonctionnement de la bannière.',
+        article: 'Article 82 Loi RGPD / APDP',
+        priority: 'low'
+      });
+    }
+  }
+
+  private analyzeAPDPPrivacyPolicy(): void {
+    const data = this.results['apdp-privacy-policy'];
+    
+    if (!data || data.error) {
+      this.addIssue({
+        type: 'warning',
+        severity: 'Attention',
+        title: 'Politique de confidentialité non analysable',
+        description: 'Impossible de vérifier la présence de la politique de confidentialité.',
+        category: 'RGPD',
+        recommendation: 'Vérifier manuellement la présence et la complétude de la politique de confidentialité.',
+        article: 'Articles 13-14 RGPD / APDP',
+        priority: 'medium'
+      });
+      return;
+    }
+
+    if (!data.hasPrivacyPolicy) {
+      this.addIssue({
+        type: 'critical',
+        severity: 'Critique',
+        title: 'Politique de confidentialité manquante',
+        description: 'Aucune politique de confidentialité n\'a été trouvée sur le site.',
+        category: 'RGPD',
+        recommendation: 'Créer et publier une politique de confidentialité complète expliquant la collecte, l\'utilisation, la conservation et la protection des données personnelles.',
+        article: 'Articles 13-14 RGPD / APDP Monaco',
+        priority: 'high',
+        impact: 'Critique - Violation RGPD',
+        effort: 'Moyen - Rédaction + publication'
+      });
+      return;
+    }
+
+    // Check sections
+    const sections = data.sections || {};
+    const foundSections = sections.found?.length || 0;
+    const missingSections = sections.missing || [];
+
+    if (missingSections.length > 0) {
+      this.addIssue({
+        type: 'warning',
+        severity: 'Attention',
+        title: `Politique de confidentialité incomplète (${foundSections} sections trouvées)`,
+        description: `La politique de confidentialité manque des sections obligatoires RGPD: ${missingSections.map((s: any) => s.name || s).join(', ')}.`,
+        category: 'RGPD',
+        recommendation: `Compléter la politique de confidentialité avec les sections manquantes, notamment: ${missingSections.slice(0, 3).map((s: any) => s.name || s).join(', ')}.`,
+        article: 'Articles 13-14 RGPD / APDP',
+        priority: 'high',
+        impact: 'Élevé - Conformité partielle',
+        effort: 'Moyen - Révision document'
+      });
+    } else {
+      this.addIssue({
+        type: 'improvement',
+        severity: 'Amélioration',
+        title: `Politique de confidentialité conforme (${foundSections} sections)`,
+        description: `La politique de confidentialité contient toutes les sections obligatoires RGPD/APDP (Score: ${data.compliance?.score || 100}/100).`,
+        category: 'RGPD',
+        recommendation: 'Maintenir la politique à jour et la réviser lors de changements dans le traitement des données.',
+        article: 'Articles 13-14 RGPD / APDP',
+        priority: 'low'
+      });
+    }
+  }
+
+  private analyzeAPDPLegalNotices(): void {
+    const data = this.results['apdp-legal-notices'];
+    
+    if (!data || data.error) {
+      this.addIssue({
+        type: 'warning',
+        severity: 'Attention',
+        title: 'Mentions légales non analysables',
+        description: 'Impossible de vérifier la présence des mentions légales.',
+        category: 'RGPD',
+        recommendation: 'Vérifier manuellement la présence et la complétude des mentions légales.',
+        article: 'Article 6-III LCEN',
+        priority: 'medium'
+      });
+      return;
+    }
+
+    if (!data.hasLegalNotice) {
+      this.addIssue({
+        type: 'critical',
+        severity: 'Critique',
+        title: 'Mentions légales manquantes',
+        description: 'Aucune page de mentions légales n\'a été trouvée sur le site.',
+        category: 'RGPD',
+        recommendation: 'Créer et publier une page de mentions légales contenant les informations obligatoires: raison sociale, adresse, SIRET/RCS, responsable publication, hébergeur.',
+        article: 'Article 6-III LCEN / APDP Monaco',
+        priority: 'high',
+        impact: 'Critique - Infraction LCEN',
+        effort: 'Faible - Création page'
+      });
+      return;
+    }
+
+    // Check required info
+    const requiredInfo = data.requiredInfo || {};
+    const foundInfo = requiredInfo.found?.length || 0;
+    const missingInfo = requiredInfo.missing || [];
+
+    if (missingInfo.length > 0) {
+      this.addIssue({
+        type: 'warning',
+        severity: 'Attention',
+        title: `Mentions légales incomplètes (${foundInfo} informations trouvées)`,
+        description: `Les mentions légales manquent des informations obligatoires: ${missingInfo.map((i: any) => i.name || i).join(', ')}.`,
+        category: 'RGPD',
+        recommendation: `Compléter les mentions légales avec: ${missingInfo.slice(0, 3).map((i: any) => i.name || i).join(', ')}.`,
+        article: 'Article 6-III LCEN / APDP',
+        priority: 'high',
+        impact: 'Élevé - Conformité partielle',
+        effort: 'Faible - Ajout informations'
+      });
+    } else {
+      this.addIssue({
+        type: 'improvement',
+        severity: 'Amélioration',
+        title: `Mentions légales conformes (${foundInfo} informations)`,
+        description: `Les mentions légales contiennent toutes les informations obligatoires (Score: ${data.compliance?.score || 100}/100).`,
+        category: 'RGPD',
+        recommendation: 'Maintenir les mentions légales à jour, notamment en cas de changement d\'hébergeur ou de responsable.',
+        article: 'Article 6-III LCEN / APDP',
+        priority: 'low'
+      });
+    }
+  }
+
+  private analyzeAPDPUserRights(): void {
+    const data = this.results['apdp-user-rights'];
+    
+    if (!data || data.error) {
+      this.addIssue({
+        type: 'warning',
+        severity: 'Attention',
+        title: 'Droits utilisateurs non analysables',
+        description: 'Impossible de vérifier la présence des informations sur les droits RGPD.',
+        category: 'RGPD',
+        recommendation: 'Vérifier manuellement que le site informe les utilisateurs de leurs droits RGPD et des moyens de les exercer.',
+        article: 'Articles 15-22 RGPD / APDP',
+        priority: 'medium'
+      });
+      return;
+    }
+
+    const rightsFound = data.rightsFound || 0;
+    const rights = data.rights || {};
+
+    if (rightsFound === 0) {
+      this.addIssue({
+        type: 'critical',
+        severity: 'Critique',
+        title: 'Informations sur les droits RGPD manquantes',
+        description: 'Le site ne mentionne aucun des 6 droits fondamentaux RGPD des utilisateurs.',
+        category: 'RGPD',
+        recommendation: 'Ajouter une section détaillant les 6 droits RGPD: accès, rectification, effacement, limitation, portabilité, opposition. Fournir les moyens de les exercer (email, formulaire).',
+        article: 'Articles 15-22 RGPD / APDP Monaco',
+        priority: 'high',
+        impact: 'Critique - Non-conformité RGPD',
+        effort: 'Moyen - Rédaction + formulaire'
+      });
+      return;
+    }
+
+    const missingRights: string[] = [];
+    if (!rights.access) missingRights.push('Droit d\'accès');
+    if (!rights.rectification) missingRights.push('Droit de rectification');
+    if (!rights.erasure) missingRights.push('Droit à l\'effacement');
+    if (!rights.restriction) missingRights.push('Droit à la limitation');
+    if (!rights.portability) missingRights.push('Droit à la portabilité');
+    if (!rights.objection) missingRights.push('Droit d\'opposition');
+
+    if (missingRights.length > 2) {
+      this.addIssue({
+        type: 'warning',
+        severity: 'Attention',
+        title: `Droits RGPD incomplets (${rightsFound}/6 droits mentionnés)`,
+        description: `Le site mentionne seulement ${rightsFound} des 6 droits fondamentaux RGPD. Droits manquants: ${missingRights.join(', ')}.`,
+        category: 'RGPD',
+        recommendation: `Compléter avec les droits manquants: ${missingRights.slice(0, 3).join(', ')}. Fournir des moyens concrets d\'exercer ces droits.`,
+        article: 'Articles 15-22 RGPD / APDP',
+        priority: 'high',
+        impact: 'Élevé - Conformité partielle',
+        effort: 'Faible - Ajout texte + lien'
+      });
+    } else if (missingRights.length > 0) {
+      this.addIssue({
+        type: 'improvement',
+        severity: 'Amélioration',
+        title: `Droits RGPD quasi-complets (${rightsFound}/6 droits)`,
+        description: `Le site mentionne la plupart des droits RGPD. Droits manquants: ${missingRights.join(', ')}.`,
+        category: 'RGPD',
+        recommendation: `Ajouter les derniers droits manquants: ${missingRights.join(', ')}.`,
+        article: 'Articles 15-22 RGPD / APDP',
+        priority: 'medium'
+      });
+    } else {
+      this.addIssue({
+        type: 'improvement',
+        severity: 'Amélioration',
+        title: `Droits RGPD complets (6/6 droits mentionnés)`,
+        description: `Le site informe correctement les utilisateurs de tous leurs droits RGPD (Score: ${data.compliance?.score || 100}/100).`,
+        category: 'RGPD',
+        recommendation: data.exerciseMethods?.contactForm || data.exerciseMethods?.email ? 
+          'Les utilisateurs disposent de moyens pour exercer leurs droits. Continuer à traiter les demandes dans les délais légaux (1 mois).' :
+          'Ajouter un moyen clair d\'exercer ces droits (formulaire de contact, email dédié).',
+        article: 'Articles 15-22 RGPD / APDP',
+        priority: 'low'
+      });
+    }
   }
 }
