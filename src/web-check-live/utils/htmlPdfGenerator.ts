@@ -50,7 +50,8 @@ interface ComplianceData {
 const generateHTMLReport = (
   data: ComplianceData,
   vulnerabilities?: any,
-  cdnResources?: any
+  cdnResources?: any,
+  allResults?: any
 ): string => {
   const scoreColor = data.numericScore >= 80 ? '#059669' : 
                      data.numericScore >= 60 ? '#D97706' : '#DC2626';
@@ -91,20 +92,117 @@ const generateHTMLReport = (
     
     .page {
       page-break-after: always;
-      padding: 0 10mm;
+      min-height: 260mm;
+      position: relative;
     }
     
     .page:last-child {
       page-break-after: auto;
     }
     
-    /* Header */
+    .content-page {
+      padding: 0 10mm;
+      min-height: 240mm;
+    }
+    
+    /* Cover Page Styles */
+    .cover-page {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+      min-height: 260mm;
+      background: linear-gradient(135deg, #DC2626 0%, #991B1B 100%);
+      color: white;
+      padding: 40mm 20mm;
+      margin: -15mm -10mm;
+    }
+    
+    .cover-logo {
+      width: 120px;
+      height: 120px;
+      background: white;
+      border-radius: 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      margin-bottom: 40px;
+      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+    }
+    
+    .cover-logo-text {
+      font-size: 42pt;
+      font-weight: 900;
+      color: #DC2626;
+      line-height: 1;
+    }
+    
+    .cover-logo-subtitle {
+      font-size: 14pt;
+      color: #991B1B;
+      font-weight: 600;
+      margin-top: 5px;
+    }
+    
+    .cover-title {
+      font-size: 48pt;
+      font-weight: 900;
+      margin: 30px 0 20px 0;
+      letter-spacing: 1px;
+      text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+    }
+    
+    .cover-subtitle {
+      font-size: 20pt;
+      font-weight: 300;
+      margin-bottom: 60px;
+      opacity: 0.95;
+    }
+    
+    .cover-info {
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 16px;
+      padding: 30px 40px;
+      margin: 40px 0;
+      min-width: 60%;
+    }
+    
+    .cover-info-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin: 15px 0;
+      font-size: 12pt;
+    }
+    
+    .cover-info-label {
+      font-weight: 600;
+      opacity: 0.9;
+    }
+    
+    .cover-info-value {
+      font-weight: 400;
+      text-align: right;
+    }
+    
+    .cover-footer {
+      margin-top: auto;
+      font-size: 9pt;
+      opacity: 0.8;
+      font-style: italic;
+    }
+    
+    /* Header for content pages */
     .header {
       background: linear-gradient(135deg, #DC2626 0%, #991B1B 100%);
-      padding: 20px;
+      padding: 15px 20px;
       margin: -15mm -10mm 20px -10mm;
       color: white;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     
     .header-content {
@@ -624,42 +722,59 @@ const generateHTMLReport = (
   </style>
 </head>
 <body>
+  <!-- Cover Page -->
+  <div class="page">
+    <div class="cover-page">
+      <div class="cover-logo">
+        <div class="cover-logo-text">APDP</div>
+        <div class="cover-logo-subtitle">MONACO</div>
+      </div>
+      
+      <h1 class="cover-title">RAPPORT DE CONFORMITÉ</h1>
+      <p class="cover-subtitle">Audit de Sécurité et Protection des Données Personnelles</p>
+      
+      <div class="cover-info">
+        <div class="cover-info-row">
+          <span class="cover-info-label">Site audité:</span>
+          <span class="cover-info-value">${data.url}</span>
+        </div>
+        <div class="cover-info-row">
+          <span class="cover-info-label">Date d'audit:</span>
+          <span class="cover-info-value">${currentDate}</span>
+        </div>
+        <div class="cover-info-row">
+          <span class="cover-info-label">Type d'analyse:</span>
+          <span class="cover-info-value">Audit Complet APDP</span>
+        </div>
+        <div class="cover-info-row" style="margin-top: 25px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2);">
+          <span class="cover-info-label">Score de conformité:</span>
+          <span class="cover-info-value" style="font-size: 24pt; font-weight: 700;">${data.numericScore}/100</span>
+        </div>
+      </div>
+      
+      <div class="cover-footer">
+        DOCUMENT CONFIDENTIEL - Autorité de Protection des Données Personnelles de Monaco
+      </div>
+    </div>
+  </div>
+
   <!-- Page 1: Executive Summary -->
   <div class="page">
-    <div class="header">
-      <div class="header-content">
-        <div class="logo-box">
-          <div>APDP</div>
-          <div style="font-size: 8pt">MONACO</div>
+    <div class="content-page">
+      <div class="header">
+        <div class="header-content">
+          <div class="logo-box">
+            <div>APDP</div>
+            <div style="font-size: 8pt">MONACO</div>
+          </div>
+          <div class="header-title">
+            <h1>RÉSUMÉ EXÉCUTIF</h1>
+            <p>Vue d'ensemble de la conformité</p>
+          </div>
         </div>
-        <div class="header-title">
-          <h1>RAPPORT DE CONFORMITÉ</h1>
-          <p>Audit de Sécurité et Protection des Données</p>
-        </div>
       </div>
-    </div>
-    
-    <div class="info-box">
-      <h3>INFORMATIONS DU DOCUMENT</h3>
-      <div class="info-row">
-        <span class="info-label">Site audité:</span>
-        <span class="info-value">${data.url}</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">Date d'audit:</span>
-        <span class="info-value">${currentDate}</span>
-      </div>
-      <div class="info-row">
-        <span class="info-label">Type d'analyse:</span>
-        <span class="info-value">Audit complet de conformité APDP et sécurité</span>
-      </div>
-    </div>
-    
-    <div class="section">
-      <div class="section-title">
-        <div class="section-number">1</div>
-        <h2>RÉSUMÉ EXÉCUTIF</h2>
-      </div>
+      
+      <div class="section" style="margin-top: 0;">
       
       <div class="score-card">
         <div class="score-circle">
@@ -715,7 +830,7 @@ const generateHTMLReport = (
     </div>
     
     ${data.categories ? `
-    <div class="section">
+    <div class="section" style="page-break-before: avoid;">
       <div class="section-title">
         <div class="section-number">2</div>
         <h2>ANALYSE PAR CATÉGORIE</h2>
@@ -735,31 +850,42 @@ const generateHTMLReport = (
     </div>
     ` : ''}
     
-    <div class="footer">
-      <div class="footer-left">
-        <div><strong>APDP Monaco</strong></div>
-        <div>Autorité de Protection des Données Personnelles</div>
+      <div class="footer">
+        <div class="footer-left">
+          <div><strong>APDP Monaco</strong></div>
+          <div>Autorité de Protection des Données Personnelles</div>
+        </div>
+        <div class="footer-center">
+          <div>${currentDate}</div>
+        </div>
+        <div class="footer-right">
+          <div><strong>Page 1</strong></div>
+        </div>
       </div>
-      <div class="footer-center">
-        <div>${currentDate}</div>
+      <div class="confidential">
+        DOCUMENT CONFIDENTIEL - Ne pas diffuser sans autorisation
       </div>
-      <div class="footer-right">
-        <div><strong>Page 1</strong></div>
-      </div>
-    </div>
-    <div class="confidential">
-      DOCUMENT CONFIDENTIEL - Ne pas diffuser sans autorisation
     </div>
   </div>
 
   ${data.issues?.critical && data.issues.critical.length > 0 ? `
   <!-- Page 2: Critical Issues -->
   <div class="page">
-    <div class="section">
-      <div class="section-title">
-        <div class="section-number">3</div>
-        <h2>CONSTATATIONS CRITIQUES</h2>
+    <div class="content-page">
+      <div class="header">
+        <div class="header-content">
+          <div class="logo-box">
+            <div>APDP</div>
+            <div style="font-size: 8pt">MONACO</div>
+          </div>
+          <div class="header-title">
+            <h1>CONSTATATIONS CRITIQUES</h1>
+            <p>Priorité maximale - Action immédiate (0-7 jours)</p>
+          </div>
+        </div>
       </div>
+      
+      <div class="section" style="margin-top: 0;">
       
       <div class="alert-box critical">
         <div class="alert-title">PRIORITÉ MAXIMALE - ACTION IMMÉDIATE REQUISE (0-7 jours)</div>
@@ -792,20 +918,23 @@ const generateHTMLReport = (
       `).join('')}
     </div>
     
-    <div class="footer">
-      <div class="footer-left">
-        <div><strong>APDP Monaco</strong></div>
-        <div>Autorité de Protection des Données Personnelles</div>
       </div>
-      <div class="footer-center">
-        <div>${currentDate}</div>
+      
+      <div class="footer">
+        <div class="footer-left">
+          <div><strong>APDP Monaco</strong></div>
+          <div>Autorité de Protection des Données Personnelles</div>
+        </div>
+        <div class="footer-center">
+          <div>${currentDate}</div>
+        </div>
+        <div class="footer-right">
+          <div><strong>Page 2</strong></div>
+        </div>
       </div>
-      <div class="footer-right">
-        <div><strong>Page 2</strong></div>
+      <div class="confidential">
+        DOCUMENT CONFIDENTIEL - Ne pas diffuser sans autorisation
       </div>
-    </div>
-    <div class="confidential">
-      DOCUMENT CONFIDENTIEL - Ne pas diffuser sans autorisation
     </div>
   </div>
   ` : ''}
@@ -813,11 +942,21 @@ const generateHTMLReport = (
   ${data.issues?.warnings && data.issues.warnings.length > 0 ? `
   <!-- Page: Warning Issues -->
   <div class="page">
-    <div class="section">
-      <div class="section-title">
-        <div class="section-number">${data.issues?.critical && data.issues.critical.length > 0 ? '4' : '3'}</div>
-        <h2>CONSTATATIONS IMPORTANTES</h2>
+    <div class="content-page">
+      <div class="header">
+        <div class="header-content">
+          <div class="logo-box">
+            <div>APDP</div>
+            <div style="font-size: 8pt">MONACO</div>
+          </div>
+          <div class="header-title">
+            <h1>CONSTATATIONS IMPORTANTES</h1>
+            <p>Correction recommandée (7-30 jours)</p>
+          </div>
+        </div>
       </div>
+      
+      <div class="section" style="margin-top: 0;">
       
       <div class="alert-box warning">
         <div class="alert-title">CORRECTION RECOMMANDÉE (7-30 jours)</div>
@@ -848,22 +987,23 @@ const generateHTMLReport = (
           ${issue.article ? `<div class="issue-legal">Référence légale: ${issue.article}</div>` : ''}
         </div>
       `).join('')}
-    </div>
+      </div>
     
-    <div class="footer">
-      <div class="footer-left">
-        <div><strong>APDP Monaco</strong></div>
-        <div>Autorité de Protection des Données Personnelles</div>
+      <div class="footer">
+        <div class="footer-left">
+          <div><strong>APDP Monaco</strong></div>
+          <div>Autorité de Protection des Données Personnelles</div>
+        </div>
+        <div class="footer-center">
+          <div>${currentDate}</div>
+        </div>
+        <div class="footer-right">
+          <div><strong>Page ${data.issues?.critical && data.issues.critical.length > 0 ? '3' : '2'}</strong></div>
+        </div>
       </div>
-      <div class="footer-center">
-        <div>${currentDate}</div>
+      <div class="confidential">
+        DOCUMENT CONFIDENTIEL - Ne pas diffuser sans autorisation
       </div>
-      <div class="footer-right">
-        <div><strong>Page ${data.issues?.critical && data.issues.critical.length > 0 ? '3' : '2'}</strong></div>
-      </div>
-    </div>
-    <div class="confidential">
-      DOCUMENT CONFIDENTIEL - Ne pas diffuser sans autorisation
     </div>
   </div>
   ` : ''}
@@ -871,14 +1011,21 @@ const generateHTMLReport = (
   ${data.issues?.improvements && data.issues.improvements.length > 0 ? `
   <!-- Page: Improvements -->
   <div class="page">
-    <div class="section">
-      <div class="section-title">
-        <div class="section-number">
-          ${data.issues?.critical && data.issues.critical.length > 0 && data.issues?.warnings && data.issues.warnings.length > 0 ? '5' :
-            data.issues?.critical && data.issues.critical.length > 0 || data.issues?.warnings && data.issues.warnings.length > 0 ? '4' : '3'}
+    <div class="content-page">
+      <div class="header">
+        <div class="header-content">
+          <div class="logo-box">
+            <div>APDP</div>
+            <div style="font-size: 8pt">MONACO</div>
+          </div>
+          <div class="header-title">
+            <h1>RECOMMANDATIONS D'AMÉLIORATION</h1>
+            <p>Suggestions (1-3 mois)</p>
+          </div>
         </div>
-        <h2>RECOMMANDATIONS D'AMÉLIORATION</h2>
       </div>
+      
+      <div class="section" style="margin-top: 0;">
       
       <div class="alert-box info">
         <div class="alert-text">Améliorations suggérées pour renforcer la sécurité et la conformité (1-3 mois).</div>
@@ -907,22 +1054,428 @@ const generateHTMLReport = (
           ` : ''}
         </div>
       `).join('')}
-    </div>
+      </div>
     
-    <div class="footer">
-      <div class="footer-left">
-        <div><strong>APDP Monaco</strong></div>
-        <div>Autorité de Protection des Données Personnelles</div>
+      <div class="footer">
+        <div class="footer-left">
+          <div><strong>APDP Monaco</strong></div>
+          <div>Autorité de Protection des Données Personnelles</div>
+        </div>
+        <div class="footer-center">
+          <div>${currentDate}</div>
+        </div>
+        <div class="footer-right">
+          <div><strong>Recommandations</strong></div>
+        </div>
       </div>
-      <div class="footer-center">
-        <div>${currentDate}</div>
-      </div>
-      <div class="footer-right">
-        <div><strong>Page Final</strong></div>
+      <div class="confidential">
+        DOCUMENT CONFIDENTIEL - Ne pas diffuser sans autorisation
       </div>
     </div>
-    <div class="confidential">
-      DOCUMENT CONFIDENTIEL - Ne pas diffuser sans autorisation
+  </div>
+  ` : ''}
+  
+  ${allResults ? `
+  <!-- Page: Technical Details -->
+  <div class="page">
+    <div class="content-page">
+      <div class="header">
+        <div class="header-content">
+          <div class="logo-box">
+            <div>APDP</div>
+            <div style="font-size: 8pt">MONACO</div>
+          </div>
+          <div class="header-title">
+            <h1>DÉTAILS TECHNIQUES</h1>
+            <p>Configuration technique du site</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="section" style="margin-top: 0;">
+      
+      ${allResults.ssl || allResults.tls || allResults['tls-cipher-suites'] ? `
+      <h3 style="font-size: 11pt; margin: 15px 0 10px 0; color: #111827; border-bottom: 1px solid #E5E7EB; padding-bottom: 5px;">🔒 SSL/TLS & Chiffrement</h3>
+      <div class="info-box">
+        ${allResults.ssl ? `
+        <div class="info-row">
+          <span class="info-label">Certificat SSL:</span>
+          <span class="info-value" style="color: ${allResults.ssl.valid || allResults.ssl.validCertificate || (!allResults.ssl.error && allResults.ssl.issuer) ? '#059669' : '#DC2626'}">
+            ${allResults.ssl.valid || allResults.ssl.validCertificate || (!allResults.ssl.error && allResults.ssl.issuer) ? '✓ Valide' : '✗ Invalide ou absent'}
+          </span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Protocole:</span>
+          <span class="info-value">${allResults.ssl.protocol || 'TLS'}</span>
+        </div>
+        ${allResults.ssl.issuer ? `
+        <div class="info-row">
+          <span class="info-label">Émetteur:</span>
+          <span class="info-value">${typeof allResults.ssl.issuer === 'object' ? Object.entries(allResults.ssl.issuer).map(([k,v]) => k + '=' + v).join(', ') : allResults.ssl.issuer}</span>
+        </div>
+        ` : ''}
+        ` : ''}
+        
+        ${allResults['tls-cipher-suites']?.supportedCiphers?.length ? `
+        <div class="info-row">
+          <span class="info-label">Suite de chiffrement:</span>
+          <span class="info-value">${allResults['tls-cipher-suites'].supportedCiphers[0].name}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Force:</span>
+          <span class="info-value">${allResults['tls-cipher-suites'].supportedCiphers[0].bits} bits</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Niveau de sécurité:</span>
+          <span class="info-value">${allResults['tls-cipher-suites'].securityLevel || 'N/A'}</span>
+        </div>
+        ` : ''}
+        
+        ${allResults.hsts ? `
+        <div class="info-row">
+          <span class="info-label">HSTS:</span>
+          <span class="info-value" style="color: ${allResults.hsts.isEnabled ? '#059669' : '#D97706'}">
+            ${allResults.hsts.isEnabled ? '✓ Activé' : '✗ Désactivé'}
+          </span>
+        </div>
+        ` : ''}
+      </div>
+      ` : ''}
+      
+      ${allResults['tech-stack'] ? `
+      <h3 style="font-size: 11pt; margin: 15px 0 10px 0; color: #111827; border-bottom: 1px solid #E5E7EB; padding-bottom: 5px;">⚙️ Stack Technique</h3>
+      <div class="summary-grid" style="grid-template-columns: repeat(3, 1fr);">
+        ${allResults['tech-stack'].analytics?.length ? `
+        <div class="summary-card info" style="text-align: left;">
+          <div class="summary-label" style="margin-bottom: 8px;">Analytics:</div>
+          ${allResults['tech-stack'].analytics.slice(0, 3).map((item: any) => `
+            <div style="font-size: 8pt; margin: 2px 0;">• ${item.name || item}</div>
+          `).join('')}
+        </div>
+        ` : ''}
+        ${allResults['tech-stack'].frameworks?.length ? `
+        <div class="summary-card info" style="text-align: left;">
+          <div class="summary-label" style="margin-bottom: 8px;">Frameworks:</div>
+          ${allResults['tech-stack'].frameworks.slice(0, 3).map((item: any) => `
+            <div style="font-size: 8pt; margin: 2px 0;">• ${item.name || item}</div>
+          `).join('')}
+        </div>
+        ` : ''}
+        ${allResults['tech-stack'].server ? `
+        <div class="summary-card info" style="text-align: left;">
+          <div class="summary-label" style="margin-bottom: 8px;">Serveur:</div>
+          <div style="font-size: 8pt; margin: 2px 0;">• ${allResults['tech-stack'].server}</div>
+        </div>
+        ` : ''}
+      </div>
+      ` : ''}
+      
+      ${allResults.cookies ? `
+      <h3 style="font-size: 11pt; margin: 15px 0 10px 0; color: #111827; border-bottom: 1px solid #E5E7EB; padding-bottom: 5px;">🍪 Cookies Détectés</h3>
+      <div class="info-box">
+        <div class="info-row">
+          <span class="info-label">Total cookies:</span>
+          <span class="info-value">${allResults.cookies.clientCookies?.length || allResults.cookies.cookies?.length || 0}</span>
+        </div>
+        ${(allResults.cookies.clientCookies || allResults.cookies.cookies)?.slice(0, 5).map((cookie: any) => `
+          <div style="font-size: 8pt; margin: 5px 0; padding: 5px; background: #F9FAFB; border-radius: 4px;">
+            <strong>${cookie.name || 'Cookie'}</strong>
+            ${cookie.domain ? ` - ${cookie.domain}` : ''}
+            ${cookie.secure ? ' <span style="color: #059669">[Secure]</span>' : ''}
+            ${cookie.httpOnly ? ' <span style="color: #059669">[HttpOnly]</span>' : ''}
+          </div>
+        `).join('') || ''}
+      </div>
+      ` : ''}
+      </div>
+    
+      <div class="footer">
+        <div class="footer-left">
+          <div><strong>APDP Monaco</strong></div>
+          <div>Autorité de Protection des Données Personnelles</div>
+        </div>
+        <div class="footer-center">
+          <div>${currentDate}</div>
+        </div>
+        <div class="footer-right">
+          <div><strong>Détails Techniques</strong></div>
+        </div>
+      </div>
+      <div class="confidential">
+        DOCUMENT CONFIDENTIEL - Ne pas diffuser sans autorisation
+      </div>
+    </div>
+  </div>
+  
+  <!-- Page: APDP Compliance Details -->
+  <div class="page">
+    <div class="content-page">
+      <div class="header">
+        <div class="header-content">
+          <div class="logo-box">
+            <div>APDP</div>
+            <div style="font-size: 8pt">MONACO</div>
+          </div>
+          <div class="header-title">
+            <h1>CONFORMITÉ APDP DÉTAILLÉE</h1>
+            <p>Protection des données personnelles</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="section" style="margin-top: 0;">
+      
+      ${allResults['apdp-cookie-banner'] ? `
+      <div class="category-card ${allResults['apdp-cookie-banner'].compliance?.level === 'Conforme' ? 'good' : allResults['apdp-cookie-banner'].compliance?.level === 'Partiellement conforme' ? 'warning' : 'critical'}">
+        <div class="category-header">
+          <div class="category-name">🍪 Bannière de Consentement Cookies</div>
+          <div class="category-score">${allResults['apdp-cookie-banner'].compliance?.score || 0}/100</div>
+        </div>
+        <div class="category-issues" style="margin: 8px 0;">
+          ${allResults['apdp-cookie-banner'].hasCookieBanner ? '✓ Bannière détectée' : '✗ Aucune bannière détectée'}
+          ${allResults['apdp-cookie-banner'].detectedLibrary ? ` - Solution: ${allResults['apdp-cookie-banner'].detectedLibrary}` : ''}
+        </div>
+        <div style="font-size: 8pt; margin: 5px 0;">
+          ${allResults['apdp-cookie-banner'].features?.hasAcceptButton ? '✓ Bouton Accepter' : '✗ Pas de bouton Accepter'} |
+          ${allResults['apdp-cookie-banner'].features?.hasRejectButton ? '✓ Bouton Refuser' : '✗ Pas de bouton Refuser'} |
+          ${allResults['apdp-cookie-banner'].features?.hasCustomizeButton ? '✓ Personnalisation' : '✗ Pas de personnalisation'}
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: ${allResults['apdp-cookie-banner'].compliance?.score || 0}%"></div>
+        </div>
+      </div>
+      ` : ''}
+      
+      ${allResults['apdp-privacy-policy'] ? `
+      <div class="category-card ${allResults['apdp-privacy-policy'].compliance?.level === 'Conforme' ? 'good' : allResults['apdp-privacy-policy'].compliance?.level === 'Partiellement conforme' ? 'warning' : 'critical'}">
+        <div class="category-header">
+          <div class="category-name">📜 Politique de Confidentialité</div>
+          <div class="category-score">${allResults['apdp-privacy-policy'].compliance?.score || 0}/100</div>
+        </div>
+        <div class="category-issues" style="margin: 8px 0;">
+          ${allResults['apdp-privacy-policy'].hasPrivacyPolicy ? '✓ Politique trouvée' : '✗ Politique manquante'}
+          ${allResults['apdp-privacy-policy'].privacyPolicyUrl ? ` - ${allResults['apdp-privacy-policy'].privacyPolicyUrl}` : ''}
+        </div>
+        ${allResults['apdp-privacy-policy'].sections ? `
+        <div style="font-size: 8pt; margin: 5px 0;">
+          ${allResults['apdp-privacy-policy'].sections.found?.slice(0, 3).map((s: any) => `✓ ${s.name}`).join(' | ') || ''}
+        </div>
+        ` : ''}
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: ${allResults['apdp-privacy-policy'].compliance?.score || 0}%"></div>
+        </div>
+      </div>
+      ` : ''}
+      
+      ${allResults['apdp-legal-notices'] ? `
+      <div class="category-card ${allResults['apdp-legal-notices'].compliance?.level === 'Conforme' ? 'good' : allResults['apdp-legal-notices'].compliance?.level === 'Partiellement conforme' ? 'warning' : 'critical'}">
+        <div class="category-header">
+          <div class="category-name">⚖️ Mentions Légales</div>
+          <div class="category-score">${allResults['apdp-legal-notices'].compliance?.score || 0}/100</div>
+        </div>
+        <div class="category-issues" style="margin: 8px 0;">
+          ${allResults['apdp-legal-notices'].hasLegalNotice ? '✓ Mentions trouvées' : '✗ Mentions manquantes'}
+          ${allResults['apdp-legal-notices'].legalNoticeUrl ? ` - ${allResults['apdp-legal-notices'].legalNoticeUrl}` : ''}
+        </div>
+        ${allResults['apdp-legal-notices'].requiredInfo ? `
+        <div style="font-size: 8pt; margin: 5px 0;">
+          ${allResults['apdp-legal-notices'].requiredInfo.found?.slice(0, 3).map((s: any) => `✓ ${s.name}`).join(' | ') || ''}
+        </div>
+        ` : ''}
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: ${allResults['apdp-legal-notices'].compliance?.score || 0}%"></div>
+        </div>
+      </div>
+      ` : ''}
+      
+      ${allResults['apdp-user-rights'] ? `
+      <div class="category-card ${allResults['apdp-user-rights'].compliance?.level === 'Conforme' ? 'good' : allResults['apdp-user-rights'].compliance?.level === 'Partiellement conforme' ? 'warning' : 'critical'}">
+        <div class="category-header">
+          <div class="category-name">👤 Droits des Utilisateurs (RGPD)</div>
+          <div class="category-score">${allResults['apdp-user-rights'].compliance?.score || 0}/100</div>
+        </div>
+        <div style="font-size: 8pt; margin: 8px 0;">
+          ${allResults['apdp-user-rights'].rights?.found?.map((r: any) => `✓ ${r.right}`).join(' | ') || 'Informations sur les droits non trouvées'}
+        </div>
+        <div class="progress-bar">
+          <div class="progress-fill" style="width: ${allResults['apdp-user-rights'].compliance?.score || 0}%"></div>
+        </div>
+      </div>
+      ` : ''}
+      
+      ${allResults['carbon-footprint'] ? `
+      <h3 style="font-size: 11pt; margin: 20px 0 10px 0; color: #111827; border-bottom: 1px solid #E5E7EB; padding-bottom: 5px;">🌍 Impact Environnemental</h3>
+      <div class="info-box" style="background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%);">
+        <div class="info-row">
+          <span class="info-label">CO2 par visite:</span>
+          <span class="info-value">${allResults['carbon-footprint'].statistics?.co2?.grid?.grams?.toFixed(3) || 0}g</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Note environnementale:</span>
+          <span class="info-value" style="font-weight: 700; color: ${allResults['carbon-footprint'].rating === 'A+' ? '#059669' : '#D97706'}">${allResults['carbon-footprint'].rating || 'N/A'}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Plus propre que:</span>
+          <span class="info-value">${allResults['carbon-footprint'].cleanerThan ? (allResults['carbon-footprint'].cleanerThan * 100).toFixed(0) + '% des sites' : 'N/A'}</span>
+        </div>
+        <div style="font-size: 8pt; margin-top: 8px; padding-top: 8px; border-top: 1px solid #D1FAE5;">
+          Impact: 1 000 visites = ${(allResults['carbon-footprint'].statistics?.co2?.grid?.grams * 1000 || 0).toFixed(1)}g CO2
+        </div>
+      </div>
+      ` : ''}
+      </div>
+    
+      <div class="footer">
+        <div class="footer-left">
+          <div><strong>APDP Monaco</strong></div>
+          <div>Autorité de Protection des Données Personnelles</div>
+        </div>
+        <div class="footer-center">
+          <div>${currentDate}</div>
+        </div>
+        <div class="footer-right">
+          <div><strong>Conformité APDP</strong></div>
+        </div>
+      </div>
+      <div class="confidential">
+        DOCUMENT CONFIDENTIEL - Ne pas diffuser sans autorisation
+      </div>
+    </div>
+  </div>
+  
+  <!-- Page: Deep Analysis - Everything We Detected -->
+  <div class="page">
+    <div class="content-page">
+      <div class="header">
+        <div class="header-content">
+          <div class="logo-box">
+            <div>APDP</div>
+            <div style="font-size: 8pt">MONACO</div>
+          </div>
+          <div class="header-title">
+            <h1>ANALYSE APPROFONDIE</h1>
+            <p>Toutes les données techniques détectées</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="section" style="margin-top: 0;">
+      
+      ${allResults?.headers ? `
+      <h3 style="font-size: 11pt; margin: 15px 0 10px 0; color: #111827; border-bottom: 1px solid #E5E7EB; padding-bottom: 5px;">📋 En-têtes HTTP</h3>
+      <div class="info-box">
+        ${allResults.headers['Strict-Transport-Security'] ? `<div class="info-row"><span class="info-label">HSTS:</span> <span class="info-value" style="color: #059669">✓ Activé</span></div>` : ''}
+        ${allResults.headers['Content-Security-Policy'] ? `<div class="info-row"><span class="info-label">CSP:</span> <span class="info-value" style="color: #059669">✓ Configuré</span></div>` : ''}
+        ${allResults.headers['X-Frame-Options'] ? `<div class="info-row"><span class="info-label">X-Frame-Options:</span> <span class="info-value">${allResults.headers['X-Frame-Options']}</span></div>` : ''}
+        ${allResults.headers['X-Content-Type-Options'] ? `<div class="info-row"><span class="info-label">X-Content-Type-Options:</span> <span class="info-value">${allResults.headers['X-Content-Type-Options']}</span></div>` : ''}
+        ${allResults.headers.Server ? `<div class="info-row"><span class="info-label">Serveur:</span> <span class="info-value">${allResults.headers.Server}</span></div>` : ''}
+        <div style="font-size: 8pt; margin-top: 10px; color: #6B7280;">
+          ${Object.keys(allResults.headers).length} en-têtes HTTP détectés au total
+        </div>
+      </div>
+      ` : ''}
+      
+      ${allResults?.dns ? `
+      <h3 style="font-size: 11pt; margin: 15px 0 10px 0; color: #111827; border-bottom: 1px solid #E5E7EB; padding-bottom: 5px;">🌐 Configuration DNS</h3>
+      <div class="summary-grid" style="grid-template-columns: repeat(2, 1fr);">
+        ${allResults.dns.A?.length ? `
+        <div class="summary-card info" style="text-align: left;">
+          <div class="summary-label">Enregistrements A:</div>
+          <div class="summary-number" style="font-size: 18pt;">${allResults.dns.A.length}</div>
+          ${allResults.dns.A.slice(0, 2).map((ip: string) => `<div style="font-size: 8pt; margin: 2px 0;">• ${ip}</div>`).join('')}
+        </div>
+        ` : ''}
+        ${allResults.dns.AAAA?.length ? `
+        <div class="summary-card info" style="text-align: left;">
+          <div class="summary-label">Enregistrements AAAA (IPv6):</div>
+          <div class="summary-number" style="font-size: 18pt;">${allResults.dns.AAAA.length}</div>
+        </div>
+        ` : ''}
+        ${allResults.dns.MX?.length ? `
+        <div class="summary-card info" style="text-align: left;">
+          <div class="summary-label">Serveurs Mail (MX):</div>
+          <div class="summary-number" style="font-size: 18pt;">${allResults.dns.MX.length}</div>
+        </div>
+        ` : ''}
+        ${allResults.dns.NS?.length ? `
+        <div class="summary-card info" style="text-align: left;">
+          <div class="summary-label">Serveurs DNS (NS):</div>
+          <div class="summary-number" style="font-size: 18pt;">${allResults.dns.NS.length}</div>
+        </div>
+        ` : ''}
+      </div>
+      ` : ''}
+      
+      ${allResults?.vulnerabilities ? `
+      <h3 style="font-size: 11pt; margin: 15px 0 10px 0; color: #111827; border-bottom: 1px solid #E5E7EB; padding-bottom: 5px;">🔍 Vulnérabilités Détectées</h3>
+      <div class="alert-box ${allResults.vulnerabilities.length > 0 ? 'critical' : 'info'}">
+        <div class="alert-title">${allResults.vulnerabilities.length > 0 ? `${allResults.vulnerabilities.length} vulnérabilité(s) détectée(s)` : 'Aucune vulnérabilité majeure détectée'}</div>
+        ${allResults.vulnerabilities.length > 0 ? `
+        <div class="alert-text">
+          ${allResults.vulnerabilities.slice(0, 3).map((vuln: any) => `• ${vuln.title || vuln.name || 'Vulnérabilité détectée'}`).join('<br>')}
+        </div>
+        ` : ''}
+      </div>
+      ` : ''}
+      
+      ${allResults?.['cdn-resources'] ? `
+      <h3 style="font-size: 11pt; margin: 15px 0 10px 0; color: #111827; border-bottom: 1px solid #E5E7EB; padding-bottom: 5px;">🌍 Ressources Externes & CDN</h3>
+      <div class="info-box">
+        <div class="info-row">
+          <span class="info-label">Total ressources externes:</span>
+          <span class="info-value">${allResults['cdn-resources'].totalResources || allResults['cdn-resources'].externalResources?.length || 0}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Domaines externes:</span>
+          <span class="info-value">${allResults['cdn-resources'].summary?.externalDomains || new Set(allResults['cdn-resources'].externalResources?.map((r: any) => r.domain)).size || 0}</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Ressources CDN:</span>
+          <span class="info-value">${allResults['cdn-resources'].cdnProviders?.length || 0}</span>
+        </div>
+        ${allResults['cdn-resources'].isSPA ? `
+        <div style="font-size: 8pt; margin-top: 10px; padding: 10px; background: #FFFBEB; border-radius: 6px; color: #92400E;">
+          ⚠️ Application SPA détectée - Certaines ressources peuvent être chargées dynamiquement
+        </div>
+        ` : ''}
+      </div>
+      ` : ''}
+      
+      ${allResults?.location ? `
+      <h3 style="font-size: 11pt; margin: 15px 0 10px 0; color: #111827; border-bottom: 1px solid #E5E7EB; padding-bottom: 5px;">📍 Localisation Serveur</h3>
+      <div class="info-box" style="background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);">
+        ${allResults.location.city ? `<div class="info-row"><span class="info-label">Ville:</span> <span class="info-value">${allResults.location.city}</span></div>` : ''}
+        ${allResults.location.country ? `<div class="info-row"><span class="info-label">Pays:</span> <span class="info-value">${allResults.location.country}</span></div>` : ''}
+        ${allResults.location.org ? `<div class="info-row"><span class="info-label">Hébergeur:</span> <span class="info-value">${allResults.location.org}</span></div>` : ''}
+        ${allResults.location.timezone ? `<div class="info-row"><span class="info-label">Fuseau horaire:</span> <span class="info-value">${allResults.location.timezone}</span></div>` : ''}
+      </div>
+      ` : ''}
+      
+      <div class="alert-box info" style="margin-top: 20px;">
+        <div class="alert-title">📊 Analyse Complète</div>
+        <div class="alert-text">
+          Ce rapport présente toutes les données techniques et de conformité détectables automatiquement.
+          Certaines vérifications manuelles peuvent être nécessaires pour une conformité APDP complète.
+        </div>
+      </div>
+      
+      </div>
+      
+      <div class="footer">
+        <div class="footer-left">
+          <div><strong>APDP Monaco</strong></div>
+          <div>Autorité de Protection des Données Personnelles</div>
+        </div>
+        <div class="footer-center">
+          <div>${currentDate}</div>
+        </div>
+        <div class="footer-right">
+          <div><strong>Analyse Approfondie</strong></div>
+        </div>
+      </div>
+      <div class="confidential">
+        DOCUMENT CONFIDENTIEL - Ne pas diffuser sans autorisation
+      </div>
     </div>
   </div>
   ` : ''}
@@ -935,7 +1488,8 @@ export const generateComplianceReportHTML = async (
   data: ComplianceData,
   vulnerabilities?: any,
   legalPages?: any,
-  cdnResources?: any
+  cdnResources?: any,
+  allResults?: any
 ): Promise<void> => {
   try {
     // Check if we're in a browser environment
@@ -948,8 +1502,8 @@ export const generateComplianceReportHTML = async (
     // Dynamically import html2pdf.js only when needed (browser-only)
     const html2pdf = (await import('html2pdf.js')).default;
     
-    // Generate HTML
-    const htmlContent = generateHTMLReport(data, vulnerabilities, cdnResources);
+    // Generate HTML with all data
+    const htmlContent = generateHTMLReport(data, vulnerabilities, cdnResources, allResults);
     
     // PDF options
     const options = {

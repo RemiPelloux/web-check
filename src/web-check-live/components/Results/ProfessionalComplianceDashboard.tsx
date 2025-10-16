@@ -103,19 +103,77 @@ const ScoreLabel = styled.div`
 const ExportButton = styled.button`
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 10px 16px;
-  background: #dc2626;
+  gap: 10px;
+  padding: 14px 28px;
+  background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
   color: white;
   border: none;
-  border-radius: 6px;
+  border-radius: 12px;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 700;
   cursor: pointer;
-  transition: background-color 0.2s ease;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 6px rgba(220, 38, 38, 0.25), 
+              0 2px 4px rgba(220, 38, 38, 0.15),
+              inset 0 1px 0 rgba(255, 255, 255, 0.1);
+  position: relative;
+  overflow: hidden;
+  
+  /* Shine effect */
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+    transition: left 0.5s;
+  }
 
   &:hover {
-    background: #b91c1c;
+    background: linear-gradient(135deg, #b91c1c 0%, #7f1d1d 100%);
+    transform: translateY(-2px);
+    box-shadow: 0 6px 12px rgba(220, 38, 38, 0.35), 
+                0 4px 6px rgba(220, 38, 38, 0.25),
+                inset 0 1px 0 rgba(255, 255, 255, 0.15);
+  }
+  
+  &:hover::before {
+    left: 100%;
+  }
+
+  &:active {
+    transform: translateY(0);
+    box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3),
+                inset 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  &:disabled {
+    background: linear-gradient(135deg, #9ca3af 0%, #6b7280 100%);
+    cursor: not-allowed;
+    transform: none;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  }
+  
+  /* Pulse animation when generating */
+  &:disabled:not([data-success]) {
+    animation: pulse 1.5s ease-in-out infinite;
+  }
+  
+  @keyframes pulse {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.7;
+    }
+  }
+  
+  /* Icon styling */
+  span {
+    font-size: 18px;
+    filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.3));
   }
 `;
 
@@ -440,7 +498,8 @@ const ProfessionalComplianceDashboard: React.FC<ProfessionalComplianceDashboardP
         },
         allResults.vulnerabilities,
         undefined, // legal-pages removed
-        allResults['cdn-resources']
+        allResults['cdn-resources'],
+        allResults // Pass all results for comprehensive report
       );
 
       // Success feedback
