@@ -3,6 +3,7 @@ import styled from '@emotion/styled';
 import colors from 'web-check-live/styles/colors';
 import { Card } from 'web-check-live/components/Form/Card';
 import Button from 'web-check-live/components/Form/Button';
+import JsonViewer from './JsonViewer';
 
 const CardStyles = `
 margin: 0 auto 1rem auto;
@@ -28,18 +29,20 @@ small {
 }
 `;
 
-const StyledIframe = styled.iframe`
-  width: calc(100% - 2rem);
-  outline: none;
-  border: none;
-  border-radius: 4px;
-  min-height: 50vh;
-  height: 100%;
-  margin: 1rem;
-  background: ${colors.background};
+const ViewerToggle = styled.div`
+  margin: 1rem 0;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+  
+  label {
+    font-size: 0.9rem;
+    color: ${colors.textColorSecondary};
+  }
 `;
 
 const ViewRaw = (props: { everything: { id: string, result: any}[] }) => {
+  const [showViewer, setShowViewer] = useState<boolean>(false);
   const [resultUrl, setResultUrl] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
@@ -83,22 +86,40 @@ const ViewRaw = (props: { everything: { id: string, result: any}[] }) => {
     URL.revokeObjectURL(url);
   }
   return (
-    <Card heading="View / Download Raw Data" styles={CardStyles}>
+    <Card heading="Voir / Télécharger les Données Brutes" styles={CardStyles}>
       <div className="controls">
-        <Button onClick={handleDownload}>Download Results</Button>
-        <Button onClick={fetchResultsUrl}>{resultUrl ? 'Update Results' : 'View Results'}</Button>
-        { resultUrl && <Button onClick={() => setResultUrl('') }>Hide Results</Button> }
+        <Button onClick={handleDownload}>📥 Télécharger JSON</Button>
+        <Button onClick={() => setShowViewer(!showViewer)}>
+          {showViewer ? '🙈 Masquer' : '👁️ Visualiser'} les Données
+        </Button>
+        <Button onClick={fetchResultsUrl}>🔗 Partager via JSON Hero</Button>
       </div>
-      { resultUrl && !error &&
-      <>
-        <StyledIframe title="Results, via JSON Hero" src={resultUrl} />
-        <small>Your results are available to view <a href={resultUrl}>here</a>.</small>
-      </>
-      }
-      { error && <p className="error">{error}</p> }
-      <small>
-        These are the raw results generated from your URL, and in JSON format.
-        You can import these into your own program, for further analysis.
+      
+      {showViewer && (
+        <>
+          <ViewerToggle>
+            <label>Visualiseur JSON intégré avec coloration syntaxique et arbres repliables ▼</label>
+          </ViewerToggle>
+          <JsonViewer data={makeResults()} />
+        </>
+      )}
+      
+      { resultUrl && !error && (
+        <small style={{ display: 'block', marginTop: '1rem', padding: '0.75rem', background: colors.backgroundDarker, borderRadius: '6px' }}>
+          ✅ Lien partageable créé : <a href={resultUrl} target="_blank" rel="noopener noreferrer">Ouvrir dans JSON Hero</a>
+          <br />
+          <em>Ce lien expirera dans 1 heure</em>
+        </small>
+      )}
+      
+      { error && (
+        <p style={{ color: '#ef4444', padding: '0.75rem', background: '#fef2f2', borderRadius: '6px', marginTop: '1rem' }}>
+          ⚠️ Erreur: {error}
+        </p>
+      )}
+      
+      <small style={{ display: 'block', marginTop: '1rem', opacity: 0.7 }}>
+        Ces données brutes au format JSON peuvent être importées dans votre propre programme pour analyse approfondie.
       </small>
     </Card>
   );

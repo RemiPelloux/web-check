@@ -69,10 +69,17 @@ async function analyzeTLSConnection(hostname, port) {
 
         // Get cipher information
         if (cipher) {
+          // Extract bit strength from cipher name (e.g., AES128 -> 128, AES256 -> 256)
+          let bits = cipher.bits;
+          if (!bits || bits === 'unknown') {
+            const match = cipher.name.match(/(\d+)/);
+            bits = match ? parseInt(match[1]) : 128; // Default to 128 if not found
+          }
+          
           result.supportedCiphers = [{
             name: cipher.name,
             version: cipher.version,
-            bits: cipher.bits || 'unknown'
+            bits: bits
           }];
         }
 
