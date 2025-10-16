@@ -215,33 +215,40 @@ const CDNResourcesCard: React.FC<CDNResourcesCardProps> = ({ data, title, action
     );
   }
 
-  const resources = data?.resources || [];
+  // Backend sends externalResources, not resources
+  const resources = data?.externalResources || data?.resources || [];
   const summary = data?.summary || {
-    totalResources: resources.length,
+    totalResources: data?.totalResources || resources.length,
     externalDomains: new Set(resources.map(r => r.domain)).size,
-    cdnResources: resources.filter(r => r.type === 'cdn').length,
+    cdnResources: data?.cdnProviders?.length || resources.filter(r => r.isCDN).length,
     trackingResources: resources.filter(r => r.type === 'tracking').length,
     googleServices: resources.filter(r => r.type === 'google').length,
-    performanceScore: 85,
-    securityIssues: resources.filter(r => !r.secure).length
+    performanceScore: data?.summary?.performanceScore || 85,
+    securityIssues: data?.securityIssues?.length || resources.filter(r => !r.isSecure).length
   };
 
   const confidentialityIssues = data?.confidentialityIssues || [];
 
   // Group resources by domain for better display
   const groupedResources = resources.reduce((acc, resource) => {
-    if (!acc[resource.domain]) {
-      acc[resource.domain] = {
-        domain: resource.domain,
-        type: resource.type,
+    const domain = resource.domain;
+    if (!acc[domain]) {
+      acc[domain] = {
+        domain: domain,
+        type: resource.isCDN ? 'cdn' : 
+              (resource.provider?.category === 'Social Media' ? 'google' : 
+               (resource.provider?.privacy === 'Poor' ? 'tracking' : 'external')),
         files: [],
         totalSize: 0,
-        secure: resource.secure,
-        description: resource.description
+        secure: resource.isSecure !== false,
+        description: resource.provider?.name || domain
       };
     }
-    acc[resource.domain].files.push(...resource.files);
-    acc[resource.domain].totalSize += resource.size || 0;
+    // Each resource is one file - add its URL to the files array
+    if (resource.url) {
+      acc[domain].files.push(resource.url);
+    }
+    acc[domain].totalSize += resource.size || 0;
     return acc;
   }, {} as Record<string, any>);
 

@@ -77,7 +77,7 @@ async function analyzeCDNResources(url) {
     calculatePerformanceScore(results);
 
     // Add SPA warning if detected
-    if (isSPA && results.resources.length === 0) {
+    if (isSPA && results.externalResources.length === 0) {
       results.spaWarning = 'Site détecté comme SPA (Single Page Application). Les ressources externes sont chargées dynamiquement par JavaScript et ne peuvent pas être détectées dans le HTML initial. Utilisez les outils de développement du navigateur pour voir toutes les ressources.';
       results.isSPA = true;
     }
