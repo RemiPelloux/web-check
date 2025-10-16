@@ -1094,99 +1094,211 @@ const generateHTMLReport = (
       
       <div class="section" style="margin-top: 0;">
       
-      ${allResults.ssl || allResults.tls || allResults['tls-cipher-suites'] ? `
-      <h3 style="font-size: 11pt; margin: 15px 0 10px 0; color: #111827; border-bottom: 1px solid #E5E7EB; padding-bottom: 5px;">🔒 SSL/TLS & Chiffrement</h3>
+      <!-- SSL/TLS Security -->
+      <h3 style="font-size: 11pt; margin: 15px 0 10px 0; color: #111827; border-bottom: 1px solid #E5E7EB; padding-bottom: 5px;">🔒 SÉCURITÉ SSL/TLS</h3>
       <div class="info-box">
-        ${allResults.ssl ? `
+        ${allResults?.ssl ? `
         <div class="info-row">
           <span class="info-label">Certificat SSL:</span>
           <span class="info-value" style="color: ${allResults.ssl.valid || allResults.ssl.validCertificate || (!allResults.ssl.error && allResults.ssl.issuer) ? '#059669' : '#DC2626'}">
-            ${allResults.ssl.valid || allResults.ssl.validCertificate || (!allResults.ssl.error && allResults.ssl.issuer) ? '✓ Valide' : '✗ Invalide ou absent'}
+            ${allResults.ssl.valid || allResults.ssl.validCertificate || (!allResults.ssl.error && allResults.ssl.issuer) ? '✓ Valide et sécurisé' : '✗ Invalide ou absent'}
           </span>
         </div>
         <div class="info-row">
-          <span class="info-label">Protocole:</span>
-          <span class="info-value">${allResults.ssl.protocol || 'TLS'}</span>
+          <span class="info-label">Protocole TLS:</span>
+          <span class="info-value" style="font-weight: 600;">${allResults.ssl.protocol || 'TLS 1.2/1.3'}</span>
         </div>
         ${allResults.ssl.issuer ? `
         <div class="info-row">
-          <span class="info-label">Émetteur:</span>
-          <span class="info-value">${typeof allResults.ssl.issuer === 'object' ? Object.entries(allResults.ssl.issuer).map(([k,v]) => k + '=' + v).join(', ') : allResults.ssl.issuer}</span>
+          <span class="info-label">Autorité de certification:</span>
+          <span class="info-value">${typeof allResults.ssl.issuer === 'object' ? Object.entries(allResults.ssl.issuer).map(([k,v]) => `${k}=${v}`).join(', ') : allResults.ssl.issuer}</span>
         </div>
         ` : ''}
+        ${allResults.ssl.validFrom ? `
+        <div class="info-row">
+          <span class="info-label">Valide du:</span>
+          <span class="info-value">${new Date(allResults.ssl.validFrom).toLocaleDateString('fr-FR')}</span>
+        </div>
+        ` : ''}
+        ${allResults.ssl.validTo ? `
+        <div class="info-row">
+          <span class="info-label">Expire le:</span>
+          <span class="info-value">${new Date(allResults.ssl.validTo).toLocaleDateString('fr-FR')}</span>
+        </div>
+        ` : ''}
+        ` : '<div class="info-row"><span class="info-value" style="color: #D97706;">⚠️ Données SSL non disponibles</span></div>'}
+        
+        ${allResults?.['tls-cipher-suites']?.supportedCiphers?.length ? `
+        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #E5E7EB;">
+          <div class="info-row">
+            <span class="info-label">Suite de chiffrement:</span>
+            <span class="info-value">${allResults['tls-cipher-suites'].supportedCiphers[0].name}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Force de chiffrement:</span>
+            <span class="info-value" style="color: ${allResults['tls-cipher-suites'].supportedCiphers[0].bits >= 256 ? '#059669' : '#D97706'}">
+              ${allResults['tls-cipher-suites'].supportedCiphers[0].bits} bits ${allResults['tls-cipher-suites'].supportedCiphers[0].bits >= 256 ? '(Fort)' : '(Moyen)'}
+            </span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Niveau de sécurité:</span>
+            <span class="info-value">${allResults['tls-cipher-suites'].securityLevel || 'Standard'}</span>
+          </div>
+          <div class="info-row">
+            <span class="info-label">Version TLS:</span>
+            <span class="info-value">${allResults['tls-cipher-suites'].supportedCiphers[0].version || 'TLSv1.3'}</span>
+          </div>
+        </div>
         ` : ''}
         
-        ${allResults['tls-cipher-suites']?.supportedCiphers?.length ? `
-        <div class="info-row">
-          <span class="info-label">Suite de chiffrement:</span>
-          <span class="info-value">${allResults['tls-cipher-suites'].supportedCiphers[0].name}</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Force:</span>
-          <span class="info-value">${allResults['tls-cipher-suites'].supportedCiphers[0].bits} bits</span>
-        </div>
-        <div class="info-row">
-          <span class="info-label">Niveau de sécurité:</span>
-          <span class="info-value">${allResults['tls-cipher-suites'].securityLevel || 'N/A'}</span>
+        ${allResults?.hsts ? `
+        <div style="margin-top: 15px; padding-top: 15px; border-top: 1px solid #E5E7EB;">
+          <div class="info-row">
+            <span class="info-label">HSTS (Strict Transport Security):</span>
+            <span class="info-value" style="color: ${allResults.hsts.isEnabled ? '#059669' : '#DC2626'}; font-weight: 600;">
+              ${allResults.hsts.isEnabled ? '✓ Activé - Sécurité renforcée' : '✗ Désactivé - Vulnérable aux attaques'}
+            </span>
+          </div>
+          ${allResults.hsts.maxAge ? `
+          <div class="info-row">
+            <span class="info-label">Durée HSTS:</span>
+            <span class="info-value">${Math.round(allResults.hsts.maxAge / 86400)} jours</span>
+          </div>
+          ` : ''}
         </div>
         ` : ''}
         
-        ${allResults.hsts ? `
+        <div style="font-size: 8pt; margin-top: 12px; padding: 10px; background: ${allResults?.ssl?.valid ? '#F0FDF4' : '#FEF2F2'}; border-radius: 6px; color: ${allResults?.ssl?.valid ? '#166534' : '#991B1B'};">
+          ${allResults?.ssl?.valid ? '✓ Configuration SSL/TLS conforme aux standards APDP' : '⚠️ Vérifier la configuration SSL/TLS pour assurer la conformité'}
+        </div>
+      </div>
+      
+      <!-- Tech Stack -->
+      <h3 style="font-size: 11pt; margin: 20px 0 10px 0; color: #111827; border-bottom: 1px solid #E5E7EB; padding-bottom: 5px;">⚙️ STACK TECHNIQUE & TECHNOLOGIES</h3>
+      <div class="info-box">
+        ${allResults?.['tech-stack']?.server ? `
         <div class="info-row">
-          <span class="info-label">HSTS:</span>
-          <span class="info-value" style="color: ${allResults.hsts.isEnabled ? '#059669' : '#D97706'}">
-            ${allResults.hsts.isEnabled ? '✓ Activé' : '✗ Désactivé'}
+          <span class="info-label">Serveur Web:</span>
+          <span class="info-value" style="font-weight: 600;">${allResults['tech-stack'].server}</span>
+        </div>
+        ` : ''}
+        
+        ${allResults?.['tech-stack']?.frameworks?.length ? `
+        <div style="margin-top: 12px;">
+          <div class="info-row">
+            <span class="info-label" style="font-weight: 700;">Frameworks Détectés:</span>
+            <span class="info-value">${allResults['tech-stack'].frameworks.length} technologie(s)</span>
+          </div>
+          ${allResults['tech-stack'].frameworks.slice(0, 5).map((item: any) => `
+            <div style="font-size: 8pt; margin: 4px 0; padding: 6px 10px; background: #EFF6FF; border-left: 3px solid #3B82F6; border-radius: 4px;">
+              <strong>${item.name || item}</strong>
+              ${item.version ? ` - Version: ${item.version}` : ''}
+              ${item.description ? `<br><span style="color: #6B7280; font-size: 7pt;">${item.description}</span>` : ''}
+            </div>
+          `).join('')}
+        </div>
+        ` : ''}
+        
+        ${allResults?.['tech-stack']?.analytics?.length ? `
+        <div style="margin-top: 12px;">
+          <div class="info-row">
+            <span class="info-label" style="font-weight: 700;">Outils Analytics & Tracking:</span>
+            <span class="info-value" style="color: ${allResults['tech-stack'].analytics.length > 3 ? '#D97706' : '#6B7280'};">
+              ${allResults['tech-stack'].analytics.length} outil(s) ${allResults['tech-stack'].analytics.length > 3 ? '⚠️' : ''}
+            </span>
+          </div>
+          ${allResults['tech-stack'].analytics.slice(0, 5).map((item: any) => `
+            <div style="font-size: 8pt; margin: 4px 0; padding: 6px 10px; background: #FFFBEB; border-left: 3px solid #F59E0B; border-radius: 4px;">
+              <strong>${item.name || item}</strong>
+              ${item.category ? ` - ${item.category}` : ''}
+            </div>
+          `).join('')}
+          ${allResults['tech-stack'].analytics.length > 5 ? `
+          <div style="font-size: 7pt; color: #6B7280; margin-top: 5px;">
+            ... et ${allResults['tech-stack'].analytics.length - 5} autre(s) outil(s)
+          </div>
+          ` : ''}
+        </div>
+        ` : ''}
+        
+        ${allResults?.['tech-stack']?.libraries?.length ? `
+        <div style="margin-top: 12px;">
+          <div class="info-row">
+            <span class="info-label" style="font-weight: 700;">Bibliothèques JavaScript:</span>
+            <span class="info-value">${allResults['tech-stack'].libraries.length} bibliothèque(s)</span>
+          </div>
+          ${allResults['tech-stack'].libraries.slice(0, 4).map((item: any) => `
+            <div style="font-size: 8pt; margin: 4px 0; padding: 6px 10px; background: #F0FDF4; border-left: 3px solid #10B981; border-radius: 4px;">
+              <strong>${item.name || item}</strong>
+              ${item.version ? ` v${item.version}` : ''}
+            </div>
+          `).join('')}
+        </div>
+        ` : ''}
+        
+        <div style="font-size: 8pt; margin-top: 15px; padding: 10px; background: #F9FAFB; border-radius: 6px; color: #374151;">
+          <strong>⚠️ Impact APDP:</strong> Les outils analytics et de tracking peuvent collecter des données personnelles.
+          Assurez-vous d'avoir le consentement explicite des utilisateurs avant leur activation.
+        </div>
+      </div>
+      
+      <!-- Cookies Analysis -->
+      <h3 style="font-size: 11pt; margin: 20px 0 10px 0; color: #111827; border-bottom: 1px solid #E5E7EB; padding-bottom: 5px;">🍪 ANALYSE DES COOKIES</h3>
+      <div class="info-box">
+        ${allResults?.cookies ? `
+        <div class="info-row">
+          <span class="info-label">Total cookies détectés:</span>
+          <span class="info-value" style="font-weight: 700; color: ${(allResults.cookies.clientCookies?.length || allResults.cookies.cookies?.length || 0) > 10 ? '#D97706' : '#059669'};">
+            ${allResults.cookies.clientCookies?.length || allResults.cookies.cookies?.length || 0} cookie(s)
           </span>
         </div>
-        ` : ''}
-      </div>
-      ` : ''}
-      
-      ${allResults['tech-stack'] ? `
-      <h3 style="font-size: 11pt; margin: 15px 0 10px 0; color: #111827; border-bottom: 1px solid #E5E7EB; padding-bottom: 5px;">⚙️ Stack Technique</h3>
-      <div class="summary-grid" style="grid-template-columns: repeat(3, 1fr);">
-        ${allResults['tech-stack'].analytics?.length ? `
-        <div class="summary-card info" style="text-align: left;">
-          <div class="summary-label" style="margin-bottom: 8px;">Analytics:</div>
-          ${allResults['tech-stack'].analytics.slice(0, 3).map((item: any) => `
-            <div style="font-size: 8pt; margin: 2px 0;">• ${item.name || item}</div>
+        
+        ${(allResults.cookies.clientCookies || allResults.cookies.cookies)?.length > 0 ? `
+        <div style="margin-top: 15px;">
+          <div style="font-size: 9pt; font-weight: 600; margin-bottom: 10px; color: #111827;">📋 Détail des cookies (Top 10):</div>
+          ${(allResults.cookies.clientCookies || allResults.cookies.cookies).slice(0, 10).map((cookie: any, idx: number) => `
+            <div style="font-size: 8pt; margin: 8px 0; padding: 8px 10px; background: ${cookie.secure && cookie.httpOnly ? '#F0FDF4' : '#FEF2F2'}; border-left: 4px solid ${cookie.secure && cookie.httpOnly ? '#10B981' : '#DC2626'}; border-radius: 4px;">
+              <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
+                <strong style="color: #111827;">${idx + 1}. ${cookie.name || 'Cookie sans nom'}</strong>
+                <span style="font-size: 7pt; color: #6B7280;">${cookie.domain || 'domaine inconnu'}</span>
+              </div>
+              <div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid ${cookie.secure && cookie.httpOnly ? '#D1FAE5' : '#FECACA'};">
+                ${cookie.secure ? '<span style="color: #059669; margin-right: 10px;">✓ Secure</span>' : '<span style="color: #DC2626; margin-right: 10px;">✗ Non Secure</span>'}
+                ${cookie.httpOnly ? '<span style="color: #059669; margin-right: 10px;">✓ HttpOnly</span>' : '<span style="color: #DC2626; margin-right: 10px;">✗ Non HttpOnly</span>'}
+                ${cookie.sameSite ? `<span style="color: #059669;">✓ SameSite=${cookie.sameSite}</span>` : '<span style="color: #D97706;">⚠️ Pas de SameSite</span>'}
+              </div>
+              ${cookie.expires ? `
+              <div style="font-size: 7pt; color: #6B7280; margin-top: 4px;">
+                Expire: ${new Date(cookie.expires).toLocaleDateString('fr-FR')}
+              </div>
+              ` : ''}
+              ${(!cookie.secure || !cookie.httpOnly) ? `
+              <div style="font-size: 7pt; margin-top: 6px; padding: 4px 6px; background: #FEF2F2; border-radius: 3px; color: #991B1B;">
+                ⚠️ Cookie non sécurisé - Vulnérable aux attaques ${!cookie.secure ? 'MITM' : ''} ${!cookie.httpOnly ? 'XSS' : ''}
+              </div>
+              ` : ''}
+            </div>
           `).join('')}
-        </div>
-        ` : ''}
-        ${allResults['tech-stack'].frameworks?.length ? `
-        <div class="summary-card info" style="text-align: left;">
-          <div class="summary-label" style="margin-bottom: 8px;">Frameworks:</div>
-          ${allResults['tech-stack'].frameworks.slice(0, 3).map((item: any) => `
-            <div style="font-size: 8pt; margin: 2px 0;">• ${item.name || item}</div>
-          `).join('')}
-        </div>
-        ` : ''}
-        ${allResults['tech-stack'].server ? `
-        <div class="summary-card info" style="text-align: left;">
-          <div class="summary-label" style="margin-bottom: 8px;">Serveur:</div>
-          <div style="font-size: 8pt; margin: 2px 0;">• ${allResults['tech-stack'].server}</div>
-        </div>
-        ` : ''}
-      </div>
-      ` : ''}
-      
-      ${allResults.cookies ? `
-      <h3 style="font-size: 11pt; margin: 15px 0 10px 0; color: #111827; border-bottom: 1px solid #E5E7EB; padding-bottom: 5px;">🍪 Cookies Détectés</h3>
-      <div class="info-box">
-        <div class="info-row">
-          <span class="info-label">Total cookies:</span>
-          <span class="info-value">${allResults.cookies.clientCookies?.length || allResults.cookies.cookies?.length || 0}</span>
-        </div>
-        ${(allResults.cookies.clientCookies || allResults.cookies.cookies)?.slice(0, 5).map((cookie: any) => `
-          <div style="font-size: 8pt; margin: 5px 0; padding: 5px; background: #F9FAFB; border-radius: 4px;">
-            <strong>${cookie.name || 'Cookie'}</strong>
-            ${cookie.domain ? ` - ${cookie.domain}` : ''}
-            ${cookie.secure ? ' <span style="color: #059669">[Secure]</span>' : ''}
-            ${cookie.httpOnly ? ' <span style="color: #059669">[HttpOnly]</span>' : ''}
+          
+          ${(allResults.cookies.clientCookies || allResults.cookies.cookies).length > 10 ? `
+          <div style="font-size: 8pt; color: #6B7280; margin-top: 10px; text-align: center;">
+            ... et ${(allResults.cookies.clientCookies || allResults.cookies.cookies).length - 10} autre(s) cookie(s)
           </div>
-        `).join('') || ''}
+          ` : ''}
+        </div>
+        
+        <div style="margin-top: 15px; padding: 12px; background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%); border-left: 4px solid #F59E0B; border-radius: 6px;">
+          <div style="font-size: 9pt; font-weight: 700; color: #92400E; margin-bottom: 6px;">🔒 Exigences APDP pour les Cookies:</div>
+          <div style="font-size: 8pt; color: #78350F; line-height: 1.5;">
+            • Tous les cookies doivent avoir les flags <strong>Secure</strong> et <strong>HttpOnly</strong><br>
+            • Le consentement explicite est requis avant tout cookie non essentiel<br>
+            • La durée de conservation doit être justifiée et proportionnée<br>
+            • L'utilisateur doit pouvoir refuser les cookies non essentiels
+          </div>
+        </div>
+        ` : ''}
+        ` : '<div class="info-row"><span class="info-value">Aucun cookie détecté</span></div>'}
       </div>
-      ` : ''}
       </div>
     
       <div class="footer">
