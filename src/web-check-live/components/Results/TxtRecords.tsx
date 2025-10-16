@@ -12,10 +12,16 @@ const TxtRecordCard = (props: {data: any, title: string, actionButtons: any }): 
   const records = props.data;
   return (
     <Card heading={props.title} actionButtons={props.actionButtons} styles={cardStyles}>
-      { !records && <Row lbl="" val="No TXT Records" />}
-      {Object.keys(records).map((recordName: any, index: number) => {
+      { !records && <Row lbl="" val="Aucun enregistrement TXT" />}
+      {records && Object.keys(records).map((recordName: any, index: number) => {
+        // Handle objects (like {google-site-verification: "..."})
+        const value = records[recordName];
+        const displayValue = typeof value === 'object' 
+          ? JSON.stringify(value) 
+          : String(value);
+        
         return (
-          <Row lbl={recordName} val={records[recordName]} key={`${recordName}-${index}`} />
+          <Row lbl={recordName} val={displayValue} key={`${recordName}-${index}`} />
         );
       })}
     </Card>

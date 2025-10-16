@@ -44,7 +44,9 @@ async function analyzeCDNResources(url) {
       timeout: 15000,
       maxRedirects: 5,
       headers: {
-        'User-Agent': 'Mozilla/5.0 (compatible; APDP-Scanner/1.0)'
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/131.0.0.0 Safari/537.36',
+        'Accept': 'text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8',
+        'Accept-Language': 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7'
       }
     });
 
@@ -120,7 +122,21 @@ async function extractExternalResources(html, domain, results) {
   ];
 
   patterns.forEach((pattern, index) => {
-    const resourceTypes = ['script', 'stylesheet', 'image', 'font', 'video', 'audio'];
+    const resourceTypes = [
+      'script',      // 0: JS files
+      'stylesheet',  // 1: CSS files
+      'image',       // 2: img src
+      'image',       // 3: img srcset
+      'image',       // 4: background style
+      'image',       // 5: background CSS
+      'iframe',      // 6: iframes
+      'font',        // 7: fonts
+      'video',       // 8: video
+      'video',       // 9: source
+      'audio',       // 10: audio
+      'object',      // 11: object
+      'object'       // 12: embed
+    ];
     let match;
     
     while ((match = pattern.exec(html)) !== null) {
