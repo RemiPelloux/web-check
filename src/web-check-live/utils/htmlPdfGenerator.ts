@@ -82,18 +82,53 @@ const generateHTMLReport = (
       box-sizing: border-box;
     }
     
+    :root {
+      --color-primary: #DC2626;
+      --color-primary-dark: #991B1B;
+      --color-success: #059669;
+      --color-warning: #D97706;
+      --color-critical: #DC2626;
+      --color-info: #1E40AF;
+      --color-text: #1F2937;
+      --color-text-secondary: #6B7280;
+      --color-bg: #FFFFFF;
+      --color-bg-secondary: #F9FAFB;
+      --color-border: #E5E7EB;
+      --spacing-xs: 4px;
+      --spacing-sm: 8px;
+      --spacing-md: 16px;
+      --spacing-lg: 24px;
+      --spacing-xl: 32px;
+      --spacing-2xl: 48px;
+      --radius-sm: 6px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      --radius-xl: 16px;
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
+      --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+      --transition: all 0.2s ease;
+    }
+    
     body {
-      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Arial, sans-serif;
-      font-size: 10pt;
-      line-height: 1.5;
-      color: #111827;
-      background: white;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', 'Helvetica Neue', Arial, sans-serif;
+      font-size: 11pt;
+      line-height: 1.7;
+      color: var(--color-text);
+      background: var(--color-bg);
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+    
+    /* Smooth scrolling for better UX */
+    html {
+      scroll-behavior: smooth;
     }
     
     .page {
       page-break-after: always;
       page-break-inside: avoid;
-      margin-bottom: 20mm;
+      margin-bottom: var(--spacing-2xl);
       position: relative;
     }
     
@@ -103,10 +138,47 @@ const generateHTMLReport = (
     }
     
     .content-page {
-      padding: 15mm 10mm 10mm 10mm;
+      padding: 15mm 15mm 10mm 15mm;
+      max-width: 210mm;
+      margin: 0 auto;
     }
     
-    /* Cover Page Styles */
+    /* Enhanced readability with better spacing */
+    p {
+      margin-bottom: var(--spacing-md);
+      line-height: 1.8;
+    }
+    
+    h1, h2, h3, h4, h5, h6 {
+      font-weight: 700;
+      line-height: 1.3;
+      letter-spacing: -0.02em;
+      margin-bottom: var(--spacing-md);
+    }
+    
+    h1 { font-size: 28pt; margin-top: var(--spacing-2xl); }
+    h2 { font-size: 20pt; margin-top: var(--spacing-xl); }
+    h3 { font-size: 14pt; margin-top: var(--spacing-lg); }
+    
+    /* Better text rendering */
+    strong {
+      font-weight: 600;
+      color: var(--color-text);
+    }
+    
+    /* Enhanced links (for screen viewing) */
+    a {
+      color: var(--color-info);
+      text-decoration: none;
+      transition: var(--transition);
+    }
+    
+    a:hover {
+      color: var(--color-primary);
+      text-decoration: underline;
+    }
+    
+    /* Cover Page Styles - Enhanced */
     .cover-page {
       display: flex;
       flex-direction: column;
@@ -114,87 +186,122 @@ const generateHTMLReport = (
       align-items: center;
       text-align: center;
       min-height: 260mm;
-      background: linear-gradient(135deg, #DC2626 0%, #991B1B 100%);
+      background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
       color: white;
       padding: 40mm 20mm;
-      margin: -15mm -10mm;
+      margin: -15mm -15mm;
+      position: relative;
+      overflow: hidden;
+    }
+    
+    /* Subtle pattern overlay for depth */
+    .cover-page::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background-image: 
+        radial-gradient(circle at 20% 50%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 80% 80%, rgba(255, 255, 255, 0.05) 0%, transparent 50%);
+      pointer-events: none;
     }
     
     .cover-logo {
-      width: 120px;
-      height: 120px;
+      width: 140px;
+      height: 140px;
       background: white;
-      border-radius: 20px;
+      border-radius: var(--radius-xl);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      margin-bottom: 40px;
-      box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+      margin-bottom: 50px;
+      box-shadow: var(--shadow-lg), 0 20px 40px rgba(0, 0, 0, 0.2);
+      position: relative;
+      z-index: 1;
     }
     
     .cover-logo-text {
-      font-size: 42pt;
+      font-size: 48pt;
       font-weight: 900;
-      color: #DC2626;
+      color: var(--color-primary);
       line-height: 1;
+      letter-spacing: -0.02em;
     }
     
     .cover-logo-subtitle {
-      font-size: 14pt;
-      color: #991B1B;
+      font-size: 15pt;
+      color: var(--color-primary-dark);
       font-weight: 600;
-      margin-top: 5px;
+      margin-top: 6px;
+      letter-spacing: 0.05em;
     }
     
     .cover-title {
-      font-size: 48pt;
+      font-size: 52pt;
       font-weight: 900;
-      margin: 30px 0 20px 0;
-      letter-spacing: 1px;
-      text-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+      margin: 35px 0 25px 0;
+      letter-spacing: -0.01em;
+      text-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+      position: relative;
+      z-index: 1;
     }
     
     .cover-subtitle {
-      font-size: 20pt;
+      font-size: 22pt;
       font-weight: 300;
-      margin-bottom: 60px;
+      margin-bottom: 70px;
       opacity: 0.95;
+      max-width: 80%;
+      line-height: 1.5;
+      position: relative;
+      z-index: 1;
     }
     
     .cover-info {
-      background: rgba(255, 255, 255, 0.1);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 16px;
-      padding: 30px 40px;
-      margin: 40px 0;
-      min-width: 60%;
+      background: rgba(255, 255, 255, 0.15);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.25);
+      border-radius: var(--radius-xl);
+      padding: 35px 45px;
+      margin: 50px 0;
+      min-width: 65%;
+      box-shadow: var(--shadow-lg);
+      position: relative;
+      z-index: 1;
     }
     
     .cover-info-row {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin: 15px 0;
-      font-size: 12pt;
+      margin: 18px 0;
+      font-size: 13pt;
+      padding: 8px 0;
     }
     
     .cover-info-label {
       font-weight: 600;
-      opacity: 0.9;
+      opacity: 0.95;
+      letter-spacing: 0.01em;
     }
     
     .cover-info-value {
       font-weight: 400;
       text-align: right;
+      max-width: 60%;
+      word-break: break-word;
     }
     
     .cover-footer {
       margin-top: auto;
-      font-size: 9pt;
-      opacity: 0.8;
+      font-size: 10pt;
+      opacity: 0.85;
       font-style: italic;
+      position: relative;
+      z-index: 1;
     }
     
     /* Header for content pages */
@@ -245,37 +352,50 @@ const generateHTMLReport = (
       font-weight: 300;
     }
     
-    /* Info Box */
+    /* Info Box - Enhanced for better readability */
     .info-box {
-      background: linear-gradient(135deg, #F3F4F6 0%, #E5E7EB 100%);
-      border-left: 4px solid #DC2626;
-      padding: 15px 20px;
-      margin: 20px 0;
-      border-radius: 0 8px 8px 0;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      background: linear-gradient(135deg, var(--color-bg-secondary) 0%, #E5E7EB 100%);
+      border-left: 5px solid var(--color-primary);
+      padding: var(--spacing-lg) var(--spacing-xl);
+      margin: var(--spacing-xl) 0;
+      border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
+      box-shadow: var(--shadow-sm);
     }
     
     .info-box h3 {
-      font-size: 11pt;
-      color: #DC2626;
-      margin-bottom: 10px;
-      font-weight: 600;
+      font-size: 12pt;
+      color: var(--color-primary);
+      margin-bottom: var(--spacing-md);
+      font-weight: 700;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
     }
     
     .info-row {
       display: flex;
-      margin: 5px 0;
-      font-size: 9pt;
+      margin: var(--spacing-sm) 0;
+      font-size: 10pt;
+      line-height: 1.6;
+      padding: var(--spacing-xs) 0;
+      border-bottom: 1px solid rgba(0, 0, 0, 0.05);
+    }
+    
+    .info-row:last-child {
+      border-bottom: none;
     }
     
     .info-label {
       font-weight: 600;
-      color: #374151;
-      min-width: 120px;
+      color: var(--color-text);
+      min-width: 140px;
+      flex-shrink: 0;
     }
     
     .info-value {
-      color: #111827;
+      color: var(--color-text-secondary);
+      flex: 1;
+      word-break: break-word;
     }
     
     /* Section Title */
@@ -313,17 +433,18 @@ const generateHTMLReport = (
       font-weight: 700;
     }
     
-    /* Score Card */
+    /* Score Card - Enhanced for better visual hierarchy */
     .score-card {
-      background: linear-gradient(135deg, #FFFFFF 0%, #F9FAFB 100%);
-      border: 2px solid ${scoreColor};
-      border-radius: 12px;
-      padding: 25px;
-      margin: 20px 0;
+      background: linear-gradient(135deg, #FFFFFF 0%, var(--color-bg-secondary) 100%);
+      border: 3px solid ${scoreColor};
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-xl);
+      margin: var(--spacing-xl) 0;
       display: flex;
       align-items: center;
-      box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+      box-shadow: var(--shadow-md), 0 0 0 1px rgba(0, 0, 0, 0.02);
       page-break-inside: avoid;
+      gap: var(--spacing-xl);
     }
     
     .score-circle {
@@ -395,66 +516,79 @@ const generateHTMLReport = (
       font-style: italic;
     }
     
-    /* Summary Cards */
+    /* Summary Cards - Enhanced with modern design */
     .summary-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: 12px;
-      margin: 20px 0;
+      gap: var(--spacing-lg);
+      margin: var(--spacing-xl) 0;
     }
     
     .summary-card {
       background: white;
-      border-radius: 8px;
-      padding: 15px;
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-lg) var(--spacing-md);
       text-align: center;
-      border: 2px solid #E5E7EB;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      border: 2px solid var(--color-border);
+      box-shadow: var(--shadow-sm);
       page-break-inside: avoid;
+      transition: var(--transition);
+      position: relative;
+      overflow: hidden;
     }
     
-    .summary-card.critical {
-      border-top: 4px solid #DC2626;
-      background: linear-gradient(180deg, #FEF2F2 0%, white 100%);
+    .summary-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 5px;
+      background: var(--color-border);
     }
     
-    .summary-card.warning {
-      border-top: 4px solid #D97706;
-      background: linear-gradient(180deg, #FFFBEB 0%, white 100%);
+    .summary-card:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-md);
     }
     
-    .summary-card.info {
-      border-top: 4px solid #1E40AF;
-      background: linear-gradient(180deg, #EFF6FF 0%, white 100%);
-    }
+    .summary-card.critical::before { background: linear-gradient(90deg, var(--color-critical) 0%, #EF4444 100%); }
+    .summary-card.critical { background: linear-gradient(180deg, #FEF2F2 0%, white 100%); border-color: #FECACA; }
     
-    .summary-card.success {
-      border-top: 4px solid #059669;
-      background: linear-gradient(180deg, #F0FDF4 0%, white 100%);
-    }
+    .summary-card.warning::before { background: linear-gradient(90deg, var(--color-warning) 0%, #F59E0B 100%); }
+    .summary-card.warning { background: linear-gradient(180deg, #FFFBEB 0%, white 100%); border-color: #FED7AA; }
+    
+    .summary-card.info::before { background: linear-gradient(90deg, var(--color-info) 0%, #3B82F6 100%); }
+    .summary-card.info { background: linear-gradient(180deg, #EFF6FF 0%, white 100%); border-color: #BFDBFE; }
+    
+    .summary-card.success::before { background: linear-gradient(90deg, var(--color-success) 0%, #10B981 100%); }
+    .summary-card.success { background: linear-gradient(180deg, #F0FDF4 0%, white 100%); border-color: #A7F3D0; }
     
     .summary-number {
-      font-size: 28pt;
-      font-weight: 700;
-      margin: 5px 0;
+      font-size: 36pt;
+      font-weight: 800;
+      margin: var(--spacing-md) 0 var(--spacing-sm) 0;
+      line-height: 1;
+      letter-spacing: -0.02em;
     }
     
-    .summary-card.critical .summary-number { color: #DC2626; }
-    .summary-card.warning .summary-number { color: #D97706; }
-    .summary-card.info .summary-number { color: #1E40AF; }
-    .summary-card.success .summary-number { color: #059669; }
+    .summary-card.critical .summary-number { color: var(--color-critical); }
+    .summary-card.warning .summary-number { color: var(--color-warning); }
+    .summary-card.info .summary-number { color: var(--color-info); }
+    .summary-card.success .summary-number { color: var(--color-success); }
     
     .summary-label {
-      font-size: 9pt;
+      font-size: 10pt;
       font-weight: 600;
-      color: #111827;
-      margin-top: 5px;
+      color: var(--color-text);
+      margin-top: var(--spacing-sm);
+      line-height: 1.4;
     }
     
     .summary-sublabel {
-      font-size: 8pt;
-      color: #6B7280;
-      margin-top: 2px;
+      font-size: 9pt;
+      color: var(--color-text-secondary);
+      margin-top: var(--spacing-xs);
     }
     
     /* Category Cards */
@@ -517,20 +651,37 @@ const generateHTMLReport = (
     .category-card.warning .progress-fill { background: linear-gradient(90deg, #D97706, #F59E0B); }
     .category-card.critical .progress-fill { background: linear-gradient(90deg, #DC2626, #EF4444); }
     
-    /* Issue Cards */
+    /* Issue Cards - Enhanced with better spacing and hierarchy */
     .issue-card {
       background: white;
-      border-radius: 8px;
-      padding: 15px;
-      margin: 12px 0;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.08);
-      border-left: 4px solid #E5E7EB;
+      border-radius: var(--radius-md);
+      padding: var(--spacing-lg);
+      margin: var(--spacing-lg) 0;
+      box-shadow: var(--shadow-sm), 0 0 0 1px rgba(0, 0, 0, 0.03);
+      border-left: 5px solid var(--color-border);
       page-break-inside: avoid;
+      transition: var(--transition);
     }
     
-    .issue-card.critical { border-left-color: #DC2626; }
-    .issue-card.warning { border-left-color: #D97706; }
-    .issue-card.info { border-left-color: #1E40AF; }
+    .issue-card:hover {
+      box-shadow: var(--shadow-md);
+      transform: translateX(2px);
+    }
+    
+    .issue-card.critical { 
+      border-left-color: var(--color-critical);
+      background: linear-gradient(90deg, #FEF2F2 0%, white 10%);
+    }
+    
+    .issue-card.warning { 
+      border-left-color: var(--color-warning);
+      background: linear-gradient(90deg, #FFFBEB 0%, white 10%);
+    }
+    
+    .issue-card.info { 
+      border-left-color: var(--color-info);
+      background: linear-gradient(90deg, #EFF6FF 0%, white 10%);
+    }
     
     .issue-header {
       display: flex;
@@ -561,52 +712,63 @@ const generateHTMLReport = (
     }
     
     .issue-title {
-      font-size: 11pt;
+      font-size: 12pt;
       font-weight: 700;
-      color: #111827;
-      margin-bottom: 5px;
-      line-height: 1.4;
+      color: var(--color-text);
+      margin-bottom: var(--spacing-sm);
+      line-height: 1.5;
+      letter-spacing: -0.01em;
     }
     
     .issue-category {
       display: inline-block;
-      background: #DC2626;
+      background: var(--color-critical);
       color: white;
-      padding: 2px 8px;
-      border-radius: 4px;
-      font-size: 8pt;
+      padding: 4px 12px;
+      border-radius: var(--radius-sm);
+      font-size: 9pt;
       font-weight: 600;
+      letter-spacing: 0.02em;
+      text-transform: uppercase;
     }
     
-    .issue-card.warning .issue-category { background: #D97706; }
-    .issue-card.info .issue-category { background: #1E40AF; }
+    .issue-card.warning .issue-category { background: var(--color-warning); }
+    .issue-card.info .issue-category { background: var(--color-info); }
     
     .issue-description {
-      font-size: 9pt;
-      color: #374151;
-      margin: 10px 0;
-      line-height: 1.5;
+      font-size: 10pt;
+      color: var(--color-text-secondary);
+      margin: var(--spacing-md) 0;
+      line-height: 1.8;
     }
     
     .issue-recommendation {
       background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
-      border-left: 3px solid #1E40AF;
-      padding: 10px 12px;
-      border-radius: 0 6px 6px 0;
-      margin: 10px 0;
+      border-left: 4px solid var(--color-info);
+      padding: var(--spacing-md) var(--spacing-lg);
+      border-radius: 0 var(--radius-md) var(--radius-md) 0;
+      margin: var(--spacing-md) 0;
     }
     
     .recommendation-title {
-      font-size: 9pt;
+      font-size: 10pt;
       font-weight: 700;
-      color: #1E40AF;
-      margin-bottom: 5px;
+      color: var(--color-info);
+      margin-bottom: var(--spacing-sm);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+    }
+    
+    .recommendation-title::before {
+      content: '💡';
+      font-size: 12pt;
     }
     
     .recommendation-text {
-      font-size: 9pt;
-      color: #1F2937;
-      line-height: 1.5;
+      font-size: 10pt;
+      color: var(--color-text);
+      line-height: 1.8;
     }
     
     .issue-metadata {
@@ -636,43 +798,127 @@ const generateHTMLReport = (
       margin-top: 5px;
     }
     
-    /* Alert Boxes */
+    /* Alert Boxes - Enhanced for better readability */
     .alert-box {
-      padding: 15px;
-      border-radius: 8px;
-      margin: 15px 0;
-      border-left: 4px solid;
+      padding: var(--spacing-lg) var(--spacing-xl);
+      border-radius: var(--radius-lg);
+      margin: var(--spacing-xl) 0;
+      border-left: 5px solid;
       page-break-inside: avoid;
+      box-shadow: var(--shadow-sm), 0 0 0 1px rgba(0, 0, 0, 0.02);
+      position: relative;
     }
     
     .alert-box.critical {
       background: linear-gradient(135deg, #FEF2F2 0%, #FEE2E2 100%);
-      border-left-color: #DC2626;
+      border-left-color: var(--color-critical);
+      border: 1px solid #FECACA;
+      border-left-width: 5px;
     }
     
     .alert-box.warning {
       background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%);
-      border-left-color: #D97706;
+      border-left-color: var(--color-warning);
+      border: 1px solid #FED7AA;
+      border-left-width: 5px;
     }
     
     .alert-box.info {
       background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
-      border-left-color: #1E40AF;
+      border-left-color: var(--color-info);
+      border: 1px solid #BFDBFE;
+      border-left-width: 5px;
+    }
+    
+    .alert-box.success {
+      background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%);
+      border-left-color: var(--color-success);
+      border: 1px solid #A7F3D0;
+      border-left-width: 5px;
     }
     
     .alert-title {
       font-weight: 700;
-      font-size: 10pt;
-      margin-bottom: 5px;
+      font-size: 12pt;
+      margin-bottom: var(--spacing-md);
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      line-height: 1.4;
     }
     
-    .alert-box.critical .alert-title { color: #DC2626; }
-    .alert-box.warning .alert-title { color: #D97706; }
-    .alert-box.info .alert-title { color: #1E40AF; }
+    .alert-box.critical .alert-title { color: var(--color-critical); }
+    .alert-box.warning .alert-title { color: var(--color-warning); }
+    .alert-box.info .alert-title { color: var(--color-info); }
+    .alert-box.success .alert-title { color: var(--color-success); }
     
     .alert-text {
-      font-size: 9pt;
-      color: #374151;
+      font-size: 10pt;
+      color: var(--color-text);
+      line-height: 1.8;
+    }
+    
+    /* Table of Contents */
+    .toc-container {
+      background: var(--color-bg-secondary);
+      border-radius: var(--radius-lg);
+      padding: var(--spacing-xl);
+      margin: var(--spacing-2xl) 0;
+      border: 2px solid var(--color-border);
+      page-break-inside: avoid;
+    }
+    
+    .toc-title {
+      font-size: 18pt;
+      font-weight: 700;
+      color: var(--color-primary);
+      margin-bottom: var(--spacing-lg);
+      padding-bottom: var(--spacing-md);
+      border-bottom: 2px solid var(--color-primary);
+    }
+    
+    .toc-list {
+      list-style: none;
+      padding: 0;
+    }
+    
+    .toc-item {
+      padding: var(--spacing-sm) 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      border-bottom: 1px solid var(--color-border);
+    }
+    
+    .toc-item:last-child {
+      border-bottom: none;
+    }
+    
+    .toc-link {
+      color: var(--color-text);
+      text-decoration: none;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      gap: var(--spacing-sm);
+      transition: var(--transition);
+    }
+    
+    .toc-link:hover {
+      color: var(--color-primary);
+    }
+    
+    .toc-number {
+      background: var(--color-primary);
+      color: white;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 11pt;
     }
     
     /* Footer */
@@ -1882,6 +2128,90 @@ const generateHTMLReport = (
 </body>
 </html>
   `;
+};
+
+// Function to open HTML report in a new window (can be printed to PDF)
+export const openComplianceReportHTML = (
+  data: ComplianceData,
+  vulnerabilities?: any,
+  legalPages?: any,
+  cdnResources?: any,
+  allResults?: any
+): void => {
+  try {
+    // Check if we're in a browser environment
+    if (typeof window === 'undefined') {
+      throw new Error('Report viewer is only available in browser environment');
+    }
+
+    console.log('Opening HTML compliance report...');
+    
+    // Generate HTML with all data
+    const htmlContent = generateHTMLReport(data, vulnerabilities, cdnResources, allResults);
+    
+    // Add print button and instructions to the HTML
+    const htmlWithPrintButton = htmlContent.replace(
+      '</body>',
+      `
+      <!-- Print Button (hidden when printing) -->
+      <div style="position: fixed; top: 20px; right: 20px; z-index: 9999;" class="no-print">
+        <button onclick="window.print()" style="
+          background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%);
+          color: white;
+          border: none;
+          border-radius: 12px;
+          padding: 14px 28px;
+          font-size: 14px;
+          font-weight: 700;
+          cursor: pointer;
+          box-shadow: 0 4px 12px rgba(220, 38, 38, 0.4);
+          display: flex;
+          align-items: center;
+          gap: 10px;
+          transition: all 0.3s ease;
+        " onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 16px rgba(220, 38, 38, 0.5)';" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='0 4px 12px rgba(220, 38, 38, 0.4)';">
+          <span style="font-size: 18px;">🖨️</span>
+          Imprimer / Enregistrer en PDF
+        </button>
+        <div style="
+          margin-top: 8px;
+          font-size: 11px;
+          color: #6b7280;
+          text-align: center;
+          background: white;
+          padding: 6px 12px;
+          border-radius: 6px;
+          box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        ">
+          Utilisez <strong>Ctrl+P</strong> (Windows) ou <strong>⌘+P</strong> (Mac)
+        </div>
+      </div>
+      
+      <style>
+        /* Hide print button when printing */
+        @media print {
+          .no-print {
+            display: none !important;
+          }
+        }
+      </style>
+      </body>`
+    );
+    
+    // Open in new window
+    const reportWindow = window.open('', '_blank');
+    if (!reportWindow) {
+      throw new Error('Le navigateur a bloqué l\'ouverture de la fenêtre. Veuillez autoriser les popups pour ce site.');
+    }
+    
+    reportWindow.document.write(htmlWithPrintButton);
+    reportWindow.document.close();
+    
+    console.log('HTML report opened successfully!');
+  } catch (error) {
+    console.error('Error opening HTML report:', error);
+    throw new Error(`Échec de l'ouverture du rapport: ${error instanceof Error ? error.message : 'Erreur inconnue'}`);
+  }
 };
 
 export const generateComplianceReportHTML = async (

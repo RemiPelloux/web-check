@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import styled from '@emotion/styled';
 import colors from 'web-check-live/styles/colors';
 import { EnhancedComplianceAnalyzer } from 'web-check-live/utils/enhancedComplianceAnalyzer';
-import { generateComplianceReportHTML } from 'web-check-live/utils/htmlPdfGenerator';
+import { openComplianceReportHTML } from 'web-check-live/utils/htmlPdfGenerator';
 
 interface ProfessionalComplianceDashboardProps {
   allResults: any;
@@ -446,28 +446,21 @@ const ProfessionalComplianceDashboard: React.FC<ProfessionalComplianceDashboardP
     }
   }, [allResults]);
 
-  const handleExportPDF = async () => {
+  const handleViewReport = () => {
     if (!analysis || !allResults) {
-      alert('Aucune donnée d\'analyse disponible pour l\'export PDF.');
+      alert('Aucune donnée d\'analyse disponible pour l\'affichage du rapport.');
       return;
     }
 
     try {
-      console.log('Starting PDF export with data:', { 
+      console.log('Opening HTML report with data:', { 
         analysis: !!analysis, 
         allResults: !!allResults, 
         siteName,
         score: analysis.score 
       });
 
-      // Show loading feedback
-      const button = document.querySelector('[data-export-pdf]') as HTMLButtonElement;
-      if (button) {
-        button.disabled = true;
-        button.textContent = 'Génération en cours...';
-      }
-
-      await generateComplianceReportHTML(
+      openComplianceReportHTML(
         {
           url: siteName || 'Site Web',
           overallScore: getScoreGrade(analysis.score),
@@ -501,26 +494,9 @@ const ProfessionalComplianceDashboard: React.FC<ProfessionalComplianceDashboardP
         allResults['cdn-resources'],
         allResults // Pass all results for comprehensive report
       );
-
-      // Success feedback
-      if (button) {
-        button.textContent = '✓ PDF Généré';
-        setTimeout(() => {
-          button.disabled = false;
-          button.innerHTML = '<span style="font-size: 16px">⬇️</span> Exporter PDF';
-        }, 2000);
-      }
     } catch (error) {
-      console.error('Erreur lors de l\'exportation PDF:', error);
-      
-      // Error feedback
-      const button = document.querySelector('[data-export-pdf]') as HTMLButtonElement;
-      if (button) {
-        button.textContent = 'Erreur - Réessayer';
-        button.disabled = false;
-      }
-      
-      alert('Erreur lors de la génération du PDF. Vérifiez que votre navigateur autorise les téléchargements et réessayez.');
+      console.error('Erreur lors de l\'ouverture du rapport:', error);
+      alert('Erreur lors de l\'ouverture du rapport. Vérifiez que votre navigateur autorise les popups pour ce site et réessayez.');
     }
   };
 
@@ -613,9 +589,9 @@ const ProfessionalComplianceDashboard: React.FC<ProfessionalComplianceDashboardP
               </ScoreCircle>
               <ScoreLabel>Score Global</ScoreLabel>
             </div>
-            <ExportButton onClick={handleExportPDF} data-export-pdf>
-              <span style={{ fontSize: '16px' }}>⬇️</span>
-              Exporter PDF
+            <ExportButton onClick={handleViewReport}>
+              <span style={{ fontSize: '18px' }}>📄</span>
+              Voir le Rapport
             </ExportButton>
           </HeaderRight>
         </HeaderContent>
