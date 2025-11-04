@@ -72,7 +72,7 @@ const generateHTMLReport = (
   <title>Rapport de Conformité APDP - ${data.url}</title>
   <style>
     @page {
-      margin: 0;
+      margin: 15mm 10mm;
       size: A4;
     }
     
@@ -80,6 +80,41 @@ const generateHTMLReport = (
       margin: 0;
       padding: 0;
       box-sizing: border-box;
+    }
+    
+    /* Print-specific optimizations */
+    @media print {
+      body {
+        print-color-adjust: exact;
+        -webkit-print-color-adjust: exact;
+      }
+      
+      /* Prevent awkward breaks */
+      h1, h2, h3, h4, h5, h6 {
+        page-break-after: avoid;
+        break-after: avoid;
+      }
+      
+      .section, .info-box, .alert-box, .summary-card, .issue-card, .category-card {
+        page-break-inside: avoid;
+        break-inside: avoid;
+      }
+      
+      /* Hide screen-only elements */
+      .no-print {
+        display: none !important;
+      }
+      
+      /* Optimize spacing for print */
+      .page {
+        margin-bottom: 0 !important;
+        page-break-after: always;
+        page-break-inside: avoid;
+      }
+      
+      .page:last-child {
+        page-break-after: auto;
+      }
     }
     
     :root {
@@ -129,19 +164,36 @@ const generateHTMLReport = (
     .page {
       page-break-after: always;
       page-break-inside: avoid;
-      margin-bottom: var(--spacing-2xl);
       position: relative;
     }
     
     .page:last-child {
       page-break-after: auto;
-      margin-bottom: 0;
     }
     
     .content-page {
-      padding: 15mm 15mm 10mm 15mm;
-      max-width: 210mm;
-      margin: 0 auto;
+      padding: 0;
+      max-width: 100%;
+      margin: 0;
+    }
+    
+    /* Print-friendly padding */
+    @media print {
+      .content-page {
+        padding: 0;
+      }
+      
+      .header {
+        margin: 0 0 15px 0 !important;
+      }
+      
+      .section {
+        margin: 0 0 15px 0 !important;
+      }
+      
+      .footer {
+        margin: 15px 0 0 0 !important;
+      }
     }
     
     /* Enhanced readability with better spacing */
@@ -186,13 +238,21 @@ const generateHTMLReport = (
       justify-content: center;
       align-items: center;
       text-align: center;
-      min-height: 260mm;
+      min-height: 100vh;
       background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
       color: white;
       padding: 40mm 20mm;
-      margin: -15mm -15mm;
+      margin: 0;
       position: relative;
       overflow: hidden;
+    }
+    
+    @media print {
+      .cover-page {
+        min-height: 260mm;
+        padding: 30mm 15mm;
+        margin: 0;
+      }
     }
     
     /* Subtle pattern overlay for depth */
@@ -309,9 +369,17 @@ const generateHTMLReport = (
     .header {
       background: linear-gradient(135deg, #DC2626 0%, #991B1B 100%);
       padding: 15px 20px;
-      margin: -15mm -10mm 15px -10mm;
+      margin: 0 0 20px 0;
       color: white;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    }
+    
+    @media print {
+      .header {
+        padding: 12px 15px;
+        margin: 0 0 15px 0;
+        box-shadow: none;
+      }
     }
     
     .header-content {
@@ -970,11 +1038,118 @@ const generateHTMLReport = (
       margin-top: 4px;
     }
     
-    /* Print Styles */
+    /* Comprehensive Print Styles */
     @media print {
+      html, body {
+        margin: 0;
+        padding: 0;
+      }
+      
       body {
         print-color-adjust: exact;
         -webkit-print-color-adjust: exact;
+        font-size: 10pt;
+        line-height: 1.5;
+      }
+      
+      /* Reduce spacing in print */
+      h1 { font-size: 20pt; margin-top: 10px; margin-bottom: 8px; }
+      h2 { font-size: 14pt; margin-top: 12px; margin-bottom: 6px; }
+      h3 { font-size: 11pt; margin-top: 10px; margin-bottom: 5px; }
+      
+      p { margin-bottom: 8px; line-height: 1.4; }
+      
+      .info-box, .alert-box {
+        margin: 10px 0;
+        padding: 10px 15px;
+      }
+      
+      .summary-grid {
+        gap: 8px;
+        margin: 10px 0;
+      }
+      
+      .summary-card {
+        padding: 10px 8px;
+      }
+      
+      .issue-card, .category-card {
+        margin: 10px 0;
+        padding: 10px 12px;
+      }
+      
+      .section {
+        margin: 10px 0 15px 0;
+      }
+      
+      .footer {
+        font-size: 7pt;
+        padding: 8px 0;
+      }
+      
+      /* Prevent orphans and widows */
+      p, li {
+        orphans: 3;
+        widows: 3;
+      }
+      
+      /* Avoid breaks after headers */
+      h1, h2, h3, h4, h5, h6 {
+        page-break-after: avoid;
+        page-break-inside: avoid;
+      }
+      
+      /* Keep related content together */
+      .info-row, .metadata-item {
+        page-break-inside: avoid;
+      }
+      
+      /* Ensure tables and grids stay together when possible */
+      table, .summary-grid, .info-box, .alert-box {
+        page-break-inside: avoid;
+      }
+      
+      /* Remove max-heights and scrolling in print */
+      * {
+        max-height: none !important;
+        overflow: visible !important;
+      }
+      
+      /* Optimize score displays */
+      .score-circle {
+        width: 100px;
+        height: 100px;
+      }
+      
+      .score-number {
+        font-size: 28pt;
+      }
+      
+      /* Compact cover page for print */
+      .cover-logo {
+        width: 120px;
+        height: 120px;
+        margin-bottom: 30px;
+      }
+      
+      .cover-title {
+        font-size: 42pt;
+        margin: 25px 0 20px 0;
+      }
+      
+      .cover-subtitle {
+        font-size: 18pt;
+        margin-bottom: 40px;
+      }
+      
+      .cover-info {
+        padding: 25px 35px;
+        margin: 30px 0;
+      }
+      
+      .cover-info-row {
+        margin: 12px 0;
+        font-size: 11pt;
       }
     }
   </style>
@@ -2843,15 +3018,22 @@ export const openComplianceReportHTML = (
         </button>
         <div style="
           margin-top: 8px;
-          font-size: 11px;
+          font-size: 10px;
           color: #6b7280;
           text-align: center;
           background: white;
-          padding: 6px 12px;
+          padding: 8px 12px;
           border-radius: 6px;
           box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+          max-width: 280px;
+          line-height: 1.5;
         ">
-          Utilisez <strong>Ctrl+P</strong> (Windows) ou <strong>⌘+P</strong> (Mac)
+          <div style="margin-bottom: 4px;">
+            <strong>Ctrl+P</strong> (Windows) ou <strong>⌘+P</strong> (Mac)
+          </div>
+          <div style="font-size: 9px; color: #9CA3AF; margin-top: 4px;">
+            💡 <strong>Astuce:</strong> Pour un PDF optimal, sélectionnez "Enregistrer au format PDF" comme destination
+          </div>
         </div>
       </div>
       
