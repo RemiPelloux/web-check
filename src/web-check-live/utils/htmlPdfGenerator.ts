@@ -113,11 +113,12 @@ const generateHTMLReport = (
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', 'Helvetica Neue', Arial, sans-serif;
       font-size: 11pt;
-      line-height: 1.7;
+      line-height: 1.8;
       color: var(--color-text);
       background: var(--color-bg);
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
+      letter-spacing: 0.01em;
     }
     
     /* Smooth scrolling for better UX */
@@ -1300,12 +1301,31 @@ const generateHTMLReport = (
         <div class="summary-card" style="padding: 12px;">
           <div style="font-size: 18pt;">🌐</div>
           <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">DNS Records</div>
-          <div style="font-size: 12pt; font-weight: 700;">${(allResults?.dns?.A?.length || 0) + (allResults?.dns?.AAAA?.length || 0)}</div>
+          <div style="font-size: 12pt; font-weight: 700;">${(() => {
+            let count = 0;
+            if (allResults?.dns?.A) count += (Array.isArray(allResults.dns.A) ? allResults.dns.A.length : 1);
+            if (allResults?.dns?.AAAA) count += (Array.isArray(allResults.dns.AAAA) ? allResults.dns.AAAA.length : 0);
+            if (allResults?.dns?.MX) count += (Array.isArray(allResults.dns.MX) ? allResults.dns.MX.length : 0);
+            if (allResults?.dns?.TXT) count += (Array.isArray(allResults.dns.TXT) ? allResults.dns.TXT.length : 0);
+            return count;
+          })()}</div>
         </div>
         <div class="summary-card" style="background: ${allResults?.dnssec?.valid ? '#F0FDF4' : '#FEF2F2'}; border-left: 3px solid ${allResults?.dnssec?.valid ? '#16A34A' : '#D97706'}; padding: 12px;">
           <div style="font-size: 18pt;">${allResults?.dnssec?.valid ? '✅' : '⚠️'}</div>
           <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">DNSSEC</div>
           <div style="font-size: 8pt; color: #6B7280;">${allResults?.dnssec?.valid ? 'Validé' : 'Non validé'}</div>
+        </div>
+      </div>
+      
+      <!-- Ports & Network Security -->
+      <div style="margin-top: 15px; padding: 12px; background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%); border-radius: 8px; border-left: 4px solid #3B82F6;">
+        <div style="font-size: 9pt; font-weight: 700; color: #1E40AF; margin-bottom: 8px;">🔌 Ports Ouverts & Sécurité Réseau</div>
+        <div style="font-size: 8pt; color: #1E3A8A; line-height: 1.6;">
+          <strong>Ports ouverts détectés:</strong> ${allResults?.ports?.openPorts?.join(', ') || 'Aucun'}<br>
+          <strong>Total ports scannés:</strong> ${(allResults?.ports?.openPorts?.length || 0) + (allResults?.ports?.failedPorts?.length || 0)} ports<br>
+          ${(allResults?.ports?.openPorts || []).includes(22) ? '<span style="color: #D97706;">⚠️ Port SSH (22) ouvert - Assurez une authentification forte</span><br>' : ''}
+          ${(allResults?.ports?.openPorts || []).includes(3306) ? '<span style="color: #DC2626;">🚨 Port MySQL (3306) ouvert - RISQUE SÉCURITÉ ÉLEVÉ</span><br>' : ''}
+          ${(allResults?.ports?.openPorts || []).includes(3389) ? '<span style="color: #DC2626;">🚨 Port RDP (3389) ouvert - RISQUE SÉCURITÉ ÉLEVÉ</span><br>' : ''}
         </div>
       </div>
       
@@ -1991,6 +2011,654 @@ const generateHTMLReport = (
           <div class="footer-left"><strong>APDP Monaco</strong> - Autorité de Protection des Données Personnelles</div>
           <div class="footer-center">${currentDate}</div>
           <div class="footer-right">Conformité APDP</div>
+        </div>
+        <div class="confidential">DOCUMENT CONFIDENTIEL - Ne pas diffuser sans autorisation</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Page: Complete Technology Stack -->
+  <div class="page">
+    <div class="content-page">
+      <div class="header">
+        <div class="header-content">
+          <div class="logo-box">
+            <div>APDP</div>
+            <div style="font-size: 8pt">MONACO</div>
+          </div>
+          <div class="header-title">
+            <h1>STACK TECHNOLOGIQUE COMPLET</h1>
+            <p>Toutes les technologies détectées</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="section" style="margin-top: 0;">
+      
+      ${allResults?.['tech-stack']?.technologies?.length ? `
+      <h3 style="font-size: 11pt; margin: 15px 0 10px 0; color: #111827; border-bottom: 1px solid #E5E7EB; padding-bottom: 5px;">🔧 Technologies Détectées (${allResults['tech-stack'].technologies.length})</h3>
+      
+      ${(() => {
+        const techs = allResults['tech-stack'].technologies;
+        const categories = {};
+        
+        // Group by category
+        techs.forEach(tech => {
+          tech.categories?.forEach(cat => {
+            if (!categories[cat.name]) categories[cat.name] = [];
+            categories[cat.name].push(tech);
+          });
+        });
+        
+        return Object.entries(categories).map(([catName, techList]) => `
+          <div style="margin: 15px 0;">
+            <h4 style="font-size: 10pt; color: #DC2626; margin: 10px 0 8px 0;">📦 ${catName}</h4>
+            <div class="summary-grid" style="grid-template-columns: repeat(2, 1fr); gap: 10px;">
+              ${techList.slice(0, 10).map(tech => `
+                <div class="summary-card" style="text-align: left; padding: 12px; background: linear-gradient(135deg, #F9FAFB 0%, white 100%);">
+                  <div style="display: flex; justify-content: space-between; align-items: start;">
+                    <div style="font-size: 10pt; font-weight: 700; color: #111827;">${tech.name}</div>
+                    ${tech.version ? `<div style="font-size: 8pt; color: white; background: #3B82F6; padding: 2px 8px; border-radius: 12px;">${tech.version}</div>` : ''}
+                  </div>
+                  ${tech.description ? `<div style="font-size: 7pt; color: #6B7280; margin-top: 6px; line-height: 1.4;">${tech.description.substring(0, 100)}${tech.description.length > 100 ? '...' : ''}</div>` : ''}
+                  ${tech.website ? `<div style="font-size: 7pt; color: #3B82F6; margin-top: 4px;">🌐 ${tech.website}</div>` : ''}
+                  <div style="font-size: 7pt; margin-top: 6px; padding-top: 6px; border-top: 1px solid #E5E7EB;">
+                    <strong>Confiance:</strong> <span style="color: ${tech.confidence >= 80 ? '#059669' : tech.confidence >= 50 ? '#D97706' : '#DC2626'}">${tech.confidence}%</span>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+            ${techList.length > 10 ? `<div style="font-size: 8pt; color: #6B7280; margin-top: 8px; text-align: center;">... et ${techList.length - 10} autre(s) ${catName.toLowerCase()}</div>` : ''}
+          </div>
+        `).join('');
+      })()}
+      ` : ''}
+      
+      <div class="alert-box info" style="margin-top: 20px;">
+        <div class="alert-title">📊 Analyse du Stack Technique</div>
+        <div class="alert-text">
+          ${allResults?.['tech-stack']?.technologies?.length || 0} technologies identifiées avec succès. 
+          Cette analyse permet d'identifier les potentielles vulnérabilités connues et de vérifier la conformité des outils utilisés avec les exigences APDP.
+        </div>
+      </div>
+      
+      </div>
+      
+      <div class="footer">
+        <div class="footer-content">
+          <div class="footer-left"><strong>APDP Monaco</strong> - Autorité de Protection des Données Personnelles</div>
+          <div class="footer-center">${currentDate}</div>
+          <div class="footer-right">Stack Technologique</div>
+        </div>
+        <div class="confidential">DOCUMENT CONFIDENTIEL - Ne pas diffuser sans autorisation</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Page: SEO & Web Presence -->
+  <div class="page">
+    <div class="content-page">
+      <div class="header">
+        <div class="header-content">
+          <div class="logo-box">
+            <div>APDP</div>
+            <div style="font-size: 8pt">MONACO</div>
+          </div>
+          <div class="header-title">
+            <h1>SEO & PRÉSENCE WEB</h1>
+            <p>Référencement et visibilité en ligne</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="section" style="margin-top: 0;">
+      
+      ${allResults?.['social-tags'] ? `
+      <h3 style="font-size: 11pt; margin: 15px 0 10px 0; color: #111827; border-bottom: 1px solid #E5E7EB; padding-bottom: 5px;">🏷️ Métadonnées & Tags Sociaux</h3>
+      <div class="info-box">
+        ${allResults['social-tags'].title ? `<div class="info-row"><span class="info-label">Titre de la page:</span> <span class="info-value">${allResults['social-tags'].title}</span></div>` : ''}
+        ${allResults['social-tags'].description ? `<div class="info-row"><span class="info-label">Description:</span> <span class="info-value">${allResults['social-tags'].description}</span></div>` : ''}
+        ${allResults['social-tags'].canonicalUrl ? `<div class="info-row"><span class="info-label">URL Canonique:</span> <span class="info-value">${allResults['social-tags'].canonicalUrl}</span></div>` : ''}
+        ${allResults['social-tags'].robots ? `<div class="info-row"><span class="info-label">Directives Robots:</span> <span class="info-value">${allResults['social-tags'].robots}</span></div>` : ''}
+        ${allResults['social-tags'].ogTitle ? `
+        <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #E5E7EB;">
+          <div style="font-size: 9pt; font-weight: 700; margin-bottom: 8px; color: #DC2626;">📱 Open Graph (Facebook, LinkedIn)</div>
+          <div class="info-row"><span class="info-label">OG:Title:</span> <span class="info-value">${allResults['social-tags'].ogTitle}</span></div>
+          ${allResults['social-tags'].ogType ? `<div class="info-row"><span class="info-label">OG:Type:</span> <span class="info-value">${allResults['social-tags'].ogType}</span></div>` : ''}
+          ${allResults['social-tags'].ogUrl ? `<div class="info-row"><span class="info-label">OG:URL:</span> <span class="info-value">${allResults['social-tags'].ogUrl}</span></div>` : ''}
+          ${allResults['social-tags'].ogSiteName ? `<div class="info-row"><span class="info-label">OG:Site Name:</span> <span class="info-value">${allResults['social-tags'].ogSiteName}</span></div>` : ''}
+          ${allResults['social-tags'].ogImage ? `<div class="info-row"><span class="info-label">OG:Image:</span> <span class="info-value" style="word-break: break-all;">${allResults['social-tags'].ogImage}</span></div>` : ''}
+        </div>
+        ` : ''}
+        ${allResults['social-tags'].twitterCard ? `
+        <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #E5E7EB;">
+          <div style="font-size: 9pt; font-weight: 700; margin-bottom: 8px; color: #DC2626;">🐦 Twitter Cards</div>
+          <div class="info-row"><span class="info-label">Card Type:</span> <span class="info-value">${allResults['social-tags'].twitterCard}</span></div>
+          ${allResults['social-tags'].twitterSite ? `<div class="info-row"><span class="info-label">Twitter Site:</span> <span class="info-value">${allResults['social-tags'].twitterSite}</span></div>` : ''}
+          ${allResults['social-tags'].twitterCreator ? `<div class="info-row"><span class="info-label">Twitter Creator:</span> <span class="info-value">${allResults['social-tags'].twitterCreator}</span></div>` : ''}
+        </div>
+        ` : ''}
+        ${allResults['social-tags'].favicon ? `
+        <div style="margin-top: 12px; padding-top: 12px; border-top: 1px solid #E5E7EB;">
+          <div class="info-row"><span class="info-label">Favicon:</span> <span class="info-value" style="word-break: break-all;">${allResults['social-tags'].favicon}</span></div>
+        </div>
+        ` : ''}
+      </div>
+      ` : ''}
+      
+      ${allResults?.sitemap ? `
+      <h3 style="font-size: 11pt; margin: 15px 0 10px 0; color: #111827; border-bottom: 1px solid #E5E7EB; padding-bottom: 5px;">🗺️ Sitemap XML</h3>
+      <div class="info-box" style="background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%);">
+        <div style="font-size: 9pt; margin-bottom: 10px;">
+          ✅ Sitemap détecté - Facilite l'indexation par les moteurs de recherche
+        </div>
+        ${allResults.sitemap.sitemapindex?.sitemap ? `
+          <div style="font-size: 8pt; color: #166534;">
+            <strong>Sous-sitemaps détectés:</strong> ${allResults.sitemap.sitemapindex.sitemap.length}<br>
+            ${allResults.sitemap.sitemapindex.sitemap.slice(0, 5).map(sm => `
+              <div style="margin: 4px 0; padding: 4px 8px; background: white; border-radius: 4px;">
+                📄 ${sm.loc?.[0] || 'Sitemap'}
+                ${sm.lastmod ? ` - Modifié: ${new Date(sm.lastmod[0]).toLocaleDateString('fr-FR')}` : ''}
+              </div>
+            `).join('')}
+            ${allResults.sitemap.sitemapindex.sitemap.length > 5 ? `<div style="margin-top: 6px;">... et ${allResults.sitemap.sitemapindex.sitemap.length - 5} autre(s)</div>` : ''}
+          </div>
+        ` : ''}
+      </div>
+      ` : '<div class="alert-box warning"><div class="alert-title">⚠️ Pas de Sitemap XML</div><div class="alert-text">Aucun sitemap détecté. Un sitemap XML améliore le référencement en aidant les moteurs de recherche à découvrir vos pages.</div></div>'}
+      
+      ${allResults?.['robots-txt']?.robots ? `
+      <h3 style="font-size: 11pt; margin: 15px 0 10px 0; color: #111827; border-bottom: 1px solid #E5E7EB; padding-bottom: 5px;">🤖 Robots.txt</h3>
+      <div class="info-box">
+        <div style="font-size: 8pt; background: #F9FAFB; padding: 10px; border-radius: 6px; font-family: 'Courier New', monospace;">
+          ${allResults['robots-txt'].robots.map(rule => `${rule.lbl}: ${rule.val}`).join('<br>')}
+        </div>
+        <div style="font-size: 8pt; color: #6B7280; margin-top: 10px;">
+          ${allResults['robots-txt'].robots.length} directive(s) trouvée(s)
+        </div>
+      </div>
+      ` : ''}
+      
+      ${allResults?.['linked-pages'] ? `
+      <h3 style="font-size: 11pt; margin: 15px 0 10px 0; color: #111827; border-bottom: 1px solid #E5E7EB; padding-bottom: 5px;">🔗 Pages Liées & Structure</h3>
+      <div class="summary-grid" style="grid-template-columns: repeat(2, 1fr); gap: 15px;">
+        <div class="summary-card" style="text-align: left; padding: 15px;">
+          <div style="font-size: 10pt; font-weight: 700; color: #059669; margin-bottom: 10px;">🏠 Liens Internes</div>
+          <div style="font-size: 24pt; font-weight: 800; color: #059669; margin: 10px 0;">${allResults['linked-pages'].internal?.length || 0}</div>
+          ${allResults['linked-pages'].internal?.length > 0 ? `
+            <div style="font-size: 7pt; color: #6B7280; max-height: 150px; overflow-y: auto;">
+              ${allResults['linked-pages'].internal.slice(0, 10).map(link => `<div style="margin: 2px 0; padding: 2px 0; border-bottom: 1px solid #F3F4F6;">📄 ${link.replace('https://apdp.mc', '')}</div>`).join('')}
+              ${allResults['linked-pages'].internal.length > 10 ? `<div style="margin-top: 6px; font-weight: 600;">... et ${allResults['linked-pages'].internal.length - 10} autre(s) page(s)</div>` : ''}
+            </div>
+          ` : ''}
+        </div>
+        <div class="summary-card" style="text-align: left; padding: 15px;">
+          <div style="font-size: 10pt; font-weight: 700; color: #3B82F6; margin-bottom: 10px;">🌍 Liens Externes</div>
+          <div style="font-size: 24pt; font-weight: 800; color: #3B82F6; margin: 10px 0;">${allResults['linked-pages'].external?.length || 0}</div>
+          ${allResults['linked-pages'].external?.length > 0 ? `
+            <div style="font-size: 7pt; color: #6B7280; max-height: 150px; overflow-y: auto;">
+              ${allResults['linked-pages'].external.slice(0, 8).map(link => `<div style="margin: 2px 0; padding: 2px 0; border-bottom: 1px solid #F3F4F6;">🔗 ${link}</div>`).join('')}
+              ${allResults['linked-pages'].external.length > 8 ? `<div style="margin-top: 6px; font-weight: 600;">... et ${allResults['linked-pages'].external.length - 8} autre(s) lien(s)</div>` : ''}
+            </div>
+          ` : ''}
+        </div>
+      </div>
+      ` : ''}
+      
+      </div>
+      
+      <div class="footer">
+        <div class="footer-content">
+          <div class="footer-left"><strong>APDP Monaco</strong> - Autorité de Protection des Données Personnelles</div>
+          <div class="footer-center">${currentDate}</div>
+          <div class="footer-right">SEO & Présence Web</div>
+        </div>
+        <div class="confidential">DOCUMENT CONFIDENTIEL - Ne pas diffuser sans autorisation</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Page: Network & Infrastructure Details -->
+  <div class="page">
+    <div class="content-page">
+      <div class="header">
+        <div class="header-content">
+          <div class="logo-box">
+            <div>APDP</div>
+            <div style="font-size: 8pt">MONACO</div>
+          </div>
+          <div class="header-title">
+            <h1>RÉSEAU & INFRASTRUCTURE</h1>
+            <p>Configuration réseau détaillée</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="section" style="margin-top: 0;">
+      
+      ${allResults?.dns ? `
+      <h3 style="font-size: 11pt; margin: 15px 0 10px 0; color: #111827; border-bottom: 1px solid #E5E7EB; padding-bottom: 5px;">🌐 Configuration DNS Complète</h3>
+      
+      ${allResults.dns.A ? `
+      <div style="margin: 12px 0;">
+        <h4 style="font-size: 9pt; color: #DC2626; margin: 8px 0;">📍 Enregistrements A (IPv4)</h4>
+        <div style="font-size: 8pt; background: #EFF6FF; padding: 8px; border-radius: 6px; border-left: 3px solid #3B82F6;">
+          ${Array.isArray(allResults.dns.A) ? 
+            allResults.dns.A.map(ip => `<div style="margin: 3px 0;">✓ ${ip}</div>`).join('') :
+            `<div>✓ ${allResults.dns.A.address || allResults.dns.A}</div>`
+          }
+        </div>
+      </div>
+      ` : ''}
+      
+      ${allResults.dns.AAAA?.length ? `
+      <div style="margin: 12px 0;">
+        <h4 style="font-size: 9pt; color: #DC2626; margin: 8px 0;">📍 Enregistrements AAAA (IPv6)</h4>
+        <div style="font-size: 8pt; background: #EFF6FF; padding: 8px; border-radius: 6px; border-left: 3px solid #3B82F6;">
+          ${allResults.dns.AAAA.map(ip => `<div style="margin: 3px 0;">✓ ${ip}</div>`).join('')}
+        </div>
+      </div>
+      ` : ''}
+      
+      ${allResults.dns.MX?.length ? `
+      <div style="margin: 12px 0;">
+        <h4 style="font-size: 9pt; color: #DC2626; margin: 8px 0;">📧 Serveurs Mail (MX)</h4>
+        <div style="font-size: 8pt; background: #F0FDF4; padding: 8px; border-radius: 6px; border-left: 3px solid #10B981;">
+          ${allResults.dns.MX.map((mx, idx) => `
+            <div style="margin: 3px 0;">
+              <strong>${idx + 1}.</strong> ${mx.exchange} 
+              <span style="color: #6B7280;">(Priorité: ${mx.priority})</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      ` : ''}
+      
+      ${allResults.dns.TXT?.length ? `
+      <div style="margin: 12px 0;">
+        <h4 style="font-size: 9pt; color: #DC2626; margin: 8px 0;">📝 Enregistrements TXT</h4>
+        <div style="font-size: 7pt; background: #FFFBEB; padding: 8px; border-radius: 6px; border-left: 3px solid #F59E0B; max-height: 120px; overflow-y: auto;">
+          ${allResults.dns.TXT.map((txt, idx) => `
+            <div style="margin: 4px 0; padding: 4px; background: white; border-radius: 3px;">
+              <strong>${idx + 1}.</strong> ${Array.isArray(txt) ? txt.join(', ') : JSON.stringify(txt)}
+            </div>
+          `).join('')}
+        </div>
+      </div>
+      ` : ''}
+      
+      ${allResults.dns.NS?.length || allResults.dns.CNAME?.length ? `
+      <div style="margin: 12px 0;">
+        <h4 style="font-size: 9pt; color: #DC2626; margin: 8px 0;">🖥️ Serveurs de Noms & CNAME</h4>
+        <div style="font-size: 8pt; background: #F9FAFB; padding: 8px; border-radius: 6px;">
+          ${allResults.dns.CNAME?.length ? `
+            <div style="margin-bottom: 8px;">
+              <strong style="color: #111827;">CNAME:</strong><br>
+              ${allResults.dns.CNAME.map(cname => `<div style="margin: 2px 0;">✓ ${cname}</div>`).join('')}
+            </div>
+          ` : ''}
+          ${allResults.dns.NS?.length ? `
+            <div>
+              <strong style="color: #111827;">Enregistrements NS:</strong><br>
+              ${allResults.dns.NS.map(ns => `<div style="margin: 2px 0; font-size: 7pt;">${Array.isArray(ns) ? ns.join(', ') : ns}</div>`).join('')}
+            </div>
+          ` : ''}
+        </div>
+      </div>
+      ` : ''}
+      ` : ''}
+      
+      ${allResults?.['mail-config'] ? `
+      <h3 style="font-size: 11pt; margin: 15px 0 10px 0; color: #111827; border-bottom: 1px solid #E5E7EB; padding-bottom: 5px;">📧 Configuration Email & SPF</h3>
+      <div class="info-box">
+        ${allResults['mail-config'].mxRecords?.length ? `
+          <div style="margin-bottom: 12px;">
+            <div style="font-size: 9pt; font-weight: 700; margin-bottom: 6px;">Serveurs Mail:</div>
+            ${allResults['mail-config'].mxRecords.map((mx, idx) => `
+              <div style="font-size: 8pt; margin: 3px 0; padding: 4px 8px; background: #F0FDF4; border-left: 3px solid #10B981; border-radius: 3px;">
+                <strong>${idx + 1}.</strong> ${mx.exchange} (Priorité: ${mx.priority})
+              </div>
+            `).join('')}
+          </div>
+        ` : ''}
+        ${allResults['mail-config'].txtRecords?.length ? `
+          <div style="font-size: 8pt; padding: 8px; background: #FFFBEB; border-radius: 6px;">
+            <strong>SPF Record:</strong><br>
+            ${allResults['mail-config'].txtRecords[0]?.[0] || 'Non configuré'}
+          </div>
+        ` : ''}
+      </div>
+      ` : ''}
+      
+      ${allResults?.['block-lists']?.blocklists ? `
+      <h3 style="font-size: 11pt; margin: 15px 0 10px 0; color: #111827; border-bottom: 1px solid #E5E7EB; padding-bottom: 5px;">🛡️ Status dans les Listes de Blocage</h3>
+      <div style="font-size: 8pt;">
+        ${(() => {
+          const blocked = allResults['block-lists'].blocklists.filter(bl => bl.isBlocked);
+          const safe = allResults['block-lists'].blocklists.filter(bl => !bl.isBlocked);
+          return `
+            <div style="margin-bottom: 12px; padding: 10px; background: ${blocked.length === 0 ? '#F0FDF4' : '#FEF2F2'}; border-radius: 6px; border-left: 4px solid ${blocked.length === 0 ? '#10B981' : '#DC2626'};">
+              <div style="font-size: 10pt; font-weight: 700; margin-bottom: 6px; color: ${blocked.length === 0 ? '#166534' : '#991B1B'};">
+                ${blocked.length === 0 ? '✅ Aucun Blocage Détecté' : `⚠️ ${blocked.length} Blocage(s) Détecté(s)`}
+              </div>
+              <div style="color: ${blocked.length === 0 ? '#166534' : '#991B1B'};">
+                Statut vérifié sur ${allResults['block-lists'].blocklists.length} listes de blocage
+              </div>
+            </div>
+            <div class="summary-grid" style="grid-template-columns: repeat(3, 1fr); gap: 8px;">
+              ${safe.slice(0, 9).map(bl => `
+                <div style="padding: 6px 8px; background: #F0FDF4; border-radius: 4px; border-left: 2px solid #10B981;">
+                  ✓ ${bl.server}
+                </div>
+              `).join('')}
+            </div>
+            ${safe.length > 9 ? `<div style="margin-top: 8px; color: #6B7280; text-align: center;">... et ${safe.length - 9} autre(s) liste(s)</div>` : ''}
+          `;
+        })()}
+      </div>
+      ` : ''}
+      
+      </div>
+      
+      <div class="footer">
+        <div class="footer-content">
+          <div class="footer-left"><strong>APDP Monaco</strong> - Autorité de Protection des Données Personnelles</div>
+          <div class="footer-center">${currentDate}</div>
+          <div class="footer-right">Réseau & Infrastructure</div>
+        </div>
+        <div class="confidential">DOCUMENT CONFIDENTIEL - Ne pas diffuser sans autorisation</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Page: Historical Data & Archives -->
+  <div class="page">
+    <div class="content-page">
+      <div class="header">
+        <div class="header-content">
+          <div class="logo-box">
+            <div>APDP</div>
+            <div style="font-size: 8pt">MONACO</div>
+          </div>
+          <div class="header-title">
+            <h1>HISTORIQUE & ARCHIVES</h1>
+            <p>Évolution du site dans le temps</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="section" style="margin-top: 0;">
+      
+      ${allResults?.archives ? `
+      <h3 style="font-size: 11pt; margin: 15px 0 10px 0; color: #111827; border-bottom: 1px solid #E5E7EB; padding-bottom: 5px;">📚 Archives Internet (Wayback Machine)</h3>
+      
+      <div class="summary-grid" style="grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 15px;">
+        <div class="summary-card info" style="padding: 12px;">
+          <div style="font-size: 18pt;">📅</div>
+          <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">Première Archive</div>
+          <div style="font-size: 8pt; font-weight: 600;">${new Date(allResults.archives.firstScan).toLocaleDateString('fr-FR')}</div>
+        </div>
+        <div class="summary-card info" style="padding: 12px;">
+          <div style="font-size: 18pt;">📅</div>
+          <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">Dernière Archive</div>
+          <div style="font-size: 8pt; font-weight: 600;">${new Date(allResults.archives.lastScan).toLocaleDateString('fr-FR')}</div>
+        </div>
+        <div class="summary-card success" style="padding: 12px;">
+          <div style="font-size: 18pt;">📸</div>
+          <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">Total Scans</div>
+          <div style="font-size: 18pt; font-weight: 800; color: #059669;">${allResults.archives.totalScans}</div>
+        </div>
+        <div class="summary-card warning" style="padding: 12px;">
+          <div style="font-size: 18pt;">🔄</div>
+          <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">Changements</div>
+          <div style="font-size: 18pt; font-weight: 800; color: #D97706;">${allResults.archives.changeCount}</div>
+        </div>
+      </div>
+      
+      <div class="info-box" style="background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);">
+        <h4 style="font-size: 10pt; color: #1E40AF; margin-bottom: 10px;">📊 Statistiques d'Archivage</h4>
+        <div class="info-row">
+          <span class="info-label">Taille moyenne des pages:</span>
+          <span class="info-value">${(allResults.archives.averagePageSize / 1024).toFixed(2)} KB</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Fréquence de scan:</span>
+          <span class="info-value">${allResults.archives.scanFrequency?.scansPerDay?.toFixed(2)} scans/jour (tous les ${allResults.archives.scanFrequency?.daysBetweenScans?.toFixed(1)} jours)</span>
+        </div>
+        <div class="info-row">
+          <span class="info-label">Fréquence de modifications:</span>
+          <span class="info-value">${allResults.archives.scanFrequency?.changesPerDay?.toFixed(2)} changements/jour</span>
+        </div>
+      </div>
+      
+      <h4 style="font-size: 10pt; color: #111827; margin: 15px 0 8px 0;">📜 Historique des Scans (Derniers 10)</h4>
+      <div style="font-size: 7pt; background: #F9FAFB; padding: 10px; border-radius: 6px; max-height: 180px; overflow-y: auto;">
+        ${allResults.archives.scans?.slice(-10).reverse().map((scan, idx) => {
+          const date = scan[0];
+          const statusCode = scan[1];
+          const formattedDate = `${date.substring(0,4)}-${date.substring(4,6)}-${date.substring(6,8)} ${date.substring(8,10)}:${date.substring(10,12)}`;
+          return `
+            <div style="margin: 4px 0; padding: 6px 8px; background: white; border-radius: 4px; border-left: 3px solid ${statusCode === '200' ? '#10B981' : statusCode === '301' ? '#F59E0B' : '#DC2626'};">
+              <strong>${formattedDate}</strong> - 
+              <span style="color: ${statusCode === '200' ? '#059669' : statusCode === '301' ? '#D97706' : '#DC2626'}">
+                HTTP ${statusCode}
+              </span>
+              ${scan[3] ? ` - ${(scan[3] / 1024).toFixed(1)} KB` : ''}
+            </div>
+          `;
+        }).join('')}
+      </div>
+      ` : '<div class="alert-box info"><div class="alert-title">ℹ️ Pas d\'historique</div><div class="alert-text">Aucune archive trouvée sur la Wayback Machine.</div></div>'}
+      
+      ${allResults?.status ? `
+      <h3 style="font-size: 11pt; margin: 20px 0 10px 0; color: #111827; border-bottom: 1px solid #E5E7EB; padding-bottom: 5px;">⚡ Performance & Disponibilité</h3>
+      <div class="summary-grid" style="grid-template-columns: repeat(3, 1fr); gap: 12px;">
+        <div class="summary-card ${allResults.status.isUp ? 'success' : 'critical'}" style="padding: 15px;">
+          <div style="font-size: 24pt;">${allResults.status.isUp ? '✅' : '❌'}</div>
+          <div class="summary-label" style="font-size: 10pt; margin: 8px 0;">Statut</div>
+          <div style="font-size: 12pt; font-weight: 700;">${allResults.status.isUp ? 'EN LIGNE' : 'HORS LIGNE'}</div>
+        </div>
+        <div class="summary-card info" style="padding: 15px;">
+          <div style="font-size: 24pt;">🚀</div>
+          <div class="summary-label" style="font-size: 10pt; margin: 8px 0;">Temps de Réponse</div>
+          <div style="font-size: 16pt; font-weight: 700; color: ${allResults.status.responseTime < 200 ? '#059669' : allResults.status.responseTime < 500 ? '#D97706' : '#DC2626'}">
+            ${allResults.status.responseTime?.toFixed(0)} ms
+          </div>
+        </div>
+        <div class="summary-card success" style="padding: 15px;">
+          <div style="font-size: 24pt;">📟</div>
+          <div class="summary-label" style="font-size: 10pt; margin: 8px 0;">Code HTTP</div>
+          <div style="font-size: 16pt; font-weight: 700;">${allResults.status.responseCode}</div>
+        </div>
+      </div>
+      ` : ''}
+      
+      </div>
+      
+      <div class="footer">
+        <div class="footer-content">
+          <div class="footer-left"><strong>APDP Monaco</strong> - Autorité de Protection des Données Personnelles</div>
+          <div class="footer-center">${currentDate}</div>
+          <div class="footer-right">Historique & Archives</div>
+        </div>
+        <div class="confidential">DOCUMENT CONFIDENTIEL - Ne pas diffuser sans autorisation</div>
+      </div>
+    </div>
+  </div>
+  
+  <!-- Page: Executive Summary - Everything at a Glance -->
+  <div class="page">
+    <div class="content-page">
+      <div class="header">
+        <div class="header-content">
+          <div class="logo-box">
+            <div>APDP</div>
+            <div style="font-size: 8pt">MONACO</div>
+          </div>
+          <div class="header-title">
+            <h1>SYNTHÈSE EXÉCUTIVE</h1>
+            <p>Vue d'ensemble complète de l'audit</p>
+          </div>
+        </div>
+      </div>
+      
+      <div class="section" style="margin-top: 0;">
+      
+      <h3 style="font-size: 12pt; margin: 15px 0 15px 0; color: #DC2626; text-align: center;">📊 RÉCAPITULATIF GÉNÉRAL DE L'AUDIT</h3>
+      
+      <!-- Main Metrics Grid -->
+      <div class="summary-grid" style="grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 20px 0;">
+        <div class="summary-card" style="background: linear-gradient(135deg, #DC2626 0%, #991B1B 100%); color: white; padding: 20px; text-align: center;">
+          <div style="font-size: 32pt; font-weight: 900; margin: 10px 0;">${data.numericScore}</div>
+          <div style="font-size: 11pt; font-weight: 600;">SCORE GLOBAL</div>
+          <div style="font-size: 8pt; opacity: 0.9; margin-top: 5px;">/100</div>
+        </div>
+        <div class="summary-card critical" style="padding: 20px; text-align: center;">
+          <div style="font-size: 32pt; font-weight: 900; margin: 10px 0;">${data.criticalIssues}</div>
+          <div style="font-size: 11pt; font-weight: 600;">PROBLÈMES CRITIQUES</div>
+          <div style="font-size: 8pt; opacity: 0.7; margin-top: 5px;">Action immédiate</div>
+        </div>
+        <div class="summary-card warning" style="padding: 20px; text-align: center;">
+          <div style="font-size: 32pt; font-weight: 900; margin: 10px 0;">${data.warnings}</div>
+          <div style="font-size: 11pt; font-weight: 600;">AVERTISSEMENTS</div>
+          <div style="font-size: 8pt; opacity: 0.7; margin-top: 5px;">À corriger</div>
+        </div>
+        <div class="summary-card success" style="padding: 20px; text-align: center;">
+          <div style="font-size: 32pt; font-weight: 900; margin: 10px 0;">${data.compliantItems}</div>
+          <div style="font-size: 11pt; font-weight: 600;">CONFORMES</div>
+          <div style="font-size: 8pt; opacity: 0.7; margin-top: 5px;">Validés</div>
+        </div>
+      </div>
+      
+      <!-- Key Findings by Category -->
+      <h3 style="font-size: 11pt; margin: 25px 0 12px 0; color: #111827; border-bottom: 2px solid #DC2626; padding-bottom: 5px;">🔍 RÉSULTATS CLÉS PAR DOMAINE</h3>
+      
+      <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin: 15px 0;">
+        <!-- Security -->
+        <div style="padding: 15px; background: linear-gradient(135deg, #FEF2F2 0%, white 100%); border-radius: 8px; border-left: 4px solid ${allResults?.ssl?.valid ? '#10B981' : '#DC2626'};">
+          <div style="font-size: 10pt; font-weight: 700; color: #DC2626; margin-bottom: 10px;">🔒 SÉCURITÉ</div>
+          <div style="font-size: 8pt; line-height: 1.6;">
+            <div style="margin: 4px 0;">SSL/TLS: <strong style="color: ${allResults?.ssl?.valid ? '#059669' : '#DC2626'}">${allResults?.ssl?.valid ? '✓ Valide' : '✗ Problème'}</strong></div>
+            <div style="margin: 4px 0;">HSTS: <strong style="color: ${allResults?.hsts?.isEnabled ? '#059669' : '#DC2626'}">${allResults?.hsts?.isEnabled ? '✓ Activé' : '✗ Désactivé'}</strong></div>
+            <div style="margin: 4px 0;">Ports ouverts: <strong>${allResults?.ports?.openPorts?.length || 0}</strong></div>
+            <div style="margin: 4px 0;">Vulnérabilités: <strong style="color: ${(allResults?.vulnerabilities?.length || 0) === 0 ? '#059669' : '#DC2626'}">${allResults?.vulnerabilities?.length || 0}</strong></div>
+          </div>
+        </div>
+        
+        <!-- APDP Compliance -->
+        <div style="padding: 15px; background: linear-gradient(135deg, #EFF6FF 0%, white 100%); border-radius: 8px; border-left: 4px solid #3B82F6;">
+          <div style="font-size: 10pt; font-weight: 700; color: #3B82F6; margin-bottom: 10px;">📋 CONFORMITÉ APDP</div>
+          <div style="font-size: 8pt; line-height: 1.6;">
+            ${allResults?.['apdp-cookie-banner'] ? `<div style="margin: 4px 0;">Bannière Cookies: <strong>${allResults['apdp-cookie-banner'].compliance?.score || 0}/100</strong></div>` : ''}
+            ${allResults?.['apdp-privacy-policy'] ? `<div style="margin: 4px 0;">Politique Confidentialité: <strong>${allResults['apdp-privacy-policy'].compliance?.score || 0}/100</strong></div>` : ''}
+            ${allResults?.['apdp-legal-notices'] ? `<div style="margin: 4px 0;">Mentions Légales: <strong>${allResults['apdp-legal-notices'].compliance?.score || 0}/100</strong></div>` : ''}
+            ${allResults?.['apdp-user-rights'] ? `<div style="margin: 4px 0;">Droits Utilisateurs: <strong>${allResults['apdp-user-rights'].compliance?.score || 0}/100</strong></div>` : ''}
+          </div>
+        </div>
+        
+        <!-- Technology -->
+        <div style="padding: 15px; background: linear-gradient(135deg, #FFFBEB 0%, white 100%); border-radius: 8px; border-left: 4px solid #F59E0B;">
+          <div style="font-size: 10pt; font-weight: 700; color: #F59E0B; margin-bottom: 10px;">⚙️ TECHNOLOGIES</div>
+          <div style="font-size: 8pt; line-height: 1.6;">
+            <div style="margin: 4px 0;">Technologies détectées: <strong>${allResults?.['tech-stack']?.technologies?.length || 0}</strong></div>
+            <div style="margin: 4px 0;">Outils Analytics: <strong>${allResults?.['tech-stack']?.analytics?.length || 0}</strong></div>
+            <div style="margin: 4px 0;">Frameworks: <strong>${allResults?.['tech-stack']?.frameworks?.length || 0}</strong></div>
+            <div style="margin: 4px 0;">Serveur: <strong>${allResults?.['tech-stack']?.server || 'Inconnu'}</strong></div>
+          </div>
+        </div>
+        
+        <!-- Performance -->
+        <div style="padding: 15px; background: linear-gradient(135deg, #F0FDF4 0%, white 100%); border-radius: 8px; border-left: 4px solid #10B981;">
+          <div style="font-size: 10pt; font-weight: 700; color: #10B981; margin-bottom: 10px;">⚡ PERFORMANCE</div>
+          <div style="font-size: 8pt; line-height: 1.6;">
+            <div style="margin: 4px 0;">Temps de réponse: <strong style="color: ${allResults?.status?.responseTime < 200 ? '#059669' : '#D97706'}">${allResults?.status?.responseTime?.toFixed(0) || 'N/A'} ms</strong></div>
+            <div style="margin: 4px 0;">Statut: <strong style="color: ${allResults?.status?.isUp ? '#059669' : '#DC2626'}">${allResults?.status?.isUp ? '✓ En ligne' : '✗ Hors ligne'}</strong></div>
+            <div style="margin: 4px 0;">CO2/visite: <strong>${allResults?.carbon?.statistics?.co2?.grid?.grams?.toFixed(3) || 'N/A'}g</strong></div>
+            <div style="margin: 4px 0;">Note environnementale: <strong>${allResults?.carbon?.rating || 'N/A'}</strong></div>
+          </div>
+        </div>
+        
+        <!-- Cookies & Tracking -->
+        <div style="padding: 15px; background: linear-gradient(135deg, #FEF2F2 0%, white 100%); border-radius: 8px; border-left: 4px solid #DC2626;">
+          <div style="font-size: 10pt; font-weight: 700; color: #DC2626; margin-bottom: 10px;">🍪 COOKIES & TRACKING</div>
+          <div style="font-size: 8pt; line-height: 1.6;">
+            <div style="margin: 4px 0;">Total cookies: <strong>${(allResults?.cookies?.clientCookies || allResults?.cookies?.cookies || []).length}</strong></div>
+            <div style="margin: 4px 0;">Cookies sécurisés: <strong>${(allResults?.cookies?.clientCookies || allResults?.cookies?.cookies || []).filter((c: any) => c.secure).length}</strong></div>
+            <div style="margin: 4px 0;">Ressources externes: <strong>${allResults?.['cdn-resources']?.externalResources?.length || 0}</strong></div>
+            <div style="margin: 4px 0;">CDN Providers: <strong>${allResults?.['cdn-resources']?.cdnProviders?.length || 0}</strong></div>
+          </div>
+        </div>
+        
+        <!-- SEO & Web Presence -->
+        <div style="padding: 15px; background: linear-gradient(135deg, #EFF6FF 0%, white 100%); border-radius: 8px; border-left: 4px solid #1E40AF;">
+          <div style="font-size: 10pt; font-weight: 700; color: #1E40AF; margin-bottom: 10px;">🌐 SEO & PRÉSENCE WEB</div>
+          <div style="font-size: 8pt; line-height: 1.6;">
+            <div style="margin: 4px 0;">Sitemap XML: <strong style="color: ${allResults?.sitemap ? '#059669' : '#DC2626'}">${allResults?.sitemap ? '✓ Présent' : '✗ Absent'}</strong></div>
+            <div style="margin: 4px 0;">Liens internes: <strong>${allResults?.['linked-pages']?.internal?.length || 0}</strong></div>
+            <div style="margin: 4px 0;">Liens externes: <strong>${allResults?.['linked-pages']?.external?.length || 0}</strong></div>
+            <div style="margin: 4px 0;">Archives Wayback: <strong>${allResults?.archives?.totalScans || 0} scans</strong></div>
+          </div>
+        </div>
+      </div>
+      
+      <!-- Data Coverage Summary -->
+      <h3 style="font-size: 11pt; margin: 25px 0 12px 0; color: #111827; border-bottom: 2px solid #DC2626; padding-bottom: 5px;">📊 COUVERTURE DE L'AUDIT</h3>
+      
+      <div class="info-box" style="background: linear-gradient(135deg, #F9FAFB 0%, #E5E7EB 100%);">
+        <div style="font-size: 9pt; line-height: 1.8; columns: 2; column-gap: 30px;">
+          <div style="margin: 6px 0;"><strong>✓</strong> Sécurité SSL/TLS & Certificats</div>
+          <div style="margin: 6px 0;"><strong>✓</strong> Configuration DNS complète</div>
+          <div style="margin: 6px 0;"><strong>✓</strong> En-têtes HTTP de sécurité</div>
+          <div style="margin: 6px 0;"><strong>✓</strong> Conformité APDP/RGPD</div>
+          <div style="margin: 6px 0;"><strong>✓</strong> Analyse des cookies</div>
+          <div style="margin: 6px 0;"><strong>✓</strong> Technologies & stack technique</div>
+          <div style="margin: 6px 0;"><strong>✓</strong> Performance & disponibilité</div>
+          <div style="margin: 6px 0;"><strong>✓</strong> Empreinte carbone</div>
+          <div style="margin: 6px 0;"><strong>✓</strong> Ports réseau ouverts</div>
+          <div style="margin: 6px 0;"><strong>✓</strong> Vulnérabilités connues</div>
+          <div style="margin: 6px 0;"><strong>✓</strong> Listes de blocage</div>
+          <div style="margin: 6px 0;"><strong>✓</strong> Configuration email (MX, SPF)</div>
+          <div style="margin: 6px 0;"><strong>✓</strong> Métadonnées & tags sociaux</div>
+          <div style="margin: 6px 0;"><strong>✓</strong> Sitemap XML</div>
+          <div style="margin: 6px 0;"><strong>✓</strong> Robots.txt</div>
+          <div style="margin: 6px 0;"><strong>✓</strong> Liens internes/externes</div>
+          <div style="margin: 6px 0;"><strong>✓</strong> Historique archives (Wayback)</div>
+          <div style="margin: 6px 0;"><strong>✓</strong> Ressources externes & CDN</div>
+          <div style="margin: 6px 0;"><strong>✓</strong> Localisation serveur</div>
+          <div style="margin: 6px 0;"><strong>✓</strong> Redirections</div>
+        </div>
+      </div>
+      
+      <div class="alert-box" style="margin-top: 20px; background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%); border-left-color: #3B82F6;">
+        <div class="alert-title" style="color: #1E40AF;">📈 Points de Données Analysés</div>
+        <div class="alert-text" style="color: #1E3A8A;">
+          <strong>${Object.keys(allResults || {}).length}+ modules d'analyse</strong> ont été exécutés, générant 
+          <strong>${(() => {
+            let dataPoints = 0;
+            if (allResults?.cookies?.clientCookies) dataPoints += allResults.cookies.clientCookies.length;
+            if (allResults?.['tech-stack']?.technologies) dataPoints += allResults['tech-stack'].technologies.length;
+            if (allResults?.['cdn-resources']?.externalResources) dataPoints += allResults['cdn-resources'].externalResources.length;
+            if (allResults?.headers) dataPoints += Object.keys(allResults.headers).length;
+            if (allResults?.dns?.A) dataPoints += 1;
+            if (allResults?.dns?.MX) dataPoints += allResults.dns.MX.length || 0;
+            if (allResults?.dns?.TXT) dataPoints += allResults.dns.TXT.length || 0;
+            if (allResults?.ports?.openPorts) dataPoints += allResults.ports.openPorts.length;
+            if (allResults?.archives?.scans) dataPoints += allResults.archives.scans.length;
+            if (allResults?.['block-lists']?.blocklists) dataPoints += allResults['block-lists'].blocklists.length;
+            if (allResults?.['linked-pages']?.internal) dataPoints += allResults['linked-pages'].internal.length;
+            return dataPoints;
+          })()}+ points de données</strong> détaillés. 
+          Ce rapport présente une analyse exhaustive couvrant tous les aspects techniques, de sécurité, de conformité et de performance du site web audité.
+        </div>
+      </div>
+      
+      </div>
+      
+      <div class="footer">
+        <div class="footer-content">
+          <div class="footer-left"><strong>APDP Monaco</strong> - Autorité de Protection des Données Personnelles</div>
+          <div class="footer-center">${currentDate}</div>
+          <div class="footer-right">Synthèse Exécutive</div>
         </div>
         <div class="confidential">DOCUMENT CONFIDENTIEL - Ne pas diffuser sans autorisation</div>
       </div>
