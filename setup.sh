@@ -15,8 +15,10 @@
 REMOTE_USER="sysadm"
 REMOTE_HOST="82.97.8.94"
 REMOTE_PATH="/opt/webcheck"
-DOMAIN="webcheck.checkit.eu"
-NIP_DOMAIN="webcheck.${REMOTE_HOST}.nip.io"
+DOMAIN="jetestemonsite.apdp.mc"
+SSL_CERT="/etc/ssl/certs/chatbot_apdp_mc.crt"
+SSL_KEY="/etc/ssl/private/chatbot_apdp_mc.key"
+PROJECT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 
 # Colors
 RED='\033[0;31m'
@@ -174,50 +176,19 @@ DOCKERIGNORE_EOF"
 print_success "Docker configuration created"
 
 # Step 6: Configure Nginx
-print_step "Step 6/7: Configuring Nginx..."
+print_step "Step 6/7: Configuring Nginx with SSL..."
 
-# Create Nginx configuration
-ssh ${REMOTE_USER}@${REMOTE_HOST} "sudo bash -c \"cat > /etc/nginx/sites-available/webcheck.checkit.eu << 'NGINX_EOF'
-server {
-    listen 80;
-    server_name ${DOMAIN} ${NIP_DOMAIN};
+# Transfer Nginx configuration file
+scp ${PROJECT_DIR}/nginx-jetestemonsite.conf ${REMOTE_USER}@${REMOTE_HOST}:/tmp/jetestemonsite_apdp_mc.conf
 
-    # Frontend - Astro on port 3003 (mapped to 4321 in container)
-    location / {
-        proxy_pass http://localhost:3003;
-        proxy_http_version 1.1;
-        proxy_set_header Upgrade \\\$http_upgrade;
-        proxy_set_header Connection \\\"upgrade\\\";
-        proxy_set_header Host \\\$host;
-        proxy_set_header X-Real-IP \\\$remote_addr;
-        proxy_set_header X-Forwarded-For \\\$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \\\$scheme;
-        proxy_cache_bypass \\\$http_upgrade;
-        proxy_read_timeout 300s;
-        proxy_connect_timeout 300s;
-    }
-
-    # Backend API - Express on port 3004 (mapped to 3001 in container)
-    location /api {
-        proxy_pass http://localhost:3004;
-        proxy_http_version 1.1;
-        proxy_set_header Host \\\$host;
-        proxy_set_header X-Real-IP \\\$remote_addr;
-        proxy_set_header X-Forwarded-For \\\$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \\\$scheme;
-        proxy_read_timeout 300s;
-        proxy_connect_timeout 300s;
-    }
-}
-NGINX_EOF\""
-
-# Enable site
-ssh ${REMOTE_USER}@${REMOTE_HOST} "sudo ln -sf /etc/nginx/sites-available/webcheck.checkit.eu /etc/nginx/sites-enabled/"
+# Move to sites-available and enable
+ssh ${REMOTE_USER}@${REMOTE_HOST} "sudo mv /tmp/jetestemonsite_apdp_mc.conf /etc/nginx/sites-available/jetestemonsite_apdp_mc"
+ssh ${REMOTE_USER}@${REMOTE_HOST} "sudo ln -sf /etc/nginx/sites-available/jetestemonsite_apdp_mc /etc/nginx/sites-enabled/"
 
 # Test and reload Nginx
 if ssh ${REMOTE_USER}@${REMOTE_HOST} "sudo nginx -t"; then
   ssh ${REMOTE_USER}@${REMOTE_HOST} "sudo systemctl reload nginx"
-  print_success "Nginx configured and reloaded"
+  print_success "Nginx configured with SSL and reloaded"
 else
   print_error "Nginx configuration test failed"
   exit 1
@@ -245,13 +216,12 @@ echo "║       Setup Completed! 🎉              ║"
 echo "╚════════════════════════════════════════╝${NC}"
 
 echo -e "\n${BLUE}Access URLs:${NC}"
-echo "  • Public: http://${NIP_DOMAIN}"
-echo "  • Direct: http://${REMOTE_HOST}:3003"
-echo "  • Domain: http://${DOMAIN}"
+echo "  • Domain (SSL): https://${DOMAIN}"
+echo "  • Direct: http://${REMOTE_HOST}:3003 (development only)"
 
 echo -e "\n${BLUE}Next Steps:${NC}"
 echo "  1. Test the deployment:"
-echo "     curl http://${NIP_DOMAIN}/api/status?url=https://google.com"
+echo "     curl https://${DOMAIN}/api/status?url=https://google.com"
 echo ""
 echo "  2. For future deployments, use:"
 echo "     ./deploy.sh"
@@ -260,5 +230,7 @@ echo "  3. View logs:"
 echo "     ssh ${REMOTE_USER}@${REMOTE_HOST} 'docker logs -f Web-Check-Checkit'"
 
 echo ""
+
+
 
 

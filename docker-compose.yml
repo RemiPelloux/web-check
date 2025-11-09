@@ -1,8 +1,13 @@
-version: '3.9'
 services:
   web-check:
-    container_name: Web-Check
-    image: lissy93/web-check
+    container_name: Web-Check-Checkit
+    build:
+      context: .
+      dockerfile: Dockerfile.dev
     ports:
-      - 3000:3000
+      - "3003:4321"
+      - "3004:3001"
     restart: unless-stopped
+    environment:
+      - NODE_ENV=development
+      - PORT=3001

@@ -95,16 +95,16 @@ test: ## Test the deployment
 	@curl -s http://$(REMOTE_HOST):3004/api/status?url=https://google.com | head -100
 	@echo ""
 	@echo "$(BLUE)Testing Through Nginx:$(NC)"
-	@curl -s http://webcheck.$(REMOTE_HOST).nip.io/api/status?url=https://google.com | head -100
+	@curl -s https://jetestemonsite.apdp.mc/api/status?url=https://google.com | head -100
 
 test-api: ## Test specific API endpoint
 	@echo "$(BLUE)Testing API endpoint:$(NC)"
-	@curl -s http://webcheck.$(REMOTE_HOST).nip.io/api/status?url=https://google.com
+	@curl -s https://jetestemonsite.apdp.mc/api/status?url=https://google.com
 	@echo ""
 
 test-dns: ## Test DNS API endpoint
 	@echo "$(BLUE)Testing DNS endpoint:$(NC)"
-	@curl -s http://webcheck.$(REMOTE_HOST).nip.io/api/dns?url=https://google.com | head -200
+	@curl -s https://jetestemonsite.apdp.mc/api/dns?url=https://google.com | head -200
 	@echo ""
 
 ssh: ## SSH into the server
@@ -136,12 +136,11 @@ backup: ## Backup the deployment
 
 urls: ## Show access URLs
 	@echo "$(BLUE)Access URLs:$(NC)"
-	@echo "  • Public:  http://webcheck.$(REMOTE_HOST).nip.io"
-	@echo "  • Direct:  http://$(REMOTE_HOST):3003"
-	@echo "  • Domain:  http://webcheck.checkit.eu"
+	@echo "  • Domain:  https://jetestemonsite.apdp.mc"
+	@echo "  • Direct:  http://$(REMOTE_HOST):3003 (development only)"
 	@echo ""
 	@echo "$(BLUE)API Test:$(NC)"
-	@echo "  curl http://webcheck.$(REMOTE_HOST).nip.io/api/status?url=https://google.com"
+	@echo "  curl https://jetestemonsite.apdp.mc/api/status?url=https://google.com"
 
 info: ## Show deployment information
 	@echo "$(BLUE)Deployment Information:$(NC)"
@@ -169,5 +168,7 @@ emergency-restart: ## Emergency full restart
 	@sleep 10
 	@echo "$(GREEN)✓ Emergency restart complete$(NC)"
 	@make status
+
+
 
 

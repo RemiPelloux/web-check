@@ -231,9 +231,8 @@ echo "║       Deployment Completed! 🚀         ║"
 echo "╚════════════════════════════════════════╝${NC}"
 
 echo -e "\n${BLUE}Access URLs:${NC}"
-echo "  • Public: http://webcheck.${REMOTE_HOST}.nip.io"
-echo "  • Direct: http://${REMOTE_HOST}:3003"
-echo "  • Domain: http://webcheck.checkit.eu"
+echo "  • Domain: https://jetestemonsite.apdp.mc"
+echo "  • Direct: http://${REMOTE_HOST}:3003 (development only)"
 
 echo -e "\n${BLUE}Useful Commands:${NC}"
 echo "  • View logs: ssh ${REMOTE_USER}@${REMOTE_HOST} 'docker logs -f Web-Check-Checkit'"
@@ -241,8 +240,10 @@ echo "  • Quick restart: ./deploy.sh --quick"
 echo "  • Full rebuild: ./deploy.sh --full"
 
 echo -e "\n${BLUE}API Test:${NC}"
-echo "  curl http://webcheck.${REMOTE_HOST}.nip.io/api/status?url=https://google.com"
+echo "  curl https://jetestemonsite.apdp.mc/api/status?url=https://google.com"
 
 echo ""
+
+
 
 

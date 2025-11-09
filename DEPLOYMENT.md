@@ -211,14 +211,13 @@ After deployment, your application is available at:
 
 | Type | URL |
 |------|-----|
-| **Public** | http://webcheck.82.97.8.94.nip.io |
-| **Direct** | http://82.97.8.94:3003 |
-| **Domain** | http://webcheck.checkit.eu |
+| **Domain (SSL)** | https://jetestemonsite.apdp.mc |
+| **Direct** | http://82.97.8.94:3003 (development only) |
 
 ### Test API
 
 ```bash
-curl http://webcheck.82.97.8.94.nip.io/api/status?url=https://google.com
+curl https://jetestemonsite.apdp.mc/api/status?url=https://google.com
 ```
 
 Or use the Makefile:
@@ -351,7 +350,7 @@ ports:
 
 ### Nginx Configuration
 
-Located at: `/etc/nginx/sites-available/webcheck.checkit.eu`
+Located at: `/etc/nginx/sites-available/jetestemonsite_apdp_mc`
 
 Update with:
 ```bash
@@ -492,9 +491,8 @@ Testing API:
 ╚════════════════════════════════════════╝
 
 Access URLs:
-  • Public: http://webcheck.82.97.8.94.nip.io
-  • Direct: http://82.97.8.94:3003
-  • Domain: http://webcheck.checkit.eu
+  • Domain: https://jetestemonsite.apdp.mc
+  • Direct: http://82.97.8.94:3003 (development only)
 ```
 
 ---
@@ -538,5 +536,7 @@ If you encounter issues:
 ---
 
 **Happy Deploying! 🚀**
+
+
 
 
