@@ -197,10 +197,10 @@ const printMessage = () => {
     '     \\ \\/\\/ / -_) \'_ \\___| (__| \' \\/ -_) _| / /\n' +
     '      \\_/\\_/\\___|_.__/    \\___|_||_\\___\\__|_\\_\\\n' +
     `\x1b[0m\n`,
-    `\x1b[1m\x1b[32m🚀 BeCompliant is up and running at http://localhost:${port} \x1b[0m\n\n`,
-    `\x1b[2m\x1b[36m🛟 For documentation and support, visit: ` +
-    `https://becompliant.xyz/about \n`,
-    `💼 Professional compliance assessment platform by OpenPro.\x1b[0m`
+    `\x1b[1m\x1b[32m🚀 Checkit is up and running at http://localhost:${port} \x1b[0m\n\n`,
+    `\x1b[2m\x1b[36m🔍 For documentation and support, visit: ` +
+    `https://jetestemonsite.apdp.mc \n`,
+    `💼 Professional website compliance checking tool by APDP.\x1b[0m`
   );
 };
 

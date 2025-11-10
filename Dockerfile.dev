@@ -1,0 +1,30 @@
+FROM node:21-bullseye
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    chromium \
+    traceroute \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy package files
+COPY package.json yarn.lock ./
+
+# Install dependencies
+RUN yarn install --network-timeout 100000
+
+# Copy source code
+COPY . .
+
+# Set environment
+ENV CHROME_PATH="/usr/bin/chromium"
+ENV NODE_ENV=development
+# PUBLIC_API_ENDPOINT removed - Vite proxy handles /api routing
+
+# Expose ports
+EXPOSE 3001 4321
+
+# Start both servers using the same command as local
+CMD ["yarn", "dev"]

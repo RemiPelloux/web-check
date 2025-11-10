@@ -11,20 +11,11 @@ const currentYear = new Date().getFullYear();
 ---
 
 <footer>
-  <p>
-    Professional compliance assessment platform
-  </p>
-  <p>
-    <a href={aboutLink}>{projectName}</a>
-    is licensed under
-    <a href={licenseLink}>{licenseText}</a>
-    - © <a href={authorLink}>{authorName}</a>
-    {currentYear}
-  </p>
 </footer>
 
 <style lang="scss">
   @import '@styles/global.scss';
+  @import '@styles/media-queries.scss';
   footer {
     margin-top: 1rem;
     background: var(--primary);

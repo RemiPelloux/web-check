@@ -30,7 +30,7 @@ COPY package.json yarn.lock ./
 
 # Run yarn install to install dependencies and clear yarn cache
 RUN apt-get update && \
-    yarn install --frozen-lockfile --network-timeout 100000 && \
+    yarn install --network-timeout 100000 && \
     rm -rf /app/node_modules/.cache
 
 # Copy all files to working directory

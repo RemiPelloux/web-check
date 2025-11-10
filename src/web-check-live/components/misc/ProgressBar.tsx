@@ -198,6 +198,7 @@ const jobNames = [
   'cookies',
   'headers',
   'dns',
+  'subdomain-enumeration',
   'hosts',
   'http-security',
   'social-tags',
@@ -356,35 +357,39 @@ const SummaryText = (props: { state: LoadingJob[], count: number }): JSX.Element
 
   const jobz = (jobCount: number) => `${jobCount} ${jobCount === 1 ? 'job' : 'jobs'}`;
 
-  const skippedInfo = skippedTasksCount > 0 ? (<span className="skipped">{jobz(skippedTasksCount)} skipped </span>) : null;
-  const successInfo = successTasksCount > 0 ? (<span className="success">{jobz(successTasksCount)} successful </span>) : null;
-  const failedInfo = failedTasksCount > 0 ? (<span className="error">{jobz(failedTasksCount)} failed </span>) : null;
+  // Hidden: Job status summary (success/failed/skipped counts)
+  // const skippedInfo = skippedTasksCount > 0 ? (<span className="skipped">{jobz(skippedTasksCount)} skipped </span>) : null;
+  // const successInfo = successTasksCount > 0 ? (<span className="success">{jobz(successTasksCount)} successful </span>) : null;
+  // const failedInfo = failedTasksCount > 0 ? (<span className="error">{jobz(failedTasksCount)} failed </span>) : null;
 
   if (loadingTasksCount > 0) {
     return (
       <SummaryContainer className="loading-info">
         <b>Loading {totalJobs - loadingTasksCount} / {totalJobs} Jobs</b>
-        {skippedInfo}
       </SummaryContainer>
     );
   }
 
-  if (failedTasksCount === 0) {
-    return (
-      <SummaryContainer className="success-info">
-        <b>{successTasksCount} Jobs Completed Successfully</b>
-        {skippedInfo}
-      </SummaryContainer>
-    );
-  }
+  // Hide job completion summary - just return empty
+  return <></>;
 
-  return (
-    <SummaryContainer className="error-info">
-      {successInfo}
-      {skippedInfo}
-      {failedInfo}
-    </SummaryContainer>
-  );
+  // Old code (hidden):
+  // if (failedTasksCount === 0) {
+  //   return (
+  //     <SummaryContainer className="success-info">
+  //       <b>{successTasksCount} Jobs Completed Successfully</b>
+  //       {skippedInfo}
+  //     </SummaryContainer>
+  //   );
+  // }
+
+  // return (
+  //   <SummaryContainer className="error-info">
+  //     {successInfo}
+  //     {skippedInfo}
+  //     {failedInfo}
+  //   </SummaryContainer>
+  // );
 };
 
 const ProgressLoader = (props: { loadStatus: LoadingJob[], showModal: (err: ReactNode) => void, showJobDocs: (job: string) => void }): JSX.Element => {

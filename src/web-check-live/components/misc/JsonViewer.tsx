@@ -1,7 +1,7 @@
-import React from 'react';
+import React, { lazy, Suspense } from 'react';
 import styled from '@emotion/styled';
-import JsonView from '@uiw/react-json-view';
-import { darkTheme } from '@uiw/react-json-view/dark';
+// Lazy load JsonView to avoid SSR issues
+const LazyJsonView = lazy(() => import('@uiw/react-json-view'));
 import colors from 'web-check-live/styles/colors';
 
 const ViewerContainer = styled.div`
@@ -53,17 +53,18 @@ interface JsonViewerProps {
 const JsonViewer: React.FC<JsonViewerProps> = ({ data, initialCollapsed = 2 }) => {
   return (
     <ViewerContainer>
-      <JsonView
-        value={data}
-        collapsed={initialCollapsed}
-        displayDataTypes={false}
-        displayObjectSize={true}
-        enableClipboard={true}
-        style={{
-          ...darkTheme,
-          backgroundColor: 'transparent',
-        }}
-      />
+      <Suspense fallback={<div>Loading JSON viewer...</div>}>
+        <LazyJsonView
+          value={data}
+          collapsed={initialCollapsed}
+          displayDataTypes={false}
+          displayObjectSize={true}
+          enableClipboard={true}
+          style={{
+            backgroundColor: 'transparent',
+          }}
+        />
+      </Suspense>
     </ViewerContainer>
   );
 };

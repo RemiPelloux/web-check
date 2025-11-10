@@ -36,6 +36,7 @@ import HeadersCard from 'web-check-live/components/Results/Headers';
 import CookiesCard from 'web-check-live/components/Results/Cookies';
 import RobotsTxtCard from 'web-check-live/components/Results/RobotsTxt';
 import DnsRecordsCard from 'web-check-live/components/Results/DnsRecords';
+import SubdomainEnumerationCard from 'web-check-live/components/Results/SubdomainEnumeration';
 import RedirectsCard from 'web-check-live/components/Results/Redirects';
 import TxtRecordCard from 'web-check-live/components/Results/TxtRecords';
 import ServerStatusCard from 'web-check-live/components/Results/ServerStatus';
@@ -365,6 +366,14 @@ const Results = (props: { address?: string } ): JSX.Element => {
     updateLoadingJobs,
     addressInfo: { address, addressType, expectedAddressTypes: urlTypeOnly },
     fetchRequest: () => fetch(`${api}/dns?url=${address}`).then(res => parseJson(res)),
+  });
+
+  // Get subdomain enumeration results
+  const [subdomainEnumerationResults, updateSubdomainEnumerationResults] = useMotherHook({
+    jobId: 'subdomain-enumeration',
+    updateLoadingJobs,
+    addressInfo: { address, addressType, expectedAddressTypes: urlTypeOnly },
+    fetchRequest: () => fetch(`${api}/subdomain-enumeration?url=${address}`).then(res => parseJson(res)),
   });
 
   // Get HTTP security
@@ -840,6 +849,13 @@ const Results = (props: { address?: string } ): JSX.Element => {
       Component: DnsRecordsCard,
       refresh: updateDnsResults,
       tags: ['server'],
+    }, {
+      id: 'subdomain-enumeration',
+      title: 'Énumération des Sous-domaines',
+      result: subdomainEnumerationResults,
+      Component: SubdomainEnumerationCard,
+      refresh: updateSubdomainEnumerationResults,
+      tags: ['server', 'security'],
     }, {
       id: 'hosts',
       title: 'Noms d\'Hôtes',

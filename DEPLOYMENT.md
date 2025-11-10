@@ -1,542 +1,343 @@
-# Checkit - One-Click Deployment Guide
+# Checkit Deployment Documentation
 
-This project includes automated deployment scripts for easy and fast deployments to your server.
-
-## 🚀 Quick Start
-
-### First Time Setup
-```bash
-make setup
-# or
-./setup.sh
-```
-
-### Deploy Updates
-```bash
-make deploy
-# or
-./deploy.sh
-```
-
-That's it! 🎉
+**Live at**: https://jetestemonsite.apdp.mc  
+**Status**: ✅ Production Ready
 
 ---
 
-## 📋 Available Commands
-
-### Using Make (Recommended)
+## Quick Deploy
 
 ```bash
-# Show all available commands
-make help
-
-# Initial setup (first time only)
-make setup
-
-# Deploy to production
-make deploy
-
-# Quick restart (no rebuild)
-make deploy-quick
-
-# Full rebuild and deploy
-make deploy-full
-
-# View logs
-make logs
-
-# Follow logs in real-time
-make logs-live
-
-# Check status
-make status
-
-# Restart application
-make restart
-
-# Test deployment
-make test
-
-# Show access URLs
-make urls
-```
-
-### Using Scripts Directly
-
-```bash
-# Initial setup
-./setup.sh
-
-# Deploy
+# Standard deployment
 ./deploy.sh
 
-# Quick deploy (restart only)
-./deploy.sh --quick
-
-# Full rebuild
+# Full rebuild (after dependency changes)
 ./deploy.sh --full
 
-# Dry run (see what would happen)
-./deploy.sh --dry-run
+# Quick restart (code changes only)
+./deploy.sh --quick
 ```
 
 ---
 
-## 📁 Deployment Files
+## Architecture
 
-### 1. `Makefile` - Easy Command Interface
-One-line commands for all deployment tasks:
-- `make deploy` - Deploy updates
-- `make logs` - View logs
-- `make status` - Check status
-- `make restart` - Restart app
-- And many more... (run `make help` to see all)
-
-### 2. `deploy.sh` - Deployment Script
-Automated deployment that handles:
-- ✅ File transfer to server
-- ✅ Cleaning macOS hidden files
-- ✅ Docker container build
-- ✅ Service restart
-- ✅ Deployment verification
-
-**Options:**
-- `--quick` / `-q` - Fast restart without rebuild
-- `--full` / `-f` - Full rebuild with no cache
-- `--dry-run` / `-d` - Preview without executing
-
-### 3. `setup.sh` - Initial Setup Script
-First-time server configuration:
-- ✅ Creates deployment directory
-- ✅ Checks Docker/Docker Compose
-- ✅ Transfers files
-- ✅ Creates Docker configuration
-- ✅ Configures Nginx
-- ✅ Builds and starts application
+```
+Internet (HTTPS)
+       ↓
+Nginx Reverse Proxy (443)
+   SSL: *.apdp.mc
+       ↓
+   ┌───┴───┐
+   │       │
+Port 3003  Port 3004
+   │       │
+   ▼       ▼
+Docker Container: Web-Check-Checkit
+   │       │
+Astro    Express
+:4321    :3001
+Frontend Backend
+```
 
 ---
 
-## 🎯 Common Workflows
+## Key Configuration
 
-### Daily Development Workflow
+### Docker Setup
+- **Image**: Custom `Dockerfile.dev`
+- **Command**: `yarn dev` (same as local!)
+- **Ports**: 3003→4321 (frontend), 3004→3001 (backend)
+- **Mode**: Development in production (for hot reload)
 
-1. **Make changes locally** (already done by you)
-2. **Deploy to server:**
-   ```bash
-   make deploy
-   ```
-3. **Check if it's working:**
-   ```bash
-   make test
-   ```
+### Nginx Setup
+- **Domain**: jetestemonsite.apdp.mc
+- **SSL**: Wildcard certificate `*.apdp.mc`
+- **Config**: `/etc/nginx/sites-available/jetestemonsite_apdp_mc`
+- **Frontend**: Proxy `/` to port 3003
+- **Backend**: Proxy `/api` to port 3004
 
-### Quick Restart (No Code Changes)
+### Application Setup
+- **Output Mode**: Hybrid (supports dynamic routes)
+- **Network**: Bound to `0.0.0.0` with `--host` flag
+- **SCSS**: All 8 files have proper imports
+- **Configs**: Excluded from Docker image
 
-```bash
-make restart
-# or
-make deploy-quick
+---
+
+## Files Modified for Deployment
+
+### Docker Files
+```
+Dockerfile.dev           # Development mode Docker image
+docker-compose.yml       # Container orchestration
+.dockerignore            # Exclude config files
 ```
 
-### Full Rebuild (When Dependencies Change)
-
-```bash
-make deploy-full
+### Configuration Files
+```
+nginx-jetestemonsite.conf  # Nginx SSL proxy
+deploy.sh                  # Automated deployment
+setup.sh                   # Server setup
+Makefile                   # Command shortcuts
 ```
 
-### Debugging Issues
+### Application Files
+```
+package.json              # Added --host to dev:astro
+astro.config.mjs         # Output: hybrid, domain updated
 
+# SCSS imports added to these 8 files:
+src/pages/account/index.astro
+src/pages/web-check-api/index.astro
+src/pages/self-hosted-setup.astro
+src/components/homepage/HeroForm.astro
+src/components/homepage/SponsorSegment.astro
+src/components/homepage/Screenshots.astro
+src/components/homepage/ButtonGroup.astro
+src/components/scafold/Footer.astro
+```
+
+---
+
+## Critical Fixes Applied
+
+### 1. SCSS Module Imports ⚠️ IMPORTANT
+
+**Every Astro file using `@include` directives must import media-queries**:
+
+```scss
+<style lang="scss">
+  @import '@styles/global.scss';
+  @import '@styles/media-queries.scss';  // ← REQUIRED!
+  
+  .my-class {
+    @include mobile-down { ... }
+  }
+</style>
+```
+
+**Why**: `global.scss` uses `@use` with namespaces, not global imports
+
+### 2. Network Binding ⚠️ IMPORTANT
+
+**Astro must bind to all interfaces in Docker**:
+
+```json
+{
+  "scripts": {
+    "dev:astro": "astro dev --host"  // ← --host is REQUIRED
+  }
+}
+```
+
+**Why**: Without `--host`, Astro only listens on localhost inside container
+
+### 3. Config File Exclusion ⚠️ IMPORTANT
+
+**These files MUST be excluded via .dockerignore**:
+
+```
+postcss.config.js
+vite.config.js
+svelte.config.js
+tailwind.config.js
+```
+
+**Why**: ES module syntax conflicts with runtime module loader
+
+---
+
+## Common Tasks
+
+### View Logs
 ```bash
-# Check status
-make status
-
-# View logs
 make logs
-
-# Follow logs in real-time
-make logs-live
-
-# View only errors
-make logs-errors
-
-# Test endpoints
-make test
-make test-api
+# or
+ssh sysadm@82.97.8.94 'docker logs -f Web-Check-Checkit'
 ```
 
----
-
-## 🔍 What Happens During Deployment
-
-### Standard Deployment (`make deploy`)
-
-```
-1. Pre-flight Checks
-   ✓ Verify project directory
-   ✓ Test SSH connection
-
-2. Prepare Files
-   ✓ Clean macOS hidden files
-   ✓ Create archive (excluding node_modules, .git, etc.)
-
-3. Transfer to Server
-   ✓ Upload files via SSH + tar
-   ✓ Extract on server
-
-4. Build & Deploy
-   ✓ Build Docker container
-   ✓ Start services with docker compose
-
-5. Verify
-   ✓ Check container status
-   ✓ Test frontend response
-   ✓ Test API endpoints
-```
-
-### Quick Deploy (`make deploy-quick`)
-
-```
-1. SSH to server
-2. Restart Docker container
-3. Show status
-```
-
-**Time:** ~10 seconds (vs ~2-3 minutes for full deploy)
-
----
-
-## 🌐 Access Your Deployment
-
-After deployment, your application is available at:
-
-| Type | URL |
-|------|-----|
-| **Domain (SSL)** | https://jetestemonsite.apdp.mc |
-| **Direct** | http://82.97.8.94:3003 (development only) |
-
-### Test API
-
+### Test Deployment
 ```bash
+# Homepage
+curl -I https://jetestemonsite.apdp.mc/
+
+# API
 curl https://jetestemonsite.apdp.mc/api/status?url=https://google.com
 ```
 
-Or use the Makefile:
+### Restart Container
 ```bash
-make test-api
+ssh sysadm@82.97.8.94 'cd /opt/webcheck && docker compose restart'
+```
+
+### Full Rebuild
+```bash
+./deploy.sh --full
+```
+
+### Check Status
+```bash
+make status
+# or
+ssh sysadm@82.97.8.94 'docker ps | grep Web-Check-Checkit'
 ```
 
 ---
 
-## 🛠️ Troubleshooting
-
-### Deployment Fails
-
-```bash
-# Check what's wrong
-make logs-errors
-
-# Try emergency restart
-make emergency-restart
-```
-
-### SSH Connection Issues
-
-```bash
-# Test SSH manually
-ssh sysadm@82.97.8.94
-
-# Check SSH key
-ls -la ~/.ssh/
-```
+## Troubleshooting
 
 ### Container Won't Start
 
+**Check logs**:
 ```bash
-# Check logs
-make logs
-
-# Stop and start manually
-make stop
-sleep 5
-make start
-
-# Full rebuild
-make deploy-full
+docker logs Web-Check-Checkit --tail 50
 ```
 
-### API Returns Errors
+**Common issues**:
+- Port already in use → Check for conflicting containers
+- Build failed → Check SCSS imports and .dockerignore
+- Missing dependencies → Run `./deploy.sh --full`
 
+### 502 Bad Gateway
+
+**Nginx can't reach container**:
 ```bash
-# Check backend logs
-make logs | grep -i "backend\|express\|error"
+# Check if container is up
+docker ps | grep Web-Check-Checkit
 
-# Test API directly
-make test-api
+# Check if Astro is listening on all interfaces
+docker logs Web-Check-Checkit | grep "Network"
+# Should show: Network  http://172.31.0.2:4321/
 
-# Check Nginx
-make nginx-test
-make nginx-logs
+# If missing, check package.json has --host flag
 ```
 
-### Port Already in Use
+### 500 Internal Server Error
 
-If ports 3003 or 3004 are in use:
-
+**Astro SSR crash**:
 ```bash
-# Check what's using the port
-ssh sysadm@82.97.8.94 'sudo lsof -i :3003'
-ssh sysadm@82.97.8.94 'sudo lsof -i :3004'
+# Watch logs in real-time
+docker logs -f Web-Check-Checkit
 
-# Modify docker-compose.yml to use different ports
+# Make a request
+curl https://jetestemonsite.apdp.mc/
+
+# Check for errors in logs
 ```
+
+**Common errors**:
+- "Undefined mixin" → Missing SCSS import
+- "Unexpected token 'export'" → Config file in image
+- "Cannot use import statement" → ESM/CJS conflict
 
 ---
 
-## 📊 Monitoring
+## Environment Variables
 
-### Real-time Monitoring
-
-```bash
-# Follow logs
-make logs-live
-
-# Monitor resource usage
-make monitor
-
-# Watch both logs and resources (separate terminals)
-make logs-live
-# In another terminal:
-make monitor
-```
-
-### Health Checks
-
-```bash
-# Quick health check
-make status
-
-# Detailed test
-make test
-
-# Check specific components
-make test-api      # Test API
-make test-dns      # Test DNS endpoint
-make nginx-test    # Test Nginx config
-```
-
----
-
-## 🔐 Configuration
-
-### Server Configuration
-
-Edit these variables in `Makefile`, `deploy.sh`, and `setup.sh`:
-
-```bash
-REMOTE_USER="sysadm"
-REMOTE_HOST="82.97.8.94"
-REMOTE_PATH="/opt/webcheck"
-```
-
-### Port Mappings
-
-Defined in `docker-compose.yml`:
-
+**Docker Container**:
 ```yaml
-ports:
-  - "3003:4321"  # Frontend (host:container)
-  - "3004:3001"  # Backend API (host:container)
+environment:
+  - NODE_ENV=development
+  - PORT=3001
+  - PUBLIC_API_ENDPOINT=http://localhost:3001/api
+  - CHROME_PATH=/usr/bin/chromium
 ```
 
-### Nginx Configuration
+**Astro Config**:
+```javascript
+const site = 'https://jetestemonsite.apdp.mc';
+const output = 'hybrid';  // For dynamic routes
+```
 
-Located at: `/etc/nginx/sites-available/jetestemonsite_apdp_mc`
+---
 
-Update with:
+## Server Information
+
+**SSH Access**:
 ```bash
-make nginx-reload
+ssh sysadm@82.97.8.94
+```
+
+**Application Path**:
+```bash
+cd /opt/webcheck
+```
+
+**Nginx Config**:
+```bash
+/etc/nginx/sites-available/jetestemonsite_apdp_mc
+```
+
+**SSL Certificate**:
+```bash
+/etc/ssl/certs/chatbot_apdp_mc.crt      # Wildcard *.apdp.mc
+/etc/ssl/private/chatbot_apdp_mc.key
+```
+
+**Logs**:
+```bash
+# Application logs
+docker logs -f Web-Check-Checkit
+
+# Nginx logs
+tail -f /var/log/nginx/jetestemonsite_apdp_mc_access.log
+tail -f /var/log/nginx/jetestemonsite_apdp_mc_error.log
 ```
 
 ---
 
-## 📦 What Gets Deployed
-
-### Included:
-- ✅ Source code (`src/`, `api/`)
-- ✅ Configuration files (astro.config.mjs, etc.)
-- ✅ Package files (package.json, yarn.lock)
-- ✅ Public assets
-- ✅ Docker configuration
-
-### Excluded:
-- ❌ `node_modules/`
-- ❌ `.git/`
-- ❌ `.vite/`
-- ❌ `dist/`
-- ❌ `.astro/`
-- ❌ `._*` (macOS hidden files)
-- ❌ `.DS_Store`
-- ❌ Log files
-
----
-
-## ⚡ Performance Tips
-
-### Speed Up Deployments
-
-1. **Use Quick Deploy** when only code changes:
-   ```bash
-   make deploy-quick  # ~10 seconds
-   ```
-
-2. **Use Standard Deploy** when dependencies change:
-   ```bash
-   make deploy  # ~2-3 minutes
-   ```
-
-3. **Use Full Rebuild** only when Docker cache is corrupted:
-   ```bash
-   make deploy-full  # ~5-10 minutes
-   ```
-
-### Optimize Transfer Speed
-
-The deployment script automatically:
-- Compresses files with `tar`
-- Excludes large directories (node_modules, .git)
-- Removes macOS hidden files
-- Uses efficient SSH transfer
-
----
-
-## 🔄 CI/CD Integration
-
-You can integrate these scripts into your CI/CD pipeline:
-
-### GitHub Actions Example
-
-```yaml
-name: Deploy
-
-on:
-  push:
-    branches: [ main ]
-
-jobs:
-  deploy:
-    runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v2
-      
-      - name: Setup SSH
-        run: |
-          mkdir -p ~/.ssh
-          echo "${{ secrets.SSH_PRIVATE_KEY }}" > ~/.ssh/id_ed25519
-          chmod 600 ~/.ssh/id_ed25519
-          ssh-keyscan 82.97.8.94 >> ~/.ssh/known_hosts
-      
-      - name: Deploy
-        run: ./deploy.sh
-```
-
----
-
-## 📝 Script Output Example
-
-```
-╔════════════════════════════════════════╗
-║   Checkit Deployment Script v1.0       ║
-║   BeCompliant - OpenPro                ║
-╚════════════════════════════════════════╝
-
-==> Running pre-flight checks...
-✓ Project directory verified
-✓ SSH connection verified
-
-==> Step 1/6: Cleaning macOS hidden files...
-✓ Removed macOS hidden files
-
-==> Step 2/6: Transferring files to server...
-Creating archive and transferring...
-✓ Files transferred successfully
-
-==> Step 3/6: Cleaning server-side hidden files...
-✓ Cleaned server-side hidden files
-
-==> Step 4/6: Building Docker container...
-✓ Docker build completed
-
-==> Step 5/6: Starting services...
-✓ Services started
-
-==> Step 6/6: Verifying deployment...
-
-Container Status:
-CONTAINER ID   IMAGE   STATUS   PORTS
-abc123def456   ...     Up       0.0.0.0:3003->4321/tcp, 0.0.0.0:3004->3001/tcp
-
-Recent Logs (last 15 lines):
-astro  v4.7.1 ready in 1076 ms
-┃ Local    http://localhost:4321/
-┃ Network  http://172.31.0.2:4321/
-
-Testing Frontend:
-✓ Frontend is responding
-
-Testing API:
-✓ API is responding correctly
-
-╔════════════════════════════════════════╗
-║       Deployment Completed! 🚀         ║
-╚════════════════════════════════════════╝
-
-Access URLs:
-  • Domain: https://jetestemonsite.apdp.mc
-  • Direct: http://82.97.8.94:3003 (development only)
-```
-
----
-
-## 🎓 Learn More
-
-For detailed technical documentation:
-- Architecture details: See main documentation
-- Troubleshooting: Check error logs with `make logs-errors`
-- Nginx configuration: `make nginx-test`
-
----
-
-## 🆘 Quick Help
+## Make Commands
 
 ```bash
-# Show all commands
-make help
-
-# Show access URLs
-make urls
-
-# Show deployment info
-make info
-
-# Get help with scripts
-./deploy.sh --help
+make deploy    # Deploy application
+make logs      # View container logs
+make test      # Test endpoints
+make status    # Check container status
+make restart   # Restart container
+make shell     # SSH into server
+make urls      # Show access URLs
+make help      # Show all commands
 ```
 
 ---
 
-## 📞 Support
+## Success Criteria
 
-If you encounter issues:
+✅ Homepage loads (HTTP 200)  
+✅ API responds with JSON  
+✅ SSL certificate valid  
+✅ No errors in logs  
+✅ Container stays up (not restarting)  
+✅ Both frontend and backend running  
 
-1. Check logs: `make logs-errors`
-2. Test connection: `make test`
-3. Try emergency restart: `make emergency-restart`
-4. Check this guide for common issues
+**Current Status**: All criteria met! ✅
 
 ---
 
-**Happy Deploying! 🚀**
+## Next Steps
 
+### For Updates
+1. Make changes locally
+2. Test with `yarn dev`
+3. Run `./deploy.sh`
+4. Verify deployment
 
+### For Issues
+1. Check logs: `make logs`
+2. Test endpoints: `make test`
+3. Restart if needed: `make restart`
+4. Full rebuild if broken: `./deploy.sh --full`
 
+### For New Features
+1. Develop and test locally
+2. Update documentation
+3. Deploy with `./deploy.sh`
+4. Monitor logs for issues
 
+---
+
+**Last Updated**: November 9, 2025  
+**Deployment**: Automated via deploy.sh  
+**Monitoring**: docker logs + nginx logs  
+**Backup**: Git repository (all changes committed)

@@ -5,9 +5,10 @@ services:
       context: .
       dockerfile: Dockerfile.dev
     ports:
-      - "3003:4321"
-      - "3004:3001"
+      - "3003:4321"  # Frontend (Astro dev)
+      - "3004:3001"  # Backend (Express API)
     restart: unless-stopped
     environment:
       - NODE_ENV=development
       - PORT=3001
+      # PUBLIC_API_ENDPOINT removed - use relative /api paths

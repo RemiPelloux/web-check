@@ -26,7 +26,7 @@ const deployTarget = unwrapEnvVar('PLATFORM', 'node').toLowerCase();
 const output = unwrapEnvVar('OUTPUT', 'hybrid');
 
 // The FQDN of where the site is hosted (used for sitemaps & canonical URLs)
-const site = unwrapEnvVar('SITE_URL', 'https://web-check.xyz');
+const site = unwrapEnvVar('SITE_URL', 'https://jetestemonsite.apdp.mc');
 
 // The base URL of the site (if serving from a subdirectory)
 const base = unwrapEnvVar('BASE_URL', '/');
@@ -56,12 +56,12 @@ const adapter = getAdapter(deployTarget);
 
 // Print build information to console
 console.log(
-  `\n\x1b[1m\x1b[35m Preparing to start build of BeCompliant.... \x1b[0m\n`,
+  `\n\x1b[1m\x1b[35m Preparing to start build of Checkit.... \x1b[0m\n`,
   `\x1b[35m\x1b[2mCompiling for "${deployTarget}" using "${output}" mode, `
   + `to deploy to "${site}" at "${base}"\x1b[0m\n`,
-  `\x1b[2m\x1b[36m🛟 For documentation and support, visit: ` +
-  `https://becompliant.xyz/about \n`,
-  `💼 Professional compliance assessment platform by OpenPro.\x1b[0m\n`,
+  `\x1b[2m\x1b[36m🔍 For documentation and support, visit: ` +
+  `https://jetestemonsite.apdp.mc \n`,
+  `💼 Professional website compliance checking tool by APDP.\x1b[0m\n`,
 );
 
 const redirects = {
@@ -87,6 +87,14 @@ export default defineConfig({
         scss: {
           api: 'modern-compiler', // Use modern Sass API
           silenceDeprecations: ['legacy-js-api', 'import'],
+        },
+      },
+    },
+    server: {
+      proxy: {
+        '/api': {
+          target: 'http://localhost:3001',
+          changeOrigin: true,
         },
       },
     },

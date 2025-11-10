@@ -46,14 +46,6 @@ const Footer = (props: { isFixed?: boolean }): JSX.Element => {
   const authorUrl = '#';
   return (
   <StyledFooter style={props.isFixed ? {position: 'fixed'} : {}}>
-    <span>
-      Professional compliance assessment platform
-    </span>
-    <span>
-      <Link to="/about">BeCompliant</Link> is
-      licensed under <ALink href={licenseUrl}>MIT</ALink> -
-      © <strong>OpenPro</strong> {new Date().getFullYear()}
-    </span>
   </StyledFooter>
   );
 }

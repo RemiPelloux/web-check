@@ -62,6 +62,30 @@ const handler = async (url) => {
     const { data: html } = await fetchHtml(url, { timeout: 5000 });
     const $ = cheerio.load(html, { decodeEntities: false });
     
+    // Extract base domain for validation
+    const baseUrl = new URL(url);
+    const baseDomain = baseUrl.hostname;
+    
+    // Function to check if URL belongs to the same domain
+    const isSameDomain = (linkHref) => {
+      try {
+        // Handle relative URLs
+        if (!linkHref.startsWith('http')) {
+          return true; // Relative URLs are always same domain
+        }
+        
+        const linkUrl = new URL(linkHref);
+        const linkDomain = linkUrl.hostname;
+        
+        // Exact match or subdomain match
+        return linkDomain === baseDomain || 
+               linkDomain.endsWith('.' + baseDomain) ||
+               baseDomain.endsWith('.' + linkDomain);
+      } catch (e) {
+        return false; // Invalid URL
+      }
+    };
+    
     const result = {
       url,
       timestamp: new Date().toISOString(),
@@ -80,13 +104,14 @@ const handler = async (url) => {
     
     // Find legal notice link - check text, title, aria-label, and URL
     // Prioritize footer links (most common location)
+    // CRITICAL: Only accept links from the same domain
     const allLinks = $('a[href]').map((_, el) => ({
       href: $(el).attr('href'),
       text: $(el).text().toLowerCase().trim(),
       title: ($(el).attr('title') || '').toLowerCase(),
       ariaLabel: ($(el).attr('aria-label') || '').toLowerCase(),
       inFooter: $(el).closest('footer, [role="contentinfo"], .footer').length > 0
-    })).get();
+    })).get().filter(link => isSameDomain(link.href)); // Filter external domains
     
     // Try footer links first
     let legalLink = allLinks.filter(l => l.inFooter).find(link => {

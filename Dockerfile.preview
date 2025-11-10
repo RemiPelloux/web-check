@@ -1,0 +1,33 @@
+FROM node:21-bullseye
+
+WORKDIR /app
+
+# Install system dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    chromium \
+    traceroute \
+    && rm -rf /var/lib/apt/lists/*
+
+# Copy package files
+COPY package.json yarn.lock ./
+
+# Install dependencies
+RUN yarn install --network-timeout 100000
+
+# Copy source code
+COPY . .
+
+# Build static site
+RUN yarn build
+
+# Set environment
+ENV CHROME_PATH="/usr/bin/chromium"
+ENV NODE_ENV=production
+ENV HOST=0.0.0.0
+
+# Expose ports  
+EXPOSE 3001 4321
+
+# Start backend and Astro preview
+CMD ["sh", "-c", "DISABLE_GUI=true PORT=3001 node server.js & yarn astro preview --host"]
