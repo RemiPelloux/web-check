@@ -13,6 +13,31 @@ dotenv.config();
 // Create the Express app
 const app = express();
 
+// Enable JSON body parsing
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+
+// Import authentication and database modules
+import {
+  authMiddleware,
+  adminOnlyMiddleware,
+  generateToken,
+  getClientIp,
+  checkLoginRateLimit
+} from './server/middleware/auth.js';
+
+import {
+  verifyUser,
+  getAllUsers,
+  createUser,
+  updateUser,
+  deleteUser,
+  getDisabledPlugins,
+  setDisabledPlugins,
+  addAuditLog,
+  recordLoginAttempt
+} from './database/db.js';
+
 const __filename = new URL(import.meta.url).pathname;
 const __dirname = path.dirname(__filename);
 
@@ -56,6 +81,393 @@ const limiters = limits.map(limit => rateLimit({
 if (process.env.API_ENABLE_RATE_LIMIT === 'true') {
   app.use(API_DIR, limiters);
 }
+
+// ==================== Authentication Routes ====================
+
+/**
+ * POST /api/auth/login
+ * Authenticate user and return JWT token
+ * APDP users: username + password required
+ * DPD users: username only + IP check
+ */
+app.post(`${API_DIR}/auth/login`, async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    
+    if (!username) {
+      return res.status(400).json({
+        success: false,
+        error: 'Identifiant requis',
+        message: 'Nom d\'utilisateur requis'
+      });
+    }
+    
+    // Check rate limit
+    const rateLimit = checkLoginRateLimit(username);
+    if (!rateLimit.allowed) {
+      return res.status(429).json({
+        success: false,
+        error: 'Trop de tentatives',
+        message: rateLimit.message,
+        remainingTime: rateLimit.remainingTime
+      });
+    }
+    
+    // Get user from database
+    const dbUser = getAllUsers().find(u => u.username === username);
+    const clientIp = getClientIp(req);
+    
+    if (!dbUser) {
+      // Record failed login attempt
+      recordLoginAttempt(username, clientIp, false);
+      
+      return res.status(401).json({
+        success: false,
+        error: 'Identifiants invalides',
+        message: 'Nom d\'utilisateur incorrect',
+        remainingAttempts: rateLimit.remainingAttempts - 1
+      });
+    }
+    
+    // For APDP users: require password
+    // For DPD users: skip password, only check IP
+    if (dbUser.role === 'APDP') {
+      // APDP must provide password
+      if (!password) {
+        recordLoginAttempt(username, clientIp, false);
+        return res.status(401).json({
+          success: false,
+          error: 'Mot de passe requis',
+          message: 'Les administrateurs APDP doivent fournir un mot de passe',
+          remainingAttempts: rateLimit.remainingAttempts - 1
+        });
+      }
+      
+      // Verify password for APDP
+      const user = verifyUser(username, password);
+      if (!user) {
+        recordLoginAttempt(username, clientIp, false);
+        return res.status(401).json({
+          success: false,
+          error: 'Identifiants invalides',
+          message: 'Mot de passe incorrect',
+          remainingAttempts: rateLimit.remainingAttempts - 1
+        });
+      }
+    } else {
+      // DPD users: check IP restrictions only
+      if (dbUser.ip_restrictions && dbUser.ip_restrictions.trim() !== '') {
+        const allowedIps = dbUser.ip_restrictions.split(',').map(ip => ip.trim());
+        if (!allowedIps.includes(clientIp)) {
+          recordLoginAttempt(username, clientIp, false);
+          addAuditLog(dbUser.id, 'IP_RESTRICTION_VIOLATION', `Login attempt from unauthorized IP: ${clientIp}`, clientIp);
+          
+          return res.status(403).json({
+            success: false,
+            error: 'Accès refusé',
+            message: `Votre adresse IP (${clientIp}) n'est pas autorisée. Contactez l'administrateur APDP.`
+          });
+        }
+      }
+    }
+    
+    // Record successful login
+    recordLoginAttempt(username, clientIp, true);
+    addAuditLog(dbUser.id, 'LOGIN', `Successful login from ${clientIp}`, clientIp);
+    
+    // Generate JWT token
+    const token = generateToken({
+      id: dbUser.id,
+      username: dbUser.username,
+      role: dbUser.role
+    });
+    
+    return res.json({
+      success: true,
+      token,
+      user: {
+        id: dbUser.id,
+        username: dbUser.username,
+        role: dbUser.role
+      }
+    });
+  } catch (error) {
+    console.error('Login error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Erreur serveur',
+      message: 'Une erreur est survenue lors de la connexion'
+    });
+  }
+});
+
+/**
+ * GET /api/auth/verify
+ * Verify JWT token and return user info
+ */
+app.get(`${API_DIR}/auth/verify`, authMiddleware, (req, res) => {
+  return res.json({
+    success: true,
+    user: {
+      id: req.user.id,
+      username: req.user.username,
+      role: req.user.role
+    }
+  });
+});
+
+/**
+ * POST /api/auth/logout
+ * Logout user (client-side token removal)
+ */
+app.post(`${API_DIR}/auth/logout`, authMiddleware, (req, res) => {
+  addAuditLog(req.user.id, 'LOGOUT', `User logged out`, getClientIp(req));
+  return res.json({
+    success: true,
+    message: 'Déconnexion réussie'
+  });
+});
+
+// ==================== Admin Routes ====================
+
+/**
+ * GET /api/admin/users
+ * Get all users (APDP only)
+ */
+app.get(`${API_DIR}/admin/users`, authMiddleware, adminOnlyMiddleware, (req, res) => {
+  try {
+    const users = getAllUsers();
+    return res.json({
+      success: true,
+      users
+    });
+  } catch (error) {
+    console.error('Get users error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Erreur serveur',
+      message: 'Impossible de récupérer la liste des utilisateurs'
+    });
+  }
+});
+
+/**
+ * POST /api/admin/users
+ * Create new user (APDP only)
+ */
+app.post(`${API_DIR}/admin/users`, authMiddleware, adminOnlyMiddleware, (req, res) => {
+  try {
+    const { username, password, role, ipRestrictions } = req.body;
+    
+    if (!username || !password) {
+      return res.status(400).json({
+        success: false,
+        error: 'Données requises',
+        message: 'Nom d\'utilisateur et mot de passe requis'
+      });
+    }
+    
+    const newUser = createUser(username, password, role || 'DPD', ipRestrictions || '');
+    
+    addAuditLog(req.user.id, 'CREATE_USER', `Created user: ${username} (${role || 'DPD'})`, getClientIp(req));
+    
+    return res.json({
+      success: true,
+      user: newUser,
+      message: 'Utilisateur créé avec succès'
+    });
+  } catch (error) {
+    console.error('Create user error:', error);
+    
+    if (error.message.includes('UNIQUE')) {
+      return res.status(400).json({
+        success: false,
+        error: 'Nom d\'utilisateur existe déjà',
+        message: 'Ce nom d\'utilisateur est déjà utilisé'
+      });
+    }
+    
+    return res.status(500).json({
+      success: false,
+      error: 'Erreur serveur',
+      message: 'Impossible de créer l\'utilisateur'
+    });
+  }
+});
+
+/**
+ * PUT /api/admin/users/:id
+ * Update user (APDP only)
+ */
+app.put(`${API_DIR}/admin/users/:id`, authMiddleware, adminOnlyMiddleware, (req, res) => {
+  try {
+    const userId = parseInt(req.params.id);
+    const updates = {};
+    
+    if (req.body.username !== undefined) updates.username = req.body.username;
+    if (req.body.password !== undefined) updates.password = req.body.password;
+    if (req.body.role !== undefined) updates.role = req.body.role;
+    if (req.body.ipRestrictions !== undefined) updates.ipRestrictions = req.body.ipRestrictions;
+    
+    const success = updateUser(userId, updates);
+    
+    if (!success) {
+      return res.status(404).json({
+        success: false,
+        error: 'Utilisateur introuvable',
+        message: 'Utilisateur non trouvé'
+      });
+    }
+    
+    addAuditLog(req.user.id, 'UPDATE_USER', `Updated user ID: ${userId}`, getClientIp(req));
+    
+    return res.json({
+      success: true,
+      message: 'Utilisateur mis à jour avec succès'
+    });
+  } catch (error) {
+    console.error('Update user error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Erreur serveur',
+      message: 'Impossible de mettre à jour l\'utilisateur'
+    });
+  }
+});
+
+/**
+ * DELETE /api/admin/users/:id
+ * Delete user (APDP only)
+ */
+app.delete(`${API_DIR}/admin/users/:id`, authMiddleware, adminOnlyMiddleware, (req, res) => {
+  try {
+    const userId = parseInt(req.params.id);
+    
+    // Prevent deleting own account
+    if (userId === req.user.id) {
+      return res.status(400).json({
+        success: false,
+        error: 'Action interdite',
+        message: 'Vous ne pouvez pas supprimer votre propre compte'
+      });
+    }
+    
+    const success = deleteUser(userId);
+    
+    if (!success) {
+      return res.status(404).json({
+        success: false,
+        error: 'Utilisateur introuvable',
+        message: 'Utilisateur non trouvé'
+      });
+    }
+    
+    addAuditLog(req.user.id, 'DELETE_USER', `Deleted user ID: ${userId}`, getClientIp(req));
+    
+    return res.json({
+      success: true,
+      message: 'Utilisateur supprimé avec succès'
+    });
+  } catch (error) {
+    console.error('Delete user error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Erreur serveur',
+      message: 'Impossible de supprimer l\'utilisateur'
+    });
+  }
+});
+
+/**
+ * GET /api/admin/plugins
+ * Get disabled plugins list (APDP only)
+ */
+app.get(`${API_DIR}/admin/plugins`, authMiddleware, adminOnlyMiddleware, (req, res) => {
+  try {
+    const disabledPlugins = getDisabledPlugins();
+    return res.json({
+      success: true,
+      disabledPlugins
+    });
+  } catch (error) {
+    console.error('Get plugins error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Erreur serveur',
+      message: 'Impossible de récupérer la liste des plugins'
+    });
+  }
+});
+
+/**
+ * PUT /api/admin/plugins
+ * Update disabled plugins list (APDP only)
+ */
+app.put(`${API_DIR}/admin/plugins`, authMiddleware, adminOnlyMiddleware, (req, res) => {
+  try {
+    const { disabledPlugins } = req.body;
+    
+    if (!Array.isArray(disabledPlugins)) {
+      return res.status(400).json({
+        success: false,
+        error: 'Données invalides',
+        message: 'La liste des plugins doit être un tableau'
+      });
+    }
+    
+    setDisabledPlugins(disabledPlugins);
+    
+    addAuditLog(
+      req.user.id,
+      'UPDATE_PLUGINS',
+      `Updated disabled plugins: ${disabledPlugins.join(', ') || 'none'}`,
+      getClientIp(req)
+    );
+    
+    return res.json({
+      success: true,
+      message: 'Configuration des plugins mise à jour avec succès'
+    });
+  } catch (error) {
+    console.error('Update plugins error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Erreur serveur',
+      message: 'Impossible de mettre à jour la configuration des plugins'
+    });
+  }
+});
+
+/**
+ * GET /api/plugins/available
+ * Get available plugins for current user
+ */
+app.get(`${API_DIR}/plugins/available`, authMiddleware, (req, res) => {
+  try {
+    const disabledPlugins = getDisabledPlugins();
+    
+    // APDP users see all plugins, DPD users see filtered list
+    if (req.user.role === 'APDP') {
+      return res.json({
+        success: true,
+        disabledPlugins: []
+      });
+    }
+    
+    return res.json({
+      success: true,
+      disabledPlugins
+    });
+  } catch (error) {
+    console.error('Get available plugins error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Erreur serveur'
+    });
+  }
+});
+
+// ==================== End of Authentication & Admin Routes ====================
 
 // Read and register each API function as an Express routes
 fs.readdirSync(dirPath, { withFileTypes: true })

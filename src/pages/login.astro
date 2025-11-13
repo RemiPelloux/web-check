@@ -1,0 +1,9 @@
+---
+import Base from '@/layouts/Base.astro';
+import LoginForm from '@/web-check-live/components/Auth/LoginForm';
+---
+
+<Base title="Connexion - APDP" description="Outil d'Audit de Conformité - Accès Sécurisé">
+  <LoginForm client:only="react" />
+</Base>
+

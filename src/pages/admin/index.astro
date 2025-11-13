@@ -1,0 +1,9 @@
+---
+import Base from '@/layouts/Base.astro';
+import Admin from '@/web-check-live/views/Admin';
+---
+
+<Base title="Administration - APDP" description="Panel d'administration pour la gestion des utilisateurs et des plugins">
+  <Admin client:only="react" />
+</Base>
+

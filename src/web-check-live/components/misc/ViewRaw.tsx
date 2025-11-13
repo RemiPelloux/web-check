@@ -43,8 +43,6 @@ const ViewerToggle = styled.div`
 
 const ViewRaw = (props: { everything: { id: string, result: any}[] }) => {
   const [showViewer, setShowViewer] = useState<boolean>(false);
-  const [resultUrl, setResultUrl] = useState<string | null>(null);
-  const [error, setError] = useState<string | null>(null);
 
   const makeResults = () => {
     const result: {[key: string]: any} = {};
@@ -52,28 +50,6 @@ const ViewRaw = (props: { everything: { id: string, result: any}[] }) => {
       result[item.id] = item.result;
     });
     return result;
-  };
-
-  const fetchResultsUrl = async () => {
-    const resultContent = makeResults();
-    const response = await fetch('https://jsonhero.io/api/create.json', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        title: 'web-check results',
-        content: resultContent,
-        readOnly: true,
-        ttl: 3600,
-      })
-    });
-    if (!response.ok) {
-      setError(`HTTP error! status: ${response.status}`);
-    } else {
-      setError(null);
-    }
-    await response.json().then(
-      (data) => setResultUrl(data.location)
-    )
   };
 
   const handleDownload = () => {
@@ -92,7 +68,6 @@ const ViewRaw = (props: { everything: { id: string, result: any}[] }) => {
         <Button onClick={() => setShowViewer(!showViewer)}>
           {showViewer ? '🙈 Masquer' : '👁️ Visualiser'} les Données
         </Button>
-        <Button onClick={fetchResultsUrl}>🔗 Partager via JSON Hero</Button>
       </div>
       
       {showViewer && (
@@ -102,20 +77,6 @@ const ViewRaw = (props: { everything: { id: string, result: any}[] }) => {
           </ViewerToggle>
           <JsonViewer data={makeResults()} />
         </>
-      )}
-      
-      { resultUrl && !error && (
-        <small style={{ display: 'block', marginTop: '1rem', padding: '0.75rem', background: colors.backgroundDarker, borderRadius: '6px' }}>
-          ✅ Lien partageable créé : <a href={resultUrl} target="_blank" rel="noopener noreferrer">Ouvrir dans JSON Hero</a>
-          <br />
-          <em>Ce lien expirera dans 1 heure</em>
-        </small>
-      )}
-      
-      { error && (
-        <p style={{ color: '#ef4444', padding: '0.75rem', background: '#fef2f2', borderRadius: '6px', marginTop: '1rem' }}>
-          ⚠️ Erreur: {error}
-        </p>
       )}
       
       <small style={{ display: 'block', marginTop: '1rem', opacity: 0.7 }}>

@@ -7,9 +7,10 @@ import Heading from 'web-check-live/components/Form/Heading';
 import Footer from 'web-check-live/components/misc/Footer';
 import Nav from 'web-check-live/components/Form/Nav';
 import Button from 'web-check-live/components/Form/Button';
+import CopyableLink from 'web-check-live/components/misc/CopyableLink';
 
 import { StyledCard } from 'web-check-live/components/Form/Card';
-import docs, { about, featureIntro, license, fairUse, supportUs } from 'web-check-live/utils/docs';
+import docs from 'web-check-live/utils/docs';
 
 const AboutContainer = styled.div`
 width: 95vw;
@@ -45,6 +46,12 @@ const Section = styled(StyledCard)`
   h3 {
     font-size: 1.5rem;
   }
+  h4 {
+    font-size: 1.2rem;
+    margin-top: 1.5rem;
+    margin-bottom: 0.75rem;
+    color: ${colors.primary};
+  }
   hr {
     border: none;
     border-top: 1px dashed ${colors.primary};
@@ -53,6 +60,16 @@ const Section = styled(StyledCard)`
   ul {
     padding: 0 0 0 1rem;
     list-style: circle;
+    li {
+      margin-bottom: 0.5rem;
+    }
+  }
+  ol {
+    padding: 0 0 0 1.5rem;
+    li {
+      margin-bottom: 0.75rem;
+      line-height: 1.6;
+    }
   }
   a {
     color: ${colors.primary};
@@ -64,13 +81,19 @@ const Section = styled(StyledCard)`
     padding: 0.5rem;
     width: fit-content;
   }
+  code {
+    background: ${colors.background};
+    border-radius: 3px;
+    padding: 0.2rem 0.4rem;
+    font-family: 'PTMono', monospace;
+    font-size: 0.9em;
+  }
   small { opacity: 0.7; }
   .contents {
     ul {
       list-style: none;
       li {
         a {
-          // color: ${colors.textColor};
           &:visited { opacity: 0.8; }
         }
         b {
@@ -87,11 +110,12 @@ const Section = styled(StyledCard)`
     flex-direction: column;
     clear: both;
     max-width: 300px;
+    margin-left: 1.5rem;
+    margin-bottom: 1rem;
     img {
       float: right;
       break-inside: avoid;
       max-width: 300px;
-      // max-height: 30rem;
       border-radius: 6px;
       clear: both;
     }
@@ -101,17 +125,16 @@ const Section = styled(StyledCard)`
       opacity: 0.7;
     }
   }
-`;
-
-const SponsorshipContainer = styled.div`
-  display: flex;
-  justify-content: space-between;
-  gap: 1rem;
-  flex-wrap: wrap;
-  align-items: center;
-  line-height: 1.5rem;
-  img {
+  .info-box {
+    background: ${colors.backgroundDarker};
+    border-left: 3px solid ${colors.primary};
+    padding: 1rem;
+    margin: 1.5rem 0;
     border-radius: 4px;
+  }
+  p {
+    line-height: 1.6;
+    margin-bottom: 1rem;
   }
 `;
 
@@ -119,13 +142,140 @@ const makeAnchor = (title: string): string => {
   return title.toLowerCase().replace(/[^\w\s]|_/g, "").replace(/\s+/g, "-");
 };
 
+const about = [
+  "BeCompliant est une plateforme professionnelle d'audit de conformité développée par OpenPro. Elle offre une analyse complète et automatisée de la conformité réglementaire, de la sécurité et des meilleures pratiques pour les sites web et applications.",
+  "Notre outil effectue plus de 30 vérifications différentes couvrant la conformité RGPD, la sécurité des données, l'analyse SEO, les performances, l'accessibilité et bien plus encore. Chaque analyse fournit des résultats détaillés avec des recommandations actionnables.",
+];
+
+const howToUse = [
+  "Entrez l'URL complète du site web que vous souhaitez analyser (exemple: https://monsite.com)",
+  "Cliquez sur le bouton 'Analyser' pour lancer l'audit de conformité",
+  "Patientez pendant que notre système effectue l'ensemble des vérifications (généralement 15-30 secondes)",
+  "Consultez les résultats organisés par catégories : Conformité RGPD, Sécurité, Performance, SEO, etc.",
+  "Cliquez sur chaque section pour voir les détails complets de l'analyse",
+  "Utilisez les recommandations pour améliorer la conformité de votre site",
+  "Exportez ou partagez les résultats avec votre équipe",
+];
+
+const understandingResults = {
+  intro: "Chaque analyse retourne des informations structurées et un score de conformité. Voici comment interpréter les résultats :",
+  sections: [
+    {
+      title: "Codes Couleur",
+      items: [
+        "🟢 Vert : Conforme - Aucune action requise",
+        "🟡 Orange : Attention - Amélioration recommandée",
+        "🔴 Rouge : Non-conforme - Action requise",
+        "⚪ Gris : Information - Pas de scoring",
+      ]
+    },
+    {
+      title: "Scores de Conformité",
+      items: [
+        "90-100% : Excellence - Conformité exemplaire",
+        "70-89% : Bon - Conformité satisfaisante avec quelques améliorations possibles",
+        "50-69% : Moyen - Actions correctives recommandées",
+        "0-49% : Faible - Actions correctives urgentes requises",
+      ]
+    },
+    {
+      title: "Types d'Analyses",
+      items: [
+        "Conformité RGPD : Cookies, bannières, politiques de confidentialité, droits des utilisateurs",
+        "Sécurité : SSL/TLS, en-têtes HTTP, certificats, pare-feu, ports ouverts",
+        "Performance : Vitesse de chargement, métriques Core Web Vitals, optimisation",
+        "SEO : Balises meta, sitemap, robots.txt, structure du contenu",
+        "Accessibilité : Normes WCAG, navigation au clavier, lecteurs d'écran",
+      ]
+    }
+  ]
+};
+
+const bestPractices = [
+  {
+    title: "Effectuer des Audits Réguliers",
+    description: "Analysez votre site au moins une fois par mois pour détecter les nouvelles vulnérabilités ou non-conformités."
+  },
+  {
+    title: "Prioriser les Actions",
+    description: "Commencez par corriger les problèmes critiques (rouge) avant de vous attaquer aux améliorations recommandées (orange)."
+  },
+  {
+    title: "Documenter les Changements",
+    description: "Gardez une trace des modifications effectuées suite aux recommandations pour suivre l'évolution de la conformité."
+  },
+  {
+    title: "Former Votre Équipe",
+    description: "Partagez les résultats avec vos développeurs et équipes de conformité pour une meilleure compréhension."
+  },
+  {
+    title: "Surveiller les Réglementations",
+    description: "Les lois sur la protection des données évoluent. Restez informé des changements réglementaires dans votre juridiction."
+  }
+];
+
+const faq = [
+  {
+    question: "Combien de temps prend une analyse ?",
+    answer: "Une analyse complète prend généralement entre 15 et 30 secondes selon la complexité du site et le nombre de vérifications à effectuer."
+  },
+  {
+    question: "Les données analysées sont-elles stockées ?",
+    answer: "Non, nous ne stockons aucune donnée personnelle ou sensible des sites analysés. Les analyses sont effectuées en temps réel et les résultats sont temporaires."
+  },
+  {
+    question: "Puis-je analyser n'importe quel site web ?",
+    answer: "Oui, vous pouvez analyser n'importe quel site web public. Cependant, n'utilisez cet outil que sur des sites dont vous êtes propriétaire ou pour lesquels vous avez l'autorisation d'effectuer un audit."
+  },
+  {
+    question: "Les résultats sont-ils conformes aux normes officielles ?",
+    answer: "Oui, nos analyses suivent les standards officiels : RGPD, OWASP, W3C, WCAG, RFC, et les recommandations de sécurité internationales."
+  },
+  {
+    question: "Comment exporter les résultats ?",
+    answer: "Vous pouvez exporter les résultats en PDF ou JSON directement depuis la page de résultats en utilisant le bouton d'export."
+  },
+  {
+    question: "L'outil détecte-t-il tous les problèmes de conformité ?",
+    answer: "Notre outil détecte la majorité des problèmes techniques de conformité automatiquement. Cependant, certains aspects (comme le contenu des politiques de confidentialité) nécessitent une revue manuelle par un expert juridique."
+  }
+];
+
+const fairUse = [
+  "N'utilisez cet outil que sur des sites web dont vous êtes propriétaire ou pour lesquels vous avez obtenu l'autorisation explicite.",
+  "Ne l'utilisez pas pour des activités malveillantes, du hacking non éthique, ou pour surcharger des serveurs tiers.",
+  "Respectez les limites de taux et n'abusez pas du service avec des analyses automatisées excessives.",
+  "Les résultats sont fournis à titre informatif. Consultez des experts juridiques et de sécurité pour des audits officiels.",
+  "N'utilisez pas les informations découvertes pour exploiter des vulnérabilités sans l'autorisation du propriétaire du site."
+];
+
+const license = `MIT License
+
+Copyright (c) ${new Date().getFullYear()} OpenPro
+
+Permission is hereby granted, free of charge, to any person obtaining a copy
+of this software and associated documentation files (the "Software"), to deal
+in the Software without restriction, including without limitation the rights
+to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+copies of the Software, and to permit persons to whom the Software is
+furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all
+copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+SOFTWARE.`;
+
 const About = (): JSX.Element => {
   const location = useLocation();
 
   useEffect(() => {
-    // Scroll to hash fragment if present
     if (location.hash) {
-      // Add a small delay to ensure the page has fully rendered
       setTimeout(() => {
         const element = document.getElementById(location.hash.slice(1));
         if (element) {
@@ -140,35 +290,81 @@ const About = (): JSX.Element => {
     <AboutContainer>
       <Nav>
         <HeaderLinkContainer>
-          <a href="/check"><Button>Start Assessment</Button></a>
+          <a href="/check"><Button>Démarrer l'Analyse</Button></a>
         </HeaderLinkContainer>
       </Nav>
 
-      <Heading as="h2" size="medium" color={colors.primary}>Intro</Heading>
+      <Heading as="h2" size="medium" color={colors.primary}>Introduction</Heading>
       <Section>
         {about.map((para, index: number) => (
           <p key={index}>{para}</p>
         ))}
         <hr />
         <p>
-          BeCompliant is developed and maintained by <strong>OpenPro</strong>.
-          It's licensed under the <a href="/license">MIT license</a>,
-          and is completely free to use, modify and distribute in both personal and commercial settings.<br />
-          This professional-grade compliance assessment platform provides comprehensive regulatory gap analysis 
-          and security auditing capabilities for compliance officers and risk managers.
+          BeCompliant est développé et maintenu par <strong>OpenPro</strong>.
+          Il est distribué sous <a href="/license">licence MIT</a>,
+          et est totalement gratuit pour une utilisation personnelle et commerciale.<br />
+          Cette plateforme d'audit de conformité professionnelle fournit une analyse complète 
+          des écarts réglementaires et des capacités d'audit de sécurité pour les responsables 
+          de la conformité et les gestionnaires de risques.
         </p>
       </Section>
-      
-      <Heading as="h2" size="medium" color={colors.primary}>Features</Heading>
+
+      <Heading as="h2" size="medium" color={colors.primary}>Comment Utiliser BeCompliant</Heading>
       <Section>
-        {featureIntro.map((fi: string, i: number) => (<p key={i}>{fi}</p>))}
+        <p>
+          BeCompliant est conçu pour être simple d'utilisation tout en fournissant des résultats 
+          professionnels et détaillés. Suivez ces étapes pour effectuer votre première analyse :
+        </p>
+        <ol>
+          {howToUse.map((step, index) => (
+            <li key={index}>{step}</li>
+          ))}
+        </ol>
+        <div className="info-box">
+          <strong>💡 Conseil :</strong> Pour de meilleurs résultats, analysez votre site en production 
+          plutôt qu'en développement, car certaines vérifications nécessitent un environnement réel 
+          (certificats SSL, DNS, etc.).
+        </div>
+      </Section>
+
+      <Heading as="h2" size="medium" color={colors.primary}>Comprendre les Résultats</Heading>
+      <Section>
+        <p>{understandingResults.intro}</p>
+        
+        {understandingResults.sections.map((section, idx) => (
+          <div key={idx}>
+            <Heading as="h4" size="small">{section.title}</Heading>
+            <ul>
+              {section.items.map((item, itemIdx) => (
+                <li key={itemIdx}>{item}</li>
+              ))}
+            </ul>
+          </div>
+        ))}
+
+        <div className="info-box">
+          <strong>📊 Note importante :</strong> Les scores sont calculés automatiquement en fonction 
+          des meilleures pratiques et standards internationaux. Un score élevé indique une bonne 
+          conformité, mais ne remplace pas un audit juridique ou de sécurité professionnel pour 
+          des cas critiques.
+        </div>
+      </Section>
+      
+      <Heading as="h2" size="medium" color={colors.primary}>Analyses Disponibles</Heading>
+      <Section>
+        <p>
+          BeCompliant effectue plus de 30 types d'analyses différentes couvrant tous les aspects 
+          de la conformité, de la sécurité et de la qualité web. Voici la liste complète :
+        </p>
         <div className="contents">
-        <Heading as="h3" size="small" id="#feature-contents" color={colors.primary}>Contents</Heading>
+          <Heading as="h3" size="small" id="feature-contents" color={colors.primary}>Table des Matières</Heading>
           <ul>
             {docs.map((section, index: number) => (
               <li key={`content-${index}-${section.title}`}>
                 <b>{index + 1}</b>
-                <a href={`#${makeAnchor(section.title)}`}>{section.title}</a></li>
+                <a href={`#${makeAnchor(section.title)}`}>{section.title}</a>
+              </li>
             ))}
           </ul>
           <hr />
@@ -176,11 +372,13 @@ const About = (): JSX.Element => {
         {docs.map((section, sectionIndex: number) => (
           <section key={section.title}>
             { sectionIndex > 0 && <hr /> }
-            <Heading as="h3" size="small" id={makeAnchor(section.title)} color={colors.primary}>{section.title}</Heading>
+            <Heading as="h3" size="small" id={makeAnchor(section.title)} color={colors.primary}>
+              {section.title}
+            </Heading>
             {section.screenshot &&
               <figure className="example-screenshot">
-                <img className="screenshot" src={section.screenshot} alt={`Example Screenshot ${section.title}`} />
-                <figcaption>Fig.{sectionIndex + 1} - Example of {section.title}</figcaption>
+                <img className="screenshot" src={section.screenshot} alt={`Exemple ${section.title}`} />
+                <figcaption>Fig.{sectionIndex + 1} - Exemple de {section.title}</figcaption>
               </figure> 
             }
             {section.description && <>
@@ -188,17 +386,21 @@ const About = (): JSX.Element => {
               <p>{section.description}</p>
             </>}
             { section.use && <>
-              <Heading as="h4" size="small">Use Cases</Heading>
+              <Heading as="h4" size="small">Cas d'Usage</Heading>
               <p>{section.use}</p>
             </>}
             {section.resources && section.resources.length > 0 && <>
-              <Heading as="h4" size="small">Useful Links</Heading>
+              <Heading as="h4" size="small">Ressources Utiles</Heading>
               <ul>
-                {section.resources.map((link: string | { title: string, link: string }, linkIndx: number) => (
+                {section.resources.map((link: string | { title: string, link: string}, linkIndx: number) => (
                   typeof link === 'string' ? (
-                    <li key={`link-${linkIndx}`} id={`link-${linkIndx}`}><a target="_blank" rel="noreferrer" href={link}>{link}</a></li>
+                    <li key={`link-${linkIndx}`}>
+                      <CopyableLink url={link} />
+                    </li>
                   ) : (
-                    <li key={`link-${linkIndx}`} id={`link-${linkIndx}`}><a target="_blank" rel="noreferrer" href={link.link}>{link.title}</a></li>
+                    <li key={`link-${linkIndx}`}>
+                      <CopyableLink url={link.link} label={link.title} />
+                    </li>
                   )
                 ))}
               </ul>
@@ -207,106 +409,86 @@ const About = (): JSX.Element => {
         ))}
       </Section>
 
-      <Heading as="h2" size="medium" color={colors.primary}>Deploy your own Instance</Heading>
+      <Heading as="h2" size="medium" color={colors.primary}>Meilleures Pratiques</Heading>
       <Section>
-        <p>BeCompliant is designed to be easily self-hosted for enterprise compliance needs.</p>
-        <Heading as="h3" size="small" color={colors.primary}>Option #1 - Docker</Heading>
         <p>
-        Run this command to start your own instance, then open <code>localhost:3000</code>
-        <pre>docker run -p 3000:3000 webcheck/web-check</pre>
+          Pour tirer le meilleur parti de BeCompliant et maintenir une conformité optimale, 
+          suivez ces recommandations :
         </p>
-
-        <Heading as="h3" size="small" color={colors.primary}>Option #2 - Manual Installation</Heading>
-        <pre>
-        # Clone the repository<br />
-        git clone [repository-url]<br />
-        cd web-check<br />
-        yarn install<br />
-        yarn build<br />
-        yarn start<br />
-        </pre>
-
-        <Heading as="h3" size="small" color={colors.primary}>Option #3 - Cloud Deployment</Heading>
-        <p>
-          Deploy to your preferred cloud platform using Docker containers or 
-          by building from source. Supports all major cloud providers.
-        </p>
-
-        <Heading as="h3" size="small" color={colors.primary}>Further Documentation</Heading>
-        <p>
-          More detailed installation and setup instructions are available
-          in the self-hosting guide section above.
-        </p>
-
-        <Heading as="h3" size="small" color={colors.primary}>Configuring</Heading>
-        <p>
-          There are some optional environmental variables you can specify to give you access to some additional Web-Checks.
-          See the README for full list of options.
-        </p>
-
-        <ul>
-          <li>
-            <code>GOOGLE_CLOUD_API_KEY</code>
-            : <a target="_blank" rel="noreferrer" href="https://cloud.google.com/api-gateway/docs/authenticate-api-keys">A Google API key</a>
-            <i> Used to return quality metrics for a site</i>
-          </li>
-          <li>
-            <code>REACT_APP_SHODAN_API_KEY</code>
-            : <a target="_blank" rel="noreferrer" href="https://account.shodan.io/">A Shodan API key</a>
-            <i> To show associated hosts for a domain</i>
-          </li>
-          <li>
-            <code>REACT_APP_WHO_API_KEY</code>
-            : <a target="_blank" rel="noreferrer" href="https://whoapi.com/">A WhoAPI key</a>
-            <i> Allows for more comprehensive WhoIs records</i>
-          </li>
-        </ul>
-
+        {bestPractices.map((practice, index) => (
+          <div key={index}>
+            <Heading as="h4" size="small">{practice.title}</Heading>
+            <p>{practice.description}</p>
+          </div>
+        ))}
       </Section>
 
-      <Heading as="h2" size="medium" color={colors.primary}>API Documentation</Heading>
+      <Heading as="h2" size="medium" color={colors.primary}>Questions Fréquentes</Heading>
       <Section>
-        {/* eslint-disable-next-line*/}
-        <p>// Coming soon...</p>
+        {faq.map((item, index) => (
+          <div key={index}>
+            <Heading as="h4" size="small">{item.question}</Heading>
+            <p>{item.answer}</p>
+          </div>
+        ))}
       </Section>
 
-
-
-      <Heading as="h2" size="medium" color={colors.primary}>Support Us</Heading>
+      <Heading as="h2" size="medium" color={colors.primary}>Conditions d'Utilisation</Heading>
       <Section>
-        {supportUs.map((para, index: number) => (<p key={`support-${index}`} dangerouslySetInnerHTML={{__html: para}} />))}
-      </Section>
-
-      <Heading as="h2" size="medium" color={colors.primary}>Terms & Info</Heading>
-      <Section>
-              <Heading as="h3" size="small" color={colors.primary}>License</Heading>
+        <Heading as="h3" size="small" color={colors.primary}>Licence</Heading>
         <b>
-          BeCompliant is distributed under the MIT license,
+          BeCompliant est distribué sous licence MIT,
           © <strong>OpenPro</strong> { new Date().getFullYear()}
         </b>
         <br />
-        <small>For more info, see <a target="_blank" rel="noreferrer" href="https://tldrlegal.com/license/mit-license">TLDR Legal → MIT</a></small>
+        <small>
+          Pour plus d'informations, consultez{' '}
+          <CopyableLink 
+            url="https://tldrlegal.com/license/mit-license" 
+            label="TLDR Legal → MIT"
+          />
+        </small>
         <pre>{license}</pre>
         <hr />
-        <Heading as="h3" size="small" color={colors.primary}>Fair Use</Heading>
+        
+        <Heading as="h3" size="small" color={colors.primary}>Usage Équitable</Heading>
         <ul>
           {fairUse.map((para, index: number) => (<li key={`fairuse-${index}`}>{para}</li>))}
         </ul>
         <hr />
-        <Heading as="h3" size="small" color={colors.primary}>Privacy</Heading>
+        
+        <Heading as="h3" size="small" color={colors.primary}>Confidentialité</Heading>
         <p>
-        Analytics are used on the demo instance (via a self-hosted Plausible instance), this only records the URL you visited but no personal data.
-        There's also some basic error logging (via a self-hosted GlitchTip instance), this is only used to help me fix bugs.
-        <br />
-        <br />
-        Neither your IP address, browser/OS/hardware info, nor any other data will ever be collected or logged.
-        (You may verify this yourself, either by inspecting the source code or the using developer tools)
+          Des analyses statistiques anonymes sont utilisées sur l'instance de démonstration 
+          (via une instance Plausible auto-hébergée), qui enregistre uniquement l'URL visitée 
+          mais aucune donnée personnelle. Il existe également une journalisation d'erreurs basique 
+          (via une instance GlitchTip auto-hébergée), utilisée uniquement pour corriger les bugs.
+          <br /><br />
+          Ni votre adresse IP, ni les informations sur votre navigateur/OS/matériel, ni aucune 
+          autre donnée ne seront jamais collectées ou enregistrées. (Vous pouvez le vérifier 
+          vous-même, soit en inspectant le code source, soit en utilisant les outils de développement)
+        </p>
+        <hr />
+        
+        <Heading as="h3" size="small" color={colors.primary}>Support</Heading>
+        <p>
+          Pour toute question, suggestion d'amélioration ou signalement de bug, 
+          n'hésitez pas à nous contacter via notre{' '}
+          <CopyableLink 
+            url="https://github.com/xray-web/web-check" 
+            label="dépôt GitHub"
+          />
+          {' '}ou à consulter la documentation complète.
+        </p>
+        <p>
+          <strong>OpenPro</strong> s'engage à maintenir et améliorer continuellement BeCompliant 
+          pour offrir la meilleure expérience d'audit de conformité possible.
         </p>
       </Section>
     </AboutContainer>
     <Footer />
     </div>
   );
-}
+};
 
 export default About;

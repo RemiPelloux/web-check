@@ -217,7 +217,7 @@ const LegalPagesCard: React.FC<LegalPagesCardProps> = ({ data, title, actionButt
         'Finalités et base légale du traitement',
         'Durées de conservation',
         'Droits des personnes concernées',
-        'Coordonnées du DPO si applicable'
+        'Coordonnées du DPD si applicable'
       ]
     },
     {

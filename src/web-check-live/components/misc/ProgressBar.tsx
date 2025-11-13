@@ -224,7 +224,7 @@ const jobNames = [
   // 'whois',
   'txt-records',
   'block-lists',
-  'features',
+  // 'features', // Removed per APDP requirement - features detection not needed
   'sitemap',
   'carbon',
   'apdp-cookie-banner',

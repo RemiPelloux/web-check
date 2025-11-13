@@ -72,8 +72,10 @@ const generateHTMLReport = (
   <title>Rapport de Conformité APDP - ${data.url}</title>
   <style>
     @page {
-      margin: 15mm 10mm;
+      margin: 18mm 12mm;
       size: A4;
+      orphans: 3;
+      widows: 3;
     }
     
     * {
@@ -87,6 +89,7 @@ const generateHTMLReport = (
       body {
         print-color-adjust: exact;
         -webkit-print-color-adjust: exact;
+        color-adjust: exact;
       }
       
       /* Prevent awkward breaks */
@@ -98,6 +101,7 @@ const generateHTMLReport = (
       .section, .info-box, .alert-box, .summary-card, .issue-card, .category-card {
         page-break-inside: avoid;
         break-inside: avoid;
+        margin-bottom: 24px;
       }
       
       /* Hide screen-only elements */
@@ -108,8 +112,9 @@ const generateHTMLReport = (
       /* Optimize spacing for print */
       .page {
         margin-bottom: 0 !important;
-        page-break-after: always;
+        page-break-after: auto;
         page-break-inside: avoid;
+        min-height: 240mm;
       }
       
       .page:last-child {
@@ -129,31 +134,37 @@ const generateHTMLReport = (
       --color-bg: #FFFFFF;
       --color-bg-secondary: #F9FAFB;
       --color-border: #E5E7EB;
-      --spacing-xs: 4px;
-      --spacing-sm: 8px;
-      --spacing-md: 16px;
-      --spacing-lg: 24px;
-      --spacing-xl: 32px;
-      --spacing-2xl: 48px;
-      --radius-sm: 6px;
-      --radius-md: 8px;
+      --space-xs: 8px;
+      --space-sm: 12px;
+      --space-md: 20px;
+      --space-lg: 32px;
+      --space-xl: 48px;
+      --spacing-xs: 8px;
+      --spacing-sm: 12px;
+      --spacing-md: 20px;
+      --spacing-lg: 32px;
+      --spacing-xl: 48px;
+      --spacing-2xl: 64px;
+      --radius-sm: 8px;
+      --radius-md: 10px;
       --radius-lg: 12px;
       --radius-xl: 16px;
-      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
-      --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.07);
-      --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.1);
+      --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.04);
+      --shadow-md: 0 2px 4px rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 4px 8px rgba(0, 0, 0, 0.08);
       --transition: all 0.2s ease;
     }
     
     body {
       font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Inter', 'Helvetica Neue', Arial, sans-serif;
-      font-size: 11pt;
-      line-height: 1.8;
+      font-size: 16pt;
+      line-height: 2;
       color: var(--color-text);
-      background: var(--color-bg);
+      background: #f5f5f5;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
       letter-spacing: 0.01em;
+      padding: 2em;
     }
     
     /* Smooth scrolling for better UX */
@@ -162,9 +173,10 @@ const generateHTMLReport = (
     }
     
     .page {
-      page-break-after: always;
+      page-break-after: auto;
       page-break-inside: avoid;
       position: relative;
+      min-height: 240mm;
     }
     
     .page:last-child {
@@ -184,22 +196,23 @@ const generateHTMLReport = (
       }
       
       .header {
-        margin: 0 0 15px 0 !important;
+        margin: 0 0 24px 0 !important;
       }
       
       .section {
-        margin: 0 0 15px 0 !important;
+        margin: 0 0 32px 0 !important;
       }
       
       .footer {
-        margin: 15px 0 0 0 !important;
+        margin: 24px 0 0 0 !important;
       }
     }
     
     /* Enhanced readability with better spacing */
     p {
       margin-bottom: var(--spacing-md);
-      line-height: 1.8;
+      line-height: 1.7;
+      font-size: 11pt;
     }
     
     h1, h2, h3, h4, h5, h6 {
@@ -209,8 +222,8 @@ const generateHTMLReport = (
       margin-bottom: var(--spacing-md);
     }
     
-    h1 { font-size: 28pt; margin-top: var(--spacing-2xl); }
-    h2 { font-size: 20pt; margin-top: var(--spacing-xl); }
+    h1 { font-size: 24pt; margin-top: var(--spacing-2xl); }
+    h2 { font-size: 18pt; margin-top: var(--spacing-xl); }
     h3 { font-size: 14pt; margin-top: var(--spacing-lg); }
     
     /* Better text rendering */
@@ -241,7 +254,7 @@ const generateHTMLReport = (
       min-height: 100vh;
       background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-dark) 100%);
       color: white;
-      padding: 40mm 20mm;
+      padding: 50mm 25mm;
       margin: 0;
       position: relative;
       overflow: hidden;
@@ -250,7 +263,7 @@ const generateHTMLReport = (
     @media print {
       .cover-page {
         min-height: 260mm;
-        padding: 30mm 15mm;
+        padding: 40mm 20mm;
         margin: 0;
       }
     }
@@ -270,22 +283,22 @@ const generateHTMLReport = (
     }
     
     .cover-logo {
-      width: 140px;
-      height: 140px;
+      width: 160px;
+      height: 160px;
       background: white;
       border-radius: var(--radius-xl);
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
-      margin-bottom: 50px;
+      margin-bottom: 60px;
       box-shadow: var(--shadow-lg), 0 20px 40px rgba(0, 0, 0, 0.2);
       position: relative;
       z-index: 1;
     }
     
     .cover-logo-text {
-      font-size: 48pt;
+      font-size: 52pt;
       font-weight: 900;
       color: var(--color-primary);
       line-height: 1;
@@ -293,17 +306,17 @@ const generateHTMLReport = (
     }
     
     .cover-logo-subtitle {
-      font-size: 15pt;
+      font-size: 16pt;
       color: var(--color-primary-dark);
       font-weight: 600;
-      margin-top: 6px;
+      margin-top: 8px;
       letter-spacing: 0.05em;
     }
     
     .cover-title {
-      font-size: 52pt;
+      font-size: 56pt;
       font-weight: 900;
-      margin: 35px 0 25px 0;
+      margin: 40px 0 30px 0;
       letter-spacing: -0.01em;
       text-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
       position: relative;
@@ -311,9 +324,9 @@ const generateHTMLReport = (
     }
     
     .cover-subtitle {
-      font-size: 22pt;
+      font-size: 24pt;
       font-weight: 300;
-      margin-bottom: 70px;
+      margin-bottom: 80px;
       opacity: 0.95;
       max-width: 80%;
       line-height: 1.5;
@@ -326,8 +339,8 @@ const generateHTMLReport = (
       backdrop-filter: blur(12px);
       border: 1px solid rgba(255, 255, 255, 0.25);
       border-radius: var(--radius-xl);
-      padding: 35px 45px;
-      margin: 50px 0;
+      padding: 40px 50px;
+      margin: 60px 0;
       min-width: 65%;
       box-shadow: var(--shadow-lg);
       position: relative;
@@ -338,9 +351,9 @@ const generateHTMLReport = (
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin: 18px 0;
-      font-size: 13pt;
-      padding: 8px 0;
+      margin: 20px 0;
+      font-size: 14pt;
+      padding: 10px 0;
     }
     
     .cover-info-label {
@@ -358,7 +371,7 @@ const generateHTMLReport = (
     
     .cover-footer {
       margin-top: auto;
-      font-size: 10pt;
+      font-size: 11pt;
       opacity: 0.85;
       font-style: italic;
       position: relative;
@@ -368,16 +381,16 @@ const generateHTMLReport = (
     /* Header for content pages */
     .header {
       background: linear-gradient(135deg, #DC2626 0%, #991B1B 100%);
-      padding: 15px 20px;
-      margin: 0 0 20px 0;
+      padding: 20px 24px;
+      margin: 0 0 32px 0;
       color: white;
       box-shadow: 0 2px 4px rgba(0,0,0,0.1);
     }
     
     @media print {
       .header {
-        padding: 12px 15px;
-        margin: 0 0 15px 0;
+        padding: 18px 20px;
+        margin: 0 0 24px 0;
         box-shadow: none;
       }
     }
@@ -389,34 +402,34 @@ const generateHTMLReport = (
     }
     
     .logo-box {
-      width: 80px;
-      height: 60px;
+      width: 90px;
+      height: 65px;
       background: white;
-      border-radius: 8px;
+      border-radius: 10px;
       display: flex;
       flex-direction: column;
       align-items: center;
       justify-content: center;
       font-weight: bold;
       color: #DC2626;
-      font-size: 11pt;
+      font-size: 12pt;
       box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
     
     .header-title {
       flex: 1;
-      margin-left: 30px;
+      margin-left: 32px;
     }
     
     .header-title h1 {
-      font-size: 24pt;
+      font-size: 22pt;
       font-weight: 700;
-      margin-bottom: 5px;
+      margin-bottom: 6px;
       letter-spacing: 0.5px;
     }
     
     .header-title p {
-      font-size: 11pt;
+      font-size: 12pt;
       opacity: 0.95;
       font-weight: 300;
     }
@@ -425,14 +438,15 @@ const generateHTMLReport = (
     .info-box {
       background: linear-gradient(135deg, var(--color-bg-secondary) 0%, #E5E7EB 100%);
       border-left: 5px solid var(--color-primary);
-      padding: var(--spacing-lg) var(--spacing-xl);
+      padding: 28px 32px;
       margin: var(--spacing-xl) 0;
       border-radius: 0 var(--radius-lg) var(--radius-lg) 0;
       box-shadow: var(--shadow-sm);
+      page-break-inside: avoid;
     }
     
     .info-box h3 {
-      font-size: 12pt;
+      font-size: 13pt;
       color: var(--color-primary);
       margin-bottom: var(--spacing-md);
       font-weight: 700;
@@ -444,8 +458,8 @@ const generateHTMLReport = (
     .info-row {
       display: flex;
       margin: var(--spacing-sm) 0;
-      font-size: 10pt;
-      line-height: 1.6;
+      font-size: 11pt;
+      line-height: 1.7;
       padding: var(--spacing-xs) 0;
       border-bottom: 1px solid rgba(0, 0, 0, 0.05);
     }
@@ -457,7 +471,7 @@ const generateHTMLReport = (
     .info-label {
       font-weight: 600;
       color: var(--color-text);
-      min-width: 140px;
+      min-width: 150px;
       flex-shrink: 0;
     }
     
@@ -469,35 +483,38 @@ const generateHTMLReport = (
     
     /* Section Title */
     .section {
-      margin: 25px 0;
+      margin: 3em 0;
+      padding: 2em;
+      background: rgba(220, 38, 38, 0.02);
       page-break-inside: avoid;
+      break-inside: avoid;
     }
     
     .section-title {
       display: flex;
       align-items: center;
-      margin: 20px 0 15px 0;
-      padding-bottom: 8px;
+      margin: 24px 0 20px 0;
+      padding-bottom: 10px;
       border-bottom: 2px solid #DC2626;
     }
     
     .section-number {
       background: #DC2626;
       color: white;
-      width: 28px;
-      height: 28px;
+      width: 32px;
+      height: 32px;
       border-radius: 50%;
       display: flex;
       align-items: center;
       justify-content: center;
       font-weight: bold;
-      font-size: 12pt;
-      margin-right: 12px;
+      font-size: 13pt;
+      margin-right: 14px;
       box-shadow: 0 2px 4px rgba(220, 38, 38, 0.3);
     }
     
     .section-title h2 {
-      font-size: 14pt;
+      font-size: 16pt;
       color: #111827;
       font-weight: 700;
     }
@@ -513,12 +530,13 @@ const generateHTMLReport = (
       align-items: center;
       box-shadow: var(--shadow-md), 0 0 0 1px rgba(0, 0, 0, 0.02);
       page-break-inside: avoid;
+      break-inside: avoid;
       gap: var(--spacing-xl);
     }
     
     .score-circle {
-      width: 120px;
-      height: 120px;
+      width: 130px;
+      height: 130px;
       border-radius: 50%;
       border: 6px solid ${scoreColor};
       display: flex;
@@ -527,26 +545,26 @@ const generateHTMLReport = (
       justify-content: center;
       background: white;
       box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-      margin-right: 30px;
+      margin-right: 32px;
       flex-shrink: 0;
     }
     
     .score-grade {
-      font-size: 14pt;
+      font-size: 15pt;
       font-weight: bold;
       color: ${scoreColor};
-      margin-bottom: 5px;
+      margin-bottom: 6px;
     }
     
     .score-number {
-      font-size: 32pt;
+      font-size: 34pt;
       font-weight: 700;
       color: ${scoreColor};
       line-height: 1;
     }
     
     .score-max {
-      font-size: 11pt;
+      font-size: 12pt;
       color: #6B7280;
     }
     
@@ -555,32 +573,32 @@ const generateHTMLReport = (
     }
     
     .score-details h3 {
-      font-size: 16pt;
+      font-size: 17pt;
       color: #111827;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
       font-weight: 700;
     }
     
     .score-level {
-      font-size: 11pt;
+      font-size: 12pt;
       color: #374151;
-      margin-bottom: 12px;
+      margin-bottom: 14px;
     }
     
     .score-status {
       background: ${scoreColor};
       color: white;
-      padding: 8px 15px;
-      border-radius: 6px;
+      padding: 10px 18px;
+      border-radius: 8px;
       display: inline-block;
       font-weight: 600;
-      font-size: 10pt;
+      font-size: 11pt;
       box-shadow: 0 2px 4px rgba(0,0,0,0.2);
     }
     
     .score-interpretation {
-      margin-top: 10px;
-      font-size: 9pt;
+      margin-top: 12px;
+      font-size: 10pt;
       color: #6B7280;
       font-style: italic;
     }
@@ -589,21 +607,23 @@ const generateHTMLReport = (
     .summary-grid {
       display: grid;
       grid-template-columns: repeat(4, 1fr);
-      gap: var(--spacing-lg);
+      gap: 24px;
       margin: var(--spacing-xl) 0;
     }
     
     .summary-card {
       background: white;
       border-radius: var(--radius-lg);
-      padding: var(--spacing-lg) var(--spacing-md);
+      padding: 3em;
       text-align: center;
-      border: 2px solid var(--color-border);
-      box-shadow: var(--shadow-sm);
+      border: 5px solid var(--color-border);
+      box-shadow: var(--shadow-md);
       page-break-inside: avoid;
+      break-inside: avoid;
       transition: var(--transition);
       position: relative;
       overflow: hidden;
+      margin: 2em 0;
     }
     
     .summary-card::before {
@@ -634,7 +654,7 @@ const generateHTMLReport = (
     .summary-card.success { background: linear-gradient(180deg, #F0FDF4 0%, white 100%); border-color: #A7F3D0; }
     
     .summary-number {
-      font-size: 36pt;
+      font-size: 40pt;
       font-weight: 800;
       margin: var(--spacing-md) 0 var(--spacing-sm) 0;
       line-height: 1;
@@ -647,15 +667,15 @@ const generateHTMLReport = (
     .summary-card.success .summary-number { color: var(--color-success); }
     
     .summary-label {
-      font-size: 10pt;
+      font-size: 11pt;
       font-weight: 600;
       color: var(--color-text);
       margin-top: var(--spacing-sm);
-      line-height: 1.4;
+      line-height: 1.5;
     }
     
     .summary-sublabel {
-      font-size: 9pt;
+      font-size: 10pt;
       color: var(--color-text-secondary);
       margin-top: var(--spacing-xs);
     }
@@ -663,12 +683,13 @@ const generateHTMLReport = (
     /* Category Cards */
     .category-card {
       background: white;
-      border-left: 4px solid #E5E7EB;
-      padding: 12px 15px;
-      margin: 10px 0;
-      border-radius: 0 6px 6px 0;
+      border-left: 5px solid #E5E7EB;
+      padding: 16px 20px;
+      margin: 14px 0;
+      border-radius: 0 8px 8px 0;
       box-shadow: 0 2px 4px rgba(0,0,0,0.05);
       page-break-inside: avoid;
+      break-inside: avoid;
     }
     
     .category-card.good { border-left-color: #059669; background: linear-gradient(90deg, #F0FDF4 0%, white 100%); }
@@ -679,18 +700,18 @@ const generateHTMLReport = (
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
     
     .category-name {
       font-weight: 600;
-      font-size: 10pt;
+      font-size: 11pt;
       color: #111827;
     }
     
     .category-score {
       font-weight: 700;
-      font-size: 12pt;
+      font-size: 13pt;
     }
     
     .category-card.good .category-score { color: #059669; }
@@ -698,21 +719,21 @@ const generateHTMLReport = (
     .category-card.critical .category-score { color: #DC2626; }
     
     .category-issues {
-      font-size: 8pt;
+      font-size: 10pt;
       color: #6B7280;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
     
     .progress-bar {
-      height: 6px;
+      height: 7px;
       background: #E5E7EB;
-      border-radius: 3px;
+      border-radius: 4px;
       overflow: hidden;
     }
     
     .progress-fill {
       height: 100%;
-      border-radius: 3px;
+      border-radius: 4px;
       transition: width 0.3s;
     }
     
@@ -724,11 +745,12 @@ const generateHTMLReport = (
     .issue-card {
       background: white;
       border-radius: var(--radius-md);
-      padding: var(--spacing-lg);
-      margin: var(--spacing-lg) 0;
+      padding: 24px;
+      margin: 24px 0;
       box-shadow: var(--shadow-sm), 0 0 0 1px rgba(0, 0, 0, 0.03);
       border-left: 5px solid var(--color-border);
       page-break-inside: avoid;
+      break-inside: avoid;
       transition: var(--transition);
     }
     
@@ -755,12 +777,12 @@ const generateHTMLReport = (
     .issue-header {
       display: flex;
       align-items: start;
-      margin-bottom: 10px;
+      margin-bottom: 12px;
     }
     
     .issue-number {
-      width: 24px;
-      height: 24px;
+      width: 28px;
+      height: 28px;
       border-radius: 50%;
       background: #DC2626;
       color: white;
@@ -768,9 +790,9 @@ const generateHTMLReport = (
       align-items: center;
       justify-content: center;
       font-weight: bold;
-      font-size: 10pt;
+      font-size: 11pt;
       flex-shrink: 0;
-      margin-right: 10px;
+      margin-right: 12px;
     }
     
     .issue-card.warning .issue-number { background: #D97706; }
@@ -781,7 +803,7 @@ const generateHTMLReport = (
     }
     
     .issue-title {
-      font-size: 12pt;
+      font-size: 13pt;
       font-weight: 700;
       color: var(--color-text);
       margin-bottom: var(--spacing-sm);
@@ -793,9 +815,9 @@ const generateHTMLReport = (
       display: inline-block;
       background: var(--color-critical);
       color: white;
-      padding: 4px 12px;
+      padding: 5px 14px;
       border-radius: var(--radius-sm);
-      font-size: 9pt;
+      font-size: 10pt;
       font-weight: 600;
       letter-spacing: 0.02em;
       text-transform: uppercase;
@@ -805,25 +827,25 @@ const generateHTMLReport = (
     .issue-card.info .issue-category { background: var(--color-info); }
     
     .issue-description {
-      font-size: 10pt;
+      font-size: 11pt;
       color: var(--color-text-secondary);
       margin: var(--spacing-md) 0;
-      line-height: 1.8;
+      line-height: 1.7;
     }
     
     .issue-recommendation {
       background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%);
       border-left: 4px solid var(--color-info);
-      padding: var(--spacing-md) var(--spacing-lg);
+      padding: 16px 20px;
       border-radius: 0 var(--radius-md) var(--radius-md) 0;
       margin: var(--spacing-md) 0;
     }
     
     .recommendation-title {
-      font-size: 10pt;
+      font-size: 11pt;
       font-weight: 700;
       color: var(--color-info);
-      margin-bottom: var(--spacing-sm);
+      margin-bottom: 10px;
       display: flex;
       align-items: center;
       gap: var(--spacing-sm);
@@ -831,29 +853,29 @@ const generateHTMLReport = (
     
     .recommendation-title::before {
       content: '💡';
-      font-size: 12pt;
+      font-size: 13pt;
     }
     
     .recommendation-text {
-      font-size: 10pt;
+      font-size: 11pt;
       color: var(--color-text);
-      line-height: 1.8;
+      line-height: 1.7;
     }
     
     .issue-metadata {
       display: flex;
-      gap: 15px;
-      font-size: 8pt;
+      gap: 20px;
+      font-size: 10pt;
       color: #6B7280;
-      margin-top: 10px;
-      padding-top: 8px;
+      margin-top: 14px;
+      padding-top: 12px;
       border-top: 1px solid #E5E7EB;
     }
     
     .metadata-item {
       display: flex;
       align-items: center;
-      gap: 4px;
+      gap: 6px;
     }
     
     .metadata-label {
@@ -861,19 +883,24 @@ const generateHTMLReport = (
     }
     
     .issue-legal {
-      font-size: 8pt;
+      font-size: 10pt;
       color: #DC2626;
       font-style: italic;
-      margin-top: 5px;
+      margin-top: 10px;
+      padding: 10px 14px;
+      background: rgba(220, 38, 38, 0.05);
+      border-left: 3px solid #DC2626;
+      border-radius: 0 6px 6px 0;
     }
     
     /* Alert Boxes - Enhanced for better readability */
     .alert-box {
-      padding: var(--spacing-lg) var(--spacing-xl);
+      padding: 24px 28px;
       border-radius: var(--radius-lg);
       margin: var(--spacing-xl) 0;
       border-left: 5px solid;
       page-break-inside: avoid;
+      break-inside: avoid;
       box-shadow: var(--shadow-sm), 0 0 0 1px rgba(0, 0, 0, 0.02);
       position: relative;
     }
@@ -897,6 +924,33 @@ const generateHTMLReport = (
       border-left-color: var(--color-info);
       border: 1px solid #BFDBFE;
       border-left-width: 5px;
+    }
+    
+    .alert-box.success {
+      background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%);
+      border-left-color: var(--color-success);
+      border: 1px solid #A7F3D0;
+      border-left-width: 5px;
+    }
+    
+    .alert-title {
+      font-size: 13pt;
+      font-weight: 700;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    
+    .alert-box.critical .alert-title { color: var(--color-critical); }
+    .alert-box.warning .alert-title { color: var(--color-warning); }
+    .alert-box.info .alert-title { color: var(--color-info); }
+    .alert-box.success .alert-title { color: var(--color-success); }
+    
+    .alert-text {
+      font-size: 11pt;
+      line-height: 1.7;
+      color: var(--color-text);
     }
     
     .alert-box.success {
@@ -992,10 +1046,10 @@ const generateHTMLReport = (
     
     /* Footer */
     .footer {
-      margin-top: 20px;
-      padding: 12px 0 8px 0;
+      margin-top: 32px;
+      padding: 16px 0 12px 0;
       border-top: 2px solid #E5E7EB;
-      font-size: 8pt;
+      font-size: 10pt;
       color: #6B7280;
       page-break-inside: avoid;
     }
@@ -1004,38 +1058,38 @@ const generateHTMLReport = (
       display: flex;
       justify-content: space-between;
       align-items: center;
-      margin-bottom: 8px;
+      margin-bottom: 10px;
     }
     
     .footer-left {
       flex: 1;
-      font-size: 7pt;
+      font-size: 9pt;
     }
     
     .footer-center {
       flex: 1;
       text-align: center;
-      font-size: 7pt;
+      font-size: 9pt;
     }
     
     .footer-right {
       flex: 1;
       text-align: right;
-      font-size: 8pt;
+      font-size: 10pt;
       font-weight: 600;
     }
     
     .footer strong {
       color: #111827;
-      font-size: 7pt;
+      font-size: 9pt;
     }
     
     .confidential {
       text-align: center;
-      font-size: 7pt;
+      font-size: 9pt;
       color: #6B7280;
       font-style: italic;
-      margin-top: 4px;
+      margin-top: 6px;
     }
     
     /* Comprehensive Print Styles */
@@ -1083,8 +1137,8 @@ const generateHTMLReport = (
       }
       
       .footer {
-        font-size: 7pt;
-        padding: 8px 0;
+        font-size: 9pt;
+        padding: 12px 0;
       }
       
       /* Prevent orphans and widows */
@@ -1198,7 +1252,7 @@ const generateHTMLReport = (
         <div class="header-content">
           <div class="logo-box">
             <div>APDP</div>
-            <div style="font-size: 8pt">MONACO</div>
+            <div style="font-size: 10pt">MONACO</div>
           </div>
           <div class="header-title">
             <h1>RÉSUMÉ EXÉCUTIF</h1>
@@ -1289,7 +1343,7 @@ const generateHTMLReport = (
         <div class="section-number">3</div>
         <h2>DÉTAIL DES CONTRÔLES</h2>
       </div>
-      <div style="font-size: 8pt; color: #6B7280; margin-bottom: 15px; font-style: italic;">
+      <div style="font-size: 10pt; color: #6B7280; margin-bottom: 15px; font-style: italic;">
         Synthèse exhaustive des ${Object.keys(allResults || {}).length}+ points de contrôle analysés automatiquement
       </div>
       
@@ -1299,24 +1353,24 @@ const generateHTMLReport = (
         <div class="summary-card" style="background: ${allResults?.ssl?.valid ? '#F0FDF4' : '#FEF2F2'}; border-left: 3px solid ${allResults?.ssl?.valid ? '#16A34A' : '#DC2626'}; padding: 12px;">
           <div style="font-size: 18pt;">${allResults?.ssl?.valid ? '✅' : '❌'}</div>
           <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">SSL/TLS</div>
-          <div style="font-size: 8pt; color: #6B7280;">${allResults?.ssl?.valid ? 'Valide' : 'Invalide'}</div>
-          ${allResults?.ssl?.protocol ? `<div style="font-size: 7pt; color: #6B7280; margin-top: 2px;">${allResults.ssl.protocol}</div>` : ''}
+          <div style="font-size: 10pt; color: #6B7280;">${allResults?.ssl?.valid ? 'Valide' : 'Invalide'}</div>
+          ${allResults?.ssl?.protocol ? `<div style="font-size: 10pt; color: #6B7280; margin-top: 2px;">${allResults.ssl.protocol}</div>` : ''}
         </div>
         <div class="summary-card" style="background: ${allResults?.hsts?.isEnabled ? '#F0FDF4' : '#FEF2F2'}; border-left: 3px solid ${allResults?.hsts?.isEnabled ? '#16A34A' : '#DC2626'}; padding: 12px;">
           <div style="font-size: 18pt;">${allResults?.hsts?.isEnabled ? '✅' : '❌'}</div>
           <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">HSTS</div>
-          <div style="font-size: 8pt; color: #6B7280;">${allResults?.hsts?.isEnabled ? 'Activé' : 'Désactivé'}</div>
+          <div style="font-size: 10pt; color: #6B7280;">${allResults?.hsts?.isEnabled ? 'Activé' : 'Désactivé'}</div>
         </div>
         <div class="summary-card" style="padding: 12px;">
           <div style="font-size: 18pt;">🔐</div>
           <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">Cipher Suites</div>
-          <div style="font-size: 8pt; color: #6B7280;">${allResults?.['tls-cipher-suites']?.supportedCiphers?.length || 0} détecté(s)</div>
-          ${allResults?.['tls-cipher-suites']?.supportedCiphers?.[0]?.bits ? `<div style="font-size: 7pt; color: #6B7280; margin-top: 2px;">${allResults['tls-cipher-suites'].supportedCiphers[0].bits} bits</div>` : ''}
+          <div style="font-size: 10pt; color: #6B7280;">${allResults?.['tls-cipher-suites']?.supportedCiphers?.length || 0} détecté(s)</div>
+          ${allResults?.['tls-cipher-suites']?.supportedCiphers?.[0]?.bits ? `<div style="font-size: 10pt; color: #6B7280; margin-top: 2px;">${allResults['tls-cipher-suites'].supportedCiphers[0].bits} bits</div>` : ''}
         </div>
         <div class="summary-card" style="background: ${(allResults?.vulnerabilities?.length || 0) === 0 ? '#F0FDF4' : '#FEF2F2'}; border-left: 3px solid ${(allResults?.vulnerabilities?.length || 0) === 0 ? '#16A34A' : '#DC2626'}; padding: 12px;">
           <div style="font-size: 18pt;">${(allResults?.vulnerabilities?.length || 0) === 0 ? '✅' : '⚠️'}</div>
           <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">Vulnérabilités</div>
-          <div style="font-size: 8pt; color: ${(allResults?.vulnerabilities?.length || 0) === 0 ? '#16A34A' : '#DC2626'};">${allResults?.vulnerabilities?.length || 0} détectée(s)</div>
+          <div style="font-size: 10pt; color: ${(allResults?.vulnerabilities?.length || 0) === 0 ? '#16A34A' : '#DC2626'};">${allResults?.vulnerabilities?.length || 0} détectée(s)</div>
         </div>
       </div>
       
@@ -1338,9 +1392,9 @@ const generateHTMLReport = (
             '❌'
           }</div>
           <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">Bannière Cookies</div>
-          <div style="font-size: 8pt; color: #6B7280;">${allResults?.['apdp-cookie-banner']?.compliance?.level || 'Non analysée'}</div>
-          ${allResults?.['apdp-cookie-banner']?.detectedLibrary ? `<div style="font-size: 7pt; color: #6B7280; margin-top: 2px;">${allResults['apdp-cookie-banner'].detectedLibrary}</div>` : ''}
-          ${allResults?.['apdp-cookie-banner']?.compliance?.score ? `<div style="font-size: 7pt; color: #6B7280; margin-top: 2px;">${allResults['apdp-cookie-banner'].compliance.score}/100</div>` : ''}
+          <div style="font-size: 10pt; color: #6B7280;">${allResults?.['apdp-cookie-banner']?.compliance?.level || 'Non analysée'}</div>
+          ${allResults?.['apdp-cookie-banner']?.detectedLibrary ? `<div style="font-size: 10pt; color: #6B7280; margin-top: 2px;">${allResults['apdp-cookie-banner'].detectedLibrary}</div>` : ''}
+          ${allResults?.['apdp-cookie-banner']?.compliance?.score ? `<div style="font-size: 10pt; color: #6B7280; margin-top: 2px;">${allResults['apdp-cookie-banner'].compliance.score}/100</div>` : ''}
         </div>
         <div class="summary-card" style="background: ${
           allResults?.['apdp-privacy-policy']?.compliance?.level === 'Conforme' ? '#F0FDF4' : 
@@ -1357,10 +1411,10 @@ const generateHTMLReport = (
             '❌'
           }</div>
           <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">Politique Confidentialité</div>
-          <div style="font-size: 8pt; color: #6B7280;">${allResults?.['apdp-privacy-policy']?.compliance?.level || 'Non analysée'}</div>
-          ${allResults?.['apdp-privacy-policy']?.compliance?.score ? `<div style="font-size: 7pt; color: #6B7280; margin-top: 2px;">${allResults['apdp-privacy-policy'].compliance.score}/100</div>` : ''}
+          <div style="font-size: 10pt; color: #6B7280;">${allResults?.['apdp-privacy-policy']?.compliance?.level || 'Non analysée'}</div>
+          ${allResults?.['apdp-privacy-policy']?.compliance?.score ? `<div style="font-size: 10pt; color: #6B7280; margin-top: 2px;">${allResults['apdp-privacy-policy'].compliance.score}/100</div>` : ''}
           ${allResults?.['apdp-privacy-policy']?.sections?.found && allResults?.['apdp-privacy-policy']?.sections?.missing ? `
-          <div style="font-size: 7pt; color: #6B7280; margin-top: 2px;">
+          <div style="font-size: 10pt; color: #6B7280; margin-top: 2px;">
             ${allResults['apdp-privacy-policy'].sections.found.length}/${allResults['apdp-privacy-policy'].sections.found.length + allResults['apdp-privacy-policy'].sections.missing.length} sections
           </div>
           ` : ''}
@@ -1380,10 +1434,10 @@ const generateHTMLReport = (
             '❌'
           }</div>
           <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">Mentions Légales</div>
-          <div style="font-size: 8pt; color: #6B7280;">${allResults?.['apdp-legal-notices']?.compliance?.level || 'Non analysées'}</div>
-          ${allResults?.['apdp-legal-notices']?.compliance?.score ? `<div style="font-size: 7pt; color: #6B7280; margin-top: 2px;">${allResults['apdp-legal-notices'].compliance.score}/100</div>` : ''}
+          <div style="font-size: 10pt; color: #6B7280;">${allResults?.['apdp-legal-notices']?.compliance?.level || 'Non analysées'}</div>
+          ${allResults?.['apdp-legal-notices']?.compliance?.score ? `<div style="font-size: 10pt; color: #6B7280; margin-top: 2px;">${allResults['apdp-legal-notices'].compliance.score}/100</div>` : ''}
           ${allResults?.['apdp-legal-notices']?.requiredInfo?.found && allResults?.['apdp-legal-notices']?.requiredInfo?.missing ? `
-          <div style="font-size: 7pt; color: #6B7280; margin-top: 2px;">
+          <div style="font-size: 10pt; color: #6B7280; margin-top: 2px;">
             ${allResults['apdp-legal-notices'].requiredInfo.found.length}/${allResults['apdp-legal-notices'].requiredInfo.found.length + allResults['apdp-legal-notices'].requiredInfo.missing.length} infos
           </div>
           ` : ''}
@@ -1403,9 +1457,9 @@ const generateHTMLReport = (
             '❌'
           }</div>
           <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">Droits Utilisateurs</div>
-          <div style="font-size: 8pt; color: #6B7280;">${allResults?.['apdp-user-rights']?.compliance?.level || 'Non analysés'}</div>
-          ${allResults?.['apdp-user-rights']?.rightsFound ? `<div style="font-size: 7pt; color: #6B7280; margin-top: 2px;">${allResults['apdp-user-rights'].rightsFound}/6 droits détectés</div>` : ''}
-          ${allResults?.['apdp-user-rights']?.compliance?.score ? `<div style="font-size: 7pt; color: #6B7280; margin-top: 2px;">${allResults['apdp-user-rights'].compliance.score}/100</div>` : ''}
+          <div style="font-size: 10pt; color: #6B7280;">${allResults?.['apdp-user-rights']?.compliance?.level || 'Non analysés'}</div>
+          ${allResults?.['apdp-user-rights']?.rightsFound ? `<div style="font-size: 10pt; color: #6B7280; margin-top: 2px;">${allResults['apdp-user-rights'].rightsFound}/6 droits détectés</div>` : ''}
+          ${allResults?.['apdp-user-rights']?.compliance?.score ? `<div style="font-size: 10pt; color: #6B7280; margin-top: 2px;">${allResults['apdp-user-rights'].compliance.score}/100</div>` : ''}
         </div>
       </div>
       
@@ -1440,22 +1494,22 @@ const generateHTMLReport = (
         <div class="summary-card" style="background: ${allResults?.headers?.['Content-Security-Policy'] ? '#F0FDF4' : '#FEF2F2'}; border-left: 3px solid ${allResults?.headers?.['Content-Security-Policy'] ? '#16A34A' : '#DC2626'}; padding: 12px;">
           <div style="font-size: 18pt;">${allResults?.headers?.['Content-Security-Policy'] ? '✅' : '❌'}</div>
           <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">CSP</div>
-          <div style="font-size: 8pt; color: #6B7280;">${allResults?.headers?.['Content-Security-Policy'] ? 'Configuré' : 'Manquant'}</div>
+          <div style="font-size: 10pt; color: #6B7280;">${allResults?.headers?.['Content-Security-Policy'] ? 'Configuré' : 'Manquant'}</div>
         </div>
         <div class="summary-card" style="background: ${allResults?.headers?.['X-Frame-Options'] ? '#F0FDF4' : '#FEF2F2'}; border-left: 3px solid ${allResults?.headers?.['X-Frame-Options'] ? '#16A34A' : '#DC2626'}; padding: 12px;">
           <div style="font-size: 18pt;">${allResults?.headers?.['X-Frame-Options'] ? '✅' : '❌'}</div>
           <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">X-Frame-Options</div>
-          <div style="font-size: 8pt; color: #6B7280;">${allResults?.headers?.['X-Frame-Options'] || 'Manquant'}</div>
+          <div style="font-size: 10pt; color: #6B7280;">${allResults?.headers?.['X-Frame-Options'] || 'Manquant'}</div>
         </div>
         <div class="summary-card" style="background: ${allResults?.headers?.['X-Content-Type-Options'] ? '#F0FDF4' : '#FEF2F2'}; border-left: 3px solid ${allResults?.headers?.['X-Content-Type-Options'] ? '#16A34A' : '#DC2626'}; padding: 12px;">
           <div style="font-size: 18pt;">${allResults?.headers?.['X-Content-Type-Options'] ? '✅' : '❌'}</div>
           <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">X-Content-Type</div>
-          <div style="font-size: 8pt; color: #6B7280;">${allResults?.headers?.['X-Content-Type-Options'] || 'Manquant'}</div>
+          <div style="font-size: 10pt; color: #6B7280;">${allResults?.headers?.['X-Content-Type-Options'] || 'Manquant'}</div>
         </div>
         <div class="summary-card" style="background: ${allResults?.headers?.['Strict-Transport-Security'] ? '#F0FDF4' : '#FEF2F2'}; border-left: 3px solid ${allResults?.headers?.['Strict-Transport-Security'] ? '#16A34A' : '#DC2626'}; padding: 12px;">
           <div style="font-size: 18pt;">${allResults?.headers?.['Strict-Transport-Security'] ? '✅' : '❌'}</div>
           <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">HSTS Header</div>
-          <div style="font-size: 8pt; color: #6B7280;">${allResults?.headers?.['Strict-Transport-Security'] ? 'Présent' : 'Manquant'}</div>
+          <div style="font-size: 10pt; color: #6B7280;">${allResults?.headers?.['Strict-Transport-Security'] ? 'Présent' : 'Manquant'}</div>
         </div>
       </div>
       
@@ -1465,13 +1519,13 @@ const generateHTMLReport = (
         <div class="summary-card" style="padding: 12px;">
           <div style="font-size: 18pt;">📍</div>
           <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">Localisation</div>
-          <div style="font-size: 8pt; font-weight: 600;">${allResults?.location?.country || 'Inconnue'}</div>
-          ${allResults?.location?.city ? `<div style="font-size: 7pt; color: #6B7280; margin-top: 2px;">${allResults.location.city}</div>` : ''}
+          <div style="font-size: 10pt; font-weight: 600;">${allResults?.location?.country || 'Inconnue'}</div>
+          ${allResults?.location?.city ? `<div style="font-size: 10pt; color: #6B7280; margin-top: 2px;">${allResults.location.city}</div>` : ''}
         </div>
         <div class="summary-card" style="padding: 12px;">
           <div style="font-size: 18pt;">🖥️</div>
           <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">Serveur Web</div>
-          <div style="font-size: 8pt; font-weight: 600;">${allResults?.['tech-stack']?.server || allResults?.headers?.Server || 'Inconnu'}</div>
+          <div style="font-size: 10pt; font-weight: 600;">${allResults?.['tech-stack']?.server || allResults?.headers?.Server || 'Inconnu'}</div>
         </div>
         <div class="summary-card" style="padding: 12px;">
           <div style="font-size: 18pt;">🌐</div>
@@ -1488,14 +1542,14 @@ const generateHTMLReport = (
         <div class="summary-card" style="background: ${allResults?.dnssec?.valid ? '#F0FDF4' : '#FEF2F2'}; border-left: 3px solid ${allResults?.dnssec?.valid ? '#16A34A' : '#D97706'}; padding: 12px;">
           <div style="font-size: 18pt;">${allResults?.dnssec?.valid ? '✅' : '⚠️'}</div>
           <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">DNSSEC</div>
-          <div style="font-size: 8pt; color: #6B7280;">${allResults?.dnssec?.valid ? 'Validé' : 'Non validé'}</div>
+          <div style="font-size: 10pt; color: #6B7280;">${allResults?.dnssec?.valid ? 'Validé' : 'Non validé'}</div>
         </div>
       </div>
       
       <!-- Ports & Network Security -->
       <div style="margin-top: 15px; padding: 12px; background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%); border-radius: 8px; border-left: 4px solid #3B82F6;">
         <div style="font-size: 9pt; font-weight: 700; color: #1E40AF; margin-bottom: 8px;">🔌 Ports Ouverts & Sécurité Réseau</div>
-        <div style="font-size: 8pt; color: #1E3A8A; line-height: 1.6;">
+        <div style="font-size: 10pt; color: #1E3A8A; line-height: 1.6;">
           <strong>Ports ouverts détectés:</strong> ${allResults?.ports?.openPorts?.join(', ') || 'Aucun'}<br>
           <strong>Total ports scannés:</strong> ${(allResults?.ports?.openPorts?.length || 0) + (allResults?.ports?.failedPorts?.length || 0)} ports<br>
           ${(allResults?.ports?.openPorts || []).includes(22) ? '<span style="color: #D97706;">⚠️ Port SSH (22) ouvert - Assurez une authentification forte</span><br>' : ''}
@@ -1510,7 +1564,7 @@ const generateHTMLReport = (
         <div class="summary-card" style="padding: 12px;">
           <div style="font-size: 18pt;">🌱</div>
           <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">Empreinte CO2</div>
-          <div style="font-size: 8pt; font-weight: 600;">${allResults?.carbon?.statistics?.co2?.grid?.grams ? `${allResults.carbon.statistics.co2.grid.grams.toFixed(2)}g` : 'N/A'}</div>
+          <div style="font-size: 10pt; font-weight: 600;">${allResults?.carbon?.statistics?.co2?.grid?.grams ? `${allResults.carbon.statistics.co2.grid.grams.toFixed(2)}g` : 'N/A'}</div>
         </div>
         <div class="summary-card" style="padding: 12px;">
           <div style="font-size: 18pt;">📊</div>
@@ -1530,7 +1584,7 @@ const generateHTMLReport = (
       </div>
       
       <div style="margin-top: 15px; padding: 10px; background: linear-gradient(135deg, #EFF6FF 0%, #DBEAFE 100%); border-radius: 6px; border-left: 4px solid #3B82F6;">
-        <div style="font-size: 8pt; color: #1E3A8A; line-height: 1.5;">
+        <div style="font-size: 10pt; color: #1E3A8A; line-height: 1.5;">
           <strong>📊 Statistiques de l'audit :</strong> ${Object.keys(allResults || {}).length} modules d'analyse exécutés | 
           ${(allResults?.cookies?.clientCookies?.length || 0) + (allResults?.['cdn-resources']?.externalResources?.length || 0) + (allResults?.['tech-stack']?.analytics?.length || 0)} points de données collectés |
           Couverture APDP/RGPD complète
@@ -1564,7 +1618,7 @@ const generateHTMLReport = (
         <div class="header-content">
           <div class="logo-box">
             <div>APDP</div>
-            <div style="font-size: 8pt">MONACO</div>
+            <div style="font-size: 10pt">MONACO</div>
           </div>
           <div class="header-title">
             <h1>CONSTATATIONS CRITIQUES</h1>
@@ -1580,7 +1634,7 @@ const generateHTMLReport = (
         <div class="alert-text">Les problèmes suivants présentent des risques majeurs pour la conformité et la sécurité.</div>
       </div>
       
-      ${data.issues.critical.map((issue, index) => `
+      ${data.issues.critical.slice(0, 4).map((issue, index) => `
         <div class="issue-card critical">
           <div class="issue-header">
             <div class="issue-number">${index + 1}</div>
@@ -1604,6 +1658,9 @@ const generateHTMLReport = (
           ${issue.article ? `<div class="issue-legal">Référence légale: ${issue.article}</div>` : ''}
         </div>
       `).join('')}
+      ${data.issues.critical.length > 4 ? `<div style="margin-top: 32px; padding: 16px 20px; background: #FEF2F2; border-radius: 8px; text-align: center; font-size: 11pt; color: #991B1B;">
+        <strong>${data.issues.critical.length - 4} problème(s) critique(s) supplémentaire(s)</strong> - Consultez la version en ligne pour les détails complets
+      </div>` : ''}
     </div>
     ` : `
     <div class="section" style="margin-top: 0;">
@@ -1629,7 +1686,7 @@ const generateHTMLReport = (
       
       <div style="margin-top: 20px; padding: 15px; background: #FFFBEB; border-left: 4px solid #F59E0B; border-radius: 6px;">
         <strong style="color: #92400E; font-size: 9pt;">⚠️ Note importante :</strong>
-        <div style="color: #78350F; font-size: 8pt; margin-top: 8px; line-height: 1.6;">
+        <div style="color: #78350F; font-size: 10pt; margin-top: 8px; line-height: 1.6;">
           Cette évaluation se base sur des tests automatisés. Certains aspects de la conformité APDP
           nécessitent une revue manuelle approfondie (procédures internes, documentation, formations,
           contrats avec sous-traitants, etc.). Il est recommandé de compléter cet audit par un
@@ -1660,7 +1717,7 @@ const generateHTMLReport = (
         <div class="header-content">
           <div class="logo-box">
             <div>APDP</div>
-            <div style="font-size: 8pt">MONACO</div>
+            <div style="font-size: 10pt">MONACO</div>
           </div>
           <div class="header-title">
             <h1>CONSTATATIONS IMPORTANTES</h1>
@@ -1676,7 +1733,7 @@ const generateHTMLReport = (
         <div class="alert-text">Actions nécessaires pour atteindre une conformité optimale.</div>
       </div>
       
-      ${data.issues.warnings.map((issue, index) => `
+      ${data.issues.warnings.slice(0, 5).map((issue, index) => `
         <div class="issue-card warning">
           <div class="issue-header">
             <div class="issue-number">${index + 1}</div>
@@ -1700,6 +1757,9 @@ const generateHTMLReport = (
           ${issue.article ? `<div class="issue-legal">Référence légale: ${issue.article}</div>` : ''}
         </div>
       `).join('')}
+      ${data.issues.warnings.length > 5 ? `<div style="margin-top: 32px; padding: 16px 20px; background: #FFFBEB; border-radius: 8px; text-align: center; font-size: 11pt; color: #92400E;">
+        <strong>${data.issues.warnings.length - 5} avertissement(s) supplémentaire(s)</strong> - Consultez la version en ligne pour les détails complets
+      </div>` : ''}
       </div>
       ` : `
       <div class="section" style="margin-top: 0;">
@@ -1713,7 +1773,7 @@ const generateHTMLReport = (
         
         <div style="margin-top: 20px; padding: 15px; background: #F9FAFB; border-radius: 8px;">
           <h3 style="font-size: 10pt; color: #111827; margin-bottom: 10px;">🔍 Points importants vérifiés :</h3>
-          <ul style="margin-left: 20px; color: #374151; font-size: 9pt; line-height: 1.8;">
+          <ul style="margin-left: 20px; color: #374151; font-size: 11pt; line-height: 1.8;">
             <li>Configuration des cookies conforme aux exigences RGPD/APDP</li>
             <li>Présence et qualité des pages légales (mentions, confidentialité)</li>
             <li>Informations sur les droits des utilisateurs (accès, rectification, effacement)</li>
@@ -1743,7 +1803,7 @@ const generateHTMLReport = (
         <div class="header-content">
           <div class="logo-box">
             <div>APDP</div>
-            <div style="font-size: 8pt">MONACO</div>
+            <div style="font-size: 10pt">MONACO</div>
           </div>
           <div class="header-title">
             <h1>RECOMMANDATIONS D'AMÉLIORATION</h1>
@@ -1758,7 +1818,7 @@ const generateHTMLReport = (
         <div class="alert-text">Améliorations suggérées pour renforcer la sécurité et la conformité (1-3 mois).</div>
       </div>
       
-      ${data.issues.improvements.slice(0, 10).map((issue, index) => `
+      ${data.issues.improvements.slice(0, 5).map((issue, index) => `
         <div class="issue-card info">
           <div class="issue-header">
             <div class="issue-number">${index + 1}</div>
@@ -1781,6 +1841,9 @@ const generateHTMLReport = (
           ` : ''}
         </div>
       `).join('')}
+      ${data.issues.improvements.length > 5 ? `<div style="margin-top: 32px; padding: 16px 20px; background: #EFF6FF; border-radius: 8px; text-align: center; font-size: 11pt; color: #1E40AF;">
+        <strong>${data.issues.improvements.length - 5} amélioration(s) supplémentaire(s)</strong> - Consultez la version en ligne pour les détails complets
+      </div>` : ''}
       </div>
       ` : `
       <div class="section" style="margin-top: 0;">
@@ -1806,7 +1869,7 @@ const generateHTMLReport = (
         
         <div style="margin-top: 20px; padding: 15px; background: #FEF2F2; border-left: 4px solid #DC2626; border-radius: 6px;">
           <strong style="color: #991B1B; font-size: 9pt;">⚠️ Rappel important :</strong>
-          <div style="color: #7F1D1D; font-size: 8pt; margin-top: 8px; line-height: 1.6;">
+          <div style="color: #7F1D1D; font-size: 10pt; margin-top: 8px; line-height: 1.6;">
             Même en l'absence de recommandations techniques, assurez-vous que vos procédures
             organisationnelles sont conformes : politique de confidentialité, procédures de
             gestion des incidents, exercice des droits des personnes, contrats avec les
@@ -1834,7 +1897,7 @@ const generateHTMLReport = (
         <div class="header-content">
           <div class="logo-box">
             <div>APDP</div>
-            <div style="font-size: 8pt">MONACO</div>
+            <div style="font-size: 10pt">MONACO</div>
           </div>
           <div class="header-title">
             <h1>DÉTAILS TECHNIQUES</h1>
@@ -1919,7 +1982,7 @@ const generateHTMLReport = (
         </div>
         ` : ''}
         
-        <div style="font-size: 8pt; margin-top: 12px; padding: 10px; background: ${allResults?.ssl?.valid ? '#F0FDF4' : '#FEF2F2'}; border-radius: 6px; color: ${allResults?.ssl?.valid ? '#166534' : '#991B1B'};">
+        <div style="font-size: 10pt; margin-top: 12px; padding: 10px; background: ${allResults?.ssl?.valid ? '#F0FDF4' : '#FEF2F2'}; border-radius: 6px; color: ${allResults?.ssl?.valid ? '#166534' : '#991B1B'};">
           ${allResults?.ssl?.valid ? '✓ Configuration SSL/TLS conforme aux standards APDP' : '⚠️ Vérifier la configuration SSL/TLS pour assurer la conformité'}
         </div>
       </div>
@@ -1941,10 +2004,10 @@ const generateHTMLReport = (
             <span class="info-value">${allResults['tech-stack'].frameworks.length} technologie(s)</span>
           </div>
           ${allResults['tech-stack'].frameworks.slice(0, 5).map((item: any) => `
-            <div style="font-size: 8pt; margin: 4px 0; padding: 6px 10px; background: #EFF6FF; border-left: 3px solid #3B82F6; border-radius: 4px;">
+            <div style="font-size: 10pt; margin: 4px 0; padding: 6px 10px; background: #EFF6FF; border-left: 3px solid #3B82F6; border-radius: 4px;">
               <strong>${item.name || item}</strong>
               ${item.version ? ` - Version: ${item.version}` : ''}
-              ${item.description ? `<br><span style="color: #6B7280; font-size: 7pt;">${item.description}</span>` : ''}
+              ${item.description ? `<br><span style="color: #6B7280; font-size: 10pt;">${item.description}</span>` : ''}
             </div>
           `).join('')}
         </div>
@@ -1959,13 +2022,13 @@ const generateHTMLReport = (
             </span>
           </div>
           ${allResults['tech-stack'].analytics.slice(0, 5).map((item: any) => `
-            <div style="font-size: 8pt; margin: 4px 0; padding: 6px 10px; background: #FFFBEB; border-left: 3px solid #F59E0B; border-radius: 4px;">
+            <div style="font-size: 10pt; margin: 4px 0; padding: 6px 10px; background: #FFFBEB; border-left: 3px solid #F59E0B; border-radius: 4px;">
               <strong>${item.name || item}</strong>
               ${item.category ? ` - ${item.category}` : ''}
             </div>
           `).join('')}
           ${allResults['tech-stack'].analytics.length > 5 ? `
-          <div style="font-size: 7pt; color: #6B7280; margin-top: 5px;">
+          <div style="font-size: 10pt; color: #6B7280; margin-top: 5px;">
             ... et ${allResults['tech-stack'].analytics.length - 5} autre(s) outil(s)
           </div>
           ` : ''}
@@ -1979,7 +2042,7 @@ const generateHTMLReport = (
             <span class="info-value">${allResults['tech-stack'].libraries.length} bibliothèque(s)</span>
           </div>
           ${allResults['tech-stack'].libraries.slice(0, 4).map((item: any) => `
-            <div style="font-size: 8pt; margin: 4px 0; padding: 6px 10px; background: #F0FDF4; border-left: 3px solid #10B981; border-radius: 4px;">
+            <div style="font-size: 10pt; margin: 4px 0; padding: 6px 10px; background: #F0FDF4; border-left: 3px solid #10B981; border-radius: 4px;">
               <strong>${item.name || item}</strong>
               ${item.version ? ` v${item.version}` : ''}
             </div>
@@ -1987,7 +2050,7 @@ const generateHTMLReport = (
         </div>
         ` : ''}
         
-        <div style="font-size: 8pt; margin-top: 15px; padding: 10px; background: #F9FAFB; border-radius: 6px; color: #374151;">
+        <div style="font-size: 10pt; margin-top: 15px; padding: 10px; background: #F9FAFB; border-radius: 6px; color: #374151;">
           <strong>⚠️ Impact APDP:</strong> Les outils analytics et de tracking peuvent collecter des données personnelles.
           Assurez-vous d'avoir le consentement explicite des utilisateurs avant leur activation.
         </div>
@@ -2008,10 +2071,10 @@ const generateHTMLReport = (
         <div style="margin-top: 15px;">
           <div style="font-size: 9pt; font-weight: 600; margin-bottom: 10px; color: #111827;">📋 Détail des cookies (Top 10):</div>
           ${(allResults.cookies.clientCookies || allResults.cookies.cookies).slice(0, 10).map((cookie: any, idx: number) => `
-            <div style="font-size: 8pt; margin: 8px 0; padding: 8px 10px; background: ${cookie.secure && cookie.httpOnly ? '#F0FDF4' : '#FEF2F2'}; border-left: 4px solid ${cookie.secure && cookie.httpOnly ? '#10B981' : '#DC2626'}; border-radius: 4px;">
+            <div style="font-size: 10pt; margin: 8px 0; padding: 8px 10px; background: ${cookie.secure && cookie.httpOnly ? '#F0FDF4' : '#FEF2F2'}; border-left: 4px solid ${cookie.secure && cookie.httpOnly ? '#10B981' : '#DC2626'}; border-radius: 4px;">
               <div style="display: flex; justify-content: space-between; margin-bottom: 4px;">
                 <strong style="color: #111827;">${idx + 1}. ${cookie.name || 'Cookie sans nom'}</strong>
-                <span style="font-size: 7pt; color: #6B7280;">${cookie.domain || 'domaine inconnu'}</span>
+                <span style="font-size: 10pt; color: #6B7280;">${cookie.domain || 'domaine inconnu'}</span>
               </div>
               <div style="margin-top: 6px; padding-top: 6px; border-top: 1px solid ${cookie.secure && cookie.httpOnly ? '#D1FAE5' : '#FECACA'};">
                 ${cookie.secure ? '<span style="color: #059669; margin-right: 10px;">✓ Secure</span>' : '<span style="color: #DC2626; margin-right: 10px;">✗ Non Secure</span>'}
@@ -2019,12 +2082,12 @@ const generateHTMLReport = (
                 ${cookie.sameSite ? `<span style="color: #059669;">✓ SameSite=${cookie.sameSite}</span>` : '<span style="color: #D97706;">⚠️ Pas de SameSite</span>'}
               </div>
               ${cookie.expires ? `
-              <div style="font-size: 7pt; color: #6B7280; margin-top: 4px;">
+              <div style="font-size: 10pt; color: #6B7280; margin-top: 4px;">
                 Expire: ${new Date(cookie.expires).toLocaleDateString('fr-FR')}
               </div>
               ` : ''}
               ${(!cookie.secure || !cookie.httpOnly) ? `
-              <div style="font-size: 7pt; margin-top: 6px; padding: 4px 6px; background: #FEF2F2; border-radius: 3px; color: #991B1B;">
+              <div style="font-size: 10pt; margin-top: 6px; padding: 4px 6px; background: #FEF2F2; border-radius: 3px; color: #991B1B;">
                 ⚠️ Cookie non sécurisé - Vulnérable aux attaques ${!cookie.secure ? 'MITM' : ''} ${!cookie.httpOnly ? 'XSS' : ''}
               </div>
               ` : ''}
@@ -2032,7 +2095,7 @@ const generateHTMLReport = (
           `).join('')}
           
           ${(allResults.cookies.clientCookies || allResults.cookies.cookies).length > 10 ? `
-          <div style="font-size: 8pt; color: #6B7280; margin-top: 10px; text-align: center;">
+          <div style="font-size: 10pt; color: #6B7280; margin-top: 10px; text-align: center;">
             ... et ${(allResults.cookies.clientCookies || allResults.cookies.cookies).length - 10} autre(s) cookie(s)
           </div>
           ` : ''}
@@ -2040,7 +2103,7 @@ const generateHTMLReport = (
         
         <div style="margin-top: 15px; padding: 12px; background: linear-gradient(135deg, #FFFBEB 0%, #FEF3C7 100%); border-left: 4px solid #F59E0B; border-radius: 6px;">
           <div style="font-size: 9pt; font-weight: 700; color: #92400E; margin-bottom: 6px;">🔒 Exigences APDP pour les Cookies:</div>
-          <div style="font-size: 8pt; color: #78350F; line-height: 1.5;">
+          <div style="font-size: 10pt; color: #78350F; line-height: 1.5;">
             • Tous les cookies doivent avoir les flags <strong>Secure</strong> et <strong>HttpOnly</strong><br>
             • Le consentement explicite est requis avant tout cookie non essentiel<br>
             • La durée de conservation doit être justifiée et proportionnée<br>
@@ -2070,7 +2133,7 @@ const generateHTMLReport = (
         <div class="header-content">
           <div class="logo-box">
             <div>APDP</div>
-            <div style="font-size: 8pt">MONACO</div>
+            <div style="font-size: 10pt">MONACO</div>
           </div>
           <div class="header-title">
             <h1>CONFORMITÉ APDP DÉTAILLÉE</h1>
@@ -2091,7 +2154,7 @@ const generateHTMLReport = (
           ${allResults['apdp-cookie-banner'].hasCookieBanner ? '✓ Bannière détectée' : '✗ Aucune bannière détectée'}
           ${allResults['apdp-cookie-banner'].detectedLibrary ? ` - Solution: ${allResults['apdp-cookie-banner'].detectedLibrary}` : ''}
         </div>
-        <div style="font-size: 8pt; margin: 5px 0;">
+        <div style="font-size: 10pt; margin: 5px 0;">
           ${allResults['apdp-cookie-banner'].features?.hasAcceptButton ? '✓ Bouton Accepter' : '✗ Pas de bouton Accepter'} |
           ${allResults['apdp-cookie-banner'].features?.hasRejectButton ? '✓ Bouton Refuser' : '✗ Pas de bouton Refuser'} |
           ${allResults['apdp-cookie-banner'].features?.hasCustomizeButton ? '✓ Personnalisation' : '✗ Pas de personnalisation'}
@@ -2113,7 +2176,7 @@ const generateHTMLReport = (
           ${allResults['apdp-privacy-policy'].privacyPolicyUrl ? ` - ${allResults['apdp-privacy-policy'].privacyPolicyUrl}` : ''}
         </div>
         ${allResults['apdp-privacy-policy'].sections ? `
-        <div style="font-size: 8pt; margin: 5px 0;">
+        <div style="font-size: 10pt; margin: 5px 0;">
           ${allResults['apdp-privacy-policy'].sections.found?.slice(0, 3).map((s: any) => `✓ ${s.name}`).join(' | ') || ''}
         </div>
         ` : ''}
@@ -2134,7 +2197,7 @@ const generateHTMLReport = (
           ${allResults['apdp-legal-notices'].legalNoticeUrl ? ` - ${allResults['apdp-legal-notices'].legalNoticeUrl}` : ''}
         </div>
         ${allResults['apdp-legal-notices'].requiredInfo ? `
-        <div style="font-size: 8pt; margin: 5px 0;">
+        <div style="font-size: 10pt; margin: 5px 0;">
           ${allResults['apdp-legal-notices'].requiredInfo.found?.slice(0, 3).map((s: any) => `✓ ${s.name}`).join(' | ') || ''}
         </div>
         ` : ''}
@@ -2150,7 +2213,7 @@ const generateHTMLReport = (
           <div class="category-name">👤 Droits des Utilisateurs (RGPD)</div>
           <div class="category-score">${allResults['apdp-user-rights'].compliance?.score || 0}/100</div>
         </div>
-        <div style="font-size: 8pt; margin: 8px 0;">
+        <div style="font-size: 10pt; margin: 8px 0;">
           ${allResults['apdp-user-rights'].rights?.found?.map((r: any) => `✓ ${r.right}`).join(' | ') || 'Informations sur les droits non trouvées'}
         </div>
         <div class="progress-bar">
@@ -2174,7 +2237,7 @@ const generateHTMLReport = (
           <span class="info-label">Plus propre que:</span>
           <span class="info-value">${allResults['carbon-footprint'].cleanerThan ? (allResults['carbon-footprint'].cleanerThan * 100).toFixed(0) + '% des sites' : 'N/A'}</span>
         </div>
-        <div style="font-size: 8pt; margin-top: 8px; padding-top: 8px; border-top: 1px solid #D1FAE5;">
+        <div style="font-size: 10pt; margin-top: 8px; padding-top: 8px; border-top: 1px solid #D1FAE5;">
           Impact: 1 000 visites = ${(allResults['carbon-footprint'].statistics?.co2?.grid?.grams * 1000 || 0).toFixed(1)}g CO2
         </div>
       </div>
@@ -2199,7 +2262,7 @@ const generateHTMLReport = (
         <div class="header-content">
           <div class="logo-box">
             <div>APDP</div>
-            <div style="font-size: 8pt">MONACO</div>
+            <div style="font-size: 10pt">MONACO</div>
           </div>
           <div class="header-title">
             <h1>STACK TECHNOLOGIQUE COMPLET</h1>
@@ -2233,17 +2296,17 @@ const generateHTMLReport = (
                 <div class="summary-card" style="text-align: left; padding: 12px; background: linear-gradient(135deg, #F9FAFB 0%, white 100%);">
                   <div style="display: flex; justify-content: space-between; align-items: start;">
                     <div style="font-size: 10pt; font-weight: 700; color: #111827;">${tech.name}</div>
-                    ${tech.version ? `<div style="font-size: 8pt; color: white; background: #3B82F6; padding: 2px 8px; border-radius: 12px;">${tech.version}</div>` : ''}
+                    ${tech.version ? `<div style="font-size: 10pt; color: white; background: #3B82F6; padding: 2px 8px; border-radius: 12px;">${tech.version}</div>` : ''}
                   </div>
-                  ${tech.description ? `<div style="font-size: 7pt; color: #6B7280; margin-top: 6px; line-height: 1.4;">${tech.description.substring(0, 100)}${tech.description.length > 100 ? '...' : ''}</div>` : ''}
-                  ${tech.website ? `<div style="font-size: 7pt; color: #3B82F6; margin-top: 4px;">🌐 ${tech.website}</div>` : ''}
-                  <div style="font-size: 7pt; margin-top: 6px; padding-top: 6px; border-top: 1px solid #E5E7EB;">
+                  ${tech.description ? `<div style="font-size: 10pt; color: #6B7280; margin-top: 6px; line-height: 1.4;">${tech.description.substring(0, 100)}${tech.description.length > 100 ? '...' : ''}</div>` : ''}
+                  ${tech.website ? `<div style="font-size: 10pt; color: #3B82F6; margin-top: 4px;">🌐 ${tech.website}</div>` : ''}
+                  <div style="font-size: 10pt; margin-top: 6px; padding-top: 6px; border-top: 1px solid #E5E7EB;">
                     <strong>Confiance:</strong> <span style="color: ${tech.confidence >= 80 ? '#059669' : tech.confidence >= 50 ? '#D97706' : '#DC2626'}">${tech.confidence}%</span>
                   </div>
                 </div>
               `).join('')}
             </div>
-            ${techList.length > 10 ? `<div style="font-size: 8pt; color: #6B7280; margin-top: 8px; text-align: center;">... et ${techList.length - 10} autre(s) ${catName.toLowerCase()}</div>` : ''}
+            ${techList.length > 10 ? `<div style="font-size: 10pt; color: #6B7280; margin-top: 8px; text-align: center;">... et ${techList.length - 10} autre(s) ${catName.toLowerCase()}</div>` : ''}
           </div>
         `).join('');
       })()}
@@ -2277,7 +2340,7 @@ const generateHTMLReport = (
         <div class="header-content">
           <div class="logo-box">
             <div>APDP</div>
-            <div style="font-size: 8pt">MONACO</div>
+            <div style="font-size: 10pt">MONACO</div>
           </div>
           <div class="header-title">
             <h1>SEO & PRÉSENCE WEB</h1>
@@ -2328,7 +2391,7 @@ const generateHTMLReport = (
           ✅ Sitemap détecté - Facilite l'indexation par les moteurs de recherche
         </div>
         ${allResults.sitemap.sitemapindex?.sitemap ? `
-          <div style="font-size: 8pt; color: #166534;">
+          <div style="font-size: 10pt; color: #166534;">
             <strong>Sous-sitemaps détectés:</strong> ${allResults.sitemap.sitemapindex.sitemap.length}<br>
             ${allResults.sitemap.sitemapindex.sitemap.slice(0, 5).map(sm => `
               <div style="margin: 4px 0; padding: 4px 8px; background: white; border-radius: 4px;">
@@ -2345,10 +2408,10 @@ const generateHTMLReport = (
       ${allResults?.['robots-txt']?.robots ? `
       <h3 style="font-size: 11pt; margin: 15px 0 10px 0; color: #111827; border-bottom: 1px solid #E5E7EB; padding-bottom: 5px;">🤖 Robots.txt</h3>
       <div class="info-box">
-        <div style="font-size: 8pt; background: #F9FAFB; padding: 10px; border-radius: 6px; font-family: 'Courier New', monospace;">
+        <div style="font-size: 10pt; background: #F9FAFB; padding: 10px; border-radius: 6px; font-family: 'Courier New', monospace;">
           ${allResults['robots-txt'].robots.map(rule => `${rule.lbl}: ${rule.val}`).join('<br>')}
         </div>
-        <div style="font-size: 8pt; color: #6B7280; margin-top: 10px;">
+        <div style="font-size: 10pt; color: #6B7280; margin-top: 10px;">
           ${allResults['robots-txt'].robots.length} directive(s) trouvée(s)
         </div>
       </div>
@@ -2361,7 +2424,7 @@ const generateHTMLReport = (
           <div style="font-size: 10pt; font-weight: 700; color: #059669; margin-bottom: 10px;">🏠 Liens Internes</div>
           <div style="font-size: 24pt; font-weight: 800; color: #059669; margin: 10px 0;">${allResults['linked-pages'].internal?.length || 0}</div>
           ${allResults['linked-pages'].internal?.length > 0 ? `
-            <div style="font-size: 7pt; color: #6B7280; max-height: 150px; overflow-y: auto;">
+            <div style="font-size: 10pt; color: #6B7280; max-height: 150px; overflow-y: auto;">
               ${allResults['linked-pages'].internal.slice(0, 10).map(link => `<div style="margin: 2px 0; padding: 2px 0; border-bottom: 1px solid #F3F4F6;">📄 ${link.replace('https://apdp.mc', '')}</div>`).join('')}
               ${allResults['linked-pages'].internal.length > 10 ? `<div style="margin-top: 6px; font-weight: 600;">... et ${allResults['linked-pages'].internal.length - 10} autre(s) page(s)</div>` : ''}
             </div>
@@ -2371,7 +2434,7 @@ const generateHTMLReport = (
           <div style="font-size: 10pt; font-weight: 700; color: #3B82F6; margin-bottom: 10px;">🌍 Liens Externes</div>
           <div style="font-size: 24pt; font-weight: 800; color: #3B82F6; margin: 10px 0;">${allResults['linked-pages'].external?.length || 0}</div>
           ${allResults['linked-pages'].external?.length > 0 ? `
-            <div style="font-size: 7pt; color: #6B7280; max-height: 150px; overflow-y: auto;">
+            <div style="font-size: 10pt; color: #6B7280; max-height: 150px; overflow-y: auto;">
               ${allResults['linked-pages'].external.slice(0, 8).map(link => `<div style="margin: 2px 0; padding: 2px 0; border-bottom: 1px solid #F3F4F6;">🔗 ${link}</div>`).join('')}
               ${allResults['linked-pages'].external.length > 8 ? `<div style="margin-top: 6px; font-weight: 600;">... et ${allResults['linked-pages'].external.length - 8} autre(s) lien(s)</div>` : ''}
             </div>
@@ -2400,7 +2463,7 @@ const generateHTMLReport = (
         <div class="header-content">
           <div class="logo-box">
             <div>APDP</div>
-            <div style="font-size: 8pt">MONACO</div>
+            <div style="font-size: 10pt">MONACO</div>
           </div>
           <div class="header-title">
             <h1>RÉSEAU & INFRASTRUCTURE</h1>
@@ -2417,7 +2480,7 @@ const generateHTMLReport = (
       ${allResults.dns.A ? `
       <div style="margin: 12px 0;">
         <h4 style="font-size: 9pt; color: #DC2626; margin: 8px 0;">📍 Enregistrements A (IPv4)</h4>
-        <div style="font-size: 8pt; background: #EFF6FF; padding: 8px; border-radius: 6px; border-left: 3px solid #3B82F6;">
+        <div style="font-size: 10pt; background: #EFF6FF; padding: 8px; border-radius: 6px; border-left: 3px solid #3B82F6;">
           ${Array.isArray(allResults.dns.A) ? 
             allResults.dns.A.map(ip => `<div style="margin: 3px 0;">✓ ${ip}</div>`).join('') :
             `<div>✓ ${allResults.dns.A.address || allResults.dns.A}</div>`
@@ -2429,7 +2492,7 @@ const generateHTMLReport = (
       ${allResults.dns.AAAA?.length ? `
       <div style="margin: 12px 0;">
         <h4 style="font-size: 9pt; color: #DC2626; margin: 8px 0;">📍 Enregistrements AAAA (IPv6)</h4>
-        <div style="font-size: 8pt; background: #EFF6FF; padding: 8px; border-radius: 6px; border-left: 3px solid #3B82F6;">
+        <div style="font-size: 10pt; background: #EFF6FF; padding: 8px; border-radius: 6px; border-left: 3px solid #3B82F6;">
           ${allResults.dns.AAAA.map(ip => `<div style="margin: 3px 0;">✓ ${ip}</div>`).join('')}
         </div>
       </div>
@@ -2438,7 +2501,7 @@ const generateHTMLReport = (
       ${allResults.dns.MX?.length ? `
       <div style="margin: 12px 0;">
         <h4 style="font-size: 9pt; color: #DC2626; margin: 8px 0;">📧 Serveurs Mail (MX)</h4>
-        <div style="font-size: 8pt; background: #F0FDF4; padding: 8px; border-radius: 6px; border-left: 3px solid #10B981;">
+        <div style="font-size: 10pt; background: #F0FDF4; padding: 8px; border-radius: 6px; border-left: 3px solid #10B981;">
           ${allResults.dns.MX.map((mx, idx) => `
             <div style="margin: 3px 0;">
               <strong>${idx + 1}.</strong> ${mx.exchange} 
@@ -2452,7 +2515,7 @@ const generateHTMLReport = (
       ${allResults.dns.TXT?.length ? `
       <div style="margin: 12px 0;">
         <h4 style="font-size: 9pt; color: #DC2626; margin: 8px 0;">📝 Enregistrements TXT</h4>
-        <div style="font-size: 7pt; background: #FFFBEB; padding: 8px; border-radius: 6px; border-left: 3px solid #F59E0B; max-height: 120px; overflow-y: auto;">
+        <div style="font-size: 10pt; background: #FFFBEB; padding: 8px; border-radius: 6px; border-left: 3px solid #F59E0B; max-height: 120px; overflow-y: auto;">
           ${allResults.dns.TXT.map((txt, idx) => `
             <div style="margin: 4px 0; padding: 4px; background: white; border-radius: 3px;">
               <strong>${idx + 1}.</strong> ${Array.isArray(txt) ? txt.join(', ') : JSON.stringify(txt)}
@@ -2465,7 +2528,7 @@ const generateHTMLReport = (
       ${allResults.dns.NS?.length || allResults.dns.CNAME?.length ? `
       <div style="margin: 12px 0;">
         <h4 style="font-size: 9pt; color: #DC2626; margin: 8px 0;">🖥️ Serveurs de Noms & CNAME</h4>
-        <div style="font-size: 8pt; background: #F9FAFB; padding: 8px; border-radius: 6px;">
+        <div style="font-size: 10pt; background: #F9FAFB; padding: 8px; border-radius: 6px;">
           ${allResults.dns.CNAME?.length ? `
             <div style="margin-bottom: 8px;">
               <strong style="color: #111827;">CNAME:</strong><br>
@@ -2475,7 +2538,7 @@ const generateHTMLReport = (
           ${allResults.dns.NS?.length ? `
             <div>
               <strong style="color: #111827;">Enregistrements NS:</strong><br>
-              ${allResults.dns.NS.map(ns => `<div style="margin: 2px 0; font-size: 7pt;">${Array.isArray(ns) ? ns.join(', ') : ns}</div>`).join('')}
+              ${allResults.dns.NS.map(ns => `<div style="margin: 2px 0; font-size: 10pt;">${Array.isArray(ns) ? ns.join(', ') : ns}</div>`).join('')}
             </div>
           ` : ''}
         </div>
@@ -2490,14 +2553,14 @@ const generateHTMLReport = (
           <div style="margin-bottom: 12px;">
             <div style="font-size: 9pt; font-weight: 700; margin-bottom: 6px;">Serveurs Mail:</div>
             ${allResults['mail-config'].mxRecords.map((mx, idx) => `
-              <div style="font-size: 8pt; margin: 3px 0; padding: 4px 8px; background: #F0FDF4; border-left: 3px solid #10B981; border-radius: 3px;">
+              <div style="font-size: 10pt; margin: 3px 0; padding: 4px 8px; background: #F0FDF4; border-left: 3px solid #10B981; border-radius: 3px;">
                 <strong>${idx + 1}.</strong> ${mx.exchange} (Priorité: ${mx.priority})
               </div>
             `).join('')}
           </div>
         ` : ''}
         ${allResults['mail-config'].txtRecords?.length ? `
-          <div style="font-size: 8pt; padding: 8px; background: #FFFBEB; border-radius: 6px;">
+          <div style="font-size: 10pt; padding: 8px; background: #FFFBEB; border-radius: 6px;">
             <strong>SPF Record:</strong><br>
             ${allResults['mail-config'].txtRecords[0]?.[0] || 'Non configuré'}
           </div>
@@ -2507,7 +2570,7 @@ const generateHTMLReport = (
       
       ${allResults?.['block-lists']?.blocklists ? `
       <h3 style="font-size: 11pt; margin: 15px 0 10px 0; color: #111827; border-bottom: 1px solid #E5E7EB; padding-bottom: 5px;">🛡️ Status dans les Listes de Blocage</h3>
-      <div style="font-size: 8pt;">
+      <div style="font-size: 10pt;">
         ${(() => {
           const blocked = allResults['block-lists'].blocklists.filter(bl => bl.isBlocked);
           const safe = allResults['block-lists'].blocklists.filter(bl => !bl.isBlocked);
@@ -2553,7 +2616,7 @@ const generateHTMLReport = (
         <div class="header-content">
           <div class="logo-box">
             <div>APDP</div>
-            <div style="font-size: 8pt">MONACO</div>
+            <div style="font-size: 10pt">MONACO</div>
           </div>
           <div class="header-title">
             <h1>HISTORIQUE & ARCHIVES</h1>
@@ -2571,12 +2634,12 @@ const generateHTMLReport = (
         <div class="summary-card info" style="padding: 12px;">
           <div style="font-size: 18pt;">📅</div>
           <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">Première Archive</div>
-          <div style="font-size: 8pt; font-weight: 600;">${new Date(allResults.archives.firstScan).toLocaleDateString('fr-FR')}</div>
+          <div style="font-size: 10pt; font-weight: 600;">${new Date(allResults.archives.firstScan).toLocaleDateString('fr-FR')}</div>
         </div>
         <div class="summary-card info" style="padding: 12px;">
           <div style="font-size: 18pt;">📅</div>
           <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">Dernière Archive</div>
-          <div style="font-size: 8pt; font-weight: 600;">${new Date(allResults.archives.lastScan).toLocaleDateString('fr-FR')}</div>
+          <div style="font-size: 10pt; font-weight: 600;">${new Date(allResults.archives.lastScan).toLocaleDateString('fr-FR')}</div>
         </div>
         <div class="summary-card success" style="padding: 12px;">
           <div style="font-size: 18pt;">📸</div>
@@ -2607,7 +2670,7 @@ const generateHTMLReport = (
       </div>
       
       <h4 style="font-size: 10pt; color: #111827; margin: 15px 0 8px 0;">📜 Historique des Scans (Derniers 10)</h4>
-      <div style="font-size: 7pt; background: #F9FAFB; padding: 10px; border-radius: 6px; max-height: 180px; overflow-y: auto;">
+      <div style="font-size: 10pt; background: #F9FAFB; padding: 10px; border-radius: 6px; max-height: 180px; overflow-y: auto;">
         ${allResults.archives.scans?.slice(-10).reverse().map((scan, idx) => {
           const date = scan[0];
           const statusCode = scan[1];
@@ -2668,7 +2731,7 @@ const generateHTMLReport = (
         <div class="header-content">
           <div class="logo-box">
             <div>APDP</div>
-            <div style="font-size: 8pt">MONACO</div>
+            <div style="font-size: 10pt">MONACO</div>
           </div>
           <div class="header-title">
             <h1>SYNTHÈSE EXÉCUTIVE</h1>
@@ -2686,22 +2749,22 @@ const generateHTMLReport = (
         <div class="summary-card" style="background: linear-gradient(135deg, #DC2626 0%, #991B1B 100%); color: white; padding: 20px; text-align: center;">
           <div style="font-size: 32pt; font-weight: 900; margin: 10px 0;">${data.numericScore}</div>
           <div style="font-size: 11pt; font-weight: 600;">SCORE GLOBAL</div>
-          <div style="font-size: 8pt; opacity: 0.9; margin-top: 5px;">/100</div>
+          <div style="font-size: 10pt; opacity: 0.9; margin-top: 5px;">/100</div>
         </div>
         <div class="summary-card critical" style="padding: 20px; text-align: center;">
           <div style="font-size: 32pt; font-weight: 900; margin: 10px 0;">${data.criticalIssues}</div>
           <div style="font-size: 11pt; font-weight: 600;">PROBLÈMES CRITIQUES</div>
-          <div style="font-size: 8pt; opacity: 0.7; margin-top: 5px;">Action immédiate</div>
+          <div style="font-size: 10pt; opacity: 0.7; margin-top: 5px;">Action immédiate</div>
         </div>
         <div class="summary-card warning" style="padding: 20px; text-align: center;">
           <div style="font-size: 32pt; font-weight: 900; margin: 10px 0;">${data.warnings}</div>
           <div style="font-size: 11pt; font-weight: 600;">AVERTISSEMENTS</div>
-          <div style="font-size: 8pt; opacity: 0.7; margin-top: 5px;">À corriger</div>
+          <div style="font-size: 10pt; opacity: 0.7; margin-top: 5px;">À corriger</div>
         </div>
         <div class="summary-card success" style="padding: 20px; text-align: center;">
           <div style="font-size: 32pt; font-weight: 900; margin: 10px 0;">${data.compliantItems}</div>
           <div style="font-size: 11pt; font-weight: 600;">CONFORMES</div>
-          <div style="font-size: 8pt; opacity: 0.7; margin-top: 5px;">Validés</div>
+          <div style="font-size: 10pt; opacity: 0.7; margin-top: 5px;">Validés</div>
         </div>
       </div>
       
@@ -2712,7 +2775,7 @@ const generateHTMLReport = (
         <!-- Security -->
         <div style="padding: 15px; background: linear-gradient(135deg, #FEF2F2 0%, white 100%); border-radius: 8px; border-left: 4px solid ${allResults?.ssl?.valid ? '#10B981' : '#DC2626'};">
           <div style="font-size: 10pt; font-weight: 700; color: #DC2626; margin-bottom: 10px;">🔒 SÉCURITÉ</div>
-          <div style="font-size: 8pt; line-height: 1.6;">
+          <div style="font-size: 10pt; line-height: 1.6;">
             <div style="margin: 4px 0;">SSL/TLS: <strong style="color: ${allResults?.ssl?.valid ? '#059669' : '#DC2626'}">${allResults?.ssl?.valid ? '✓ Valide' : '✗ Problème'}</strong></div>
             <div style="margin: 4px 0;">HSTS: <strong style="color: ${allResults?.hsts?.isEnabled ? '#059669' : '#DC2626'}">${allResults?.hsts?.isEnabled ? '✓ Activé' : '✗ Désactivé'}</strong></div>
             <div style="margin: 4px 0;">Ports ouverts: <strong>${allResults?.ports?.openPorts?.length || 0}</strong></div>
@@ -2723,7 +2786,7 @@ const generateHTMLReport = (
         <!-- APDP Compliance -->
         <div style="padding: 15px; background: linear-gradient(135deg, #EFF6FF 0%, white 100%); border-radius: 8px; border-left: 4px solid #3B82F6;">
           <div style="font-size: 10pt; font-weight: 700; color: #3B82F6; margin-bottom: 10px;">📋 CONFORMITÉ APDP</div>
-          <div style="font-size: 8pt; line-height: 1.6;">
+          <div style="font-size: 10pt; line-height: 1.6;">
             ${allResults?.['apdp-cookie-banner'] ? `<div style="margin: 4px 0;">Bannière Cookies: <strong>${allResults['apdp-cookie-banner'].compliance?.score || 0}/100</strong></div>` : ''}
             ${allResults?.['apdp-privacy-policy'] ? `<div style="margin: 4px 0;">Politique Confidentialité: <strong>${allResults['apdp-privacy-policy'].compliance?.score || 0}/100</strong></div>` : ''}
             ${allResults?.['apdp-legal-notices'] ? `<div style="margin: 4px 0;">Mentions Légales: <strong>${allResults['apdp-legal-notices'].compliance?.score || 0}/100</strong></div>` : ''}
@@ -2734,7 +2797,7 @@ const generateHTMLReport = (
         <!-- Technology -->
         <div style="padding: 15px; background: linear-gradient(135deg, #FFFBEB 0%, white 100%); border-radius: 8px; border-left: 4px solid #F59E0B;">
           <div style="font-size: 10pt; font-weight: 700; color: #F59E0B; margin-bottom: 10px;">⚙️ TECHNOLOGIES</div>
-          <div style="font-size: 8pt; line-height: 1.6;">
+          <div style="font-size: 10pt; line-height: 1.6;">
             <div style="margin: 4px 0;">Technologies détectées: <strong>${allResults?.['tech-stack']?.technologies?.length || 0}</strong></div>
             <div style="margin: 4px 0;">Outils Analytics: <strong>${allResults?.['tech-stack']?.analytics?.length || 0}</strong></div>
             <div style="margin: 4px 0;">Frameworks: <strong>${allResults?.['tech-stack']?.frameworks?.length || 0}</strong></div>
@@ -2745,7 +2808,7 @@ const generateHTMLReport = (
         <!-- Performance -->
         <div style="padding: 15px; background: linear-gradient(135deg, #F0FDF4 0%, white 100%); border-radius: 8px; border-left: 4px solid #10B981;">
           <div style="font-size: 10pt; font-weight: 700; color: #10B981; margin-bottom: 10px;">⚡ PERFORMANCE</div>
-          <div style="font-size: 8pt; line-height: 1.6;">
+          <div style="font-size: 10pt; line-height: 1.6;">
             <div style="margin: 4px 0;">Temps de réponse: <strong style="color: ${allResults?.status?.responseTime < 200 ? '#059669' : '#D97706'}">${allResults?.status?.responseTime?.toFixed(0) || 'N/A'} ms</strong></div>
             <div style="margin: 4px 0;">Statut: <strong style="color: ${allResults?.status?.isUp ? '#059669' : '#DC2626'}">${allResults?.status?.isUp ? '✓ En ligne' : '✗ Hors ligne'}</strong></div>
             <div style="margin: 4px 0;">CO2/visite: <strong>${allResults?.carbon?.statistics?.co2?.grid?.grams?.toFixed(3) || 'N/A'}g</strong></div>
@@ -2756,7 +2819,7 @@ const generateHTMLReport = (
         <!-- Cookies & Tracking -->
         <div style="padding: 15px; background: linear-gradient(135deg, #FEF2F2 0%, white 100%); border-radius: 8px; border-left: 4px solid #DC2626;">
           <div style="font-size: 10pt; font-weight: 700; color: #DC2626; margin-bottom: 10px;">🍪 COOKIES & TRACKING</div>
-          <div style="font-size: 8pt; line-height: 1.6;">
+          <div style="font-size: 10pt; line-height: 1.6;">
             <div style="margin: 4px 0;">Total cookies: <strong>${(allResults?.cookies?.clientCookies || allResults?.cookies?.cookies || []).length}</strong></div>
             <div style="margin: 4px 0;">Cookies sécurisés: <strong>${(allResults?.cookies?.clientCookies || allResults?.cookies?.cookies || []).filter((c: any) => c.secure).length}</strong></div>
             <div style="margin: 4px 0;">Ressources externes: <strong>${allResults?.['cdn-resources']?.externalResources?.length || 0}</strong></div>
@@ -2767,7 +2830,7 @@ const generateHTMLReport = (
         <!-- SEO & Web Presence -->
         <div style="padding: 15px; background: linear-gradient(135deg, #EFF6FF 0%, white 100%); border-radius: 8px; border-left: 4px solid #1E40AF;">
           <div style="font-size: 10pt; font-weight: 700; color: #1E40AF; margin-bottom: 10px;">🌐 SEO & PRÉSENCE WEB</div>
-          <div style="font-size: 8pt; line-height: 1.6;">
+          <div style="font-size: 10pt; line-height: 1.6;">
             <div style="margin: 4px 0;">Sitemap XML: <strong style="color: ${allResults?.sitemap ? '#059669' : '#DC2626'}">${allResults?.sitemap ? '✓ Présent' : '✗ Absent'}</strong></div>
             <div style="margin: 4px 0;">Liens internes: <strong>${allResults?.['linked-pages']?.internal?.length || 0}</strong></div>
             <div style="margin: 4px 0;">Liens externes: <strong>${allResults?.['linked-pages']?.external?.length || 0}</strong></div>
@@ -2847,7 +2910,7 @@ const generateHTMLReport = (
         <div class="header-content">
           <div class="logo-box">
             <div>APDP</div>
-            <div style="font-size: 8pt">MONACO</div>
+            <div style="font-size: 10pt">MONACO</div>
           </div>
           <div class="header-title">
             <h1>ANALYSE APPROFONDIE</h1>
@@ -2866,7 +2929,7 @@ const generateHTMLReport = (
         ${allResults.headers['X-Frame-Options'] ? `<div class="info-row"><span class="info-label">X-Frame-Options:</span> <span class="info-value">${allResults.headers['X-Frame-Options']}</span></div>` : ''}
         ${allResults.headers['X-Content-Type-Options'] ? `<div class="info-row"><span class="info-label">X-Content-Type-Options:</span> <span class="info-value">${allResults.headers['X-Content-Type-Options']}</span></div>` : ''}
         ${allResults.headers.Server ? `<div class="info-row"><span class="info-label">Serveur:</span> <span class="info-value">${allResults.headers.Server}</span></div>` : ''}
-        <div style="font-size: 8pt; margin-top: 10px; color: #6B7280;">
+        <div style="font-size: 10pt; margin-top: 10px; color: #6B7280;">
           ${Object.keys(allResults.headers).length} en-têtes HTTP détectés au total
         </div>
       </div>
@@ -2879,7 +2942,7 @@ const generateHTMLReport = (
         <div class="summary-card info" style="text-align: left;">
           <div class="summary-label">Enregistrements A:</div>
           <div class="summary-number" style="font-size: 18pt;">${allResults.dns.A.length}</div>
-          ${allResults.dns.A.slice(0, 2).map((ip: string) => `<div style="font-size: 8pt; margin: 2px 0;">• ${ip}</div>`).join('')}
+          ${allResults.dns.A.slice(0, 2).map((ip: string) => `<div style="font-size: 10pt; margin: 2px 0;">• ${ip}</div>`).join('')}
         </div>
         ` : ''}
         ${allResults.dns.AAAA?.length ? `
@@ -2931,7 +2994,7 @@ const generateHTMLReport = (
           <span class="info-value">${allResults['cdn-resources'].cdnProviders?.length || 0}</span>
         </div>
         ${allResults['cdn-resources'].isSPA ? `
-        <div style="font-size: 8pt; margin-top: 10px; padding: 10px; background: #FFFBEB; border-radius: 6px; color: #92400E;">
+        <div style="font-size: 10pt; margin-top: 10px; padding: 10px; background: #FFFBEB; border-radius: 6px; color: #92400E;">
           ⚠️ Application SPA détectée - Certaines ressources peuvent être chargées dynamiquement
         </div>
         ` : ''}
