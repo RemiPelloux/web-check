@@ -271,7 +271,7 @@ const Home = (): JSX.Element => {
             <Link to="/check" title="Démarrer une analyse de conformité avec notre plateforme d'audit professionnel">
               <Button>Commencer l'Analyse</Button>
             </Link>
-            <Link to="/check/about" title="Consulter la documentation complète de l'application BeCompliant">
+            <Link to="/check/about" title="Consulter la documentation complète de l'application Test Conformité">
               <Button>Documentation</Button>
             </Link>
           </div>

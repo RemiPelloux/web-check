@@ -581,7 +581,7 @@ export const featureIntro = [
 ];
 
 export const about = [
-`BeCompliant is a professional-grade compliance assessment platform designed for comprehensive regulatory gap analysis and security auditing.
+`Test Conformité is a professional-grade compliance assessment platform designed for comprehensive regulatory gap analysis and security auditing.
 Our platform empowers compliance officers, risk managers, and security auditors with deep insights into website security posture and regulatory compliance status.`,
 
 `The assessment engine provides detailed analysis of compliance gaps, security configurations,
@@ -590,7 +590,7 @@ The results enable informed decision-making for risk mitigation, compliance reme
 and regulatory reporting across your digital assets.`,
 
 `Whether you're conducting compliance audits, performing regulatory assessments, or managing enterprise risk,
-BeCompliant delivers professional-grade compliance capabilities through an intuitive, auditor-focused interface.`,
+Test Conformité delivers professional-grade compliance capabilities through an intuitive, auditor-focused interface.`,
 ];
 
 export const license = `The MIT License (MIT)
@@ -615,11 +615,11 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 `;
 
 export const supportUs = [
-  "BeCompliant is a professional compliance assessment platform available for enterprise use.",
+  "Test Conformité is a professional compliance assessment platform available for enterprise use.",
   "The platform is open source under the MIT license, allowing you to deploy your own instances and customize the platform for your organization's specific compliance requirements.",
   "Our mission is to provide enterprise-grade compliance assessment tools that are accessible to compliance officers, risk managers, and organizations of all sizes.",
   "We're committed to maintaining high-quality, reliable service while continuously expanding our assessment capabilities and regulatory framework coverage.",
-  "BeCompliant will always remain open and accessible, supporting the compliance community with professional-grade auditing tools.",
+  "Test Conformité will always remain open and accessible, supporting the compliance community with professional-grade auditing tools.",
 ];
 
 export const fairUse = [

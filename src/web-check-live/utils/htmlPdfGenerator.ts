@@ -3151,7 +3151,7 @@ export const generateComplianceReportHTML = async (
     // PDF options
     const options = {
       margin: [0, 0, 0, 0],
-      filename: `BeCompliant-Rapport-${data.url.replace(/[^a-zA-Z0-9]/g, '-').substring(0, 50)}-${new Date().toISOString().split('T')[0]}.pdf`,
+      filename: `Test Conformité-Rapport-${data.url.replace(/[^a-zA-Z0-9]/g, '-').substring(0, 50)}-${new Date().toISOString().split('T')[0]}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { 
         scale: 2,

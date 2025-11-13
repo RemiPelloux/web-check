@@ -143,7 +143,7 @@ const makeAnchor = (title: string): string => {
 };
 
 const about = [
-  "BeCompliant est une plateforme professionnelle d'audit de conformité développée par OpenPro. Elle offre une analyse complète et automatisée de la conformité réglementaire, de la sécurité et des meilleures pratiques pour les sites web et applications.",
+  "Test Conformité est une plateforme professionnelle d'audit de conformité développée par OpenPro. Elle offre une analyse complète et automatisée de la conformité réglementaire, de la sécurité et des meilleures pratiques pour les sites web et applications.",
   "Notre outil effectue plus de 30 vérifications différentes couvrant la conformité RGPD, la sécurité des données, l'analyse SEO, les performances, l'accessibilité et bien plus encore. Chaque analyse fournit des résultats détaillés avec des recommandations actionnables.",
 ];
 
@@ -301,7 +301,7 @@ const About = (): JSX.Element => {
         ))}
         <hr />
         <p>
-          BeCompliant est développé et maintenu par <strong>OpenPro</strong>.
+          Test Conformité est développé et maintenu par <strong>OpenPro</strong>.
           Il est distribué sous <a href="/license">licence MIT</a>,
           et est totalement gratuit pour une utilisation personnelle et commerciale.<br />
           Cette plateforme d'audit de conformité professionnelle fournit une analyse complète 
@@ -310,10 +310,10 @@ const About = (): JSX.Element => {
         </p>
       </Section>
 
-      <Heading as="h2" size="medium" color={colors.primary}>Comment Utiliser BeCompliant</Heading>
+      <Heading as="h2" size="medium" color={colors.primary}>Comment Utiliser Test Conformité</Heading>
       <Section>
         <p>
-          BeCompliant est conçu pour être simple d'utilisation tout en fournissant des résultats 
+          Test Conformité est conçu pour être simple d'utilisation tout en fournissant des résultats 
           professionnels et détaillés. Suivez ces étapes pour effectuer votre première analyse :
         </p>
         <ol>
@@ -354,7 +354,7 @@ const About = (): JSX.Element => {
       <Heading as="h2" size="medium" color={colors.primary}>Analyses Disponibles</Heading>
       <Section>
         <p>
-          BeCompliant effectue plus de 30 types d'analyses différentes couvrant tous les aspects 
+          Test Conformité effectue plus de 30 types d'analyses différentes couvrant tous les aspects 
           de la conformité, de la sécurité et de la qualité web. Voici la liste complète :
         </p>
         <div className="contents">
@@ -412,7 +412,7 @@ const About = (): JSX.Element => {
       <Heading as="h2" size="medium" color={colors.primary}>Meilleures Pratiques</Heading>
       <Section>
         <p>
-          Pour tirer le meilleur parti de BeCompliant et maintenir une conformité optimale, 
+          Pour tirer le meilleur parti de Test Conformité et maintenir une conformité optimale, 
           suivez ces recommandations :
         </p>
         {bestPractices.map((practice, index) => (
@@ -437,7 +437,7 @@ const About = (): JSX.Element => {
       <Section>
         <Heading as="h3" size="small" color={colors.primary}>Licence</Heading>
         <b>
-          BeCompliant est distribué sous licence MIT,
+          Test Conformité est distribué sous licence MIT,
           © <strong>OpenPro</strong> { new Date().getFullYear()}
         </b>
         <br />
@@ -481,7 +481,7 @@ const About = (): JSX.Element => {
           {' '}ou à consulter la documentation complète.
         </p>
         <p>
-          <strong>OpenPro</strong> s'engage à maintenir et améliorer continuellement BeCompliant 
+          <strong>OpenPro</strong> s'engage à maintenir et améliorer continuellement Test Conformité 
           pour offrir la meilleure expérience d'audit de conformité possible.
         </p>
       </Section>
