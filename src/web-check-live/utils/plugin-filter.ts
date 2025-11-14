@@ -5,10 +5,22 @@ let cacheTimestamp = 0;
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
 
 /**
+ * Check if we're in a browser environment
+ */
+const isBrowser = (): boolean => {
+  return typeof window !== 'undefined' && typeof localStorage !== 'undefined';
+};
+
+/**
  * Fetch disabled plugins from the server
  * @returns Promise<string[]> List of disabled plugin names
  */
 export const fetchDisabledPlugins = async (): Promise<string[]> => {
+  // SSR safety check
+  if (!isBrowser()) {
+    return [];
+  }
+
   // Check cache first
   const now = Date.now();
   if (cachedDisabledPlugins !== null && (now - cacheTimestamp) < CACHE_DURATION) {
@@ -71,6 +83,10 @@ export const filterAvailablePlugins = <T extends string>(
  * @returns 'APDP' | 'DPD' | null
  */
 export const getUserRole = (): 'APDP' | 'DPD' | null => {
+  // SSR safety check
+  if (!isBrowser()) {
+    return null;
+  }
   return localStorage.getItem('checkitUserRole') as 'APDP' | 'DPD' | null;
 };
 

@@ -1,4 +1,4 @@
-FROM node:21-bullseye
+FROM node:20-bullseye
 
 WORKDIR /app
 
@@ -7,6 +7,7 @@ RUN apt-get update && \
     apt-get install -y --no-install-recommends \
     chromium \
     traceroute \
+    sqlite3 \
     && rm -rf /var/lib/apt/lists/*
 
 # Copy package files
@@ -17,6 +18,9 @@ RUN yarn install --network-timeout 100000
 
 # Copy source code
 COPY . .
+
+# Initialize SQLite database
+RUN node database/setup.js || echo "Database already initialized"
 
 # Set environment
 ENV CHROME_PATH="/usr/bin/chromium"
