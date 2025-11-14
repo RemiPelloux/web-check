@@ -3,6 +3,7 @@ import colors from 'web-check-live/styles/colors';
 import Card from 'web-check-live/components/Form/Card';
 import Heading from 'web-check-live/components/Form/Heading';
 import { useState, useEffect, type ReactNode } from 'react';
+import { fetchDisabledPlugins, filterAvailablePlugins, getUserRole } from 'web-check-live/utils/plugin-filter';
 
 
 const LoadCard = styled(Card)`
@@ -287,6 +288,27 @@ export const initialJobs = jobNames.map((job: string) => {
   }
 });
 
+/**
+ * Create filtered jobs based on user role and disabled plugins
+ * @returns Promise<LoadingJob[]> Filtered initial jobs
+ */
+export const createFilteredInitialJobs = async (): Promise<LoadingJob[]> => {
+  try {
+    const disabledPlugins = await fetchDisabledPlugins();
+    const availableJobNames = filterAvailablePlugins(jobNames, disabledPlugins);
+    
+    return availableJobNames.map((job: string) => ({
+      name: job,
+      state: 'loading' as LoadingState,
+      retry: () => {}
+    }));
+  } catch (error) {
+    console.error('Error creating filtered jobs:', error);
+    // Fallback to all jobs if filtering fails
+    return initialJobs;
+  }
+};
+
 export const calculateLoadingStatePercentages = (loadingJobs: LoadingJob[]): Record<LoadingState | string, number> => {
   const totalJobs = loadingJobs.length;
 
@@ -338,18 +360,19 @@ const MillisecondCounter = (props: {isDone: boolean}) => {
 };
 
 const RunningText = (props: { state: LoadingJob[], count: number }): JSX.Element => {
-  const loadingTasksCount = jobNames.length - props.state.filter((val: LoadingJob) => val.state === 'loading').length;
-  const isDone = loadingTasksCount >= jobNames.length;
+  const totalJobs = props.state.length; // Use actual number of jobs being run
+  const loadingTasksCount = totalJobs - props.state.filter((val: LoadingJob) => val.state === 'loading').length;
+  const isDone = loadingTasksCount >= totalJobs;
   return (
     <p className="run-status">
-    { isDone ? 'Finished in ' : `Running ${loadingTasksCount} of ${jobNames.length} jobs - ` }
+    { isDone ? 'Terminé en ' : `Exécution ${loadingTasksCount} sur ${totalJobs} analyses - ` }
     <MillisecondCounter isDone={isDone} />
     </p>
   );
 };
 
 const SummaryText = (props: { state: LoadingJob[], count: number }): JSX.Element => {
-  const totalJobs = jobNames.length;
+  const totalJobs = props.state.length; // Use actual number of jobs being run
   let failedTasksCount = props.state.filter((val: LoadingJob) => val.state === 'error').length;
   let loadingTasksCount = props.state.filter((val: LoadingJob) => val.state === 'loading').length;
   let skippedTasksCount = props.state.filter((val: LoadingJob) => val.state === 'skipped').length;
@@ -365,7 +388,7 @@ const SummaryText = (props: { state: LoadingJob[], count: number }): JSX.Element
   if (loadingTasksCount > 0) {
     return (
       <SummaryContainer className="loading-info">
-        <b>Loading {totalJobs - loadingTasksCount} / {totalJobs} Jobs</b>
+        <b>Chargement {totalJobs - loadingTasksCount} / {totalJobs} Analyses</b>
       </SummaryContainer>
     );
   }
@@ -396,9 +419,12 @@ const ProgressLoader = (props: { loadStatus: LoadingJob[], showModal: (err: Reac
   const [ hideLoader, setHideLoader ] = useState<boolean>(false);
   const loadStatus = props.loadStatus;
   const percentages = calculateLoadingStatePercentages(loadStatus);
+  const userRole = getUserRole(); // Get current user role
+  const isDPD = userRole === 'DPD';
 
-  const loadingTasksCount = jobNames.length - loadStatus.filter((val: LoadingJob) => val.state === 'loading').length;
-  const isDone = loadingTasksCount >= jobNames.length;
+  const totalJobs = loadStatus.length; // Use actual number of jobs being run
+  const loadingTasksCount = totalJobs - loadStatus.filter((val: LoadingJob) => val.state === 'loading').length;
+  const isDone = loadingTasksCount >= totalJobs;
 
   const makeBarColor = (colorCode: string): [string, string] => {
     const amount = 10;
@@ -455,8 +481,9 @@ const ProgressLoader = (props: { loadStatus: LoadingJob[], showModal: (err: Reac
       <RunningText state={loadStatus} count={loadStatus.length} />
     </StatusInfoWrapper>
 
+    {!isDPD && (
     <Details>
-      <summary>Show Details</summary>
+      <summary>Afficher les Détails</summary>
       <ul>
         {loadStatus.map((job: LoadingJob) => (
           <JobListItem key={job.name} job={job} showJobDocs={props.showJobDocs} showErrorModal={showErrorModal} barColors={barColors} />
@@ -464,13 +491,14 @@ const ProgressLoader = (props: { loadStatus: LoadingJob[], showModal: (err: Reac
       </ul>
       { loadStatus.filter((val: LoadingJob) => val.state === 'error').length > 0 &&
         <p className="error">
-          <b>Check the browser console for logs and more info</b><br />
-          It's normal for some jobs to fail, either because the host doesn't return the required info,
-          or restrictions in the lambda function, or hitting an API limit.
+          <b>Vérifiez la console du navigateur pour les logs et plus d'informations</b><br />
+          Il est normal que certains jobs échouent, soit parce que l'hôte ne retourne pas les informations requises,
+          ou en raison de restrictions dans la fonction lambda, ou en atteignant une limite d'API.
         </p>}
-        <AboutPageLink href="/check/about" target="_blank" rel="noreferer" >Learn More about Web-Check</AboutPageLink>
+        <AboutPageLink href="/wiki" target="_blank" rel="noopener noreferrer" >En savoir plus sur l'Outil d'Audit de Conformité</AboutPageLink>
     </Details>
-    <DismissButton onClick={() => setHideLoader(true)}>Dismiss</DismissButton>
+    )}
+    <DismissButton onClick={() => setHideLoader(true)}>Masquer</DismissButton>
   </LoadCard>
   </>
   );

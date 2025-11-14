@@ -16,8 +16,9 @@ import Loader from 'web-check-live/components/misc/Loader';
 import ErrorBoundary from 'web-check-live/components/misc/ErrorBoundary';
 import SelfScanMsg from 'web-check-live/components/misc/SelfScanMsg';
 import DocContent from 'web-check-live/components/misc/DocContent';
-import ProgressBar, { type LoadingJob, type LoadingState, initialJobs } from 'web-check-live/components/misc/ProgressBar';
+import ProgressBar, { type LoadingJob, type LoadingState, initialJobs, createFilteredInitialJobs } from 'web-check-live/components/misc/ProgressBar';
 import ActionButtons from 'web-check-live/components/misc/ActionButtons';
+import { fetchDisabledPlugins } from 'web-check-live/utils/plugin-filter';
 
 import ViewRaw from 'web-check-live/components/misc/ViewRaw';
 
@@ -179,11 +180,24 @@ const Results = (props: { address?: string } ): JSX.Element => {
   const [ addressType, setAddressType ] = useState<AddressType>('empt');
 
   const [loadingJobs, setLoadingJobs] = useState<LoadingJob[]>(initialJobs);
+  const [disabledPlugins, setDisabledPlugins] = useState<string[]>([]);
   const [modalOpen, setModalOpen] = useState(false);
   const [modalContent, setModalContent] = useState<ReactNode>(<></>);
   const [showFilters, setShowFilters] = useState(false);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [tags, setTags] = useState<string[]>([]);
+
+  // Initialize filtered jobs based on user role and disabled plugins
+  useEffect(() => {
+    const initializeJobs = async () => {
+      const plugins = await fetchDisabledPlugins();
+      setDisabledPlugins(plugins);
+      
+      const filteredJobs = await createFilteredInitialJobs();
+      setLoadingJobs(filteredJobs);
+    };
+    initializeJobs();
+  }, []);
 
   const clearFilters = () => {
     setTags([]);
@@ -1174,6 +1188,7 @@ const Results = (props: { address?: string } ): JSX.Element => {
           {
             resultCardData
             .filter(card => card.id !== 'enhanced-compliance-summary') // Exclude the compliance summary from the grid
+            .filter(({ id }) => !disabledPlugins.includes(id)) // Filter out disabled plugins for DPD users
             .filter(({ id, title, result, tags }) => {
               // Show if no tags selected OR if any of the card's tags match selected tags
               const tagMatch = tags.length === 0 || tags.some(tag => tags.includes(tag));

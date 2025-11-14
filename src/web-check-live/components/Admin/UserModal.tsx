@@ -248,6 +248,12 @@ const UserModal = ({ user, onClose }: UserModalProps): JSX.Element => {
     e.preventDefault();
     setLoading(true);
 
+    const action = user ? 'Mise à jour' : 'Création';
+    const toastId = toast.loading(`${action} de "${username}"...`, {
+      position: 'bottom-right',
+      theme: 'dark',
+    });
+
     try {
       const token = localStorage.getItem('checkitAuthToken');
       const url = user
@@ -279,11 +285,25 @@ const UserModal = ({ user, onClose }: UserModalProps): JSX.Element => {
         throw new Error(data.message || 'Operation failed');
       }
 
-      toast.success(user ? 'Utilisateur mis à jour avec succès' : 'Utilisateur créé avec succès');
+      toast.update(toastId, {
+        render: user 
+          ? `Utilisateur "${username}" mis à jour avec succès`
+          : `Utilisateur "${username}" créé avec succès`,
+        type: 'success',
+        isLoading: false,
+        autoClose: 3000,
+        closeButton: true,
+      });
       onClose(true);
     } catch (error: any) {
       console.error('Error saving user:', error);
-      toast.error(error.message || 'Une erreur est survenue');
+      toast.update(toastId, {
+        render: `${error.message || 'Une erreur est survenue'}`,
+        type: 'error',
+        isLoading: false,
+        autoClose: 4000,
+        closeButton: true,
+      });
       setLoading(false);
     }
   };

@@ -218,7 +218,10 @@ const PluginConfig = (): JSX.Element => {
       setDisabledPlugins(data.disabledPlugins || []);
     } catch (error) {
       console.error('Error fetching plugins:', error);
-      toast.error('Impossible de récupérer la configuration des plugins');
+      toast.error('Impossible de récupérer la configuration des plugins', {
+        position: 'bottom-right',
+        theme: 'dark',
+      });
     } finally {
       setLoading(false);
     }
@@ -236,6 +239,13 @@ const PluginConfig = (): JSX.Element => {
 
   const handleSave = async () => {
     setSaving(true);
+    
+    // Toast de progression
+    const toastId = toast.loading('Enregistrement de la configuration...', {
+      position: 'bottom-right',
+      theme: 'dark',
+    });
+    
     try {
       const token = localStorage.getItem('checkitAuthToken');
       const response = await fetch(`${API_BASE_URL}/admin/plugins`, {
@@ -251,10 +261,24 @@ const PluginConfig = (): JSX.Element => {
         throw new Error('Failed to update plugins');
       }
 
-      toast.success('Configuration des plugins mise à jour avec succès');
+      // Success toast
+      toast.update(toastId, {
+        render: 'Configuration enregistrée avec succès',
+        type: 'success',
+        isLoading: false,
+        autoClose: 3000,
+        closeButton: true,
+      });
     } catch (error) {
       console.error('Error updating plugins:', error);
-      toast.error('Impossible de mettre à jour la configuration');
+      // Error toast
+      toast.update(toastId, {
+        render: 'Erreur lors de l\'enregistrement de la configuration',
+        type: 'error',
+        isLoading: false,
+        autoClose: 4000,
+        closeButton: true,
+      });
     } finally {
       setSaving(false);
     }
@@ -262,6 +286,11 @@ const PluginConfig = (): JSX.Element => {
 
   const handleReset = () => {
     fetchDisabledPlugins();
+    toast.info('Modifications annulées', {
+      position: 'bottom-right',
+      theme: 'dark',
+      autoClose: 2000,
+    });
   };
 
   if (loading) {

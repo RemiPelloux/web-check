@@ -264,14 +264,14 @@ const Home = (): JSX.Element => {
             }}>Capacités d'Analyse</Heading>
             <ul>
               {docs.map((doc, index) => (<li key={index}>{doc.title}</li>))}
-              <li><Link to="/check/about">+ plus d'analyses!</Link></li>
+              <li><Link to="/wiki" target="_blank" rel="noopener noreferrer">+ plus d'analyses!</Link></li>
             </ul>
           </div>
           <div className="links">
             <Link to="/check" title="Démarrer une analyse de conformité avec notre plateforme d'audit professionnel">
               <Button>Commencer l'Analyse</Button>
             </Link>
-            <Link to="/check/about" title="Consulter la documentation complète de l'application Test Conformité">
+            <Link to="/wiki" target="_blank" rel="noopener noreferrer" title="Consulter la documentation complète de l'Outil d'Audit de Conformité">
               <Button>Documentation</Button>
             </Link>
           </div>

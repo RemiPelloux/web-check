@@ -186,7 +186,10 @@ const UserManagement = (): JSX.Element => {
       setUsers(data.users || []);
     } catch (error) {
       console.error('Error fetching users:', error);
-      toast.error('Impossible de récupérer la liste des utilisateurs');
+      toast.error('Impossible de récupérer la liste des utilisateurs', {
+        position: 'bottom-right',
+        theme: 'dark',
+      });
     } finally {
       setLoading(false);
     }
@@ -211,6 +214,11 @@ const UserManagement = (): JSX.Element => {
       return;
     }
 
+    const toastId = toast.loading(`Suppression de "${user.username}"...`, {
+      position: 'bottom-right',
+      theme: 'dark',
+    });
+
     try {
       const token = localStorage.getItem('checkitAuthToken');
       const response = await fetch(`${API_BASE_URL}/admin/users/${user.id}`, {
@@ -225,11 +233,23 @@ const UserManagement = (): JSX.Element => {
         throw new Error(data.message || 'Failed to delete user');
       }
 
-      toast.success('Utilisateur supprimé avec succès');
+      toast.update(toastId, {
+        render: `Utilisateur "${user.username}" supprimé avec succès`,
+        type: 'success',
+        isLoading: false,
+        autoClose: 3000,
+        closeButton: true,
+      });
       fetchUsers();
     } catch (error: any) {
       console.error('Error deleting user:', error);
-      toast.error(error.message || 'Impossible de supprimer l\'utilisateur');
+      toast.update(toastId, {
+        render: `${error.message || 'Impossible de supprimer l\'utilisateur'}`,
+        type: 'error',
+        isLoading: false,
+        autoClose: 4000,
+        closeButton: true,
+      });
     }
   };
 

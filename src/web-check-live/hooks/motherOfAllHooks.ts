@@ -5,6 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import type { LoadingState } from 'web-check-live/components/misc/ProgressBar';
 import type { AddressType } from 'web-check-live/utils/address-type-checker';
 import keys from 'web-check-live/utils/get-keys';
+import { fetchDisabledPlugins, isPluginAvailable } from 'web-check-live/utils/plugin-filter';
 
 interface UseIpAddressProps<ResultType = any> {
   // Unique identifier for this job type
@@ -100,8 +101,28 @@ const useMotherOfAllHooks = <ResultType = any>(params: UseIpAddressProps<ResultT
       return;
     }
 
-    // Initiate the data fetching process
-    doTheFetch().catch(() => {});
+    // Check if plugin is disabled by admin configuration
+    const checkPluginAndFetch = async () => {
+      try {
+        const disabledPlugins = await fetchDisabledPlugins();
+        const jobIdString = Array.isArray(jobId) ? jobId[0] : jobId;
+        
+        if (!isPluginAvailable(jobIdString, disabledPlugins)) {
+          // Plugin is disabled - skip it without running
+          updateLoadingJobs(jobId, 'skipped', 'Plugin disabled by administrator');
+          return;
+        }
+
+        // Plugin is enabled - proceed with fetch
+        doTheFetch().catch(() => {});
+      } catch (error) {
+        console.error('Error checking plugin availability:', error);
+        // On error, proceed with fetch (fail open)
+        doTheFetch().catch(() => {});
+      }
+    };
+
+    checkPluginAndFetch();
     
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [address, addressType]);

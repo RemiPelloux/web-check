@@ -65,7 +65,7 @@ console.log(
 );
 
 const redirects = {
-  '/about': '/check/about',
+  '/about': '/wiki',
 };
 
 // Skip the marketing homepage for self-hosted users - DISABLED to allow home page access

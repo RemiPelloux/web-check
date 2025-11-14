@@ -16,7 +16,14 @@ const { links } = Astro.props;
 
 <div class="button-wrap">
   {links.map(link => (
-    <a href={link.url} class={link.isCta ? 'cta' : ''}><Icon name={link.icon} size={2} />{link.title}</a>
+    <a 
+      href={link.url} 
+      class={link.isCta ? 'cta' : ''} 
+      target={link.isCta ? '_self' : '_blank'} 
+      rel={link.isCta ? '' : 'noopener noreferrer'}
+    >
+      <Icon name={link.icon} size={2} />{link.title}
+    </a>
   ))}
 </div>
 

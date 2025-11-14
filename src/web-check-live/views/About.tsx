@@ -143,7 +143,7 @@ const makeAnchor = (title: string): string => {
 };
 
 const about = [
-  "Test Conformité est une plateforme professionnelle d'audit de conformité développée par OpenPro. Elle offre une analyse complète et automatisée de la conformité réglementaire, de la sécurité et des meilleures pratiques pour les sites web et applications.",
+  "Outil d'Audit de Conformité est une plateforme professionnelle d'audit de conformité développée par OpenPro. Elle offre une analyse complète et automatisée de la conformité réglementaire, de la sécurité et des meilleures pratiques pour les sites web et applications.",
   "Notre outil effectue plus de 30 vérifications différentes couvrant la conformité RGPD, la sécurité des données, l'analyse SEO, les performances, l'accessibilité et bien plus encore. Chaque analyse fournit des résultats détaillés avec des recommandations actionnables.",
 ];
 
@@ -301,19 +301,17 @@ const About = (): JSX.Element => {
         ))}
         <hr />
         <p>
-          Test Conformité est développé et maintenu par <strong>OpenPro</strong>.
-          Il est distribué sous <a href="/license">licence MIT</a>,
-          et est totalement gratuit pour une utilisation personnelle et commerciale.<br />
+          Outil d'Audit de Conformité est développé et maintenu par <strong>OpenPro</strong>.
           Cette plateforme d'audit de conformité professionnelle fournit une analyse complète 
           des écarts réglementaires et des capacités d'audit de sécurité pour les responsables 
           de la conformité et les gestionnaires de risques.
         </p>
       </Section>
 
-      <Heading as="h2" size="medium" color={colors.primary}>Comment Utiliser Test Conformité</Heading>
+      <Heading as="h2" size="medium" color={colors.primary}>Comment Utiliser l'Outil d'Audit de Conformité</Heading>
       <Section>
         <p>
-          Test Conformité est conçu pour être simple d'utilisation tout en fournissant des résultats 
+          L'Outil d'Audit de Conformité est conçu pour être simple d'utilisation tout en fournissant des résultats 
           professionnels et détaillés. Suivez ces étapes pour effectuer votre première analyse :
         </p>
         <ol>
@@ -354,7 +352,7 @@ const About = (): JSX.Element => {
       <Heading as="h2" size="medium" color={colors.primary}>Analyses Disponibles</Heading>
       <Section>
         <p>
-          Test Conformité effectue plus de 30 types d'analyses différentes couvrant tous les aspects 
+          L'Outil d'Audit de Conformité effectue plus de 30 types d'analyses différentes couvrant tous les aspects 
           de la conformité, de la sécurité et de la qualité web. Voici la liste complète :
         </p>
         <div className="contents">
@@ -412,7 +410,7 @@ const About = (): JSX.Element => {
       <Heading as="h2" size="medium" color={colors.primary}>Meilleures Pratiques</Heading>
       <Section>
         <p>
-          Pour tirer le meilleur parti de Test Conformité et maintenir une conformité optimale, 
+          Pour tirer le meilleur parti de l'Outil d'Audit de Conformité et maintenir une conformité optimale, 
           suivez ces recommandations :
         </p>
         {bestPractices.map((practice, index) => (
@@ -437,7 +435,7 @@ const About = (): JSX.Element => {
       <Section>
         <Heading as="h3" size="small" color={colors.primary}>Licence</Heading>
         <b>
-          Test Conformité est distribué sous licence MIT,
+          Outil d'Audit de Conformité est distribué sous licence MIT,
           © <strong>OpenPro</strong> { new Date().getFullYear()}
         </b>
         <br />
@@ -472,16 +470,7 @@ const About = (): JSX.Element => {
         
         <Heading as="h3" size="small" color={colors.primary}>Support</Heading>
         <p>
-          Pour toute question, suggestion d'amélioration ou signalement de bug, 
-          n'hésitez pas à nous contacter via notre{' '}
-          <CopyableLink 
-            url="https://github.com/xray-web/web-check" 
-            label="dépôt GitHub"
-          />
-          {' '}ou à consulter la documentation complète.
-        </p>
-        <p>
-          <strong>OpenPro</strong> s'engage à maintenir et améliorer continuellement Test Conformité 
+          <strong>OpenPro</strong> s'engage à maintenir et améliorer continuellement l'Outil d'Audit de Conformité 
           pour offrir la meilleure expérience d'audit de conformité possible.
         </p>
       </Section>

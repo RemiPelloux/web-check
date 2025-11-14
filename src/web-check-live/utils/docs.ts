@@ -581,16 +581,16 @@ export const featureIntro = [
 ];
 
 export const about = [
-`Test Conformité is a professional-grade compliance assessment platform designed for comprehensive regulatory gap analysis and security auditing.
-Our platform empowers compliance officers, risk managers, and security auditors with deep insights into website security posture and regulatory compliance status.`,
+`L'Outil d'Audit de Conformité est une plateforme professionnelle d'audit de conformité conçue pour une analyse complète des écarts réglementaires et des audits de sécurité.
+Notre plateforme permet aux responsables de la conformité, gestionnaires de risques et auditeurs de sécurité d'obtenir des insights approfondis sur la posture de sécurité des sites web et l'état de conformité réglementaire.`,
 
-`The assessment engine provides detailed analysis of compliance gaps, security configurations,
-and regulatory alignment across multiple industry standards and frameworks.
-The results enable informed decision-making for risk mitigation, compliance remediation,
-and regulatory reporting across your digital assets.`,
+`Le moteur d'évaluation fournit une analyse détaillée des écarts de conformité, des configurations de sécurité,
+et de l'alignement réglementaire sur plusieurs normes et cadres industriels.
+Les résultats permettent une prise de décision éclairée pour l'atténuation des risques, la remédiation de conformité,
+et le reporting réglementaire sur vos actifs numériques.`,
 
-`Whether you're conducting compliance audits, performing regulatory assessments, or managing enterprise risk,
-Test Conformité delivers professional-grade compliance capabilities through an intuitive, auditor-focused interface.`,
+`Que vous effectuiez des audits de conformité, des évaluations réglementaires ou gériez des risques d'entreprise,
+l'Outil d'Audit de Conformité offre des capacités de conformité professionnelles à travers une interface intuitive, axée sur les auditeurs.`,
 ];
 
 export const license = `The MIT License (MIT)
@@ -615,11 +615,11 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 `;
 
 export const supportUs = [
-  "Test Conformité is a professional compliance assessment platform available for enterprise use.",
-  "The platform is open source under the MIT license, allowing you to deploy your own instances and customize the platform for your organization's specific compliance requirements.",
-  "Our mission is to provide enterprise-grade compliance assessment tools that are accessible to compliance officers, risk managers, and organizations of all sizes.",
-  "We're committed to maintaining high-quality, reliable service while continuously expanding our assessment capabilities and regulatory framework coverage.",
-  "Test Conformité will always remain open and accessible, supporting the compliance community with professional-grade auditing tools.",
+  "L'Outil d'Audit de Conformité est une plateforme professionnelle d'audit de conformité disponible pour une utilisation en entreprise.",
+  "La plateforme est open source sous licence MIT, vous permettant de déployer vos propres instances et de personnaliser la plateforme pour les exigences de conformité spécifiques de votre organisation.",
+  "Notre mission est de fournir des outils d'évaluation de conformité de niveau entreprise accessibles aux responsables de conformité, gestionnaires de risques et organisations de toutes tailles.",
+  "Nous nous engageons à maintenir un service de haute qualité et fiable tout en élargissant continuellement nos capacités d'évaluation et notre couverture des cadres réglementaires.",
+  "L'Outil d'Audit de Conformité restera toujours ouvert et accessible, soutenant la communauté de la conformité avec des outils d'audit professionnels.",
 ];
 
 export const fairUse = [

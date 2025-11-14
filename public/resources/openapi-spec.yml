@@ -1,12 +1,12 @@
 openapi: 3.0.0
 info:
-  title: Test Conformité - Professional Compliance Assessment Platform
+  title: BeCompliant - Professional Compliance Assessment Platform
   description: >
-    **API documentation for the Test Conformité professional compliance assessment platform.**<br>
-    _Test Conformité provides comprehensive regulatory compliance analysis and security auditing capabilities for professional use._
+    **API documentation for the BeCompliant professional compliance assessment platform.**<br>
+    _BeCompliant provides comprehensive regulatory compliance analysis and security auditing capabilities for professional use._
     <br><br>
-    [![Website - Test Conformité.xyz](https://img.shields.io/badge/Website-becompliant.xyz-1e40af?style=flat&logo=web&logoColor=white&labelColor=1a202c)](https://becompliant.xyz/)
-    [![Docker - Test Conformité](https://img.shields.io/badge/Docker-becompliant/compliance-1fb1f4?style=flat&logo=docker&logoColor=white&labelColor=1a202c)](https://hub.docker.com/r/becompliant/compliance)
+    [![Website - BeCompliant.xyz](https://img.shields.io/badge/Website-becompliant.xyz-1e40af?style=flat&logo=web&logoColor=white&labelColor=1a202c)](https://becompliant.xyz/)
+    [![Docker - BeCompliant](https://img.shields.io/badge/Docker-becompliant/compliance-1fb1f4?style=flat&logo=docker&logoColor=white&labelColor=1a202c)](https://hub.docker.com/r/becompliant/compliance)
     [![Professional - OpenPro](https://img.shields.io/badge/Professional-OpenPro-1e40af?style=flat&logo=shield&logoColor=white&labelColor=1a202c)](#)
   
   version: 2.0.0

@@ -103,7 +103,7 @@ run_command() {
 echo -e "${BLUE}"
 echo "╔════════════════════════════════════════╗"
 echo "║   Checkit Deployment Script v1.0       ║"
-echo "║   Test Conformité - OpenPro                ║"
+echo "║   BeCompliant - OpenPro                ║"
 echo "╚════════════════════════════════════════╝"
 echo -e "${NC}"
 

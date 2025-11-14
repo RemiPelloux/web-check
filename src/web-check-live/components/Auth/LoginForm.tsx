@@ -304,11 +304,16 @@ const LoginForm = ({ onLoginSuccess }: LoginFormProps) => {
         return;
       }
 
-      // Store authentication data
+      // Store authentication data with timestamp for 24h session
+      const loginTimestamp = Date.now();
+      const expiryTime = loginTimestamp + (24 * 60 * 60 * 1000); // 24 hours in milliseconds
+      
       localStorage.setItem('checkitAuthToken', data.token);
       localStorage.setItem('checkitUser', JSON.stringify(data.user));
       localStorage.setItem('checkitUsername', data.user.username);
       localStorage.setItem('checkitUserRole', data.user.role);
+      localStorage.setItem('checkitLoginTime', loginTimestamp.toString());
+      localStorage.setItem('checkitSessionExpiry', expiryTime.toString());
 
       // Redirect to home page
       if (onLoginSuccess) {

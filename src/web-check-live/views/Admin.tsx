@@ -1,5 +1,7 @@
 import { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
+import { ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import colors from 'web-check-live/styles/colors';
 import UserManagement from 'web-check-live/components/Admin/UserManagement';
 import PluginConfig from 'web-check-live/components/Admin/PluginConfig';
@@ -260,6 +262,20 @@ const Admin = (): JSX.Element => {
         {activeTab === 'users' && <UserManagement />}
         {activeTab === 'plugins' && <PluginConfig />}
       </MainContent>
+      
+      <ToastContainer 
+        position="bottom-right"
+        autoClose={3000}
+        hideProgressBar={false}
+        newestOnTop={true}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        theme="dark"
+        limit={5}
+      />
     </AdminContainer>
   );
 };

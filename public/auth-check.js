@@ -7,15 +7,50 @@
 
     const API_BASE_URL = '/api';
 
-    // Check if user is authenticated
-    const token = localStorage.getItem('checkitAuthToken');
-    
-    if (!token && !sessionStorage.getItem('authCheckDone')) {
-        // Not authenticated, redirect to login
+    // Check if user is authenticated and session is valid (24h)
+    const checkSessionValidity = () => {
+        const token = localStorage.getItem('checkitAuthToken');
+        const sessionExpiry = localStorage.getItem('checkitSessionExpiry');
+        
+        if (!token) {
+            return false;
+        }
+        
+        // Check if session has expired (24h limit)
+        if (sessionExpiry) {
+            const now = Date.now();
+            const expiry = parseInt(sessionExpiry, 10);
+            
+            if (now >= expiry) {
+                console.log('Session expired (24h limit reached)');
+                return false;
+            }
+        }
+        
+        return true;
+    };
+
+    // Clear session data
+    const clearSessionData = () => {
+        localStorage.removeItem('checkitAuthToken');
+        localStorage.removeItem('checkitUser');
+        localStorage.removeItem('checkitUsername');
+        localStorage.removeItem('checkitUserRole');
+        localStorage.removeItem('checkitLoginTime');
+        localStorage.removeItem('checkitSessionExpiry');
+        sessionStorage.removeItem('authCheckDone');
+    };
+
+    // Check authentication on page load
+    if (!checkSessionValidity() && !sessionStorage.getItem('authCheckDone')) {
+        // Not authenticated or session expired, redirect to login
+        clearSessionData();
         sessionStorage.setItem('authCheckDone', 'true');
         window.location.href = '/login';
         return;
     }
+
+    const token = localStorage.getItem('checkitAuthToken');
 
     // Verify token with server
     const verifyToken = async () => {
@@ -29,11 +64,7 @@
             if (!response.ok) {
                 // Token invalid or expired
                 console.log('Token verification failed, redirecting to login');
-                localStorage.removeItem('checkitAuthToken');
-                localStorage.removeItem('checkitUser');
-                localStorage.removeItem('checkitUsername');
-                localStorage.removeItem('checkitUserRole');
-                sessionStorage.removeItem('authCheckDone');
+                clearSessionData();
                 window.location.href = '/login';
                 return;
             }
@@ -85,16 +116,22 @@
             }
         }
         
-        // Clear all auth data
-        localStorage.removeItem('checkitAuthToken');
-        localStorage.removeItem('checkitUser');
-        localStorage.removeItem('checkitUsername');
-        localStorage.removeItem('checkitUserRole');
-        sessionStorage.removeItem('authCheckDone');
+        // Clear all auth data including session timestamps
+        clearSessionData();
         
         // Redirect to login
         window.location.href = '/login';
     };
+
+    // Monitor session expiration periodically (every minute)
+    const sessionMonitor = setInterval(() => {
+        if (!checkSessionValidity()) {
+            console.log('Session expired - logging out');
+            clearSessionData();
+            window.location.href = '/login';
+            clearInterval(sessionMonitor);
+        }
+    }, 60000); // Check every minute
 
     // Add keyboard shortcut for logout (Ctrl+Shift+L)
     document.addEventListener('keydown', function(e) {
