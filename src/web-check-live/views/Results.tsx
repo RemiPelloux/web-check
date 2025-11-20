@@ -828,13 +828,14 @@ const Results = (props: { address?: string } ): JSX.Element => {
       Component: LighthouseCard,
       refresh: updateLighthouseResults,
       tags: ['client'],
-    }, {
+    },     {
       id: 'tech-stack',
       title: 'Technologies Utilisées',
       result: techStackResults,
       Component: TechStackCard,
       refresh: updateTechStackResults,
       tags: ['client', 'meta'],
+      priority: 0.5,
     }, {
       id: 'server-info',
       title: 'Informations Serveur',
