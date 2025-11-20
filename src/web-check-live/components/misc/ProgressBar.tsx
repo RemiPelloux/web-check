@@ -195,6 +195,8 @@ const jobNames = [
   'domain',
   'quality',
   'tech-stack',
+  'secrets',
+  'link-audit',
   'server-info',
   'cookies',
   'headers',

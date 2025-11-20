@@ -68,6 +68,8 @@ import ApdpCookieBannerCard from 'web-check-live/components/Results/ApdpCookieBa
 import ApdpPrivacyPolicyCard from 'web-check-live/components/Results/ApdpPrivacyPolicy';
 import ApdpLegalNoticesCard from 'web-check-live/components/Results/ApdpLegalNotices';
 import ApdpUserRightsCard from 'web-check-live/components/Results/ApdpUserRights';
+import SecretsCard from 'web-check-live/components/Results/Secrets';
+import LinkAuditCard from 'web-check-live/components/Results/LinkAudit';
 
 import keys from 'web-check-live/utils/get-keys';
 import { determineAddressType, type AddressType } from 'web-check-live/utils/address-type-checker';
@@ -615,6 +617,22 @@ const Results = (props: { address?: string } ): JSX.Element => {
     fetchRequest: () => fetch(`${api}/apdp-user-rights?url=${address}`).then(res => parseJson(res)),
   });
 
+  // PII & Secrets Scanner
+  const [secretsResults, updateSecretsResults] = useMotherHook({
+    jobId: 'secrets',
+    updateLoadingJobs,
+    addressInfo: { address, addressType, expectedAddressTypes: urlTypeOnly },
+    fetchRequest: () => fetch(`${api}/secrets?url=${address}`).then(res => parseJson(res)),
+  });
+
+  // Link & Content Auditor
+  const [linkAuditResults, updateLinkAuditResults] = useMotherHook({
+    jobId: 'link-audit',
+    updateLoadingJobs,
+    addressInfo: { address, addressType, expectedAddressTypes: urlTypeOnly },
+    fetchRequest: () => fetch(`${api}/link-audit?url=${address}`).then(res => parseJson(res)),
+  });
+
   // Get site features from BuiltWith
   const [siteFeaturesResults, updateSiteFeaturesResults] = useMotherHook({
     jobId: 'features',
@@ -743,6 +761,8 @@ const Results = (props: { address?: string } ): JSX.Element => {
     hsts: hstsResults,
     vulnerabilities: vulnerabilitiesResults,
     quality: lighthouseResults,
+    'secrets': secretsResults,
+    'link-audit': linkAuditResults,
     'server-info': shoadnResults,
     status: serverStatusResults,
     robots: robotsTxtResults,
@@ -792,6 +812,14 @@ const Results = (props: { address?: string } ): JSX.Element => {
       tags: ['security'],
       priority: 2,
     }, {
+      id: 'secrets',
+      title: 'Scanner Secrets & PII',
+      result: secretsResults,
+      Component: SecretsCard,
+      refresh: updateSecretsResults,
+      tags: ['security'],
+      priority: 2.1,
+    }, {
       id: 'cdn-resources',
       title: 'CDN et Ressources Externes',
       result: cdnResourcesResults,
@@ -828,7 +856,14 @@ const Results = (props: { address?: string } ): JSX.Element => {
       Component: LighthouseCard,
       refresh: updateLighthouseResults,
       tags: ['client'],
-    },     {
+    }, {
+      id: 'link-audit',
+      title: 'Link & Content Auditor',
+      result: linkAuditResults,
+      Component: LinkAuditCard,
+      refresh: updateLinkAuditResults,
+      tags: ['client', 'quality'],
+    }, {
       id: 'tech-stack',
       title: 'Technologies Utilisées',
       result: techStackResults,
