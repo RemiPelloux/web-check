@@ -1,301 +1,326 @@
+import { useState } from 'react';
 import { Card } from 'web-check-live/components/Form/Card';
-import { ExpandableRow, Row } from 'web-check-live/components/Form/Row';
+import { ExpandableRow } from 'web-check-live/components/Form/Row';
 import Heading from 'web-check-live/components/Form/Heading';
 import colors from 'web-check-live/styles/colors';
 import styled from '@emotion/styled';
 
-const SummaryGrid = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-  gap: 1rem;
-  margin: 1rem 0;
+// --- Styled Components ---
+
+const DashboardContainer = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
 `;
 
-const SummaryCard = styled.div`
+const SummarySection = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+  gap: 1rem;
+`;
+
+const StatCard = styled.div`
   background: ${colors.backgroundLighter};
   border: 1px solid ${colors.borderColor};
-  border-radius: 8px;
-  padding: 1rem;
-  text-align: center;
+  border-radius: 12px;
+  padding: 1.5rem;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  transition: transform 0.2s ease;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0,0,0,0.1);
+  }
 `;
 
-const SecurityBadge = styled.span<{ level: 'high' | 'medium' | 'low' | 'critical' }>`
-  padding: 0.25rem 0.5rem;
+const StatValue = styled.div<{ color?: string }>`
+  font-size: 2.5rem;
+  font-weight: 800;
+  color: ${props => props.color || colors.textColor};
+  margin-bottom: 0.5rem;
+`;
+
+const StatLabel = styled.div`
+  font-size: 0.9rem;
+  color: ${colors.textColorSecondary};
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  font-weight: 600;
+`;
+
+const RiskGauge = styled.div<{ score: number }>`
+  width: 100%;
+  height: 8px;
+  background: ${colors.backgroundDarker};
   border-radius: 4px;
-  font-size: 0.8rem;
+  margin-top: 1rem;
+  overflow: hidden;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: ${props => (props.score / 6) * 100}%;
+    background: ${props => {
+    if (props.score <= 2) return colors.danger;
+    if (props.score <= 4) return colors.warning;
+    return colors.success;
+  }};
+    transition: width 0.5s ease-in-out;
+  }
+`;
+
+const CategoryGrid = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 0.5rem;
+`;
+
+const CategoryTag = styled.span<{ category: string }>`
+  padding: 0.25rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
   font-weight: 600;
   color: white;
   background: ${props => {
-    switch (props.level) {
-      case 'critical': return colors.danger;
-      case 'low': return colors.error;
-      case 'medium': return colors.warning;
-      case 'high': return colors.success;
-      default: return colors.neutral;
-    }
-  }};
-`;
-
-const CategoryBadge = styled.span<{ category: string }>`
-  padding: 0.2rem 0.4rem;
-  margin: 0.1rem;
-  border-radius: 4px;
-  font-size: 0.7rem;
-  font-weight: 500;
-  color: white;
-  display: inline-block;
-  background: ${props => {
-    switch (props.category) {
+    switch (props.category.toLowerCase()) {
       case 'session': return colors.info;
       case 'authentication': return colors.primary;
       case 'tracking': return colors.warning;
       case 'advertising': return colors.error;
       case 'functional': return colors.success;
       case 'security': return colors.primaryDarker;
-      case 'performance': return colors.neutral;
-      default: return colors.textColorThirdly;
+      default: return colors.neutral;
     }
   }};
 `;
 
-const IssuesList = styled.ul`
-  margin: 0.5rem 0;
-  padding-left: 1.5rem;
-  li {
-    margin: 0.25rem 0;
-    color: ${colors.error};
-    font-size: 0.9rem;
+const ComplianceBlock = styled.div`
+  background: ${colors.background};
+  border: 1px solid ${colors.borderColor};
+  border-left: 4px solid ${colors.info};
+  border-radius: 8px;
+  padding: 1rem;
+  margin-top: 1rem;
+`;
+
+const IssueBlock = styled(ComplianceBlock)`
+  border-left-color: ${colors.danger};
+  background: rgba(255, 0, 0, 0.02);
+`;
+
+const FilterBar = styled.div`
+  display: flex;
+  gap: 1rem;
+  margin-bottom: 1rem;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid ${colors.borderColor};
+  overflow-x: auto;
+`;
+
+const FilterButton = styled.button<{ active: boolean }>`
+  background: ${props => props.active ? colors.primary : 'transparent'};
+  color: ${props => props.active ? 'white' : colors.textColorSecondary};
+  border: 1px solid ${props => props.active ? colors.primary : colors.borderColor};
+  padding: 0.5rem 1rem;
+  border-radius: 20px;
+  cursor: pointer;
+  font-size: 0.85rem;
+  font-weight: 600;
+  transition: all 0.2s;
+
+  &:hover {
+    background: ${props => props.active ? colors.primary : colors.backgroundLighter};
   }
 `;
 
-const RecommendationsList = styled.ul`
-  margin: 0.5rem 0;
-  padding-left: 1.5rem;
-  li {
-    margin: 0.25rem 0;
-    color: ${colors.info};
-    font-size: 0.9rem;
-  }
-`;
+// --- Helper Functions ---
 
-const getSecurityLevel = (score: number): 'critical' | 'low' | 'medium' | 'high' => {
-  if (score <= 1) return 'critical';
-  if (score <= 3) return 'low';
-  if (score <= 5) return 'medium';
-  return 'high';
+const getSecurityLevel = (score: number) => {
+  if (score <= 2) return { label: 'Critical Risk', color: colors.danger };
+  if (score <= 4) return { label: 'Medium Risk', color: colors.warning };
+  return { label: 'Secure', color: colors.success };
 };
 
 const formatCookieValue = (value: string): string => {
   if (!value) return 'N/A';
-  if (value.length > 50) {
-    return value.substring(0, 50) + '...';
-  }
+  if (value.length > 60) return value.substring(0, 60) + '...';
   return value;
 };
 
-const CookiesCard = (props: { data: any, title: string, actionButtons: any}): JSX.Element => {
+// --- Main Component ---
+
+const CookiesCard = (props: { data: any, title: string, actionButtons: any }): JSX.Element => {
   const { headerCookies = [], clientCookies = [], analysis, summary } = props.data;
-  
+  const [filter, setFilter] = useState<'all' | 'header' | 'client' | 'secure' | 'insecure'>('all');
+
   if (!summary || summary.total === 0) {
     return (
       <Card heading={props.title} actionButtons={props.actionButtons}>
-        <p>No cookies detected</p>
+        <div style={{ textAlign: 'center', padding: '2rem', color: colors.textColorSecondary }}>
+          <span style={{ fontSize: '2rem', display: 'block', marginBottom: '1rem' }}>🍪</span>
+          No cookies detected. This site is clean!
+        </div>
       </Card>
     );
   }
 
-  const allCookies = [...headerCookies, ...clientCookies];
-  
+  const allCookies = [
+    ...headerCookies.map((c: any) => ({ ...c, source: 'header' })),
+    ...clientCookies.map((c: any) => ({ ...c, source: 'client' }))
+  ];
+
+  const filteredCookies = allCookies.filter(cookie => {
+    if (filter === 'all') return true;
+    if (filter === 'header') return cookie.source === 'header';
+    if (filter === 'client') return cookie.source === 'client';
+    if (filter === 'secure') return cookie.security?.secure && cookie.security?.httpOnly;
+    if (filter === 'insecure') return !cookie.security?.secure || !cookie.security?.httpOnly;
+    return true;
+  });
+
+  const securityStatus = getSecurityLevel(summary.securityScore);
+
   return (
     <Card heading={props.title} actionButtons={props.actionButtons}>
-      {/* Summary Overview */}
-      <Heading as="h3" size="small" color={colors.primary}>Cookie Assessment Summary</Heading>
-      <SummaryGrid>
-        <SummaryCard>
-          <h4>Total Cookies</h4>
-          <p style={{ fontSize: '1.5rem', fontWeight: 'bold', color: colors.primary }}>
-            {summary.total}
-          </p>
-        </SummaryCard>
-        <SummaryCard>
-          <h4>Security Score</h4>
-          <p style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>
-            <SecurityBadge level={getSecurityLevel(summary.securityScore)}>
-              {summary.securityScore}/6
-            </SecurityBadge>
-          </p>
-        </SummaryCard>
-        <SummaryCard>
-          <h4>Sources</h4>
-          <p>Header: {summary.bySource.header}</p>
-          <p>Client: {summary.bySource.client}</p>
-        </SummaryCard>
-        <SummaryCard>
-          <h4>Categories</h4>
+      <DashboardContainer>
+
+        {/* Summary Section */}
+        <SummarySection>
+          <StatCard>
+            <StatValue color={colors.primary}>{summary.total}</StatValue>
+            <StatLabel>Total Cookies</StatLabel>
+            <CategoryGrid>
+              <CategoryTag category="header">Server: {summary.bySource.header}</CategoryTag>
+              <CategoryTag category="client">Client: {summary.bySource.client}</CategoryTag>
+            </CategoryGrid>
+          </StatCard>
+
+          <StatCard>
+            <StatValue color={securityStatus.color}>{summary.securityScore}/6</StatValue>
+            <StatLabel>Security Score</StatLabel>
+            <RiskGauge score={summary.securityScore} />
+            <div style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: securityStatus.color, fontWeight: 'bold' }}>
+              {securityStatus.label}
+            </div>
+          </StatCard>
+
+          <StatCard>
+            <StatValue>{Object.keys(summary.byCategory).length}</StatValue>
+            <StatLabel>Categories</StatLabel>
+            <CategoryGrid>
+              {Object.entries(summary.byCategory).map(([cat, count]) => (
+                <CategoryTag key={cat} category={cat}>{cat}: {count as number}</CategoryTag>
+              ))}
+            </CategoryGrid>
+          </StatCard>
+        </SummarySection>
+
+        {/* Analysis & Compliance */}
+        {(analysis?.securityIssues?.length > 0 || analysis?.recommendations?.length > 0) && (
           <div>
-            {Object.entries(summary.byCategory).map(([category, count]) => (
-              <div key={category}>
-                <CategoryBadge category={category}>
-                  {category}: {count as number}
-                </CategoryBadge>
-              </div>
-            ))}
+            <Heading as="h3" size="small" color={colors.textColor}>Assessment Summary</Heading>
+
+            {analysis?.securityIssues?.length > 0 && (
+              <IssueBlock>
+                <div style={{ fontWeight: 'bold', color: colors.danger, marginBottom: '0.5rem' }}>⚠️ Security Issues Detected</div>
+                <ul style={{ margin: 0, paddingLeft: '1.5rem', color: colors.textColorSecondary }}>
+                  {analysis.securityIssues.map((issue: string, i: number) => (
+                    <li key={i}>{issue}</li>
+                  ))}
+                </ul>
+              </IssueBlock>
+            )}
+
+            {analysis?.recommendations?.length > 0 && (
+              <ComplianceBlock>
+                <div style={{ fontWeight: 'bold', color: colors.info, marginBottom: '0.5rem' }}>💡 Recommendations</div>
+                <ul style={{ margin: 0, paddingLeft: '1.5rem', color: colors.textColorSecondary }}>
+                  {analysis.recommendations.map((rec: string, i: number) => (
+                    <li key={i}>{rec}</li>
+                  ))}
+                </ul>
+              </ComplianceBlock>
+            )}
           </div>
-        </SummaryCard>
-      </SummaryGrid>
+        )}
 
-      {/* Security Issues */}
-      {analysis?.securityIssues && analysis.securityIssues.length > 0 && (
-        <>
-          <Heading as="h3" size="small" color={colors.error}>Security Issues</Heading>
-          <IssuesList>
-            {analysis.securityIssues.map((issue: string, index: number) => (
-              <li key={`issue-${index}`}>{issue}</li>
-            ))}
-          </IssuesList>
-        </>
-      )}
+        {/* Cookie List with Filters */}
+        <div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+            <Heading as="h3" size="small" color={colors.textColor}>Detailed Cookie Inventory</Heading>
+            <span style={{ fontSize: '0.8rem', color: colors.textColorSecondary }}>
+              Showing {filteredCookies.length} of {allCookies.length}
+            </span>
+          </div>
 
-      {/* Recommendations */}
-      {analysis?.recommendations && analysis.recommendations.length > 0 && (
-        <>
-          <Heading as="h3" size="small" color={colors.info}>Compliance Recommendations</Heading>
-          <RecommendationsList>
-            {analysis.recommendations.map((rec: string, index: number) => (
-              <li key={`rec-${index}`}>{rec}</li>
-            ))}
-          </RecommendationsList>
-        </>
-      )}
+          <FilterBar>
+            <FilterButton active={filter === 'all'} onClick={() => setFilter('all')}>All</FilterButton>
+            <FilterButton active={filter === 'header'} onClick={() => setFilter('header')}>Server-Side</FilterButton>
+            <FilterButton active={filter === 'client'} onClick={() => setFilter('client')}>Client-Side</FilterButton>
+            <FilterButton active={filter === 'secure'} onClick={() => setFilter('secure')}>Secure</FilterButton>
+            <FilterButton active={filter === 'insecure'} onClick={() => setFilter('insecure')}>Insecure</FilterButton>
+          </FilterBar>
 
-      {/* Detailed Cookie Information */}
-      <Heading as="h3" size="small" color={colors.primary}>Detailed Cookie Analysis</Heading>
-      
-      {/* Header Cookies */}
-      {headerCookies.length > 0 && (
-        <>
-          <Heading as="h4" size="small" color={colors.primaryDarker}>Server-Set Cookies (HTTP Headers)</Heading>
-          {headerCookies.map((cookie: any, index: number) => {
-            const securityAttributes = [];
-            const cookieAttributes = [];
-            
+          {filteredCookies.map((cookie: any, index: number) => {
+            const attributes = [];
+
+            // Security Attributes
             if (cookie.security) {
-              if (cookie.security.httpOnly) securityAttributes.push({ lbl: 'HttpOnly', val: '✅ Yes' });
-              else securityAttributes.push({ lbl: 'HttpOnly', val: '❌ No (XSS Risk)' });
-              
-              if (cookie.security.secure) securityAttributes.push({ lbl: 'Secure', val: '✅ Yes' });
-              else securityAttributes.push({ lbl: 'Secure', val: '❌ No (HTTP Risk)' });
-              
-              securityAttributes.push({ 
-                lbl: 'SameSite', 
-                val: cookie.security.sameSite === 'none' ? '❌ None (CSRF Risk)' : `✅ ${cookie.security.sameSite}` 
-              });
-              
-              securityAttributes.push({ 
-                lbl: 'Type', 
-                val: cookie.security.isSession ? 'Session Cookie' : 'Persistent Cookie' 
-              });
-              
-              if (cookie.security.domain) {
-                securityAttributes.push({ lbl: 'Domain', val: cookie.security.domain });
-              }
-              
-              securityAttributes.push({ lbl: 'Path', val: cookie.security.path });
-              
-              securityAttributes.push({ 
-                lbl: 'Security Score', 
-                val: `${cookie.security.securityScore}/6` 
+              attributes.push({
+                lbl: 'Security',
+                val: `${cookie.security.httpOnly ? '🔒 HttpOnly' : '🔓 No HttpOnly'} | ${cookie.security.secure ? '🔒 Secure' : '🔓 Not Secure'} | SameSite: ${cookie.security.sameSite || 'None'}`
               });
             }
 
-            // Add original attributes
+            // Standard Attributes
+            ['domain', 'path', 'expires', 'size'].forEach(prop => {
+              if (cookie[prop] !== undefined) {
+                attributes.push({ lbl: prop.charAt(0).toUpperCase() + prop.slice(1), val: cookie[prop].toString() });
+              } else if (cookie.security && cookie.security[prop]) {
+                attributes.push({ lbl: prop.charAt(0).toUpperCase() + prop.slice(1), val: cookie.security[prop].toString() });
+              }
+            });
+
+            // Custom Attributes
             if (cookie.attributes) {
               Object.entries(cookie.attributes).forEach(([key, value]) => {
                 if (!['HttpOnly', 'Secure', 'SameSite', 'Domain', 'Path'].includes(key)) {
-                  cookieAttributes.push({ lbl: key, val: value as string });
+                  attributes.push({ lbl: key, val: value as string });
                 }
               });
             }
 
-            const allAttributes = [...securityAttributes, ...cookieAttributes];
-            
             return (
-              <div key={`header-cookie-${index}`} style={{ marginBottom: '1rem' }}>
-                <div style={{ marginBottom: '0.5rem' }}>
-                  {cookie.categories && cookie.categories.map((category: string) => (
-                    <CategoryBadge key={category} category={category}>
-                      {category}
-                    </CategoryBadge>
+              <div key={`${cookie.source}-${index}`} style={{ marginBottom: '1rem' }}>
+                <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.25rem', alignItems: 'center' }}>
+                  <CategoryTag category={cookie.source === 'header' ? 'security' : 'functional'}>
+                    {cookie.source === 'header' ? 'Server' : 'Client'}
+                  </CategoryTag>
+                  {cookie.categories?.map((cat: string) => (
+                    <CategoryTag key={cat} category={cat}>{cat}</CategoryTag>
                   ))}
-                  {cookie.security && (
-                    <SecurityBadge level={getSecurityLevel(cookie.security.securityScore)}>
-                      Security: {cookie.security.securityScore}/6
-                    </SecurityBadge>
-                  )}
                 </div>
-                <ExpandableRow 
-                  key={`cookie-${index}`} 
-                  lbl={cookie.name} 
-                  val={formatCookieValue(cookie.value)} 
-                  rowList={allAttributes} 
+                <ExpandableRow
+                  lbl={cookie.name}
+                  val={formatCookieValue(cookie.value)}
+                  rowList={attributes}
                 />
               </div>
             );
           })}
-        </>
-      )}
+        </div>
 
-      {/* Client Cookies */}
-      {clientCookies.length > 0 && (
-        <>
-          <Heading as="h4" size="small" color={colors.primaryDarker}>Client-Side Cookies (Browser)</Heading>
-          {clientCookies.map((cookie: any, index: number) => {
-            const cookieDetails = [];
-            
-            // Add security analysis
-            if (cookie.security) {
-              cookieDetails.push({ lbl: 'HttpOnly', val: cookie.security.httpOnly ? '✅ Yes' : '❌ No' });
-              cookieDetails.push({ lbl: 'Secure', val: cookie.security.secure ? '✅ Yes' : '❌ No' });
-              cookieDetails.push({ lbl: 'SameSite', val: cookie.security.sameSite || 'Not set' });
-              cookieDetails.push({ lbl: 'Type', val: cookie.security.isSession ? 'Session' : 'Persistent' });
-              cookieDetails.push({ lbl: 'Security Score', val: `${cookie.security.securityScore}/6` });
-            }
-            
-            // Add other cookie properties
-            ['domain', 'path', 'expires', 'size'].forEach(prop => {
-              if (cookie[prop] !== undefined) {
-                cookieDetails.push({ 
-                  lbl: prop.charAt(0).toUpperCase() + prop.slice(1), 
-                  val: cookie[prop].toString() 
-                });
-              }
-            });
-
-            return (
-              <div key={`client-cookie-${index}`} style={{ marginBottom: '1rem' }}>
-                <div style={{ marginBottom: '0.5rem' }}>
-                  {cookie.categories && cookie.categories.map((category: string) => (
-                    <CategoryBadge key={category} category={category}>
-                      {category}
-                    </CategoryBadge>
-                  ))}
-                  {cookie.security && (
-                    <SecurityBadge level={getSecurityLevel(cookie.security.securityScore)}>
-                      Security: {cookie.security.securityScore}/6
-                    </SecurityBadge>
-                  )}
-                </div>
-                <ExpandableRow 
-                  key={`client-cookie-${index}`} 
-                  lbl={cookie.name} 
-                  val={formatCookieValue(cookie.value)} 
-                  rowList={cookieDetails} 
-                />
-              </div>
-            );
-          })}
-        </>
-      )}
+      </DashboardContainer>
     </Card>
   );
 };

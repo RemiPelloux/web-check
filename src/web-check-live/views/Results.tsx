@@ -10,7 +10,7 @@ import Modal from 'web-check-live/components/Form/Modal';
 import Header from 'web-check-live/components/misc/Header';
 import Footer from 'web-check-live/components/misc/Footer';
 import Nav from 'web-check-live/components/Form/Nav';
-import type { RowProps }  from 'web-check-live/components/Form/Row';
+import type { RowProps } from 'web-check-live/components/Form/Row';
 
 import Loader from 'web-check-live/components/misc/Loader';
 import ErrorBoundary from 'web-check-live/components/misc/ErrorBoundary';
@@ -70,6 +70,8 @@ import ApdpLegalNoticesCard from 'web-check-live/components/Results/ApdpLegalNot
 import ApdpUserRightsCard from 'web-check-live/components/Results/ApdpUserRights';
 import SecretsCard from 'web-check-live/components/Results/Secrets';
 import LinkAuditCard from 'web-check-live/components/Results/LinkAudit';
+import ExposedFilesCard from 'web-check-live/components/Results/ExposedFiles';
+import SubdomainTakeoverCard from 'web-check-live/components/Results/SubdomainTakeover';
 
 import keys from 'web-check-live/utils/get-keys';
 import { determineAddressType, type AddressType } from 'web-check-live/utils/address-type-checker';
@@ -174,12 +176,12 @@ const FilterButtons = styled.div`
   }
 `;
 
-const Results = (props: { address?: string } ): JSX.Element => {
+const Results = (props: { address?: string }): JSX.Element => {
   const startTime = new Date().getTime();
 
   const address = props.address || useParams().urlToScan || '';
 
-  const [ addressType, setAddressType ] = useState<AddressType>('empt');
+  const [addressType, setAddressType] = useState<AddressType>('empt');
 
   const [loadingJobs, setLoadingJobs] = useState<LoadingJob[]>(initialJobs);
   const [disabledPlugins, setDisabledPlugins] = useState<string[]>([]);
@@ -194,7 +196,7 @@ const Results = (props: { address?: string } ): JSX.Element => {
     const initializeJobs = async () => {
       const plugins = await fetchDisabledPlugins();
       setDisabledPlugins(plugins);
-      
+
       const filteredJobs = await createFilteredInitialJobs();
       setLoadingJobs(filteredJobs);
     };
@@ -213,87 +215,89 @@ const Results = (props: { address?: string } ): JSX.Element => {
 
   const updateLoadingJobs = useCallback((jobs: string | string[], newState: LoadingState, error?: string, retry?: () => void, data?: any) => {
     (typeof jobs === 'string' ? [jobs] : jobs).forEach((job: string) => {
-    const now = new Date();
-    const timeTaken = now.getTime() - startTime;
-    setLoadingJobs((prevJobs) => {
-      const newJobs = prevJobs.map((loadingJob: LoadingJob) => {
-        if (job.includes(loadingJob.name)) {
-          return { ...loadingJob, error, state: newState, timeTaken, retry };
+      const now = new Date();
+      const timeTaken = now.getTime() - startTime;
+      setLoadingJobs((prevJobs) => {
+        const newJobs = prevJobs.map((loadingJob: LoadingJob) => {
+          if (job.includes(loadingJob.name)) {
+            return { ...loadingJob, error, state: newState, timeTaken, retry };
+          }
+          return loadingJob;
+        });
+
+        const timeString = `[${now.getHours().toString().padStart(2, '0')}:`
+          + `${now.getMinutes().toString().padStart(2, '0')}:`
+          + `${now.getSeconds().toString().padStart(2, '0')}]`;
+
+
+        if (newState === 'success') {
+          console.log(
+            `%cSuccès - ${job}%c\n\n${timeString}%c Le job ${job} a réussi en ${timeTaken}ms`
+            + `\n%cRun %cwindow.webCheck['${job}']%c to inspect the raw the results`,
+            `background:${colors.success};color:${colors.background};padding: 4px 8px;font-size:16px;`,
+            `font-weight: bold; color: ${colors.success};`,
+            `color: ${colors.success};`,
+            `color: #1d8242;`, `color: #1d8242;text-decoration:underline;`, `color: #1d8242;`,
+          );
+          if (!(window as any).webCheck) (window as any).webCheck = {};
+          if (data) (window as any).webCheck[job] = data;
         }
-        return loadingJob;
+
+        if (newState === 'error') {
+          console.log(
+            `%cErreur - ${job}%c\n\n${timeString}%c Le job ${job} a échoué `
+            + `after ${timeTaken}ms, with the following error:%c\n${error}`,
+            `background: ${colors.danger}; color:${colors.background}; padding: 4px 8px; font-size: 16px;`,
+            `font-weight: bold; color: ${colors.danger};`,
+            `color: ${colors.danger};`,
+            `color: ${colors.warning};`,
+          );
+        }
+
+        if (newState === 'timed-out') {
+          console.log(
+            `%cDélai Expiré - ${job}%c\n\n${timeString}%c Le job ${job} a expiré `
+            + `after ${timeTaken}ms, with the following error:%c\n${error}`,
+            `background: ${colors.info}; color:${colors.background}; padding: 4px 8px; font-size: 16px;`,
+            `font-weight: bold; color: ${colors.info};`,
+            `color: ${colors.info};`,
+            `color: ${colors.warning};`,
+          );
+        }
+
+        return newJobs;
       });
-
-      const timeString = `[${now.getHours().toString().padStart(2, '0')}:`
-        +`${now.getMinutes().toString().padStart(2, '0')}:`
-        + `${now.getSeconds().toString().padStart(2, '0')}]`;
-
-
-      if (newState === 'success') {
-        console.log(
-          `%cSuccès - ${job}%c\n\n${timeString}%c Le job ${job} a réussi en ${timeTaken}ms`
-          + `\n%cRun %cwindow.webCheck['${job}']%c to inspect the raw the results`,
-          `background:${colors.success};color:${colors.background};padding: 4px 8px;font-size:16px;`,
-          `font-weight: bold; color: ${colors.success};`,
-          `color: ${colors.success};`,
-          `color: #1d8242;`,`color: #1d8242;text-decoration:underline;`,`color: #1d8242;`,
-        );
-        if (!(window as any).webCheck) (window as any).webCheck = {};
-        if (data) (window as any).webCheck[job] = data;
-      }
-  
-      if (newState === 'error') {
-        console.log(
-          `%cErreur - ${job}%c\n\n${timeString}%c Le job ${job} a échoué `
-          +`after ${timeTaken}ms, with the following error:%c\n${error}`,
-          `background: ${colors.danger}; color:${colors.background}; padding: 4px 8px; font-size: 16px;`,
-          `font-weight: bold; color: ${colors.danger};`,
-          `color: ${colors.danger};`,
-          `color: ${colors.warning};`,
-        );
-      }
-
-      if (newState === 'timed-out') {
-        console.log(
-          `%cDélai Expiré - ${job}%c\n\n${timeString}%c Le job ${job} a expiré `
-          +`after ${timeTaken}ms, with the following error:%c\n${error}`,
-          `background: ${colors.info}; color:${colors.background}; padding: 4px 8px; font-size: 16px;`,
-          `font-weight: bold; color: ${colors.info};`,
-          `color: ${colors.info};`,
-          `color: ${colors.warning};`,
-        );
-      }
-
-      return newJobs;
     });
-  });
   }, [startTime]);
 
   const parseJson = (response: Response): Promise<any> => {
     return new Promise((resolve) => {
-        response.json()
-          .then(data => resolve(data))
-          .catch(error => resolve(
-            { error: `Failed to get a valid response 😢\n`
-            + 'This is likely due the target not exposing the required data, '
-            + 'or limitations in imposed by the infrastructure this instance '
-            + 'of Web Check is running on.\n\n'
-            + `Error info:\n${error}`}
-          ));
+      response.json()
+        .then(data => resolve(data))
+        .catch(error => resolve(
+          {
+            error: `Failed to get a valid response 😢\n`
+              + 'This is likely due the target not exposing the required data, '
+              + 'or limitations in imposed by the infrastructure this instance '
+              + 'of Web Check is running on.\n\n'
+              + `Error info:\n${error}`
+          }
+        ));
     });
   };
 
   const urlTypeOnly = ['url'] as AddressType[]; // Many jobs only run with these address types
 
   const api = import.meta.env.PUBLIC_API_ENDPOINT || '/api'; // Where is the API hosted?
-  
+
   // Fetch and parse IP address for given URL
   const [ipAddress, setIpAddress] = useMotherHook({
     jobId: 'get-ip',
     updateLoadingJobs,
     addressInfo: { address, addressType, expectedAddressTypes: urlTypeOnly },
     fetchRequest: () => fetch(`${api}/get-ip?url=${address}`)
-    .then(res => parseJson(res))
-    .then(res => res.ip),
+      .then(res => parseJson(res))
+      .then(res => res.ip),
   });
 
   useEffect(() => {
@@ -303,7 +307,7 @@ const Results = (props: { address?: string } ): JSX.Element => {
     if (addressType === 'ipV4' && address) {
       setIpAddress(address);
     }
-  }, [address, addressType, setIpAddress]);  
+  }, [address, addressType, setIpAddress]);
 
   // Get IP address location info
   const [locationResults, updateLocationResults] = useMotherHook<ServerLocation>({
@@ -360,7 +364,7 @@ const Results = (props: { address?: string } ): JSX.Element => {
   });
 
   // Fetch and parse cookies info
-  const [cookieResults, updateCookieResults] = useMotherHook<{cookies: Cookie[]}>({
+  const [cookieResults, updateCookieResults] = useMotherHook<{ cookies: Cookie[] }>({
     jobId: 'cookies',
     updateLoadingJobs,
     addressInfo: { address, addressType, expectedAddressTypes: urlTypeOnly },
@@ -521,7 +525,7 @@ const Results = (props: { address?: string } ): JSX.Element => {
   });
 
   // Fetch and parse crawl rules from robots.txt
-  const [robotsTxtResults, updateRobotsTxtResults] = useMotherHook<{robots: RowProps[]}>({
+  const [robotsTxtResults, updateRobotsTxtResults] = useMotherHook<{ robots: RowProps[] }>({
     jobId: 'robots-txt',
     updateLoadingJobs,
     addressInfo: { address, addressType, expectedAddressTypes: urlTypeOnly },
@@ -633,19 +637,43 @@ const Results = (props: { address?: string } ): JSX.Element => {
     fetchRequest: () => fetch(`${api}/link-audit?url=${address}`).then(res => parseJson(res)),
   });
 
+  // Exposed Files Scanner
+  const [exposedFilesResults, updateExposedFilesResults] = useMotherHook({
+    jobId: 'exposed-files',
+    updateLoadingJobs,
+    addressInfo: { address, addressType, expectedAddressTypes: urlTypeOnly },
+    fetchRequest: () => fetch(`${api}/exposed-files?url=${address}`).then(res => parseJson(res)),
+  });
+
+  // Subdomain Takeover Scanner
+  const [subdomainTakeoverResults, updateSubdomainTakeoverResults] = useMotherHook({
+    jobId: 'subdomain-takeover',
+    updateLoadingJobs,
+    addressInfo: { address, addressType, expectedAddressTypes: urlTypeOnly },
+    fetchRequest: () => fetch(`${api}/subdomain-takeover?url=${address}`).then(res => parseJson(res)),
+  });
+
+  // Lighthouse (Updated)
+  const [lighthouseNewResults, updateLighthouseNewResults] = useMotherHook({
+    jobId: 'lighthouse',
+    updateLoadingJobs,
+    addressInfo: { address, addressType, expectedAddressTypes: urlTypeOnly },
+    fetchRequest: () => fetch(`${api}/lighthouse?url=${address}`).then(res => parseJson(res)),
+  });
+
   // Get site features from BuiltWith
   const [siteFeaturesResults, updateSiteFeaturesResults] = useMotherHook({
     jobId: 'features',
     updateLoadingJobs,
     addressInfo: { address, addressType, expectedAddressTypes: urlTypeOnly },
     fetchRequest: () => fetch(`${api}/features?url=${address}`)
-    .then(res => parseJson(res))
-    .then(res => {
-      if (res.Errors && res.Errors.length > 0) {
-        return { error: `No data returned, because ${res.Errors[0].Message || 'API lookup failed'}` };
-      }
-      return res;
-    }),
+      .then(res => parseJson(res))
+      .then(res => {
+        if (res.Errors && res.Errors.length > 0) {
+          return { error: `No data returned, because ${res.Errors[0].Message || 'API lookup failed'}` };
+        }
+        return res;
+      }),
   });
 
   // Get vulnerabilities analysis
@@ -709,7 +737,7 @@ const Results = (props: { address?: string } ): JSX.Element => {
     let warnings = 0;
     let improvements = 0;
     let compliantItems = 0;
-    
+
     // Count issues based on different security and compliance checks
     if (sslResults?.error) criticalIssues++;
     if (headersResults?.missingHeaders?.length > 0) warnings += headersResults.missingHeaders.length;
@@ -720,13 +748,13 @@ const Results = (props: { address?: string } ): JSX.Element => {
     if (serverStatusResults?.isUp === true) compliantItems++;
     if (sslResults?.validCertificate === true) compliantItems++;
     if (headersResults?.securityHeaders?.length > 0) compliantItems += headersResults.securityHeaders.length;
-    
+
     // Add some basic scoring logic with actual data
     if (serverStatusResults?.isUp) compliantItems++;
     if (sslResults && !sslResults.error) compliantItems++;
     if (hstsResults?.isEnabled) compliantItems++;
     if (dnsSecResults?.isValid) compliantItems++;
-    
+
     // Calculate overall score based on issue distribution
     let overallScore: 'A' | 'B' | 'C' | 'D' | 'E' | 'F' = 'A';
     if (criticalIssues > 3) overallScore = 'F';
@@ -735,7 +763,7 @@ const Results = (props: { address?: string } ): JSX.Element => {
     else if (warnings > 5) overallScore = 'D';
     else if (warnings > 3) overallScore = 'C';
     else if (warnings > 1) overallScore = 'B';
-    
+
     return {
       overallScore,
       criticalIssues,
@@ -789,6 +817,9 @@ const Results = (props: { address?: string } ): JSX.Element => {
     features: siteFeaturesResults,
     'host-names': shoadnResults, // Shodan results contain hostnames
     'security-txt': securityTxtResults,
+    'exposed-files': exposedFilesResults,
+    'subdomain-takeover': subdomainTakeoverResults,
+    'lighthouse': lighthouseNewResults,
   });
 
   // A list of state data, corresponding component and title for each card
@@ -797,13 +828,41 @@ const Results = (props: { address?: string } ): JSX.Element => {
       id: 'enhanced-compliance-summary',
       title: 'Résumé de Conformité APDP',
       result: rgpdComplianceResults || calculateBasicCompliance(),
-                Component: ProfessionalComplianceDashboard,
+      Component: ProfessionalComplianceDashboard,
       refresh: updateRgpdComplianceResults,
       tags: ['summary', 'compliance'],
       allResults: getAllResults(),
       siteName: address || 'Site Web',
       priority: 1, // Highest priority to appear first
-    }, {
+    },
+    {
+      id: 'exposed-files',
+      title: 'Fichiers Exposés',
+      result: exposedFilesResults,
+      Component: ExposedFilesCard,
+      refresh: updateExposedFilesResults,
+      tags: ['security'],
+      priority: 2,
+    },
+    {
+      id: 'subdomain-takeover',
+      title: 'Subdomain Takeover',
+      result: subdomainTakeoverResults,
+      Component: SubdomainTakeoverCard,
+      refresh: updateSubdomainTakeoverResults,
+      tags: ['security'],
+      priority: 2,
+    },
+    {
+      id: 'lighthouse',
+      title: 'Performance & SEO (Lighthouse)',
+      result: lighthouseNewResults,
+      Component: LighthouseCard,
+      refresh: updateLighthouseNewResults,
+      tags: ['quality', 'seo'],
+      priority: 3,
+    },
+    {
       id: 'vulnerabilities',
       title: 'Analyse de Vulnérabilités',
       result: vulnerabilitiesResults,
@@ -827,7 +886,7 @@ const Results = (props: { address?: string } ): JSX.Element => {
       refresh: updateCdnResourcesResults,
       tags: ['performance', 'security'],
       priority: 3,
-         },
+    },
     {
       id: 'location',
       title: 'Localisation Serveur',
@@ -997,7 +1056,7 @@ const Results = (props: { address?: string } ): JSX.Element => {
       Component: RankCard,
       refresh: updateRankResults,
       tags: ['meta'],
-    }, 
+    },
     // Screenshot removed - not needed for APDP compliance
     // {
     //   id: 'screenshot',
@@ -1142,8 +1201,8 @@ const Results = (props: { address?: string } ): JSX.Element => {
 
   const makeActionButtons = (title: string, refresh: () => void, showInfo: (id: string) => void): ReactNode => {
     const actions = [
-      { label: `Info about ${title}`, onClick: showInfo, icon: 'ⓘ'},
-      { label: `Re-fetch ${title} data`, onClick: refresh, icon: '↻'},
+      { label: `Info about ${title}`, onClick: showInfo, icon: 'ⓘ' },
+      { label: `Re-fetch ${title} data`, onClick: refresh, icon: '↻' },
     ];
     return (
       <ActionButtons actions={actions} />
@@ -1159,62 +1218,62 @@ const Results = (props: { address?: string } ): JSX.Element => {
     setModalContent(content);
     setModalOpen(true);
   };
-  
+
   return (
     <ResultsOuter>
       <Header />
       <Nav>
-      { address && 
-        <Heading color={colors.textColor} size="medium">
-          { addressType === 'url' && <a target="_blank" rel="noreferrer" href={address}><img width="32px" src={`https://icon.horse/icon/${makeSiteName(address)}`} alt="" /></a> }
-          {makeSiteName(address)}
-        </Heading>
+        {address &&
+          <Heading color={colors.textColor} size="medium">
+            {addressType === 'url' && <a target="_blank" rel="noreferrer" href={address}><img width="32px" src={`https://icon.horse/icon/${makeSiteName(address)}`} alt="" /></a>}
+            {makeSiteName(address)}
+          </Heading>
         }
       </Nav>
       <ProgressBar loadStatus={loadingJobs} showModal={showErrorModal} showJobDocs={showInfo} />
       {/* { address?.includes(window?.location?.hostname || 'web-check.xyz') && <SelfScanMsg />} */}
       <Loader show={loadingJobs.filter((job: LoadingJob) => job.state !== 'loading').length < 5} />
-      <FilterButtons>{ showFilters ? <>
+      <FilterButtons>{showFilters ? <>
         <div className="one-half">
-        <span className="group-label">Filter by</span>
-        {['server', 'client', 'meta'].map((tag: string) => (
-          <button
-            key={tag}
-            className={tags.includes(tag) ? 'selected' : ''}
-            onClick={() => updateTags(tag)}>
+          <span className="group-label">Filter by</span>
+          {['server', 'client', 'meta'].map((tag: string) => (
+            <button
+              key={tag}
+              className={tags.includes(tag) ? 'selected' : ''}
+              onClick={() => updateTags(tag)}>
               {tag}
-          </button>
-        ))}
-        {(tags.length > 0 || searchTerm.length > 0) && <span onClick={clearFilters} className="clear">Clear Filters</span> }
+            </button>
+          ))}
+          {(tags.length > 0 || searchTerm.length > 0) && <span onClick={clearFilters} className="clear">Clear Filters</span>}
         </div>
         <div className="one-half">
-        <span className="group-label">Search</span>
-        <input 
-          type="text" 
-          placeholder="Filter Results" 
-          value={searchTerm} 
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
-        <span className="toggle-filters" onClick={() => setShowFilters(false)}>Hide</span>
+          <span className="group-label">Search</span>
+          <input
+            type="text"
+            placeholder="Filter Results"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          <span className="toggle-filters" onClick={() => setShowFilters(false)}>Hide</span>
         </div>
-        </> : (
-          <div className="control-options">
-            <span className="toggle-filters" onClick={() => setShowFilters(true)}>Show Filters</span>
-            <a href="#view-download-raw-data"><span className="toggle-filters">Export Data</span></a>
-            <a href="/about"><span className="toggle-filters">Learn about the Results</span></a>
-          </div>
-      ) }
+      </> : (
+        <div className="control-options">
+          <span className="toggle-filters" onClick={() => setShowFilters(true)}>Show Filters</span>
+          <a href="#view-download-raw-data"><span className="toggle-filters">Export Data</span></a>
+          <a href="/about"><span className="toggle-filters">Learn about the Results</span></a>
+        </div>
+      )}
       </FilterButtons>
-      
+
       {/* Full-width Enhanced Compliance Dashboard */}
-              <div style={{ maxWidth: '100%', margin: '0 auto' }}>
-          <ErrorBoundary title="Tableau de Bord de Conformité APDP">
-            <ProfessionalComplianceDashboard
-              allResults={getAllResults()}
-              siteName={address || 'Site Web'}
-            />
-          </ErrorBoundary>
-        </div>
+      <div style={{ maxWidth: '100%', margin: '0 auto' }}>
+        <ErrorBoundary title="Tableau de Bord de Conformité APDP">
+          <ProfessionalComplianceDashboard
+            allResults={getAllResults()}
+            siteName={address || 'Site Web'}
+          />
+        </ErrorBoundary>
+      </div>
 
       <ResultsContent>
         <Masonry
@@ -1223,58 +1282,58 @@ const Results = (props: { address?: string } ): JSX.Element => {
           columnClassName="masonry-grid-col">
           {
             resultCardData
-            .filter(card => card.id !== 'enhanced-compliance-summary') // Exclude the compliance summary from the grid
-            .filter(({ id }) => !disabledPlugins.includes(id)) // Filter out disabled plugins for DPD users
-            .filter(({ id, title, result, tags }) => {
-              // Show if no tags selected OR if any of the card's tags match selected tags
-              const tagMatch = tags.length === 0 || tags.some(tag => tags.includes(tag));
-              // Show if search term matches title
-              const searchMatch = title.toLowerCase().includes(searchTerm.toLowerCase());
-              // Show if result exists and has no error
-              const hasValidResult = result && !result.error;
-              
-              return tagMatch && searchMatch && hasValidResult;
-            })
-            .sort((a, b) => {
-              // First sort by explicit priority (enhanced compliance summary first)
-              if (a.priority && b.priority) {
-                return a.priority - b.priority;
-              }
-              if (a.priority && !b.priority) return -1;
-              if (!a.priority && b.priority) return 1;
-              
-              // Then sort by tag-based priority: compliance first, then security, then others
-              const getPriority = (tags: string[]) => {
-                if (tags.includes('summary') || tags.includes('compliance')) return 1;
-                if (tags.includes('security')) return 2;
-                if (tags.includes('performance')) return 3;
-                return 4;
-              };
-              
-              const priorityA = getPriority(a.tags);
-              const priorityB = getPriority(b.tags);
-              
-              if (priorityA !== priorityB) return priorityA - priorityB;
-              return a.title.localeCompare(b.title);
-            })
-            .map(({ id, title, result, tags, refresh, Component, allResults, siteName }, index: number) => (
-              <ErrorBoundary title={title} key={`eb-${index}`}>
-                <Component
-                  key={`${title}-${index}`}
-                  data={{...result}}
-                  title={title}
-                  actionButtons={refresh ? makeActionButtons(title, refresh, () => showInfo(id)) : undefined}
-                  {...(allResults && { allResults })}
-                  {...(siteName && { siteName })}
-                />
-              </ErrorBoundary>
-            ))
+              .filter(card => card.id !== 'enhanced-compliance-summary') // Exclude the compliance summary from the grid
+              .filter(({ id }) => !disabledPlugins.includes(id)) // Filter out disabled plugins for DPD users
+              .filter(({ id, title, result, tags }) => {
+                // Show if no tags selected OR if any of the card's tags match selected tags
+                const tagMatch = tags.length === 0 || tags.some(tag => tags.includes(tag));
+                // Show if search term matches title
+                const searchMatch = title.toLowerCase().includes(searchTerm.toLowerCase());
+                // Show if result exists and has no error
+                const hasValidResult = result && !result.error;
+
+                return tagMatch && searchMatch && hasValidResult;
+              })
+              .sort((a, b) => {
+                // First sort by explicit priority (enhanced compliance summary first)
+                if (a.priority && b.priority) {
+                  return a.priority - b.priority;
+                }
+                if (a.priority && !b.priority) return -1;
+                if (!a.priority && b.priority) return 1;
+
+                // Then sort by tag-based priority: compliance first, then security, then others
+                const getPriority = (tags: string[]) => {
+                  if (tags.includes('summary') || tags.includes('compliance')) return 1;
+                  if (tags.includes('security')) return 2;
+                  if (tags.includes('performance')) return 3;
+                  return 4;
+                };
+
+                const priorityA = getPriority(a.tags);
+                const priorityB = getPriority(b.tags);
+
+                if (priorityA !== priorityB) return priorityA - priorityB;
+                return a.title.localeCompare(b.title);
+              })
+              .map(({ id, title, result, tags, refresh, Component, allResults, siteName }, index: number) => (
+                <ErrorBoundary title={title} key={`eb-${index}`}>
+                  <Component
+                    key={`${title}-${index}`}
+                    data={{ ...result }}
+                    title={title}
+                    actionButtons={refresh ? makeActionButtons(title, refresh, () => showInfo(id)) : undefined}
+                    {...(allResults && { allResults })}
+                    {...(siteName && { siteName })}
+                  />
+                </ErrorBoundary>
+              ))
           }
-          </Masonry>
+        </Masonry>
       </ResultsContent>
       <ViewRaw everything={resultCardData} />
       <Footer />
-      <Modal isOpen={modalOpen} closeModal={()=> setModalOpen(false)}>{modalContent}</Modal>
+      <Modal isOpen={modalOpen} closeModal={() => setModalOpen(false)}>{modalContent}</Modal>
       <ToastContainer limit={3} draggablePercent={60} autoClose={2500} theme="dark" position="bottom-right" />
     </ResultsOuter>
   );

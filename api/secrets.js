@@ -34,10 +34,16 @@ const PATTERNS = {
   'AWS MWS Token': /amzn\.mws\.[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/gm,
   'Amazon AWS URL': /s3\.amazonaws\.com\/[a-zA-Z0-9\/_\-\.]+/gm,
 
+  'OpenAI API Key': /sk-[a-zA-Z0-9]{48}/gm,
+
   // Social Media
   'Facebook Token': /EAACEdEose0cBA[0-9A-Za-z]+/gm,
   'Twitter Access Token': /[1-9][0-9]+-[0-9a-zA-Z]{40}/gm,
   'Twitter OAuth': /oauth_token=[a-zA-Z0-9]+/gm,
+  'Instagram Access Token': /IGQ[A-Za-z0-9]{16}/gm,
+  'LinkedIn Access Token': /linkedin_at_[a-zA-Z0-9]{16}/gm,
+  'TikTok Access Token': /tiktok_at_[a-zA-Z0-9]{16}/gm,
+  'YouTube API Key': /AIza[0-9A-Za-z\\-_]{35}/gm,
 
   // Communication & Messaging
   'Mailgun API Key': /key-[0-9a-zA-Z]{32}/gm,
@@ -48,6 +54,7 @@ const PATTERNS = {
   'Slack Token': /xox[baprs]-([0-9a-zA-Z]{10,48})/gm,
   'SendGrid API Key': /SG\.[0-9A-Za-z\-_]{22}\.[0-9A-Za-z\-_]{43}/gm,
 
+
   // Payments
   'Stripe API Key': /sk_live_[0-9a-zA-Z]{24}/gm,
   'Stripe Publishable Key': /pk_live_[0-9a-zA-Z]{24}/gm,
@@ -55,7 +62,13 @@ const PATTERNS = {
 
   // Code & Version Control
   'GitHub Token': /(ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9_]{36}/gm,
+  'GitLab Token': /glpat-[a-zA-Z0-9]{20}/gm,
   'Heroku API Key': /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/gm,
+  'Vercel API Key': /vercel_mk_[a-zA-Z0-9]{32}/gm,
+  'DigitalOcean API Key': /do_api_key_[a-zA-Z0-9]{32}/gm,
+  'Cloudflare API Key': /cf_api_key_[a-zA-Z0-9]{32}/gm,
+  'Linode API Key': /linode_api_key_[a-zA-Z0-9]{32}/gm,
+  'Vultr API Key': /vultr_api_key_[a-zA-Z0-9]{32}/gm,
 
   // Private Keys & Certificates
   'RSA Private Key': /-----BEGIN RSA PRIVATE KEY-----/gm,

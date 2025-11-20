@@ -33,8 +33,8 @@ const ProgressBarSegment = styled.div<{ color: string, color2: string, width: nu
   width: ${props => props.width}%;
   background: ${props => props.color};
   background: ${props => props.color2 ?
-      `repeating-linear-gradient( 315deg, ${props.color}, ${props.color} 3px, ${props.color2} 3px, ${props.color2} 6px )`
-      : props.color};
+    `repeating-linear-gradient( 315deg, ${props.color}, ${props.color} 3px, ${props.color2} 3px, ${props.color2} 6px )`
+    : props.color};
   transition: width 0.5s ease-in-out;
 `;
 
@@ -234,6 +234,9 @@ const jobNames = [
   'apdp-privacy-policy',
   'apdp-legal-notices',
   'apdp-user-rights',
+  'exposed-files',
+  'subdomain-takeover',
+  'lighthouse',
 ] as const;
 
 interface JobListItemProps {
@@ -262,18 +265,18 @@ const getStatusEmoji = (state: LoadingState): string => {
 
 const JobListItem: React.FC<JobListItemProps> = ({ job, showJobDocs, showErrorModal, barColors }) => {
   const { name, state, timeTaken, retry, error } = job;
-  const actionButton = retry && state !== 'success' && state !== 'loading' ? 
+  const actionButton = retry && state !== 'success' && state !== 'loading' ?
     <FailedJobActionButton onClick={retry}>↻ Retry</FailedJobActionButton> : null;
-    
+
   const showModalButton = error && ['error', 'timed-out', 'skipped'].includes(state) &&
-    <FailedJobActionButton onClick={() => showErrorModal(name, state, timeTaken, error, state === 'skipped')}> 
-      {state === 'timed-out' ? '■ Show Timeout Reason' : '■ Show Error'} 
+    <FailedJobActionButton onClick={() => showErrorModal(name, state, timeTaken, error, state === 'skipped')}>
+      {state === 'timed-out' ? '■ Show Timeout Reason' : '■ Show Error'}
     </FailedJobActionButton>;
 
   return (
     <li key={name}>
       <b onClick={() => showJobDocs(name)}>{getStatusEmoji(state)} {name}</b>
-      <span style={{color: barColors[state][0]}}> ({state})</span>.
+      <span style={{ color: barColors[state][0] }}> ({state})</span>.
       <i>{timeTaken && state !== 'loading' ? ` Took ${timeTaken} ms` : ''}</i>
       {actionButton}
       {showModalButton}
@@ -286,7 +289,7 @@ export const initialJobs = jobNames.map((job: string) => {
   return {
     name: job,
     state: 'loading' as LoadingState,
-    retry: () => {}
+    retry: () => { }
   }
 });
 
@@ -298,11 +301,11 @@ export const createFilteredInitialJobs = async (): Promise<LoadingJob[]> => {
   try {
     const disabledPlugins = await fetchDisabledPlugins();
     const availableJobNames = filterAvailablePlugins(jobNames, disabledPlugins);
-    
+
     return availableJobNames.map((job: string) => ({
       name: job,
       state: 'loading' as LoadingState,
-      retry: () => {}
+      retry: () => { }
     }));
   } catch (error) {
     console.error('Error creating filtered jobs:', error);
@@ -340,7 +343,7 @@ export const calculateLoadingStatePercentages = (loadingJobs: LoadingJob[]): Rec
   return statePercentage;
 };
 
-const MillisecondCounter = (props: {isDone: boolean}) => {
+const MillisecondCounter = (props: { isDone: boolean }) => {
   const { isDone } = props;
   const [milliseconds, setMilliseconds] = useState<number>(0);
 
@@ -367,8 +370,8 @@ const RunningText = (props: { state: LoadingJob[], count: number }): JSX.Element
   const isDone = loadingTasksCount >= totalJobs;
   return (
     <p className="run-status">
-    { isDone ? 'Terminé en ' : `Exécution ${loadingTasksCount} sur ${totalJobs} analyses - ` }
-    <MillisecondCounter isDone={isDone} />
+      {isDone ? 'Terminé en ' : `Exécution ${loadingTasksCount} sur ${totalJobs} analyses - `}
+      <MillisecondCounter isDone={isDone} />
     </p>
   );
 };
@@ -418,7 +421,7 @@ const SummaryText = (props: { state: LoadingJob[], count: number }): JSX.Element
 };
 
 const ProgressLoader = (props: { loadStatus: LoadingJob[], showModal: (err: ReactNode) => void, showJobDocs: (job: string) => void }): JSX.Element => {
-  const [ hideLoader, setHideLoader ] = useState<boolean>(false);
+  const [hideLoader, setHideLoader] = useState<boolean>(false);
   const loadStatus = props.loadStatus;
   const percentages = calculateLoadingStatePercentages(loadStatus);
   const userRole = getUserRole(); // Get current user role
@@ -461,48 +464,48 @@ const ProgressLoader = (props: { loadStatus: LoadingJob[], showModal: (err: Reac
   };
 
   return (
-  <>
-  <ReShowContainer className={!hideLoader ? 'hidden' : ''}>
-    <DismissButton onClick={() => setHideLoader(false)}>Show Load State</DismissButton>
-  </ReShowContainer>
-  <LoadCard className={hideLoader ? 'hidden' : ''}>
-    <ProgressBarContainer>
-      {Object.keys(percentages).map((state: string | LoadingState) =>
-        <ProgressBarSegment 
-          color={barColors[state][0]} 
-          color2={barColors[state][1]} 
-          title={`${state} (${Math.round(percentages[state])}%)`}
-          width={percentages[state]}
-          key={`progress-bar-${state}`}
-        />
-      )}
-    </ProgressBarContainer>
-    
-    <StatusInfoWrapper>
-      <SummaryText state={loadStatus} count={loadStatus.length} />
-      <RunningText state={loadStatus} count={loadStatus.length} />
-    </StatusInfoWrapper>
+    <>
+      <ReShowContainer className={!hideLoader ? 'hidden' : ''}>
+        <DismissButton onClick={() => setHideLoader(false)}>Show Load State</DismissButton>
+      </ReShowContainer>
+      <LoadCard className={hideLoader ? 'hidden' : ''}>
+        <ProgressBarContainer>
+          {Object.keys(percentages).map((state: string | LoadingState) =>
+            <ProgressBarSegment
+              color={barColors[state][0]}
+              color2={barColors[state][1]}
+              title={`${state} (${Math.round(percentages[state])}%)`}
+              width={percentages[state]}
+              key={`progress-bar-${state}`}
+            />
+          )}
+        </ProgressBarContainer>
 
-    {!isDPD && (
-    <Details>
-      <summary>Afficher les Détails</summary>
-      <ul>
-        {loadStatus.map((job: LoadingJob) => (
-          <JobListItem key={job.name} job={job} showJobDocs={props.showJobDocs} showErrorModal={showErrorModal} barColors={barColors} />
-        ))}
-      </ul>
-      { loadStatus.filter((val: LoadingJob) => val.state === 'error').length > 0 &&
-        <p className="error">
-          <b>Vérifiez la console du navigateur pour les logs et plus d'informations</b><br />
-          Il est normal que certains jobs échouent, soit parce que l'hôte ne retourne pas les informations requises,
-          ou en raison de restrictions dans la fonction lambda, ou en atteignant une limite d'API.
-        </p>}
-        <AboutPageLink href="/wiki" target="_blank" rel="noopener noreferrer" >En savoir plus sur l'Outil d'Audit de Conformité</AboutPageLink>
-    </Details>
-    )}
-    <DismissButton onClick={() => setHideLoader(true)}>Masquer</DismissButton>
-  </LoadCard>
-  </>
+        <StatusInfoWrapper>
+          <SummaryText state={loadStatus} count={loadStatus.length} />
+          <RunningText state={loadStatus} count={loadStatus.length} />
+        </StatusInfoWrapper>
+
+        {!isDPD && (
+          <Details>
+            <summary>Afficher les Détails</summary>
+            <ul>
+              {loadStatus.map((job: LoadingJob) => (
+                <JobListItem key={job.name} job={job} showJobDocs={props.showJobDocs} showErrorModal={showErrorModal} barColors={barColors} />
+              ))}
+            </ul>
+            {loadStatus.filter((val: LoadingJob) => val.state === 'error').length > 0 &&
+              <p className="error">
+                <b>Vérifiez la console du navigateur pour les logs et plus d'informations</b><br />
+                Il est normal que certains jobs échouent, soit parce que l'hôte ne retourne pas les informations requises,
+                ou en raison de restrictions dans la fonction lambda, ou en atteignant une limite d'API.
+              </p>}
+            <AboutPageLink href="/wiki" target="_blank" rel="noopener noreferrer" >En savoir plus sur l'Outil d'Audit de Conformité</AboutPageLink>
+          </Details>
+        )}
+        <DismissButton onClick={() => setHideLoader(true)}>Masquer</DismissButton>
+      </LoadCard>
+    </>
   );
 }
 
