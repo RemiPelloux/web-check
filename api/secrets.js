@@ -42,7 +42,9 @@ const PATTERNS = {
   // Communication & Messaging
   'Mailgun API Key': /key-[0-9a-zA-Z]{32}/gm,
   'Twilio API Key': /SK[0-9a-fA-F]{32}/gm,
-  'Twilio Account SID': /AC[a-zA-Z0-9_\-]{32}/gm,
+  // Twilio SID usually starts with AC and is exactly 34 chars long (AC + 32 hex). 
+  // We use word boundaries to avoid matching inside long strings.
+  'Twilio Account SID': /\bAC[a-fA-F0-9]{32}\b/gm, 
   'Slack Token': /xox[baprs]-([0-9a-zA-Z]{10,48})/gm,
   'SendGrid API Key': /SG\.[0-9A-Za-z\-_]{22}\.[0-9A-Za-z\-_]{43}/gm,
 
@@ -62,12 +64,14 @@ const PATTERNS = {
   'PGP Private Key': /-----BEGIN PGP PRIVATE KEY BLOCK-----/gm,
   
   // Authentication Headers
-  'Bearer Token': /bearer\s*[a-zA-Z0-9_\-\.=:_\+\/]+/gim,
-  'Basic Auth': /basic\s*[a-zA-Z0-9=:_\+\/-]+/gim,
+  // Stricter Basic Auth: Must look like "Basic " followed by base64-ish string (at least 20 chars)
+  'Basic Auth': /basic\s+[a-zA-Z0-9+/=]{20,}/gim, 
+  'Bearer Token': /bearer\s+[a-zA-Z0-9_\-\.=:_\+\/]{20,}/gim,
   'JWT Token': /ey[A-Za-z0-9-_=]+\.[A-Za-z0-9-_=]+\.?[A-Za-z0-9-_.+/=]*$/gm,
 
   // Generic Secrets (Assignment Patterns)
-  'Generic Secret Assignment': /(?:password|passwd|pwd|token|secret|access_key|api_key)[=:]\s*['"]([a-zA-Z0-9_\-]{20,})['"]/gim,
+  // Require specific variable names before the value
+  'Generic Secret Assignment': /(?:password|passwd|pwd|token|secret|access_key|api_key|client_secret)[=:]\s*['"]([a-zA-Z0-9_\-]{20,})['"]/gim,
 
   // PII & Infrastructure
   'Email Address': /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b/gm,
@@ -226,6 +230,17 @@ function isWhitelisted(value, type, context = '') {
   }
 
   // 3. Type specific checks
+  if (type === 'Twilio Account SID') {
+    // Twilio SIDs are strictly 34 chars (AC + 32 hex).
+    // Reject if surrounded by other uppercase letters (likely a constant name)
+    if (/[A-Z]{3,}/.test(context)) return true;
+  }
+
+  if (type === 'Basic Auth') {
+    // Reject if it looks like a translation key or sentence
+    if (lowerContext.includes('translation') || lowerContext.includes('message') || lowerContext.includes('column')) return true;
+  }
+
   if (type === 'Generic Secret Assignment') {
     // If capturing group exists (from regex), use it. 
     // Otherwise the whole match includes "password = ..."
