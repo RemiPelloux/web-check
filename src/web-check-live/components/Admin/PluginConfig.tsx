@@ -7,7 +7,7 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_ENDPOINT || '/api';
 
 // Plugin list with French translations
 const PLUGINS = [
-  { id: 'rgpd-compliance', name: 'Conformité RGPD', category: 'Conformité' },
+  { id: 'apdp-compliance', name: 'Conformité APDP', category: 'Conformité' },
   { id: 'vulnerabilities', name: 'Vulnérabilités', category: 'Sécurité' },
   { id: 'cdn-resources', name: 'Ressources CDN', category: 'Performance' },
   { id: 'get-ip', name: 'Adresse IP', category: 'Réseau' },

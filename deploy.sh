@@ -139,12 +139,12 @@ if [ "$QUICK_MODE" = true ]; then
 fi
 
 # Step 1: Clean local macOS hidden files
-print_step "Step 1/6: Cleaning macOS hidden files..."
+print_step "Step 1/7: Cleaning macOS hidden files..."
 run_command "find . -name '._*' -delete 2>/dev/null || true" \
   "Removed macOS hidden files"
 
 # Step 2: Transfer files to server
-print_step "Step 2/6: Transferring files to server..."
+print_step "Step 2/7: Transferring files to server..."
 
 if [ "$DRY_RUN" = true ]; then
   echo -e "${YELLOW}[DRY RUN]${NC} Would transfer files to ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}"
@@ -170,12 +170,12 @@ else
 fi
 
 # Step 3: Remove any remaining hidden files on server
-print_step "Step 3/6: Cleaning server-side hidden files..."
+print_step "Step 3/7: Cleaning server-side hidden files..."
 run_command "ssh ${REMOTE_USER}@${REMOTE_HOST} 'cd ${REMOTE_PATH} && find . -name \"._*\" -delete 2>/dev/null || true'" \
   "Cleaned server-side hidden files"
 
 # Step 4: Build Docker container
-print_step "Step 4/6: Building Docker container..."
+print_step "Step 4/7: Building Docker container..."
 
 BUILD_CMD="cd ${REMOTE_PATH} && docker compose build"
 if [ "$FULL_MODE" = true ]; then
@@ -187,12 +187,56 @@ run_command "ssh ${REMOTE_USER}@${REMOTE_HOST} '${BUILD_CMD}'" \
   "Docker build completed"
 
 # Step 5: Start services
-print_step "Step 5/6: Starting services..."
+print_step "Step 5/7: Starting services..."
 run_command "ssh ${REMOTE_USER}@${REMOTE_HOST} 'cd ${REMOTE_PATH} && docker compose up -d'" \
   "Services started"
 
-# Step 6: Verify deployment
-print_step "Step 6/6: Verifying deployment..."
+# Step 6: Run database migrations
+print_step "Step 6/7: Checking and running database migrations..."
+
+if [ "$DRY_RUN" = false ]; then
+  echo "Scanning for migration files..."
+  
+  # Get list of migration files
+  MIGRATIONS=$(find database -name "migrate-*.js" -type f 2>/dev/null | sort)
+  
+  if [ -z "$MIGRATIONS" ]; then
+    print_success "No migrations found to run"
+  else
+    echo -e "${BLUE}Found migration files:${NC}"
+    echo "$MIGRATIONS" | while read -r migration; do
+      echo "  • $migration"
+    done
+    
+    echo ""
+    echo "Running migrations on production database..."
+    
+    # Run each migration
+    echo "$MIGRATIONS" | while read -r migration; do
+      MIGRATION_NAME=$(basename "$migration")
+      echo -e "\n${BLUE}Running: ${MIGRATION_NAME}${NC}"
+      
+      ssh ${REMOTE_USER}@${REMOTE_HOST} "cd ${REMOTE_PATH} && docker exec Web-Check-Checkit node $migration" 2>&1 | while IFS= read -r line; do
+        echo "  $line"
+      done
+      
+      if [ ${PIPESTATUS[0]} -eq 0 ]; then
+        print_success "$MIGRATION_NAME completed"
+      else
+        print_error "$MIGRATION_NAME failed"
+        exit 1
+      fi
+    done
+    
+    echo ""
+    print_success "All migrations completed successfully"
+  fi
+else
+  echo -e "${YELLOW}[DRY RUN]${NC} Would check and run database migrations"
+fi
+
+# Step 7: Verify deployment
+print_step "Step 7/7: Verifying deployment..."
 
 if [ "$DRY_RUN" = false ]; then
   echo "Waiting for services to start..."

@@ -11,6 +11,8 @@ interface User {
   username: string;
   role: string;
   ip_restrictions: string;
+  url_restriction_mode: string;
+  allowed_urls: string;
   created_at: string;
 }
 
@@ -299,6 +301,7 @@ const UserManagement = (): JSX.Element => {
                 <Th>Utilisateur</Th>
                 <Th>Rôle</Th>
                 <Th>Restrictions IP</Th>
+                <Th>Restrictions URL</Th>
                 <Th>Créé le</Th>
                 <Th>Actions</Th>
               </Tr>
@@ -315,6 +318,17 @@ const UserManagement = (): JSX.Element => {
                   <Td>
                     <IpInfo>
                       {user.ip_restrictions || 'Aucune restriction'}
+                    </IpInfo>
+                  </Td>
+                  <Td>
+                    <IpInfo>
+                      {user.role === 'DPD' ? (
+                        user.url_restriction_mode === 'ALL' 
+                          ? '✅ Toutes les URLs' 
+                          : `🔒 ${user.allowed_urls?.split(',').length || 0} URL(s)`
+                      ) : (
+                        '— N/A —'
+                      )}
                     </IpInfo>
                   </Td>
                   <Td>

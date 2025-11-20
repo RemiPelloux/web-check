@@ -1,0 +1,15 @@
+---
+import BaseLayout from '@layouts/Base.astro';
+import Main from '../web-check-live/main.tsx';
+import '../web-check-live/styles/index.css';
+
+export const prerender = false;
+
+const { pathname } = new URL(Astro.request.url);
+
+---
+
+<BaseLayout>
+  <Main {pathname} client:load />
+</BaseLayout>
+

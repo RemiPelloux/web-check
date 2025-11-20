@@ -69,6 +69,32 @@ const VersionBadge = styled.div`
   font-size: 12px;
 `;
 
+const WikiLink = styled.a`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: ${colors.backgroundDarker};
+  color: ${colors.textColor};
+  border: 1px solid ${colors.borderColor};
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    border-color: ${colors.primary};
+    background: ${colors.backgroundLighter};
+    color: ${colors.primary};
+  }
+
+  &:active {
+    transform: scale(0.98);
+  }
+`;
+
 const UserMenuContainer = styled.div`
   position: relative;
 `;
@@ -235,6 +261,10 @@ const Header = (): JSX.Element => {
             <VersionBadge>
               Version 2.1.0
             </VersionBadge>
+            <WikiLink href="/wiki" target="_blank" rel="noopener noreferrer" title="Consulter le Wiki">
+              <span>📖</span>
+              <span>Wiki</span>
+            </WikiLink>
             <ThemeToggle />
             
             {username && (

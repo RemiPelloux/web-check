@@ -144,14 +144,14 @@ const makeAnchor = (title: string): string => {
 
 const about = [
   "Outil d'Audit de Conformité est une plateforme professionnelle d'audit de conformité développée par OpenPro. Elle offre une analyse complète et automatisée de la conformité réglementaire, de la sécurité et des meilleures pratiques pour les sites web et applications.",
-  "Notre outil effectue plus de 30 vérifications différentes couvrant la conformité RGPD, la sécurité des données, l'analyse SEO, les performances, l'accessibilité et bien plus encore. Chaque analyse fournit des résultats détaillés avec des recommandations actionnables.",
+  "Notre outil effectue plus de 30 vérifications différentes couvrant la conformité APDP, la sécurité des données, l'analyse SEO, les performances, l'accessibilité et bien plus encore. Chaque analyse fournit des résultats détaillés avec des recommandations actionnables.",
 ];
 
 const howToUse = [
   "Entrez l'URL complète du site web que vous souhaitez analyser (exemple: https://monsite.com)",
   "Cliquez sur le bouton 'Analyser' pour lancer l'audit de conformité",
   "Patientez pendant que notre système effectue l'ensemble des vérifications (généralement 15-30 secondes)",
-  "Consultez les résultats organisés par catégories : Conformité RGPD, Sécurité, Performance, SEO, etc.",
+  "Consultez les résultats organisés par catégories : Conformité APDP, Sécurité, Performance, SEO, etc.",
   "Cliquez sur chaque section pour voir les détails complets de l'analyse",
   "Utilisez les recommandations pour améliorer la conformité de votre site",
   "Exportez ou partagez les résultats avec votre équipe",
@@ -181,7 +181,7 @@ const understandingResults = {
     {
       title: "Types d'Analyses",
       items: [
-        "Conformité RGPD : Cookies, bannières, politiques de confidentialité, droits des utilisateurs",
+        "Conformité APDP : Cookies, bannières, politiques de confidentialité, droits des utilisateurs",
         "Sécurité : SSL/TLS, en-têtes HTTP, certificats, pare-feu, ports ouverts",
         "Performance : Vitesse de chargement, métriques Core Web Vitals, optimisation",
         "SEO : Balises meta, sitemap, robots.txt, structure du contenu",
@@ -229,7 +229,7 @@ const faq = [
   },
   {
     question: "Les résultats sont-ils conformes aux normes officielles ?",
-    answer: "Oui, nos analyses suivent les standards officiels : RGPD, OWASP, W3C, WCAG, RFC, et les recommandations de sécurité internationales."
+    answer: "Oui, nos analyses suivent les standards officiels : APDP, OWASP, W3C, WCAG, RFC, et les recommandations de sécurité internationales."
   },
   {
     question: "Comment exporter les résultats ?",

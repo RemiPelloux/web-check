@@ -12,3 +12,10 @@ services:
       - NODE_ENV=development
       - PORT=3001
       # PUBLIC_API_ENDPOINT removed - use relative /api paths
+    volumes:
+      # Persist SQLite database between container restarts
+      - checkit-database:/app/database
+
+volumes:
+  checkit-database:
+    driver: local

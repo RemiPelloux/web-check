@@ -10,6 +10,8 @@ interface User {
   username: string;
   role: string;
   ip_restrictions: string;
+  url_restriction_mode: string;
+  allowed_urls: string;
 }
 
 interface UserModalProps {
@@ -233,6 +235,10 @@ const UserModal = ({ user, onClose }: UserModalProps): JSX.Element => {
   const [role, setRole] = useState<'APDP' | 'DPD'>(user?.role as 'APDP' | 'DPD' || 'DPD');
   const [ipRestrictions, setIpRestrictions] = useState(user?.ip_restrictions || '');
   const [enableIpRestrictions, setEnableIpRestrictions] = useState(!!user?.ip_restrictions);
+  const [urlRestrictionMode, setUrlRestrictionMode] = useState<'ALL' | 'RESTRICTED'>(
+    user?.url_restriction_mode as 'ALL' | 'RESTRICTED' || 'ALL'
+  );
+  const [allowedUrls, setAllowedUrls] = useState(user?.allowed_urls || '');
   const [loading, setLoading] = useState(false);
 
   const generatePassword = () => {
@@ -263,7 +269,9 @@ const UserModal = ({ user, onClose }: UserModalProps): JSX.Element => {
       const body: any = {
         username,
         role,
-        ipRestrictions: enableIpRestrictions ? ipRestrictions : ''
+        ipRestrictions: enableIpRestrictions ? ipRestrictions : '',
+        urlRestrictionMode,
+        allowedUrls: urlRestrictionMode === 'RESTRICTED' ? allowedUrls : ''
       };
 
       // Only include password if it's provided
@@ -401,6 +409,45 @@ const UserModal = ({ user, onClose }: UserModalProps): JSX.Element => {
                 que depuis ces adresses.
               </HelpText>
             </FormGroup>
+          )}
+
+          {role === 'DPD' && (
+            <>
+              <FormGroup>
+                <Label htmlFor="urlRestrictionMode">Restriction des URLs</Label>
+                <Select
+                  id="urlRestrictionMode"
+                  value={urlRestrictionMode}
+                  onChange={(e) => setUrlRestrictionMode(e.target.value as 'ALL' | 'RESTRICTED')}
+                  disabled={loading}
+                >
+                  <option value="ALL">Toutes les URLs (aucune restriction)</option>
+                  <option value="RESTRICTED">URLs spécifiques uniquement</option>
+                </Select>
+                <HelpText>
+                  Contrôlez quels sites web le DPD peut analyser
+                </HelpText>
+              </FormGroup>
+
+              {urlRestrictionMode === 'RESTRICTED' && (
+                <FormGroup>
+                  <Label htmlFor="allowedUrls">URLs autorisées *</Label>
+                  <Textarea
+                    id="allowedUrls"
+                    value={allowedUrls}
+                    onChange={(e) => setAllowedUrls(e.target.value)}
+                    placeholder="example.com, monsite.fr, autresite.mc"
+                    required={urlRestrictionMode === 'RESTRICTED'}
+                    disabled={loading}
+                    rows={4}
+                  />
+                  <HelpText>
+                    Séparez les URLs par des virgules. Le DPD pourra uniquement analyser ces sites.
+                    Exemple: example.com, monsite.fr
+                  </HelpText>
+                </FormGroup>
+              )}
+            </>
           )}
 
           <ButtonGroup>

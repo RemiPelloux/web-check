@@ -32,6 +32,7 @@ import {
   createUser,
   updateUser,
   deleteUser,
+  findUserById,
   getDisabledPlugins,
   setDisabledPlugins,
   addAuditLog,
@@ -257,7 +258,7 @@ app.get(`${API_DIR}/admin/users`, authMiddleware, adminOnlyMiddleware, (req, res
  */
 app.post(`${API_DIR}/admin/users`, authMiddleware, adminOnlyMiddleware, (req, res) => {
   try {
-    const { username, password, role, ipRestrictions } = req.body;
+    const { username, password, role, ipRestrictions, urlRestrictionMode, allowedUrls } = req.body;
     
     if (!username || !password) {
       return res.status(400).json({
@@ -267,7 +268,14 @@ app.post(`${API_DIR}/admin/users`, authMiddleware, adminOnlyMiddleware, (req, re
       });
     }
     
-    const newUser = createUser(username, password, role || 'DPD', ipRestrictions || '');
+    const newUser = createUser(
+      username, 
+      password, 
+      role || 'DPD', 
+      ipRestrictions || '',
+      urlRestrictionMode || 'ALL',
+      allowedUrls || ''
+    );
     
     addAuditLog(req.user.id, 'CREATE_USER', `Created user: ${username} (${role || 'DPD'})`, getClientIp(req));
     
@@ -308,6 +316,8 @@ app.put(`${API_DIR}/admin/users/:id`, authMiddleware, adminOnlyMiddleware, (req,
     if (req.body.password !== undefined) updates.password = req.body.password;
     if (req.body.role !== undefined) updates.role = req.body.role;
     if (req.body.ipRestrictions !== undefined) updates.ipRestrictions = req.body.ipRestrictions;
+    if (req.body.urlRestrictionMode !== undefined) updates.urlRestrictionMode = req.body.urlRestrictionMode;
+    if (req.body.allowedUrls !== undefined) updates.allowedUrls = req.body.allowedUrls;
     
     const success = updateUser(userId, updates);
     
@@ -434,6 +444,85 @@ app.put(`${API_DIR}/admin/plugins`, authMiddleware, adminOnlyMiddleware, (req, r
       success: false,
       error: 'Erreur serveur',
       message: 'Impossible de mettre à jour la configuration des plugins'
+    });
+  }
+});
+
+/**
+ * POST /api/check-url
+ * Check if a URL is allowed for the current user
+ */
+app.post(`${API_DIR}/check-url`, authMiddleware, (req, res) => {
+  try {
+    const { url } = req.body;
+    
+    if (!url) {
+      return res.status(400).json({
+        success: false,
+        error: 'URL requise',
+        message: 'Veuillez fournir une URL à vérifier'
+      });
+    }
+    
+    const user = findUserById(req.user.id);
+    
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        error: 'Utilisateur introuvable'
+      });
+    }
+    
+    // APDP users can scan any URL
+    if (user.role === 'APDP') {
+      return res.json({
+        success: true,
+        allowed: true,
+        mode: 'ALL'
+      });
+    }
+    
+    // DPD users: check URL restriction mode
+    if (user.url_restriction_mode === 'ALL') {
+      return res.json({
+        success: true,
+        allowed: true,
+        mode: 'ALL'
+      });
+    }
+    
+    // RESTRICTED mode: check if URL is in allowed list
+    const allowedUrls = user.allowed_urls ? user.allowed_urls.split(',').map(u => u.trim()).filter(Boolean) : [];
+    
+    // Normalize URLs for comparison (remove protocol, www, trailing slashes)
+    const normalizeUrl = (urlStr) => {
+      try {
+        const urlObj = new URL(urlStr.startsWith('http') ? urlStr : `https://${urlStr}`);
+        return urlObj.hostname.replace(/^www\./, '').toLowerCase();
+      } catch {
+        return urlStr.replace(/^(https?:\/\/)?(www\.)?/, '').replace(/\/$/, '').toLowerCase();
+      }
+    };
+    
+    const normalizedInputUrl = normalizeUrl(url);
+    const isAllowed = allowedUrls.some(allowedUrl => {
+      const normalizedAllowedUrl = normalizeUrl(allowedUrl);
+      return normalizedInputUrl === normalizedAllowedUrl || normalizedInputUrl.endsWith(`.${normalizedAllowedUrl}`);
+    });
+    
+    return res.json({
+      success: true,
+      allowed: isAllowed,
+      mode: 'RESTRICTED',
+      allowedUrls: allowedUrls
+    });
+    
+  } catch (error) {
+    console.error('Check URL error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Erreur serveur',
+      message: 'Impossible de vérifier l\'URL'
     });
   }
 });

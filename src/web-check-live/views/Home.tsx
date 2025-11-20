@@ -130,19 +130,46 @@ const Home = (): JSX.Element => {
   }, [navigate, location.search]);
 
   /* Check is valid address, either show err or redirect to results page */
-  const submit = () => {
+  const submit = async () => {
     let address = userInput.endsWith("/") ? userInput.slice(0, -1) : userInput;
     const addressType = determineAddressType(address);
   
     if (addressType === 'empt') {
-      setErrMsg('Field must not be empty');
+      setErrMsg('Le champ ne peut pas être vide');
     } else if (addressType === 'err') {
-      setErrMsg('Must be a valid URL, IPv4 or IPv6 Address');
+      setErrMsg('Doit être une URL, adresse IPv4 ou IPv6 valide');
     } else {
       // if the addressType is 'url' and address doesn't start with 'http://' or 'https://', prepend 'https://'
       if (addressType === 'url' && !/^https?:\/\//i.test(address)) {
         address = 'https://' + address;
       }
+
+      // Check URL restrictions for DPD users
+      const token = localStorage.getItem('checkitAuthToken');
+      if (token) {
+        try {
+          const checkResponse = await fetch('/api/check-url', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ url: address })
+          });
+
+          if (checkResponse.ok) {
+            const checkData = await checkResponse.json();
+            if (!checkData.allowed) {
+              setErrMsg('Vous n\'êtes pas autorisé à analyser cette URL. Contactez votre administrateur.');
+              return;
+            }
+          }
+        } catch (error) {
+          console.error('Error checking URL restrictions:', error);
+          // Continue anyway if check fails (fail open)
+        }
+      }
+
       const resultRouteParams: NavigateOptions = { state: { address, addressType } };
       navigate(`/check/${encodeURIComponent(address)}`, resultRouteParams);
     }
@@ -264,15 +291,15 @@ const Home = (): JSX.Element => {
             }}>Capacités d'Analyse</Heading>
             <ul>
               {docs.map((doc, index) => (<li key={index}>{doc.title}</li>))}
-              <li><Link to="/check/about">+ plus d'analyses!</Link></li>
+              <li><Link to="/wiki" target="_blank" rel="noopener noreferrer">+ plus d'analyses!</Link></li>
             </ul>
           </div>
           <div className="links">
             <Link to="/check" title="Démarrer une analyse de conformité avec notre plateforme d'audit professionnel">
               <Button>Commencer l'Analyse</Button>
             </Link>
-            <Link to="/check/about#api-documentation" title="Voir la documentation API pour utiliser BeCompliant programmatiquement">
-              <Button>Documentation API</Button>
+            <Link to="/wiki" target="_blank" rel="noopener noreferrer" title="Consulter le Wiki de l'Outil d'Audit de Conformité">
+              <Button>Wiki</Button>
             </Link>
           </div>
         </SiteFeaturesWrapper>

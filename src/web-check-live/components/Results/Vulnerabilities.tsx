@@ -1,81 +1,178 @@
-import React from 'react';
+import React, { useState } from 'react';
 import styled from '@emotion/styled';
 import colors from 'web-check-live/styles/colors';
 import { Card } from 'web-check-live/components/Form/Card';
 
-const VulnContainer = styled.div`
+const Container = styled.div`
   display: flex;
   flex-direction: column;
-  gap: 16px;
+  gap: 24px;
 `;
 
-const VulnHeader = styled.div`
+const SummaryBanner = styled.div<{ riskLevel: string }>`
   display: flex;
+  align-items: center;
   justify-content: space-between;
-  align-items: center;
-  margin-bottom: 16px;
-`;
-
-const ScoreDisplay = styled.div`
-  display: flex;
-  align-items: center;
-  gap: 12px;
-`;
-
-const ScoreCircle = styled.div<{ score: number }>`
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 18px;
-  font-weight: 700;
-  color: white;
-  background: ${props => {
-    if (props.score >= 90) return '#22c55e';
-    if (props.score >= 70) return '#eab308';
-    if (props.score >= 50) return '#f59e0b';
-    return '#ef4444';
-  }};
-`;
-
-const VulnStats = styled.div`
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
-  gap: 12px;
-  margin-bottom: 20px;
-`;
-
-const StatCard = styled.div<{ severity: 'critical' | 'high' | 'medium' | 'low' }>`
+  padding: 24px;
   background: ${colors.backgroundLighter};
+  border-radius: 12px;
   border: 1px solid ${colors.borderColor};
-  border-radius: 8px;
-  padding: 16px;
-  text-align: center;
-  border-left: 4px solid ${props => {
-    switch (props.severity) {
-      case 'critical': return '#dc2626';
-      case 'high': return '#ea580c';
-      case 'medium': return '#d97706';
-      case 'low': return '#65a30d';
-      default: return colors.borderColor;
+  border-left: 6px solid ${props => {
+    switch (props.riskLevel) {
+      case 'Critical': return '#ef4444';
+      case 'High': return '#f97316';
+      case 'Medium': return '#eab308';
+      case 'Low': return '#3b82f6';
+      default: return '#22c55e';
+    }
+  }};
+  flex-wrap: wrap;
+  gap: 20px;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+`;
+
+const ScoreInfo = styled.div`
+  flex: 1;
+`;
+
+const RiskTitle = styled.h3<{ riskLevel: string }>`
+  margin: 0 0 8px 0;
+  font-size: 24px;
+  font-weight: 800;
+  color: ${props => {
+    switch (props.riskLevel) {
+      case 'Critical': return '#ef4444';
+      case 'High': return '#f97316';
+      case 'Medium': return '#eab308';
+      case 'Low': return '#3b82f6';
+      default: return '#22c55e';
     }
   }};
 `;
 
-const StatNumber = styled.div`
-  font-size: 24px;
-  font-weight: 700;
-  color: ${colors.textColor};
-  margin-bottom: 4px;
+const ScoreBarContainer = styled.div`
+  margin-top: 12px;
+  width: 100%;
+  max-width: 300px;
 `;
 
-const StatLabel = styled.div`
-  font-size: 12px;
+const ScoreLabel = styled.div`
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
   color: ${colors.textColorSecondary};
-  font-weight: 500;
-  text-transform: uppercase;
+  margin-bottom: 6px;
+  font-weight: 600;
+`;
+
+const ProgressBar = styled.div<{ score: number }>`
+  height: 10px;
+  background: #e5e7eb;
+  border-radius: 5px;
+  overflow: hidden;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: ${props => props.score}%;
+    background: ${props => 
+      props.score >= 90 ? '#22c55e' : 
+      props.score >= 70 ? '#eab308' : 
+      props.score >= 50 ? '#f97316' : '#ef4444'};
+    border-radius: 5px;
+    transition: width 1s ease-in-out;
+  }
+`;
+
+const StatsGroup = styled.div`
+  display: flex;
+  gap: 16px;
+  flex-wrap: wrap;
+`;
+
+const StatPill = styled.div<{ severity: string; active: boolean }>`
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 8px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  background: ${props => props.active ? colors.background : 'transparent'};
+  border: 1px solid ${props => props.active ? colors.borderColor : 'transparent'};
+
+  &:hover {
+    background: ${colors.background};
+  }
+
+  .dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    background: ${props => {
+      switch (props.severity) {
+        case 'critical': return '#ef4444';
+        case 'high': return '#f97316';
+        case 'medium': return '#eab308';
+        case 'low': return '#3b82f6';
+        default: return '#94a3b8';
+      }
+    }};
+  }
+
+  .label {
+    font-size: 13px;
+    font-weight: 600;
+    color: ${colors.textColorSecondary};
+    text-transform: capitalize;
+  }
+
+  .count {
+    font-size: 16px;
+    font-weight: 700;
+    color: ${colors.textColor};
+  }
+`;
+
+const TechStackSection = styled.div`
+  margin-top: 8px;
+  padding: 0 4px;
+
+  h4 {
+    margin: 0 0 12px 0;
+    font-size: 14px;
+    color: ${colors.textColorSecondary};
+    text-transform: uppercase;
+    font-weight: 600;
+    letter-spacing: 0.5px;
+  }
+
+  .tech-tags {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+  }
+
+  .tech-tag {
+    background: #f0f9ff;
+    color: #0284c7;
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 500;
+    border: 1px solid #bae6fd;
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
 `;
 
 const VulnList = styled.div`
@@ -84,89 +181,141 @@ const VulnList = styled.div`
   gap: 12px;
 `;
 
-const VulnItem = styled.div<{ severity: 'critical' | 'high' | 'medium' | 'low' }>`
+const VulnItem = styled.div<{ severity: string; expanded: boolean }>`
   background: ${colors.backgroundLighter};
   border: 1px solid ${colors.borderColor};
   border-radius: 8px;
-  padding: 16px;
+  overflow: hidden;
+  transition: all 0.2s ease;
+  
   border-left: 4px solid ${props => {
     switch (props.severity) {
-      case 'critical': return '#dc2626';
-      case 'high': return '#ea580c';
-      case 'medium': return '#d97706';
-      case 'low': return '#65a30d';
+      case 'critical': return '#ef4444';
+      case 'high': return '#f97316';
+      case 'medium': return '#eab308';
+      case 'low': return '#3b82f6';
+      case 'info': return '#94a3b8';
       default: return colors.borderColor;
     }
   }};
+
+  .header {
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+    background: ${props => props.expanded ? colors.background : 'transparent'};
+
+    &:hover {
+      background: ${colors.background};
+    }
+  }
+
+  .content {
+    padding: 0 16px 16px 16px;
+    display: ${props => props.expanded ? 'block' : 'none'};
+    border-top: 1px solid ${colors.borderColor};
+    margin-top: ${props => props.expanded ? '0' : '-1px'};
+    background: ${colors.backgroundLighter};
+  }
+
+  h4 {
+    margin: 0;
+    font-size: 15px;
+    color: ${colors.textColor};
+    flex: 1;
+    font-weight: 600;
+  }
 `;
 
-const VulnTitle = styled.h4`
-  margin: 0 0 8px 0;
-  font-size: 14px;
-  font-weight: 600;
-  color: ${colors.textColor};
-`;
-
-const VulnDescription = styled.p`
-  margin: 0 0 8px 0;
-  font-size: 13px;
-  color: ${colors.textColorSecondary};
-  line-height: 1.4;
-`;
-
-const VulnMeta = styled.div`
+const Badges = styled.div`
   display: flex;
-  gap: 12px;
-  font-size: 11px;
-  color: ${colors.textColorThirdly};
+  gap: 8px;
+  align-items: center;
 `;
 
-const SeverityBadge = styled.span<{ severity: 'critical' | 'high' | 'medium' | 'low' }>`
-  background: ${props => {
-    switch (props.severity) {
-      case 'critical': return '#fef2f2';
-      case 'high': return '#fff7ed';
-      case 'medium': return '#fffbeb';
-      case 'low': return '#f7fee7';
-      default: return colors.backgroundLighter;
-    }
-  }};
-  color: ${props => {
-    switch (props.severity) {
-      case 'critical': return '#991b1b';
-      case 'high': return '#9a3412';
-      case 'medium': return '#92400e';
-      case 'low': return '#365314';
-      default: return colors.textColor;
-    }
-  }};
-  padding: 4px 8px;
-  border-radius: 12px;
-  font-size: 10px;
+const Badge = styled.span<{ type?: string }>`
+  padding: 2px 8px;
+  border-radius: 4px;
+  font-size: 11px;
   font-weight: 600;
   text-transform: uppercase;
+  
+  background: ${props => {
+    if (props.type === 'category') return '#f3f4f6';
+    if (props.type === 'effort') return '#ecfccb';
+    return '#e5e7eb';
+  }};
+  
+  color: ${props => {
+    if (props.type === 'category') return '#374151';
+    if (props.type === 'effort') return '#365314';
+    return '#374151';
+  }};
+  
+  border: 1px solid ${props => {
+    if (props.type === 'category') return '#d1d5db';
+    if (props.type === 'effort') return '#d9f99d';
+    return '#d1d5db';
+  }};
 `;
+
+const Description = styled.p`
+  margin: 16px 0;
+  font-size: 14px;
+  color: ${colors.textColorSecondary};
+  line-height: 1.6;
+`;
+
+const SolutionBox = styled.div`
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  border-radius: 6px;
+  padding: 16px;
+  margin-top: 16px;
+
+  strong {
+    color: #15803d;
+    display: block;
+    margin-bottom: 8px;
+    font-size: 13px;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+
+  p {
+    margin: 0;
+    font-size: 14px;
+    color: #166534;
+    line-height: 1.5;
+  }
+`;
+
+interface Vulnerability {
+  type: string;
+  severity: 'critical' | 'high' | 'medium' | 'low' | 'info';
+  title: string;
+  description: string;
+  recommendation?: string;
+  effort?: 'Low' | 'Medium' | 'High';
+  category?: string;
+}
 
 interface VulnerabilitiesCardProps {
   data: {
-    vulnerabilities?: Array<{
-      id: string;
-      title: string;
-      description: string;
-      severity: 'critical' | 'high' | 'medium' | 'low';
-      cvss?: number;
-      cve?: string;
-      solution?: string;
-    }>;
+    vulnerabilities?: Vulnerability[];
+    technologies?: string[];
     summary?: {
-      total: number;
+      totalVulnerabilities: number;
       critical: number;
       high: number;
       medium: number;
       low: number;
-      score: number;
+      info: number;
     };
-    lastScan?: string;
+    securityScore?: number;
+    riskLevel?: string;
     error?: string;
   };
   title: string;
@@ -174,139 +323,186 @@ interface VulnerabilitiesCardProps {
 }
 
 const VulnerabilitiesCard: React.FC<VulnerabilitiesCardProps> = ({ data, title, actionButtons }) => {
+  const [activeTab, setActiveTab] = useState('all');
+  const [expandedItems, setExpandedItems] = useState<Set<number>>(new Set());
+
+  const toggleExpand = (index: number) => {
+    const newExpanded = new Set(expandedItems);
+    if (newExpanded.has(index)) {
+      newExpanded.delete(index);
+    } else {
+      newExpanded.add(index);
+    }
+    setExpandedItems(newExpanded);
+  };
+
   if (data?.error) {
     return (
       <Card heading={title} actionButtons={actionButtons}>
-        <div style={{ textAlign: 'center', padding: '40px 20px', color: colors.textColorSecondary }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>🔍</div>
-          <h3 style={{ margin: '0 0 8px 0', color: colors.textColor }}>Analyse des vulnérabilités indisponible</h3>
-          <p style={{ margin: 0, fontSize: '14px' }}>
-            {data.error || 'Impossible d\'analyser les vulnérabilités pour ce site.'}
-          </p>
+        <div style={{ textAlign: 'center', padding: '40px', color: colors.textColorSecondary }}>
+          <h3>Analyse indisponible</h3>
+          <p>{data.error}</p>
         </div>
       </Card>
     );
   }
 
   const vulnerabilities = data?.vulnerabilities || [];
-  const summary = data?.summary || {
-    total: vulnerabilities.length,
-    critical: vulnerabilities.filter(v => v.severity === 'critical').length,
-    high: vulnerabilities.filter(v => v.severity === 'high').length,
-    medium: vulnerabilities.filter(v => v.severity === 'medium').length,
-    low: vulnerabilities.filter(v => v.severity === 'low').length,
-    score: 85 // Default score if not provided
+  const summary = data?.summary || { totalVulnerabilities: 0, critical: 0, high: 0, medium: 0, low: 0, info: 0 };
+  const score = data?.securityScore || 100;
+  const technologies = data?.technologies || [];
+  
+  // Determine display risk level if not provided
+  let displayRisk = data?.riskLevel;
+  if (!displayRisk) {
+    if (summary.critical > 0) displayRisk = 'Critical';
+    else if (summary.high > 0) displayRisk = 'High';
+    else if (summary.medium > 2) displayRisk = 'Medium';
+    else if (summary.medium > 0 || summary.low > 2) displayRisk = 'Low';
+    else displayRisk = 'Minimal';
+  }
+
+  const filteredVulns = vulnerabilities.filter(v => 
+    activeTab === 'all' ? true : v.severity === activeTab
+  );
+
+  // Sort by severity order
+  const severityOrder = { critical: 0, high: 1, medium: 2, low: 3, info: 4 };
+  filteredVulns.sort((a, b) => severityOrder[a.severity] - severityOrder[b.severity]);
+
+  const getRiskTranslation = (risk: string) => {
+    switch (risk?.toLowerCase()) {
+      case 'critical': return 'Critique';
+      case 'high': return 'Élevé';
+      case 'medium': return 'Moyen';
+      case 'low': return 'Faible';
+      case 'minimal': return 'Minimal';
+      default: return risk;
+    }
   };
 
   return (
     <Card heading={title} actionButtons={actionButtons}>
-      <VulnContainer>
-        <VulnHeader>
-          <div>
-            <h3 style={{ margin: '0 0 4px 0', color: colors.textColor, fontSize: '16px' }}>
-              Analyse de Sécurité
-            </h3>
-            <p style={{ margin: 0, fontSize: '13px', color: colors.textColorSecondary }}>
-              {summary.total} vulnérabilité{summary.total > 1 ? 's' : ''} détectée{summary.total > 1 ? 's' : ''}
-            </p>
-          </div>
-          <ScoreDisplay>
-            <ScoreCircle score={summary.score}>
-              {summary.score}
-            </ScoreCircle>
-            <div>
-              <div style={{ fontSize: '12px', color: colors.textColorSecondary }}>Score Sécurité</div>
-              <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textColor }}>
-                {summary.score >= 90 ? 'Excellent' : 
-                 summary.score >= 70 ? 'Bon' : 
-                 summary.score >= 50 ? 'Moyen' : 'Critique'}
-              </div>
+      <Container>
+        <SummaryBanner riskLevel={displayRisk || 'Minimal'}>
+          <ScoreInfo>
+            <div style={{ fontSize: '13px', color: colors.textColorSecondary, fontWeight: 600, textTransform: 'uppercase', letterSpacing: '0.5px', marginBottom: '4px' }}>
+              Niveau de Risque
             </div>
-          </ScoreDisplay>
-        </VulnHeader>
+            <RiskTitle riskLevel={displayRisk || 'Minimal'}>
+              {getRiskTranslation(displayRisk || 'Minimal')}
+            </RiskTitle>
+            <ScoreBarContainer>
+              <ScoreLabel>
+                <span>Score de Sécurité</span>
+                <span>{score}/100</span>
+              </ScoreLabel>
+              <ProgressBar score={score} />
+            </ScoreBarContainer>
+          </ScoreInfo>
+          
+          <StatsGroup>
+            <StatPill 
+              severity="critical" 
+              active={activeTab === 'critical'}
+              onClick={() => setActiveTab(activeTab === 'critical' ? 'all' : 'critical')}
+            >
+              <div className="dot" />
+              <span className="label">Critique</span>
+              <span className="count">{summary.critical}</span>
+            </StatPill>
+            <StatPill 
+              severity="high" 
+              active={activeTab === 'high'}
+              onClick={() => setActiveTab(activeTab === 'high' ? 'all' : 'high')}
+            >
+              <div className="dot" />
+              <span className="label">Élevé</span>
+              <span className="count">{summary.high}</span>
+            </StatPill>
+            <StatPill 
+              severity="medium" 
+              active={activeTab === 'medium'}
+              onClick={() => setActiveTab(activeTab === 'medium' ? 'all' : 'medium')}
+            >
+              <div className="dot" />
+              <span className="label">Moyen</span>
+              <span className="count">{summary.medium}</span>
+            </StatPill>
+            <StatPill 
+              severity="low" 
+              active={activeTab === 'low'}
+              onClick={() => setActiveTab(activeTab === 'low' ? 'all' : 'low')}
+            >
+              <div className="dot" />
+              <span className="label">Faible</span>
+              <span className="count">{summary.low}</span>
+            </StatPill>
+          </StatsGroup>
+        </SummaryBanner>
 
-        <VulnStats>
-          <StatCard severity="critical">
-            <StatNumber>{summary.critical}</StatNumber>
-            <StatLabel>Critique</StatLabel>
-          </StatCard>
-          <StatCard severity="high">
-            <StatNumber>{summary.high}</StatNumber>
-            <StatLabel>Élevé</StatLabel>
-          </StatCard>
-          <StatCard severity="medium">
-            <StatNumber>{summary.medium}</StatNumber>
-            <StatLabel>Moyen</StatLabel>
-          </StatCard>
-          <StatCard severity="low">
-            <StatNumber>{summary.low}</StatNumber>
-            <StatLabel>Faible</StatLabel>
-          </StatCard>
-        </VulnStats>
+        {technologies.length > 0 && (
+          <TechStackSection>
+            <h4>Technologies Détectées</h4>
+            <div className="tech-tags">
+              {technologies.map((tech, i) => (
+                <span key={i} className="tech-tag">
+                  <span style={{ fontSize: '14px' }}>⚡</span> {tech}
+                </span>
+              ))}
+            </div>
+          </TechStackSection>
+        )}
 
-        {vulnerabilities.length > 0 ? (
-          <VulnList>
-            <h4 style={{ margin: '0 0 12px 0', fontSize: '14px', color: colors.textColor }}>
-              Vulnérabilités Détectées
-            </h4>
-            {vulnerabilities.slice(0, 10).map((vuln, index) => (
-              <VulnItem key={vuln.id || index} severity={vuln.severity}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '8px' }}>
-                  <VulnTitle>{vuln.title}</VulnTitle>
-                  <SeverityBadge severity={vuln.severity}>{vuln.severity}</SeverityBadge>
+        <VulnList>
+          {filteredVulns.length > 0 ? (
+            filteredVulns.map((vuln, index) => (
+              <VulnItem 
+                key={index} 
+                severity={vuln.severity} 
+                expanded={expandedItems.has(index)}
+              >
+                <div className="header" onClick={() => toggleExpand(index)}>
+                  <h4>{vuln.title}</h4>
+                  <Badges>
+                    {vuln.category && <Badge type="category">{vuln.category}</Badge>}
+                    <Badge>{vuln.severity}</Badge>
+                    <span style={{ transform: expandedItems.has(index) ? 'rotate(180deg)' : 'rotate(0)', transition: 'transform 0.2s', color: colors.textColorSecondary }}>▼</span>
+                  </Badges>
                 </div>
-                <VulnDescription>{vuln.description}</VulnDescription>
-                <VulnMeta>
-                  {vuln.cvss && <span>CVSS: {vuln.cvss}</span>}
-                  {vuln.cve && <span>CVE: {vuln.cve}</span>}
-                </VulnMeta>
-                {vuln.solution && (
-                  <div style={{ 
-                    marginTop: '8px', 
-                    padding: '8px', 
-                    background: colors.background, 
-                    borderRadius: '4px',
-                    fontSize: '12px',
-                    color: colors.textColorSecondary
-                  }}>
-                    <strong>Solution:</strong> {vuln.solution}
+                <div className="content">
+                  <Description>{vuln.description}</Description>
+                  
+                  <div style={{ display: 'flex', gap: '12px', marginBottom: '12px' }}>
+                    {vuln.effort && (
+                      <div style={{ fontSize: '12px' }}>
+                        <span style={{ color: colors.textColorSecondary }}>Effort de correction: </span>
+                        <Badge type="effort">{vuln.effort}</Badge>
+                      </div>
+                    )}
                   </div>
-                )}
-              </VulnItem>
-            ))}
-            {vulnerabilities.length > 10 && (
-              <div style={{ 
-                textAlign: 'center', 
-                padding: '12px', 
-                color: colors.textColorSecondary, 
-                fontSize: '13px' 
-              }}>
-                ... et {vulnerabilities.length - 10} autre{vulnerabilities.length - 10 > 1 ? 's' : ''} vulnérabilité{vulnerabilities.length - 10 > 1 ? 's' : ''}
-              </div>
-            )}
-          </VulnList>
-        ) : (
-          <div style={{ textAlign: 'center', padding: '40px 20px', color: colors.textColorSecondary }}>
-            <div style={{ fontSize: '48px', marginBottom: '16px' }}>🛡️</div>
-            <h3 style={{ margin: '0 0 8px 0', color: colors.textColor }}>Aucune vulnérabilité détectée</h3>
-            <p style={{ margin: 0, fontSize: '14px' }}>
-              Votre site semble sécurisé selon notre analyse automatisée.
-            </p>
-          </div>
-        )}
 
-        {data?.lastScan && (
-          <div style={{ 
-            fontSize: '11px', 
-            color: colors.textColorThirdly, 
-            textAlign: 'center',
-            paddingTop: '12px',
-            borderTop: `1px solid ${colors.borderColor}`
-          }}>
-            Dernière analyse: {new Date(data.lastScan).toLocaleDateString('fr-FR')}
-          </div>
-        )}
-      </VulnContainer>
+                  {vuln.recommendation && (
+                    <SolutionBox>
+                      <strong>💡 Solution Recommandée</strong>
+                      <p>{vuln.recommendation}</p>
+                    </SolutionBox>
+                  )}
+                </div>
+              </VulnItem>
+            ))
+          ) : (
+            <div style={{ textAlign: 'center', padding: '40px', color: colors.textColorSecondary, background: colors.backgroundLighter, borderRadius: '8px', border: `1px dashed ${colors.borderColor}` }}>
+              <div style={{ fontSize: '32px', marginBottom: '12px', opacity: 0.7 }}>🛡️</div>
+              <p style={{ margin: 0, fontSize: '14px' }}>
+                {activeTab === 'all' 
+                  ? 'Aucune vulnérabilité détectée. Votre site semble sécurisé.' 
+                  : `Aucune vulnérabilité de niveau ${activeTab} détectée.`}
+              </p>
+            </div>
+          )}
+        </VulnList>
+      </Container>
     </Card>
   );
 };

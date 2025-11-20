@@ -31,15 +31,16 @@ async function scanVulnerabilities(url) {
       medium: 0,
       low: 0,
       info: 0
-    }
+    },
+    technologies: [] // Track detected technologies for context
   };
 
   // Run vulnerability checks in parallel
   await Promise.all([
-    checkCommonVulnerabilities(url, results),
-    checkOutdatedSoftware(url, results),
-    checkWeakConfigurations(url, results),
-    checkInformationDisclosure(url, results)
+    checkSecurityHeaders(url, results),
+    checkTechnologySpecifics(url, results),
+    checkSensitiveFiles(url, results),
+    checkSSLAndConfiguration(url, results)
   ]);
 
   // Calculate overall security score
@@ -48,386 +49,434 @@ async function scanVulnerabilities(url) {
   return results;
 }
 
-async function checkCommonVulnerabilities(url, results) {
+async function checkSecurityHeaders(url, results) {
   try {
     const response = await axios.get(url, { 
       timeout: 10000,
       maxRedirects: 5,
-      validateStatus: () => true // Accept all status codes
+      validateStatus: () => true
     });
 
     const headers = response.headers;
-    const body = response.data;
-
-    // Check for common vulnerabilities
     const vulnerabilities = [];
 
-    // 1. Missing security headers
-    if (!headers['x-frame-options']) {
-      vulnerabilities.push({
-        type: 'missing_security_header',
-        severity: 'medium',
-        title: 'Missing X-Frame-Options Header',
-        description: 'Site vulnerable to clickjacking attacks',
-        recommendation: 'Add X-Frame-Options: DENY or SAMEORIGIN header',
-        cve: null,
-        impact: 'Clickjacking attacks possible'
-      });
-    }
-
-    if (!headers['x-content-type-options']) {
-      vulnerabilities.push({
-        type: 'missing_security_header',
-        severity: 'low',
-        title: 'Missing X-Content-Type-Options',
-        description: 'MIME type sniffing possible',
-        recommendation: 'Add X-Content-Type-Options: nosniff header',
-        cve: null,
-        impact: 'MIME confusion attacks'
-      });
-    }
-
-    if (!headers['strict-transport-security'] && url.startsWith('https://')) {
-      vulnerabilities.push({
-        type: 'missing_hsts',
-        severity: 'medium',
-        title: 'Missing HSTS Header',
-        description: 'HTTPS connections not enforced',
-        recommendation: 'Add Strict-Transport-Security header',
-        cve: null,
-        impact: 'Man-in-the-middle attacks via HTTP downgrade'
-      });
-    }
-
-    // 2. Information disclosure (only if actually revealing sensitive info)
-    if (headers['server']) {
-      const server = headers['server'].toLowerCase();
-      // Only flag if it reveals specific version numbers
-      const versionRegex = /(\d+\.\d+\.\d+)/;
-      if (versionRegex.test(server)) {
-        vulnerabilities.push({
-          type: 'information_disclosure',
+    // Security Headers Checklist
+    const headerChecks = [
+      {
+        header: 'x-frame-options',
+        missing: {
+          type: 'missing_security_header',
+          severity: 'medium',
+          title: 'Missing X-Frame-Options',
+          description: 'Site is vulnerable to clickjacking attacks. This header prevents your site from being embedded in iframes on other sites.',
+          recommendation: 'Add "X-Frame-Options: DENY" or "SAMEORIGIN" to your HTTP response headers.',
+          effort: 'Low',
+          category: 'Headers'
+        }
+      },
+      {
+        header: 'x-content-type-options',
+        missing: {
+          type: 'missing_security_header',
           severity: 'low',
-          title: 'Server Version Disclosure',
-          description: `Server reveals version: ${headers['server']}`,
-          recommendation: 'Hide server version in HTTP headers',
-          cve: null,
-          impact: 'Information gathering for targeted attacks'
-        });
+          title: 'Missing X-Content-Type-Options',
+          description: 'MIME type sniffing is possible. This header prevents the browser from interpreting files as a different MIME type.',
+          recommendation: 'Add "X-Content-Type-Options: nosniff" to your HTTP response headers.',
+          effort: 'Low',
+          category: 'Headers'
+        }
+      },
+      {
+        header: 'strict-transport-security',
+        condition: url.startsWith('https://'),
+        missing: {
+          type: 'missing_hsts',
+          severity: 'medium',
+          title: 'Missing HSTS Header',
+          description: 'HTTP Strict Transport Security (HSTS) is not enabled. This leaves users vulnerable to SSL stripping attacks.',
+          recommendation: 'Add "Strict-Transport-Security" header with a long max-age (e.g., max-age=31536000; includeSubDomains).',
+          effort: 'Low',
+          category: 'Headers'
+        }
+      },
+      {
+        header: 'content-security-policy',
+        missing: {
+          type: 'missing_csp',
+          severity: 'medium',
+          title: 'Missing Content Security Policy',
+          description: 'No Content Security Policy (CSP) detected. CSP is a powerful layer of security that helps detect and mitigate certain types of attacks, including XSS and data injection.',
+          recommendation: 'Implement a Content Security Policy header to restrict where resources can be loaded from.',
+          effort: 'High',
+          category: 'Headers'
+        },
+        checkValue: (val) => {
+          if (val.includes('unsafe-inline') || val.includes('unsafe-eval')) {
+            return {
+              type: 'weak_csp',
+              severity: 'medium',
+              title: 'Weak Content Security Policy',
+              description: 'CSP includes "unsafe-inline" or "unsafe-eval", which reduces its effectiveness against XSS.',
+              recommendation: 'Refactor code to avoid inline scripts and eval(), then remove these directives.',
+              effort: 'High',
+              category: 'Headers'
+            };
+          }
+          return null;
+        }
+      },
+      {
+        header: 'permissions-policy',
+        missing: {
+          type: 'missing_permissions_policy',
+          severity: 'low',
+          title: 'Missing Permissions Policy',
+          description: 'Permissions Policy (formerly Feature Policy) allows you to control which features and APIs can be used in the browser.',
+          recommendation: 'Add a Permissions-Policy header to explicitly disable powerful features you don\'t use (e.g., "camera=(), microphone=(), geolocation=()").',
+          effort: 'Medium',
+          category: 'Headers'
+        }
+      },
+      {
+        header: 'referrer-policy',
+        missing: {
+          type: 'missing_referrer_policy',
+          severity: 'low',
+          title: 'Missing Referrer Policy',
+          description: 'Referrer Policy controls how much referrer information is sent with requests.',
+          recommendation: 'Add "Referrer-Policy: strict-origin-when-cross-origin" (or similar) to protect user privacy.',
+          effort: 'Low',
+          category: 'Headers'
+        }
       }
+    ];
+
+    headerChecks.forEach(check => {
+      if (check.condition === false) return;
+      
+      const headerValue = Object.keys(headers).find(h => h.toLowerCase() === check.header);
+      
+      if (!headerValue) {
+        vulnerabilities.push(check.missing);
+      } else if (check.checkValue) {
+        const issue = check.checkValue(headers[headerValue]);
+        if (issue) vulnerabilities.push(issue);
+      }
+    });
+
+    // Information Disclosure in Headers
+    if (headers['server']) {
+      results.technologies.push(`Server: ${headers['server']}`);
+      vulnerabilities.push({
+        type: 'info_disclosure_server',
+        severity: 'info',
+        title: 'Server Header Disclosure',
+        description: `Server header reveals technology: "${headers['server']}"`,
+        recommendation: 'Configure your server to suppress the "Server" header or use a generic value.',
+        effort: 'Low',
+        category: 'Information Disclosure'
+      });
     }
 
     if (headers['x-powered-by']) {
+      results.technologies.push(`Powered By: ${headers['x-powered-by']}`);
       vulnerabilities.push({
-        type: 'information_disclosure',
+        type: 'info_disclosure_tech',
         severity: 'low',
-        title: 'Technology Stack Disclosure',
-        description: `Technology revealed: ${headers['x-powered-by']}`,
-        recommendation: 'Remove X-Powered-By header',
-        cve: null,
-        impact: 'Technology stack enumeration'
+        title: 'X-Powered-By Header Disclosure',
+        description: `Header reveals technology stack: "${headers['x-powered-by']}"`,
+        recommendation: 'Remove the X-Powered-By header from your server configuration.',
+        effort: 'Low',
+        category: 'Information Disclosure'
       });
     }
 
-    // 3. Content Security Policy issues
-    if (headers['content-security-policy']) {
-      const csp = headers['content-security-policy'];
-      if (csp.includes('unsafe-inline') || csp.includes('unsafe-eval')) {
-        vulnerabilities.push({
-          type: 'weak_csp',
-          severity: 'high',
-          title: 'Weak Content Security Policy',
-          description: 'CSP allows unsafe-inline or unsafe-eval',
-          recommendation: 'Remove unsafe directives from CSP',
-          cve: null,
-          impact: 'XSS attacks not prevented by CSP'
-        });
-      }
-    } else {
+    if (headers['x-aspnet-version']) {
+      results.technologies.push(`ASP.NET: ${headers['x-aspnet-version']}`);
       vulnerabilities.push({
-        type: 'missing_csp',
-        severity: 'medium',
-        title: 'Missing Content Security Policy',
-        description: 'No CSP header found',
-        recommendation: 'Implement Content Security Policy',
-        cve: null,
-        impact: 'XSS and code injection attacks'
+        type: 'info_disclosure_aspnet',
+        severity: 'low',
+        title: 'ASP.NET Version Disclosure',
+        description: `Header reveals ASP.NET version: "${headers['x-aspnet-version']}"`,
+        recommendation: 'Remove X-AspNet-Version header in web.config.',
+        effort: 'Low',
+        category: 'Information Disclosure'
       });
-    }
-
-    // 4. Check for common vulnerable patterns in HTML
-    if (typeof body === 'string') {
-      // Check for jQuery versions (common vulnerability source)
-      const jqueryMatch = body.match(/jquery[/-](\d+\.\d+\.\d+)/i);
-      if (jqueryMatch) {
-        const version = jqueryMatch[1];
-        if (compareVersions(version, '3.5.0') < 0) {
-          vulnerabilities.push({
-            type: 'outdated_library',
-            severity: 'medium',
-            title: 'Outdated jQuery Version',
-            description: `jQuery ${version} has known vulnerabilities`,
-            recommendation: 'Update jQuery to latest version (3.6.0+)',
-            cve: 'CVE-2020-11022, CVE-2020-11023',
-            impact: 'XSS vulnerabilities in jQuery'
-          });
-        }
-      }
-
-      // Check for admin/debug pages exposure (only if actually phpinfo content)
-      if (body.includes('phpinfo()') && body.includes('PHP Version') && body.includes('System')) {
-        vulnerabilities.push({
-          type: 'information_disclosure',
-          severity: 'high',
-          title: 'PHP Info Page Exposed',
-          description: 'phpinfo() output accessible',
-          recommendation: 'Remove or restrict access to phpinfo pages',
-          cve: null,
-          impact: 'Complete server configuration disclosure'
-        });
-      }
     }
 
     results.vulnerabilities.push(...vulnerabilities);
 
   } catch (error) {
-    console.error('Common vulnerability check failed:', error);
+    console.error('Header check failed:', error);
   }
 }
 
-async function checkOutdatedSoftware(url, results) {
+async function checkTechnologySpecifics(url, results) {
   try {
-    // Since we removed tech-stack API dependency, we'll check for common patterns in HTML
     const response = await axios.get(url, { 
       timeout: 10000,
       validateStatus: () => true
     });
 
-    if (typeof response.data === 'string') {
-      const vulnerabilities = [];
-      const html = response.data;
+    const html = typeof response.data === 'string' ? response.data : '';
+    const vulnerabilities = [];
 
-      // Check for WordPress version in HTML
-      const wpVersionMatch = html.match(/wp-(?:content|includes)\/[^"']*\/(\d+\.\d+(?:\.\d+)?)/i);
-      if (wpVersionMatch) {
-        const version = wpVersionMatch[1];
+    // 1. WordPress Detection & Checks
+    if (html.includes('wp-content') || html.includes('wp-includes')) {
+      results.technologies.push('WordPress');
+      
+      const wpVersion = html.match(/content="WordPress (\d+\.\d+\.?\d*)"/);
+      if (wpVersion) {
+        const version = wpVersion[1];
+        results.technologies.push(`WordPress ${version}`);
+        
+        vulnerabilities.push({
+          type: 'wp_version_disclosure',
+          severity: 'low',
+          title: 'WordPress Version Disclosure',
+          description: `WordPress version ${version} is visible in the HTML source.`,
+          recommendation: 'Remove the generator meta tag to hide your WordPress version.',
+          effort: 'Low',
+          category: 'Information Disclosure'
+        });
+
+        // Simple check for outdated WP (assuming 6.0 as baseline for "modern")
         if (compareVersions(version, '6.0') < 0) {
           vulnerabilities.push({
             type: 'outdated_cms',
             severity: 'high',
             title: 'Outdated WordPress Version',
-            description: `WordPress ${version} detected with security vulnerabilities`,
-            recommendation: 'Update WordPress to latest version',
-            cve: 'Multiple CVEs',
-            impact: 'Remote code execution, privilege escalation'
+            description: `You are using WordPress ${version}, which may have known security vulnerabilities.`,
+            recommendation: 'Update WordPress to the latest version immediately.',
+            effort: 'Medium',
+            category: 'Technology'
           });
         }
       }
 
-      // Check for common JavaScript libraries
-      const angularMatch = html.match(/angular(?:\.min)?\.js[^"']*\/(\d+\.\d+\.\d+)/i);
-      if (angularMatch) {
-        const version = angularMatch[1];
-        if (compareVersions(version, '1.8.0') < 0) {
+      // Check for exposed WP API users endpoint
+      try {
+        const apiResponse = await axios.get(new URL('/wp-json/wp/v2/users', url).toString(), { timeout: 3000, validateStatus: () => true });
+        if (apiResponse.status === 200 && Array.isArray(apiResponse.data) && apiResponse.data.length > 0) {
           vulnerabilities.push({
-            type: 'outdated_library',
+            type: 'wp_user_enumeration',
             severity: 'medium',
-            title: 'Outdated AngularJS Version',
-            description: `AngularJS ${version} has known vulnerabilities`,
-            recommendation: 'Update AngularJS or migrate to Angular',
-            cve: 'Multiple CVEs',
-            impact: 'XSS and injection vulnerabilities'
+            title: 'WordPress User Enumeration',
+            description: 'The WordPress REST API exposes user information (usernames, IDs) publicly.',
+            recommendation: 'Disable user enumeration via the REST API or install a security plugin.',
+            effort: 'Low',
+            category: 'Configuration'
           });
         }
-      }
-
-      results.vulnerabilities.push(...vulnerabilities);
+      } catch (e) { /* API check failed/timed out, ignore */ }
     }
-  } catch (error) {
-    console.error('Outdated software check failed:', error);
-  }
-}
 
-async function checkWeakConfigurations(url, results) {
-  try {
-    const vulnerabilities = [];
+    // 2. Modern Framework Detection
+    if (html.includes('data-reactroot') || html.includes('_NEXT_DATA_')) {
+      results.technologies.push('React/Next.js');
+    } else if (html.includes('data-v-') || html.includes('__NUXT__')) {
+      results.technologies.push('Vue/Nuxt.js');
+    } else if (html.includes('svelte-')) {
+      results.technologies.push('Svelte');
+    }
 
-    // Check for HTTP vs HTTPS
-    if (url.startsWith('http://')) {
+    // 3. jQuery Check
+    const jqueryMatch = html.match(/jquery[/-](\d+\.\d+\.\d+)/i);
+    if (jqueryMatch) {
+      const version = jqueryMatch[1];
+      results.technologies.push(`jQuery ${version}`);
+      if (compareVersions(version, '3.5.0') < 0) {
+        vulnerabilities.push({
+          type: 'outdated_library',
+          severity: 'medium',
+          title: 'Outdated jQuery Version',
+          description: `jQuery ${version} has known vulnerabilities (XSS).`,
+          recommendation: 'Update jQuery to version 3.6.0 or later.',
+          effort: 'Low',
+          category: 'Technology'
+        });
+      }
+    }
+
+    // 4. PHP Info exposure (aggressive check via pattern matching)
+    if (html.includes('phpinfo()') && html.includes('PHP Version') && html.includes('System')) {
       vulnerabilities.push({
-        type: 'weak_encryption',
-        severity: 'high',
-        title: 'Unencrypted HTTP Connection',
-        description: 'Site accessible over unencrypted HTTP',
-        recommendation: 'Implement HTTPS with valid SSL certificate',
-        cve: null,
-        impact: 'Data interception and man-in-the-middle attacks'
+        type: 'phpinfo_exposed',
+        severity: 'critical',
+        title: 'PHP Info Page Exposed',
+        description: 'A phpinfo() page is publicly accessible, revealing server environment variables, paths, and configuration.',
+        recommendation: 'Remove the file containing phpinfo() immediately.',
+        effort: 'Low',
+        category: 'Configuration'
       });
     }
 
-    // Check for mixed content (if HTTPS site loads HTTP resources)
+    // 5. Debug Mode Detection (Laravel/Django/Rails)
+    if (html.includes('Whoops! There was an error.') || // Laravel
+        html.includes('DisallowedHost') || // Django
+        html.includes('Action Controller: Exception caught') // Rails
+    ) {
+      vulnerabilities.push({
+        type: 'debug_mode_enabled',
+        severity: 'high',
+        title: 'Debug Mode Enabled',
+        description: 'The application appears to be running with debug mode enabled, showing stack traces to users.',
+        recommendation: 'Disable debug mode (set APP_DEBUG=false or DEBUG=False) in production.',
+        effort: 'Low',
+        category: 'Configuration'
+      });
+    }
+
+    results.vulnerabilities.push(...vulnerabilities);
+
+  } catch (error) {
+    console.error('Tech check failed:', error);
+  }
+}
+
+async function checkSensitiveFiles(url, results) {
+  const domain = new URL(url).origin;
+  const filesToCheck = [
+    { path: '/.env', severity: 'critical', title: 'Environment File Exposed', desc: 'Contains database credentials, API keys, and app secrets.' },
+    { path: '/.git/config', severity: 'high', title: 'Git Config Exposed', desc: 'Exposes repository information and potential source code access.' },
+    { path: '/package.json', severity: 'low', title: 'NPM Package File Exposed', desc: 'Reveals dependencies and versions, aiding targeted attacks.' },
+    { path: '/composer.json', severity: 'low', title: 'Composer File Exposed', desc: 'Reveals PHP dependencies and versions.' },
+    { path: '/wp-config.php.save', severity: 'critical', title: 'WP Config Backup Exposed', desc: 'Backup file likely contains database credentials.' },
+    { path: '/phpinfo.php', severity: 'high', title: 'PHP Info File Found', desc: 'Standard name for PHP info file revealing server details.' },
+    { path: '/.DS_Store', severity: 'low', title: 'DS_Store File Exposed', desc: 'Directory metadata file which may reveal file structure.' }
+  ];
+
+  try {
+    const checks = filesToCheck.map(async (file) => {
+      try {
+        const targetUrl = domain + file.path;
+        const response = await axios.get(targetUrl, { 
+          timeout: 5000,
+          validateStatus: (status) => status === 200,
+          maxContentLength: 50000
+        });
+
+        if (response.status === 200) {
+          const content = typeof response.data === 'string' ? response.data.toLowerCase() : JSON.stringify(response.data).toLowerCase();
+          
+          // False positive reduction
+          if (content.includes('html') || content.includes('<!doctype') || content.includes('body') || content.length < 10) {
+            return null; // Likely a custom 404 page served as 200
+          }
+
+          // Verification logic per file type
+          let verified = false;
+          if (file.path === '/.env' && (content.includes('app_key') || content.includes('db_password') || content.includes('secret'))) verified = true;
+          else if (file.path.includes('.git') && content.includes('repositoryformatversion')) verified = true;
+          else if (file.path.includes('json') && (content.includes('dependencies') || content.includes('name'))) verified = true;
+          else if (file.path.includes('php') && content.includes('php')) verified = true;
+          else if (file.path === '/.DS_Store') verified = true; // Binary content usually, hard to regex, but if 200 and not HTML, likely real
+
+          if (verified) {
+            return {
+              type: 'sensitive_file',
+              severity: file.severity,
+              title: file.title,
+              description: `File ${file.path} is publicly accessible. ${file.desc}`,
+              recommendation: `Configure your server to deny access to ${file.path} or remove it.`,
+              effort: 'Low',
+              category: 'Information Disclosure'
+            };
+          }
+        }
+      } catch (e) { /* 404 or other error is good */ }
+      return null;
+    });
+
+    const foundFiles = (await Promise.all(checks)).filter(f => f !== null);
+    results.vulnerabilities.push(...foundFiles);
+
+  } catch (error) {
+    console.error('Sensitive file check failed:', error);
+  }
+}
+
+async function checkSSLAndConfiguration(url, results) {
+  try {
+    const vulnerabilities = [];
+
+    if (url.startsWith('http://')) {
+      vulnerabilities.push({
+        type: 'unencrypted_http',
+        severity: 'high',
+        title: 'Unencrypted HTTP Connection',
+        description: 'The site is available via plain HTTP. Data transmitted is not encrypted.',
+        recommendation: 'Implement HTTPS and redirect all HTTP traffic to HTTPS.',
+        effort: 'Medium',
+        category: 'Encryption'
+      });
+    }
+
+    // Check mixed content if HTTPS
     if (url.startsWith('https://')) {
       try {
-        const response = await axios.get(url, { timeout: 10000 });
+        const response = await axios.get(url, { timeout: 5000 });
         if (typeof response.data === 'string') {
-          const httpResourcesMatch = response.data.match(/src=["']http:\/\/[^"']+/gi);
-          if (httpResourcesMatch && httpResourcesMatch.length > 0) {
+          const mixedContent = response.data.match(/src=["']http:\/\/[^"']+/i);
+          if (mixedContent) {
             vulnerabilities.push({
               type: 'mixed_content',
               severity: 'medium',
               title: 'Mixed Content Detected',
-              description: 'HTTPS page loads HTTP resources',
-              recommendation: 'Update all resources to use HTTPS',
-              cve: null,
-              impact: 'Partial encryption bypass'
+              description: 'HTTPS page loads resources via HTTP (scripts, images, or styles). This weakens encryption.',
+              recommendation: 'Update all resource links to use HTTPS.',
+              effort: 'Medium',
+              category: 'Encryption'
             });
           }
         }
-      } catch (error) {
-        // Ignore errors for this check
-      }
+      } catch (e) {}
     }
 
     results.vulnerabilities.push(...vulnerabilities);
-
-  } catch (error) {
-    console.error('Weak configuration check failed:', error);
-  }
-}
-
-async function checkInformationDisclosure(url, results) {
-  try {
-    const vulnerabilities = [];
-    const domain = new URL(url).origin;
-
-    // Check for common sensitive files - but validate content to avoid false positives
-    const sensitiveFiles = [
-      { path: '/.env', severity: 'critical', keywords: ['DB_PASSWORD', 'API_KEY', 'SECRET'] },
-      { path: '/config.php', severity: 'high', keywords: ['<?php', 'password', 'database'] },
-      { path: '/wp-config.php', severity: 'critical', keywords: ['DB_PASSWORD', 'DB_USER', 'AUTH_KEY'] },
-      { path: '/.git/config', severity: 'high', keywords: ['[core]', 'repositoryformatversion'] },
-      { path: '/robots.txt', severity: 'info', keywords: ['Disallow:', 'User-agent:'] }
-    ];
-
-    const fileChecks = sensitiveFiles.map(async (file) => {
-      try {
-        const response = await axios.get(domain + file.path, { 
-          timeout: 5000,
-          validateStatus: (status) => status === 200, // Only check 200 responses
-          maxContentLength: 10000 // Limit content size
-        });
-
-        if (response.status === 200 && response.data) {
-          const content = response.data.toString().toLowerCase();
-          
-          // Validate that this is actually the expected file type
-          const hasExpectedContent = file.keywords.some(keyword => 
-            content.includes(keyword.toLowerCase())
-          );
-
-          // Additional check for config.php - avoid false positives from security pages
-          if (file.path === '/config.php') {
-            // Check if it's actually a security block page
-            if (content.includes('navigation bloquée') || 
-                content.includes('blocked') || 
-                content.includes('sécurité') ||
-                content.includes('security') ||
-                content.includes('access denied')) {
-              return; // Skip this as it's a security page, not actual config
-            }
-          }
-
-          if (hasExpectedContent) {
-            let impact = 'Information disclosure';
-            if (file.path.includes('.env') || file.path.includes('config')) {
-              impact = 'Database credentials and secrets exposed';
-            } else if (file.path.includes('.git')) {
-              impact = 'Source code and development history exposed';
-            }
-
-            vulnerabilities.push({
-              type: 'sensitive_file_exposure',
-              severity: file.severity,
-              title: `Sensitive File Exposed: ${file.path}`,
-              description: `File ${file.path} is publicly accessible`,
-              recommendation: `Restrict access to ${file.path} or remove it`,
-              cve: null,
-              impact
-            });
-          }
-        }
-      } catch (error) {
-        // File not found or error - this is good for security
-      }
-    });
-
-    await Promise.all(fileChecks);
-    results.vulnerabilities.push(...vulnerabilities);
-
-  } catch (error) {
-    console.error('Information disclosure check failed:', error);
-  }
+  } catch (error) {}
 }
 
 function calculateSecurityScore(results) {
   let score = 100;
-  let critical = 0, high = 0, medium = 0, low = 0, info = 0;
+  const summary = { critical: 0, high: 0, medium: 0, low: 0, info: 0 };
 
   results.vulnerabilities.forEach(vuln => {
+    // Count per severity
+    if (summary[vuln.severity] !== undefined) {
+      summary[vuln.severity]++;
+    }
+
+    // Deduct points
     switch (vuln.severity) {
-      case 'critical':
-        score -= 25;
-        critical++;
-        break;
-      case 'high':
-        score -= 15;
-        high++;
-        break;
-      case 'medium':
-        score -= 8;
-        medium++;
-        break;
-      case 'low':
-        score -= 3;
-        low++;
-        break;
-      case 'info':
-        score -= 1;
-        info++;
-        break;
+      case 'critical': score -= 25; break;
+      case 'high': score -= 15; break;
+      case 'medium': score -= 8; break;
+      case 'low': score -= 3; break;
+      case 'info': score -= 0; break;
     }
   });
 
-  results.securityScore = Math.max(0, score);
-  results.summary = { critical, high, medium, low, info };
+  results.securityScore = Math.max(0, Math.round(score));
+  results.summary = { ...summary, totalVulnerabilities: results.vulnerabilities.length };
 
-  // Determine risk level
-  if (critical > 0) {
-    results.riskLevel = 'Critical';
-  } else if (high > 0) {
-    results.riskLevel = 'High';
-  } else if (medium > 2) {
-    results.riskLevel = 'Medium';
-  } else if (medium > 0 || low > 3) {
-    results.riskLevel = 'Low';
-  } else {
-    results.riskLevel = 'Minimal';
-  }
+  // Determine Risk Level
+  if (summary.critical > 0) results.riskLevel = 'Critical';
+  else if (summary.high > 0 || results.securityScore < 50) results.riskLevel = 'High';
+  else if (summary.medium > 2 || results.securityScore < 75) results.riskLevel = 'Medium';
+  else if (summary.medium > 0 || summary.low > 2) results.riskLevel = 'Low';
+  else results.riskLevel = 'Minimal';
 }
 
-// Helper function to compare version numbers
-function compareVersions(version1, version2) {
-  const v1parts = version1.split('.').map(Number);
-  const v2parts = version2.split('.').map(Number);
-  
+function compareVersions(v1, v2) {
+  const v1parts = v1.split('.').map(Number);
+  const v2parts = v2.split('.').map(Number);
   for (let i = 0; i < Math.max(v1parts.length, v2parts.length); i++) {
-    const v1part = v1parts[i] || 0;
-    const v2part = v2parts[i] || 0;
-    
-    if (v1part < v2part) return -1;
-    if (v1part > v2part) return 1;
+    const p1 = v1parts[i] || 0;
+    const p2 = v2parts[i] || 0;
+    if (p1 < p2) return -1;
+    if (p1 > p2) return 1;
   }
-  
   return 0;
 }
 

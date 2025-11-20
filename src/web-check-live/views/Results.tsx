@@ -1095,7 +1095,7 @@ const Results = (props: { address?: string } ): JSX.Element => {
       priority: 1,
     }, {
       id: 'apdp-user-rights',
-      title: 'Droits Utilisateurs RGPD',
+      title: 'Droits Utilisateurs APDP',
       result: apdpUserRightsResults,
       Component: ApdpUserRightsCard,
       refresh: updateApdpUserRightsResults,

@@ -29,23 +29,27 @@ const initDatabase = () => {
  * @param {string} password - Plain text password (will be hashed)
  * @param {string} role - User role (APDP or DPD)
  * @param {string} ipRestrictions - Comma-separated IP addresses
+ * @param {string} urlRestrictionMode - 'ALL' or 'RESTRICTED'
+ * @param {string} allowedUrls - Comma-separated URLs (only used when urlRestrictionMode = 'RESTRICTED')
  * @returns {object} Created user (without password)
  */
-export const createUser = (username, password, role = 'DPD', ipRestrictions = '') => {
+export const createUser = (username, password, role = 'DPD', ipRestrictions = '', urlRestrictionMode = 'ALL', allowedUrls = '') => {
   const passwordHash = bcrypt.hashSync(password, 10);
   
   const stmt = db.prepare(`
-    INSERT INTO users (username, password_hash, role, ip_restrictions)
-    VALUES (?, ?, ?, ?)
+    INSERT INTO users (username, password_hash, role, ip_restrictions, url_restriction_mode, allowed_urls)
+    VALUES (?, ?, ?, ?, ?, ?)
   `);
   
-  const result = stmt.run(username, passwordHash, role, ipRestrictions);
+  const result = stmt.run(username, passwordHash, role, ipRestrictions, urlRestrictionMode, allowedUrls);
   
   return {
     id: result.lastInsertRowid,
     username,
     role,
     ipRestrictions,
+    urlRestrictionMode,
+    allowedUrls,
     createdAt: new Date().toISOString()
   };
 };
@@ -93,7 +97,7 @@ export const verifyUser = (username, password) => {
  * @returns {Array} List of users (without passwords)
  */
 export const getAllUsers = () => {
-  const stmt = db.prepare('SELECT id, username, role, ip_restrictions, created_at, updated_at FROM users');
+  const stmt = db.prepare('SELECT id, username, role, ip_restrictions, url_restriction_mode, allowed_urls, created_at, updated_at FROM users');
   return stmt.all();
 };
 
@@ -122,6 +126,14 @@ export const updateUser = (id, updates) => {
   if (updates.ipRestrictions !== undefined) {
     fields.push('ip_restrictions = ?');
     values.push(updates.ipRestrictions);
+  }
+  if (updates.urlRestrictionMode !== undefined) {
+    fields.push('url_restriction_mode = ?');
+    values.push(updates.urlRestrictionMode);
+  }
+  if (updates.allowedUrls !== undefined) {
+    fields.push('allowed_urls = ?');
+    values.push(updates.allowedUrls);
   }
   
   fields.push('updated_at = CURRENT_TIMESTAMP');

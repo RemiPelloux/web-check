@@ -81,6 +81,9 @@ export default defineConfig({
   site, 
   adapter, 
   redirects,
+  devToolbar: {
+    enabled: false, // Disable Astro dev toolbar to reduce console noise
+  },
   vite: {
     css: {
       preprocessorOptions: {

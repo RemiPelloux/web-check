@@ -7,6 +7,8 @@ CREATE TABLE IF NOT EXISTS users (
     password_hash TEXT NOT NULL,
     role TEXT NOT NULL CHECK(role IN ('APDP', 'DPD')),
     ip_restrictions TEXT, -- Comma-separated IP addresses (empty = no restrictions)
+    url_restriction_mode TEXT DEFAULT 'ALL' CHECK(url_restriction_mode IN ('ALL', 'RESTRICTED')), -- ALL = any URL, RESTRICTED = specific URLs only
+    allowed_urls TEXT, -- Comma-separated URLs that DPD user can scan (only used when url_restriction_mode = 'RESTRICTED')
     created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
     updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
 );
