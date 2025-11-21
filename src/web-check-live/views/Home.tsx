@@ -1,38 +1,123 @@
 import styled from '@emotion/styled';
 import { type ChangeEvent, type FormEvent, useState, useEffect } from 'react';
-import { Link, useNavigate, useLocation, type NavigateOptions } from 'react-router-dom';
+import { useNavigate, useLocation, type NavigateOptions } from 'react-router-dom';
 
-import Heading from 'web-check-live/components/Form/Heading';
 import Input from 'web-check-live/components/Form/Input'
 import Button from 'web-check-live/components/Form/Button';
-import { StyledCard } from 'web-check-live/components/Form/Card';
 import Header from 'web-check-live/components/misc/Header';
 import Footer from 'web-check-live/components/misc/Footer';
 
-import docs from 'web-check-live/utils/docs';
 import colors from 'web-check-live/styles/colors';
 import { determineAddressType } from 'web-check-live/utils/address-type-checker';
 
 const HomeContainer = styled.section`
   min-height: 100vh;
-  background: ${colors.background};
+  background: linear-gradient(135deg, ${colors.background} 0%, ${colors.backgroundDarker} 100%);
+  position: relative;
+  
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 400px;
+    background: linear-gradient(135deg, rgba(220, 38, 38, 0.03) 0%, rgba(220, 38, 38, 0) 100%);
+    pointer-events: none;
+  }
 `;
 
 const MainContent = styled.div`
   max-width: 1280px;
   margin: 0 auto;
-  padding: 32px 16px;
+  padding: 48px 16px;
+  position: relative;
+  z-index: 1;
+`;
+
+const HeroSection = styled.div`
+  text-align: center;
+  margin-bottom: 48px;
+  animation: fadeIn 0.8s ease-out;
+  
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+      transform: translateY(-20px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+`;
+
+const Logo = styled.div`
+  width: 80px;
+  height: 80px;
+  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  border-radius: 20px;
+  display: flex;
+  align-items: center;
+  justifyContent: center;
+  margin: 0 auto 24px;
+  font-size: 40px;
+  box-shadow: 0 10px 40px rgba(220, 38, 38, 0.3);
+  animation: pulse 2s ease-in-out infinite;
+  
+  @keyframes pulse {
+    0%, 100% {
+      transform: scale(1);
+    }
+    50% {
+      transform: scale(1.05);
+    }
+  }
+`;
+
+const Title = styled.h1`
+  font-size: 42px;
+  font-weight: 800;
+  color: ${colors.textColor};
+  margin: 0 0 16px 0;
+  line-height: 1.2;
+  
+  @media (max-width: 768px) {
+    font-size: 32px;
+  }
+`;
+
+const Subtitle = styled.p`
+  font-size: 18px;
+  color: ${colors.textColorSecondary};
+  max-width: 600px;
+  margin: 0 auto;
+  line-height: 1.6;
+  
+  @media (max-width: 768px) {
+    font-size: 16px;
+  }
 `;
 
 const UserInputMain = styled.form`
   background: ${colors.backgroundLighter};
   border: 1px solid ${colors.borderColor};
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
-  padding: 24px;
-  margin: 24px auto;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.1);
+  border-radius: 16px;
+  padding: 32px;
+  margin: 0 auto;
   width: 100%;
-  max-width: 48rem;
+  max-width: 720px;
+  transition: all 0.3s ease;
+  
+  &:hover {
+    box-shadow: 0 24px 80px rgba(0, 0, 0, 0.15);
+    transform: translateY(-2px);
+  }
+  
+  @media (max-width: 768px) {
+    padding: 24px;
+  }
 `;
 
 
@@ -48,65 +133,62 @@ const UserInputMain = styled.form`
 
 const ErrorMessage = styled.p`
   color: ${colors.danger};
-  margin: 0.5rem;
+  margin: 0;
+  background: #fef2f2;
+  border: 1px solid #fecaca;
+  border-radius: 8px;
+  padding: 12px 16px;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  
+  &::before {
+    content: '⚠️';
+    font-size: 16px;
+  }
 `;
 
-const SiteFeaturesWrapper = styled(StyledCard)`
-  margin: 24px auto;
-  width: 100%;
-  max-width: 48rem;
+const InfoNotice = styled.div`
   background: ${colors.backgroundLighter};
   border: 1px solid ${colors.borderColor};
-  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
-  border-radius: 8px;
+  border-radius: 12px;
   padding: 24px;
-  .links {
+  margin: 32px auto 0;
+  max-width: 720px;
+  display: flex;
+  align-items: flex-start;
+  gap: 16px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  
+  .icon {
+    width: 40px;
+    height: 40px;
+    background: linear-gradient(135deg, rgba(220, 38, 38, 0.1) 0%, rgba(220, 38, 38, 0.05) 100%);
+    border-radius: 10px;
     display: flex;
+    align-items: center;
     justify-content: center;
-    gap: 1rem;
-    margin-top: 2rem;
-    a {
-      flex: 1;
-      button {
-        width: 100%;
-        height: 48px;
-        font-weight: 500;
-      }
-    }
-    @media(max-width: 600px) {
-      flex-direction: column;
-      gap: 0.75rem;
-    }
+    flex-shrink: 0;
+    font-size: 20px;
   }
-  ul {
-    -webkit-column-width: 180px;
-    -moz-column-width: 180px;
-    column-width: 180px;
-    list-style: none;
-    padding: 0;
-    font-size: 0.95rem;
-    color: ${colors.textColorSecondary};
-    line-height: 1.6;
-    li {
-      margin: 0.5rem 0;
-      text-indent: -1.5rem;
-      break-inside: avoid-column;
-      padding-left: 1.5rem;
-    }
-    li:before {
-      content: '✓';
-      color: ${colors.primary};
-      margin-right: 0.75rem;
+  
+  .content {
+    flex: 1;
+    
+    h3 {
+      font-size: 16px;
       font-weight: 600;
+      color: ${colors.textColor};
+      margin: 0 0 8px 0;
     }
-  }
-  a {
-    color: ${colors.primary};
-  }
-  h2 {
-    margin-bottom: 1.5rem;
-    font-size: 1.5rem;
-    font-weight: 600;
+    
+    p {
+      font-size: 14px;
+      color: ${colors.textColorSecondary};
+      margin: 0;
+      line-height: 1.6;
+    }
   }
 `;
 
@@ -300,48 +382,29 @@ const Home = (): JSX.Element => {
     <HomeContainer>
       <Header />
       <MainContent>
+        {/* Hero Section */}
+        <HeroSection>
+          <Logo>🔍</Logo>
+          <Title>Analyse de Conformité Loi 1.565</Title>
+          <Subtitle>
+            Outil professionnel d'audit de conformité APDP Monaco. 
+            Analysez la conformité réglementaire et la posture de sécurité en quelques secondes.
+          </Subtitle>
+        </HeroSection>
+
+        {/* Main Input Form */}
         <UserInputMain onSubmit={formSubmitEvent}>
-          <div style={{ textAlign: 'center', marginBottom: '24px' }}>
-            <div style={{ 
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              gap: '12px',
-              marginBottom: '8px'
-            }}>
-              <div style={{
-                width: '32px',
-                height: '32px',
-                backgroundColor: colors.primary,
-                borderRadius: '4px',
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                color: 'white',
-                fontSize: '16px'
-              }}>
-                🔍
-              </div>
-              <Heading as="h2" size="large" color={colors.textColor} style={{
-                fontSize: '20px',
-                fontWeight: '600',
-                margin: '0'
-              }}>
-                Analyse de Conformité Loi 1.565
-              </Heading>
-            </div>
-          </div>
-          
           {userProfile?.role === 'DPD' && allowedUrls.length > 0 ? (
             // Show URL cards for DPD users
             <div>
               <p style={{ 
-                fontSize: '14px', 
+                fontSize: 16, 
                 color: colors.textColorSecondary, 
-                marginBottom: '16px',
-                textAlign: 'center'
+                marginBottom: 24,
+                textAlign: 'center',
+                fontWeight: 500
               }}>
-                Cliquez sur un site pour l'analyser
+                Sélectionnez un site à analyser
               </p>
               <URLCardsGrid>
                 {allowedUrls.map((url, index) => (
@@ -370,7 +433,7 @@ const Home = (): JSX.Element => {
           ) : (
             // Show input for APDP users
             <>
-              <div style={{ marginBottom: '16px' }}>
+              <div style={{ marginBottom: 16 }}>
                 <Input
                   id="user-input"
                   value={userInput}
@@ -384,85 +447,30 @@ const Home = (): JSX.Element => {
                   handleKeyDown={handleKeyPress}
                 />
               </div>
-              { errorMsg && <ErrorMessage style={{
-                color: colors.error,
-                fontSize: '14px',
-                backgroundColor: '#fef2f2',
-                border: '1px solid #fecaca',
-                borderRadius: '4px',
-                padding: '12px',
-                margin: '0 0 16px 0'
-              }}>{errorMsg}</ErrorMessage>}
+              {errorMsg && <ErrorMessage style={{ marginBottom: 16 }}>{errorMsg}</ErrorMessage>}
               <Button 
                 type="submit" 
-                styles="width: 100%; height: 48px; font-size: 16px; font-weight: 500;" 
+                styles="width: 100%; height: 56px; font-size: 16px; font-weight: 600; border-radius: 12px;" 
                 size="large" 
                 onClick={submit}
               >
-                Analyser
+                🚀 Lancer l'analyse
               </Button>
             </>
           )}
         </UserInputMain>
         
-        <SiteFeaturesWrapper>
-          <div className="features">
-            <Heading as="h2" size="small" color={colors.primary} style={{
-              fontSize: '18px',
-              fontWeight: '600',
-              marginBottom: '16px'
-            }}>Capacités d'Analyse</Heading>
-            <ul>
-              {docs.map((doc, index) => (<li key={index}>{doc.title}</li>))}
-              <li><Link to="/wiki" target="_blank" rel="noopener noreferrer">+ plus d'analyses!</Link></li>
-            </ul>
-          </div>
-          <div className="links">
-            <Link to="/check" title="Démarrer une analyse de conformité avec notre plateforme d'audit professionnel">
-              <Button>Commencer l'Analyse</Button>
-            </Link>
-            <Link to="/wiki" target="_blank" rel="noopener noreferrer" title="Consulter le Wiki de l'Outil d'Audit de Conformité">
-              <Button>Wiki</Button>
-            </Link>
-          </div>
-        </SiteFeaturesWrapper>
-        
         {/* Info Notice */}
-        <div style={{
-          backgroundColor: colors.backgroundDarker,
-          border: `1px solid ${colors.borderColor}`,
-          borderRadius: '8px',
-          padding: '16px',
-          margin: '24px auto',
-          maxWidth: '48rem'
-        }}>
-          <div style={{ display: 'flex', alignItems: 'flex-start', gap: '12px' }}>
-            <div style={{
-              width: '20px',
-              height: '20px',
-              backgroundColor: colors.textColorThirdly,
-              borderRadius: '50%',
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              flexShrink: '0',
-              marginTop: '2px'
-            }}>
-              <span style={{ color: 'white', fontSize: '12px' }}>ℹ</span>
-            </div>
-            <div>
-              <p style={{ 
-                fontSize: '14px', 
-                color: colors.textColorSecondary,
-                margin: '0',
-                lineHeight: '1.5'
-              }}>
-                <strong>Outil professionnel APDP Monaco</strong> - Réservé aux contrôleurs pour les audits de conformité APDP et sécurité web. 
-                Les rapports générés peuvent être utilisés dans le cadre des procédures officielles de contrôle.
-              </p>
-            </div>
+        <InfoNotice>
+          <div className="icon">🏛️</div>
+          <div className="content">
+            <h3>Outil professionnel APDP Monaco</h3>
+            <p>
+              Réservé aux contrôleurs pour les audits de conformité APDP et sécurité web. 
+              Les rapports générés peuvent être utilisés dans le cadre des procédures officielles de contrôle.
+            </p>
           </div>
-        </div>
+        </InfoNotice>
         
         <Footer isFixed={false} />
       </MainContent>
