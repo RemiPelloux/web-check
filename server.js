@@ -567,7 +567,8 @@ app.get(`${API_DIR}/admin/statistics`, authMiddleware, adminOnlyMiddleware, (req
     const rawStats = getAggregateStatistics({ days });
     
     // Get DPD user count
-    const dpdUsers = getUsersByRole('DPD').length;
+    const allUsers = getAllUsers();
+    const dpdUsers = allUsers.filter(user => user.role === 'DPD').length;
     
     // Get scan history for chart (last 30 days)
     const scanHistoryStmt = db.prepare(`
