@@ -9,12 +9,12 @@ import Statistics from 'web-check-live/components/Admin/Statistics';
 
 const AdminContainer = styled.div`
   min-height: 100vh;
-  background: ${colors.background};
+  background: linear-gradient(135deg, ${colors.background} 0%, ${colors.backgroundDarker} 100%);
   display: flex;
 `;
 
 const Sidebar = styled.aside`
-  width: 280px;
+  width: 300px;
   min-height: 100vh;
   background: ${colors.backgroundLighter};
   border-right: 1px solid ${colors.borderColor};
@@ -23,6 +23,7 @@ const Sidebar = styled.aside`
   position: sticky;
   top: 0;
   height: 100vh;
+  box-shadow: 2px 0 12px rgba(0, 0, 0, 0.1);
 
   @media (max-width: 768px) {
     width: 100%;
@@ -36,22 +37,47 @@ const Sidebar = styled.aside`
 const SidebarHeader = styled.div`
   padding: 32px 24px;
   border-bottom: 1px solid ${colors.borderColor};
+  background: linear-gradient(135deg, ${colors.primary} 0%, #b91c1c 100%);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(45deg, transparent 30%, rgba(255, 255, 255, 0.1) 50%, transparent 70%);
+    animation: shine 3s infinite;
+  }
+
+  @keyframes shine {
+    0%, 100% { transform: translateX(-100%); }
+    50% { transform: translateX(100%); }
+  }
 `;
 
 const SidebarTitle = styled.h1`
-  font-size: 20px;
-  font-weight: 700;
-  color: ${colors.textColor};
-  margin: 0 0 4px 0;
+  font-size: 22px;
+  font-weight: 800;
+  color: white;
+  margin: 0 0 6px 0;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  position: relative;
+  z-index: 1;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
 `;
 
 const SidebarSubtitle = styled.p`
-  font-size: 13px;
-  color: ${colors.textColorSecondary};
+  font-size: 14px;
+  color: rgba(255, 255, 255, 0.9);
   margin: 0;
+  position: relative;
+  z-index: 1;
+  font-weight: 500;
 `;
 
 const SidebarNav = styled.nav`
@@ -64,32 +90,56 @@ const NavItem = styled.button<{ active: boolean }>`
   width: 100%;
   display: flex;
   align-items: center;
-  gap: 12px;
-  padding: 14px 16px;
-  background: ${props => props.active ? colors.backgroundDarker : 'transparent'};
-  color: ${props => props.active ? colors.primary : colors.textColor};
+  gap: 14px;
+  padding: 16px 20px;
+  background: ${props => props.active ? `linear-gradient(135deg, ${colors.primary} 0%, #b91c1c 100%)` : 'transparent'};
+  color: ${props => props.active ? 'white' : colors.textColor};
   border: none;
-  border-left: 3px solid ${props => props.active ? colors.primary : 'transparent'};
-  border-radius: 8px;
+  border-radius: 12px;
   font-size: 15px;
-  font-weight: ${props => props.active ? '600' : '500'};
+  font-weight: ${props => props.active ? '700' : '600'};
   cursor: pointer;
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   text-align: left;
-  margin-bottom: 4px;
+  margin-bottom: 8px;
+  position: relative;
+  overflow: hidden;
+  box-shadow: ${props => props.active ? '0 4px 12px rgba(220, 38, 38, 0.3)' : 'none'};
+
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 4px;
+    background: ${props => props.active ? 'white' : colors.primary};
+    transform: ${props => props.active ? 'scaleY(1)' : 'scaleY(0)'};
+    transition: transform 0.3s ease;
+  }
 
   &:hover {
-    background: ${colors.backgroundDarker};
-    color: ${colors.primary};
-    border-left-color: ${colors.primary};
+    background: ${props => props.active ? `linear-gradient(135deg, ${colors.primary} 0%, #b91c1c 100%)` : colors.backgroundDarker};
+    color: ${props => props.active ? 'white' : colors.primary};
+    transform: translateX(4px);
+    box-shadow: ${props => props.active ? '0 6px 16px rgba(220, 38, 38, 0.4)' : '0 2px 8px rgba(0, 0, 0, 0.1)'};
+  }
+
+  &:hover::before {
+    transform: scaleY(1);
+  }
+
+  &:active {
+    transform: translateX(2px) scale(0.98);
   }
 
   span:first-of-type {
-    font-size: 20px;
-    min-width: 24px;
+    font-size: 22px;
+    min-width: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
+    filter: ${props => props.active ? 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' : 'none'};
   }
 `;
 
@@ -101,34 +151,45 @@ const SidebarFooter = styled.div`
 const BackButton = styled.a`
   display: flex;
   align-items: center;
-  gap: 8px;
-  padding: 12px 16px;
+  gap: 10px;
+  padding: 14px 18px;
   background: ${colors.backgroundDarker};
   color: ${colors.textColor};
-  border: 1px solid ${colors.borderColor};
-  border-radius: 8px;
+  border: 2px solid ${colors.borderColor};
+  border-radius: 10px;
   font-size: 14px;
-  font-weight: 500;
+  font-weight: 600;
   text-decoration: none;
-  transition: all 0.2s;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
 
   &:hover {
     border-color: ${colors.primary};
     color: ${colors.primary};
-    transform: translateX(-2px);
+    transform: translateX(-4px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.2);
+  }
+
+  &:active {
+    transform: translateX(-2px) scale(0.98);
   }
 
   span:first-of-type {
-    font-size: 18px;
+    font-size: 20px;
+    transition: transform 0.3s ease;
+  }
+
+  &:hover span:first-of-type {
+    transform: translateX(-2px);
   }
 `;
 
 const MainContent = styled.main`
   flex: 1;
-  padding: 32px;
+  padding: 40px;
   overflow-y: auto;
-  max-width: 1400px;
+  max-width: 1600px;
   margin: 0 auto;
+  width: 100%;
 
   @media (max-width: 768px) {
     padding: 24px 16px;
@@ -136,28 +197,43 @@ const MainContent = styled.main`
 `;
 
 const ContentHeader = styled.div`
-  margin-bottom: 32px;
+  margin-bottom: 40px;
+  padding-bottom: 24px;
+  border-bottom: 2px solid ${colors.borderColor};
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 100px;
+    height: 2px;
+    background: linear-gradient(90deg, ${colors.primary} 0%, transparent 100%);
+  }
 `;
 
 const ContentTitle = styled.h2`
-  font-size: 28px;
-  font-weight: 700;
+  font-size: 32px;
+  font-weight: 800;
   color: ${colors.textColor};
-  margin: 0 0 8px 0;
+  margin: 0 0 10px 0;
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 14px;
 
   span:first-of-type {
-    font-size: 32px;
+    font-size: 36px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
   }
 `;
 
 const ContentDescription = styled.p`
-  font-size: 15px;
+  font-size: 16px;
   color: ${colors.textColorSecondary};
   margin: 0;
-  line-height: 1.6;
+  line-height: 1.7;
+  font-weight: 500;
 `;
 
 const LoadingMessage = styled.div`

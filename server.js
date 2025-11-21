@@ -42,7 +42,8 @@ import {
   getAggregateStatistics,
   recordScan,
   updateScanStatistics,
-  getAuditLogs
+  getAuditLogs,
+  db
 } from './database/db.js';
 
 const __filename = new URL(import.meta.url).pathname;
@@ -541,21 +542,35 @@ app.get(`${API_DIR}/admin/statistics`, authMiddleware, adminOnlyMiddleware, (req
     `);
     const scanHistory = scanHistoryStmt.all();
     
+    // If no scan history, generate empty data for last 7 days
+    let formattedScanHistory = scanHistory;
+    if (scanHistory.length === 0) {
+      formattedScanHistory = [];
+      for (let i = 6; i >= 0; i--) {
+        const date = new Date();
+        date.setDate(date.getDate() - i);
+        formattedScanHistory.push({
+          date: date.toISOString().split('T')[0],
+          scans: 0
+        });
+      }
+    }
+    
     // Format data for frontend
     const stats = {
-      totalScans: rawStats.totalScans || 0,
-      criticalIssues: rawStats.totalCritical || 0,
-      warningIssues: rawStats.totalWarnings || 0,
+      totalScans: rawStats?.totalScans || 0,
+      criticalIssues: rawStats?.totalCritical || 0,
+      warningIssues: rawStats?.totalWarnings || 0,
       dpdUsers: dpdUsers,
-      scansPerUser: dpdUsers > 0 ? (rawStats.totalScans || 0) / dpdUsers : 0,
-      scanHistory: scanHistory.map(row => ({
+      scansPerUser: dpdUsers > 0 ? (rawStats?.totalScans || 0) / dpdUsers : 0,
+      scanHistory: formattedScanHistory.map(row => ({
         date: row.date,
-        scans: row.scans
+        scans: row.scans || 0
       })),
       issuesByType: {
-        critical: rawStats.totalCritical || 0,
-        warnings: rawStats.totalWarnings || 0,
-        improvements: rawStats.totalImprovements || 0
+        critical: rawStats?.totalCritical || 0,
+        warnings: rawStats?.totalWarnings || 0,
+        improvements: rawStats?.totalImprovements || 0
       }
     };
     
@@ -569,7 +584,8 @@ app.get(`${API_DIR}/admin/statistics`, authMiddleware, adminOnlyMiddleware, (req
     return res.status(500).json({
       success: false,
       error: 'Erreur serveur',
-      message: 'Impossible de récupérer les statistiques'
+      message: 'Impossible de récupérer les statistiques',
+      details: error.message
     });
   }
 });

@@ -44,48 +44,74 @@ const StatsGrid = styled.div`
 `;
 
 const StatCard = styled.div`
-  background: ${colors.backgroundLighter};
-  border: 1px solid ${colors.borderColor};
-  border-radius: 12px;
-  padding: 24px;
+  background: linear-gradient(135deg, ${colors.backgroundLighter} 0%, ${colors.backgroundDarker} 100%);
+  border: 2px solid ${colors.borderColor};
+  border-radius: 16px;
+  padding: 28px;
   display: flex;
   flex-direction: column;
-  gap: 8px;
-  transition: all 0.2s;
+  gap: 12px;
+  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  position: relative;
+  overflow: hidden;
+
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 100px;
+    height: 100px;
+    background: linear-gradient(135deg, ${colors.primary}20, transparent);
+    border-radius: 50%;
+    transform: translate(30%, -30%);
+    transition: transform 0.3s ease;
+  }
 
   &:hover {
     border-color: ${colors.primary};
-    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.1);
-    transform: translateY(-2px);
+    box-shadow: 0 8px 24px rgba(220, 38, 38, 0.15);
+    transform: translateY(-4px) scale(1.02);
+  }
+
+  &:hover::before {
+    transform: translate(20%, -20%) scale(1.2);
   }
 `;
 
 const StatLabel = styled.div`
-  font-size: 13px;
-  font-weight: 600;
+  font-size: 12px;
+  font-weight: 700;
   color: ${colors.textColorSecondary};
   text-transform: uppercase;
-  letter-spacing: 0.5px;
+  letter-spacing: 1px;
+  position: relative;
+  z-index: 1;
 `;
 
 const StatValue = styled.div`
-  font-size: 32px;
-  font-weight: 800;
+  font-size: 36px;
+  font-weight: 900;
   color: ${colors.textColor};
   display: flex;
   align-items: baseline;
-  gap: 8px;
+  gap: 10px;
+  position: relative;
+  z-index: 1;
 `;
 
 const StatUnit = styled.span`
   font-size: 16px;
-  font-weight: 500;
+  font-weight: 600;
   color: ${colors.textColorSecondary};
 `;
 
 const StatIcon = styled.div`
-  font-size: 24px;
-  opacity: 0.8;
+  font-size: 28px;
+  opacity: 0.9;
+  position: relative;
+  z-index: 1;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
 `;
 
 const ChartsGrid = styled.div`
@@ -99,37 +125,89 @@ const ChartsGrid = styled.div`
 `;
 
 const ChartCard = styled.div`
-  background: ${colors.backgroundLighter};
-  border: 1px solid ${colors.borderColor};
-  border-radius: 12px;
-  padding: 24px;
+  background: linear-gradient(135deg, ${colors.backgroundLighter} 0%, ${colors.backgroundDarker} 100%);
+  border: 2px solid ${colors.borderColor};
+  border-radius: 16px;
+  padding: 28px;
+  transition: all 0.3s ease;
+
+  &:hover {
+    border-color: ${colors.primary};
+    box-shadow: 0 8px 24px rgba(220, 38, 38, 0.12);
+  }
 `;
 
 const ChartTitle = styled.h3`
-  font-size: 16px;
-  font-weight: 700;
+  font-size: 17px;
+  font-weight: 800;
   color: ${colors.textColor};
-  margin: 0 0 20px 0;
+  margin: 0 0 24px 0;
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
+  padding-bottom: 16px;
+  border-bottom: 2px solid ${colors.borderColor};
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 60px;
+    height: 2px;
+    background: ${colors.primary};
+  }
+
+  span:first-of-type {
+    font-size: 24px;
+    filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  }
 `;
 
 const LoadingState = styled.div`
   text-align: center;
-  padding: 48px 24px;
+  padding: 80px 24px;
   color: ${colors.textColorSecondary};
-  font-size: 16px;
+  font-size: 18px;
+  font-weight: 600;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+
+  &::before {
+    content: '📊';
+    font-size: 64px;
+    display: block;
+    animation: pulse 2s ease-in-out infinite;
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.6; transform: scale(1.1); }
+  }
 `;
 
 const ErrorState = styled.div`
   text-align: center;
-  padding: 48px 24px;
+  padding: 80px 24px;
   color: ${colors.danger};
   font-size: 16px;
-  background: ${colors.backgroundLighter};
-  border: 1px solid ${colors.danger};
-  border-radius: 12px;
+  font-weight: 600;
+  background: linear-gradient(135deg, ${colors.backgroundLighter} 0%, ${colors.backgroundDarker} 100%);
+  border: 2px solid ${colors.danger};
+  border-radius: 16px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 16px;
+
+  &::before {
+    content: '❌';
+    font-size: 64px;
+    display: block;
+  }
 `;
 
 interface StatisticsData {
