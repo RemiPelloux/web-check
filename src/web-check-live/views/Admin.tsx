@@ -5,6 +5,7 @@ import 'react-toastify/dist/ReactToastify.css';
 import colors from 'web-check-live/styles/colors';
 import UserManagement from 'web-check-live/components/Admin/UserManagement';
 import PluginConfig from 'web-check-live/components/Admin/PluginConfig';
+import Statistics from 'web-check-live/components/Admin/Statistics';
 
 const AdminContainer = styled.div`
   min-height: 100vh;
@@ -167,7 +168,7 @@ const LoadingMessage = styled.div`
 `;
 
 const Admin = (): JSX.Element => {
-  const [activeTab, setActiveTab] = useState<'users' | 'plugins'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'plugins' | 'statistics'>('users');
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -205,6 +206,13 @@ const Admin = (): JSX.Element => {
         description: 'Créez et gérez les comptes DPD, configurez les restrictions IP et les autorisations.'
       };
     }
+    if (activeTab === 'statistics') {
+      return {
+        icon: '📊',
+        title: 'Statistiques',
+        description: 'Visualisez les statistiques anonymes des analyses et des problèmes détectés.'
+      };
+    }
     return {
       icon: '🔌',
       title: 'Configuration des Plugins',
@@ -234,6 +242,13 @@ const Admin = (): JSX.Element => {
             <span>Gestion des Utilisateurs</span>
           </NavItem>
           <NavItem
+            active={activeTab === 'statistics'}
+            onClick={() => setActiveTab('statistics')}
+          >
+            <span>📊</span>
+            <span>Statistiques</span>
+          </NavItem>
+          <NavItem
             active={activeTab === 'plugins'}
             onClick={() => setActiveTab('plugins')}
           >
@@ -260,6 +275,7 @@ const Admin = (): JSX.Element => {
         </ContentHeader>
 
         {activeTab === 'users' && <UserManagement />}
+        {activeTab === 'statistics' && <Statistics />}
         {activeTab === 'plugins' && <PluginConfig />}
       </MainContent>
       

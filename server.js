@@ -526,11 +526,42 @@ app.put(`${API_DIR}/admin/plugins`, authMiddleware, adminOnlyMiddleware, (req, r
 app.get(`${API_DIR}/admin/statistics`, authMiddleware, adminOnlyMiddleware, (req, res) => {
   try {
     const days = parseInt(req.query.days) || 30;
-    const stats = getAggregateStatistics({ days });
+    const rawStats = getAggregateStatistics({ days });
+    
+    // Get DPD user count
+    const dpdUsers = getUsersByRole('DPD').length;
+    
+    // Get scan history for chart (last 30 days)
+    const scanHistoryStmt = db.prepare(`
+      SELECT date, SUM(total_scans) as scans
+      FROM scan_statistics
+      WHERE date >= date('now', '-30 days')
+      GROUP BY date
+      ORDER BY date ASC
+    `);
+    const scanHistory = scanHistoryStmt.all();
+    
+    // Format data for frontend
+    const stats = {
+      totalScans: rawStats.totalScans || 0,
+      criticalIssues: rawStats.totalCritical || 0,
+      warningIssues: rawStats.totalWarnings || 0,
+      dpdUsers: dpdUsers,
+      scansPerUser: dpdUsers > 0 ? (rawStats.totalScans || 0) / dpdUsers : 0,
+      scanHistory: scanHistory.map(row => ({
+        date: row.date,
+        scans: row.scans
+      })),
+      issuesByType: {
+        critical: rawStats.totalCritical || 0,
+        warnings: rawStats.totalWarnings || 0,
+        improvements: rawStats.totalImprovements || 0
+      }
+    };
     
     return res.json({
       success: true,
-      statistics: stats,
+      data: stats,
       period: `${days} days`
     });
   } catch (error) {
