@@ -6,6 +6,7 @@ import colors from 'web-check-live/styles/colors';
 import UserManagement from 'web-check-live/components/Admin/UserManagement';
 import PluginConfig from 'web-check-live/components/Admin/PluginConfig';
 import Statistics from 'web-check-live/components/Admin/Statistics';
+import Logs from 'web-check-live/components/Admin/Logs';
 
 const AdminContainer = styled.div`
   min-height: 100vh;
@@ -289,6 +290,13 @@ const Admin = (): JSX.Element => {
         description: 'Visualisez les statistiques anonymes des analyses et des problèmes détectés.'
       };
     }
+    if (activeTab === 'logs') {
+      return {
+        icon: '📋',
+        title: 'Journal d\'Audit',
+        description: 'Consultez l\'historique complet des connexions, analyses et actions administratives.'
+      };
+    }
     return {
       icon: '🔌',
       title: 'Configuration des Plugins',
@@ -325,6 +333,13 @@ const Admin = (): JSX.Element => {
             <span>Statistiques</span>
           </NavItem>
           <NavItem
+            active={activeTab === 'logs'}
+            onClick={() => setActiveTab('logs')}
+          >
+            <span>📋</span>
+            <span>Journal d'Audit</span>
+          </NavItem>
+          <NavItem
             active={activeTab === 'plugins'}
             onClick={() => setActiveTab('plugins')}
           >
@@ -352,6 +367,7 @@ const Admin = (): JSX.Element => {
 
         {activeTab === 'users' && <UserManagement />}
         {activeTab === 'statistics' && <Statistics />}
+        {activeTab === 'logs' && <Logs />}
         {activeTab === 'plugins' && <PluginConfig />}
       </MainContent>
       
