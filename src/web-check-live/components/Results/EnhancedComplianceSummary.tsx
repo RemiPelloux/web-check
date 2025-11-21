@@ -239,7 +239,7 @@ const EnhancedComplianceSummaryCard: React.FC<EnhancedComplianceSummaryProps> = 
       <html>
       <head>
         <meta charset="UTF-8">
-        <title>Rapport de Conformité APDP - ${siteName}</title>
+        <title>Rapport de Conformité Loi 1.565 - ${siteName}</title>
         <style>
           body { font-family: 'Inter', Arial, sans-serif; margin: 40px; color: #1f2937; }
           .header { text-align: center; margin-bottom: 40px; border-bottom: 3px solid #dc2626; padding-bottom: 20px; }
@@ -261,7 +261,7 @@ const EnhancedComplianceSummaryCard: React.FC<EnhancedComplianceSummaryProps> = 
       </head>
       <body>
         <div class="header">
-          <h1>Rapport de Conformité APDP</h1>
+          <h1>Rapport de Conformité Loi 1.565</h1>
           <h2>${siteName}</h2>
           <div class="score-circle">${complianceAnalysis.overallScore}</div>
           <p>Score: ${numericScore}/100 - Niveau: ${getComplianceLevel(numericScore)}</p>
@@ -289,7 +289,7 @@ const EnhancedComplianceSummaryCard: React.FC<EnhancedComplianceSummaryProps> = 
 
         <div class="section">
           <h2>📊 Résumé Exécutif</h2>
-          <p>Ce rapport présente l'analyse de conformité APDP pour ${siteName}. L'évaluation porte sur ${Object.keys(allResults).length} aspects techniques incluant la sécurité, la confidentialité, et les bonnes pratiques.</p>
+          <p>Ce rapport présente l'analyse de conformité Loi 1.565 pour ${siteName}. L'évaluation porte sur ${Object.keys(allResults).length} aspects techniques incluant la sécurité, la confidentialité, et les bonnes pratiques.</p>
         </div>
 
         ${complianceAnalysis.criticalIssues && Array.isArray(complianceAnalysis.criticalIssues) && complianceAnalysis.criticalIssues.length > 0 ? `
@@ -301,7 +301,7 @@ const EnhancedComplianceSummaryCard: React.FC<EnhancedComplianceSummaryProps> = 
               <p><strong>Sévérité:</strong> ${issue.severity || 'Critique'}</p>
               <p><strong>Description:</strong> ${issue.description || 'Description non disponible'}</p>
               ${issue.recommendation ? `<p><strong>Recommandation:</strong> ${issue.recommendation}</p>` : ''}
-              ${issue.article ? `<p><strong>Article APDP:</strong> ${issue.article}</p>` : ''}
+              ${issue.article ? `<p><strong>Article Loi 1.565:</strong> ${issue.article}</p>` : ''}
             </div>
           `).join('')}
         </div>
@@ -449,7 +449,7 @@ const EnhancedComplianceSummaryCard: React.FC<EnhancedComplianceSummaryProps> = 
         </div>
 
         <div class="footer">
-          <p>Rapport généré par l'Outil d'Audit de Conformité APDP Monaco</p>
+          <p>Rapport généré par l'Outil d'Audit de Conformité Loi 1.565 Monaco</p>
           <p>Usage interne - Contrôleurs APDP Monaco</p>
           <p>Confidentiel - Ne pas diffuser sans autorisation</p>
         </div>
@@ -490,7 +490,7 @@ const EnhancedComplianceSummaryCard: React.FC<EnhancedComplianceSummaryProps> = 
               color: colors.textColorSecondary,
               lineHeight: '1.5'
             }}>
-              Analyse complète de la conformité APDP et des bonnes pratiques de sécurité.
+              Analyse complète de la conformité Loi 1.565 et des bonnes pratiques de sécurité.
               <br />
               Score basé sur {Object.keys(allResults).length} vérifications techniques.
             </div>

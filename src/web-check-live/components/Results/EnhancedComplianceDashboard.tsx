@@ -1,4 +1,4 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState } from 'react';
 import styled from '@emotion/styled';
 import colors from 'web-check-live/styles/colors';
 import { EnhancedComplianceAnalyzer } from 'web-check-live/utils/enhancedComplianceAnalyzer';
@@ -27,6 +27,12 @@ const SectionTitle = styled.h2`
   display: flex;
   align-items: center;
   gap: 12px;
+  cursor: pointer;
+  user-select: none;
+  
+  &:hover {
+    color: ${colors.primary};
+  }
 `;
 
 const LoadingContainer = styled.div`
@@ -122,6 +128,9 @@ const EnhancedComplianceDashboard: React.FC<EnhancedComplianceDashboardProps> = 
   allResults, 
   siteName 
 }) => {
+  // State for collapsible section
+  const [isDetailsExpanded, setIsDetailsExpanded] = useState(false);
+  
   const analysis = useMemo(() => {
     if (!allResults || Object.keys(allResults).length === 0) {
       return null;
@@ -207,66 +216,70 @@ const EnhancedComplianceDashboard: React.FC<EnhancedComplianceDashboardProps> = 
         </StatItem>
       </StatsBar>
 
-      {/* Issues Lists */}
-      <SectionTitle>
-        📋 Détail des Contrôles ({analysis.criticalIssues.length + analysis.warnings.length + analysis.improvements.length} éléments)
+      {/* Issues Lists - Collapsible */}
+      <SectionTitle onClick={() => setIsDetailsExpanded(!isDetailsExpanded)}>
+        {isDetailsExpanded ? '▼' : '▶'} 📋 Détail des Contrôles ({analysis.criticalIssues.length + analysis.warnings.length + analysis.improvements.length} éléments)
       </SectionTitle>
 
-      {analysis.criticalIssues.length > 0 && (
-        <IssuesList
-          issues={analysis.criticalIssues}
-          title="Problèmes Critiques"
-          totalCount={analysis.criticalIssues.length}
-          type="critical"
-        />
-      )}
+      {isDetailsExpanded && (
+        <>
+          {analysis.criticalIssues.length > 0 && (
+            <IssuesList
+              issues={analysis.criticalIssues}
+              title="Problèmes Critiques"
+              totalCount={analysis.criticalIssues.length}
+              type="critical"
+            />
+          )}
 
-      {analysis.warnings.length > 0 && (
-        <IssuesList
-          issues={analysis.warnings}
-          title="Avertissements"
-          totalCount={analysis.warnings.length}
-          type="warning"
-        />
-      )}
+          {analysis.warnings.length > 0 && (
+            <IssuesList
+              issues={analysis.warnings}
+              title="Avertissements"
+              totalCount={analysis.warnings.length}
+              type="warning"
+            />
+          )}
 
-      {analysis.improvements.length > 0 && (
-        <IssuesList
-          issues={analysis.improvements}
-          title="Améliorations Recommandées"
-          totalCount={analysis.improvements.length}
-          type="improvement"
-        />
-      )}
+          {analysis.improvements.length > 0 && (
+            <IssuesList
+              issues={analysis.improvements}
+              title="Améliorations Recommandées"
+              totalCount={analysis.improvements.length}
+              type="improvement"
+            />
+          )}
 
-      {/* Show empty state if no issues */}
-      {analysis.criticalIssues.length === 0 && 
-       analysis.warnings.length === 0 && 
-       analysis.improvements.length === 0 && (
-        <div style={{
-          textAlign: 'center',
-          padding: '60px 20px',
-          background: colors.backgroundLighter,
-          borderRadius: '16px',
-          border: `1px solid ${colors.borderColor}`
-        }}>
-          <div style={{ fontSize: '64px', marginBottom: '16px' }}>🎉</div>
-          <h3 style={{ 
-            color: colors.textColor, 
-            margin: '0 0 8px 0',
-            fontSize: '24px',
-            fontWeight: '700'
-          }}>
-            Excellente conformité !
-          </h3>
-          <p style={{ 
-            color: colors.textColorSecondary, 
-            margin: '0',
-            fontSize: '16px'
-          }}>
-            Aucun problème de conformité détecté. Votre site respecte les standards APDP Monaco.
-          </p>
-        </div>
+          {/* Show empty state if no issues */}
+          {analysis.criticalIssues.length === 0 && 
+           analysis.warnings.length === 0 && 
+           analysis.improvements.length === 0 && (
+            <div style={{
+              textAlign: 'center',
+              padding: '60px 20px',
+              background: colors.backgroundLighter,
+              borderRadius: '16px',
+              border: `1px solid ${colors.borderColor}`
+            }}>
+              <div style={{ fontSize: '64px', marginBottom: '16px' }}>🎉</div>
+              <h3 style={{ 
+                color: colors.textColor, 
+                margin: '0 0 8px 0',
+                fontSize: '24px',
+                fontWeight: '700'
+              }}>
+                Excellente conformité !
+              </h3>
+              <p style={{ 
+                color: colors.textColorSecondary, 
+                margin: '0',
+                fontSize: '16px'
+              }}>
+                Aucun problème de conformité détecté. Votre site respecte les standards APDP Monaco.
+              </p>
+            </div>
+          )}
+        </>
       )}
     </DashboardContainer>
   );

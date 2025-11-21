@@ -274,7 +274,7 @@ const LegalPagesCard: React.FC<LegalPagesCardProps> = ({ data, title, actionButt
         <ComplianceHeader>
           <div>
             <h3 style={{ margin: '0 0 4px 0', color: colors.textColor, fontSize: '16px' }}>
-              Conformité Légale APDP
+              Conformité Loi 1.565
             </h3>
             <p style={{ margin: 0, fontSize: '13px', color: colors.textColorSecondary }}>
               {compliance.found}/{compliance.total} page{compliance.total > 1 ? 's' : ''} requise{compliance.total > 1 ? 's' : ''} trouvée{compliance.found > 1 ? 's' : ''}

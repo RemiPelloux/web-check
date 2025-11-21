@@ -1,0 +1,221 @@
+---
+// DPD IP-based Auto-Authentication Landing Page
+const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://api.openpro.ai/api';
+---
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Espace DPD - APDP Monaco</title>
+  <style>
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+    
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+      background: linear-gradient(135deg, #DC2626 0%, #991B1B 100%);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    
+    .container {
+      background: white;
+      border-radius: 16px;
+      padding: 48px;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      text-align: center;
+    }
+    
+    .logo {
+      width: 100px;
+      height: 100px;
+      background: #DC2626;
+      border-radius: 12px;
+      margin: 0 auto 24px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: bold;
+    }
+    
+    .logo-text {
+      font-size: 32px;
+      line-height: 1;
+    }
+    
+    .logo-subtitle {
+      font-size: 12px;
+      margin-top: 4px;
+    }
+    
+    h1 {
+      font-size: 28px;
+      color: #111827;
+      margin-bottom: 12px;
+    }
+    
+    p {
+      color: #6B7280;
+      font-size: 16px;
+      line-height: 1.6;
+      margin-bottom: 24px;
+    }
+    
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 4px solid #E5E7EB;
+      border-top-color: #DC2626;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+      margin: 32px auto;
+    }
+    
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    
+    .status {
+      font-size: 14px;
+      color: #6B7280;
+      margin-top: 16px;
+    }
+    
+    .error {
+      background: #FEE2E2;
+      border: 1px solid #FCA5A5;
+      color: #991B1B;
+      padding: 16px;
+      border-radius: 8px;
+      margin-top: 24px;
+      font-size: 14px;
+      line-height: 1.6;
+    }
+    
+    .error-title {
+      font-weight: 600;
+      margin-bottom: 8px;
+    }
+    
+    .contact-info {
+      margin-top: 16px;
+      padding-top: 16px;
+      border-top: 1px solid #E5E7EB;
+      font-size: 13px;
+      color: #6B7280;
+    }
+    
+    .ip-info {
+      background: #F3F4F6;
+      padding: 12px;
+      border-radius: 6px;
+      margin-top: 16px;
+      font-family: monospace;
+      font-size: 13px;
+      color: #374151;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="logo">
+      <div class="logo-text">APDP</div>
+      <div class="logo-subtitle">MONACO</div>
+    </div>
+    
+    <h1>Espace DPD</h1>
+    <p id="message">Vérification de votre identité en cours...</p>
+    
+    <div id="spinner" class="spinner"></div>
+    <div id="status" class="status">Connexion automatique par adresse IP</div>
+    
+    <div id="error" class="error" style="display: none;">
+      <div class="error-title">Accès refusé</div>
+      <div id="error-message"></div>
+      <div id="ip-display" class="ip-info" style="display: none;"></div>
+      <div class="contact-info">
+        Pour obtenir l'accès à l'espace DPD, veuillez contacter l'administrateur APDP à l'adresse <strong>admin@apdp.mc</strong>
+      </div>
+    </div>
+  </div>
+  
+  <script>
+    // Auto-authenticate via IP
+    async function autoAuthenticate() {
+      try {
+        const response = await fetch(`${API_BASE_URL}/auth/ip-auto`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+        
+        const data = await response.json();
+        
+        if (data.success && data.token) {
+          // Store authentication data
+          localStorage.setItem('checkitAuthToken', data.token);
+          localStorage.setItem('checkitUsername', data.user.username);
+          localStorage.setItem('checkitUserRole', data.user.role);
+          localStorage.setItem('checkitUserData', JSON.stringify(data.user));
+          
+          // Update UI
+          document.getElementById('message').textContent = 'Authentification réussie !';
+          document.getElementById('status').textContent = `Bienvenue ${data.user.company || data.user.username}`;
+          document.getElementById('spinner').style.display = 'none';
+          
+          // Redirect to dashboard
+          setTimeout(() => {
+            window.location.href = '/check';
+          }, 1000);
+        } else {
+          throw new Error(data.message || 'Authentification échouée');
+        }
+      } catch (error) {
+        console.error('Auto-auth error:', error);
+        
+        // Show error
+        document.getElementById('spinner').style.display = 'none';
+        document.getElementById('status').style.display = 'none';
+        document.getElementById('message').textContent = 'Accès non autorisé';
+        
+        const errorDiv = document.getElementById('error');
+        const errorMsg = document.getElementById('error-message');
+        const ipDisplay = document.getElementById('ip-display');
+        
+        errorDiv.style.display = 'block';
+        
+        if (error.response) {
+          const data = await error.response.json();
+          errorMsg.textContent = data.message || 'Votre adresse IP n\'est pas autorisée à accéder à cet espace.';
+          
+          if (data.clientIp) {
+            ipDisplay.textContent = `Votre IP: ${data.clientIp}`;
+            ipDisplay.style.display = 'block';
+          }
+        } else {
+          errorMsg.textContent = 'Votre adresse IP n\'est pas autorisée à accéder à cet espace. Veuillez contacter l\'administrateur APDP.';
+        }
+      }
+    }
+    
+    // Run auto-authentication on page load
+    window.addEventListener('DOMContentLoaded', () => {
+      autoAuthenticate();
+    });
+  </script>
+</body>
+</html>
+

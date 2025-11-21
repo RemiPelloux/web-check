@@ -241,7 +241,7 @@ const docs: Doc[] = [
   },
   {
     id: "whois",
-    title: "Domain Info",
+    title: "Informations Domaine",
     description:
       "This task retrieves Whois records for the target domain. Whois records are a rich source of information, including the name and contact information of the domain registrant, the domain's creation and expiration dates, the domain's nameservers, and more. The information is usually obtained through a query to a Whois database server.",
     use: "In an OSINT context, Whois records can provide valuable clues about the entity behind a website. They can show when the domain was first registered and when it's set to expire, which could provide insights into the operational timeline of the entity. The contact information, though often redacted or anonymized, can sometimes lead to additional avenues of investigation. The nameservers could also be used to link together multiple domains owned by the same entity.",
@@ -270,7 +270,7 @@ const docs: Doc[] = [
   },
   {
     id: "features",
-    title: "Fonctionnalités du Site",
+    title: "Fonctionnalités Latentes",
     description: 'Vérifie quelles fonctionnalités principales sont présentes sur un site. Si une fonctionnalité est marquée comme morte, cela signifie qu\'elle n\'est pas activement utilisée au moment du chargement',
     use: "Ceci est utile pour comprendre les capacités d'un site et quelles technologies rechercher",
     resources: [],
@@ -308,7 +308,7 @@ const docs: Doc[] = [
   },
   {
     id: 'tech-stack',
-    title: 'Stack Technique',
+    title: 'Technologies Utilisées',
     description: 'Vérifie avec quelles technologies un site est construit. '
     + 'Ceci est fait en récupérant et en analysant le site, puis en le comparant à une liste de RegEx maintenue par Wappalyzer pour identifier les empreintes uniques que différentes technologies laissent.',
     use: 'Identifier la stack technique d\'un site aide à évaluer sa sécurité en exposant les vulnérabilités potentielles, '
@@ -550,20 +550,8 @@ const docs: Doc[] = [
     ],
   },
   {
-    id: 'apdp-user-rights',
-    title: 'Droits des Utilisateurs APDP Monaco',
-    description: 'Cette vérification analyse si le site informe clairement les utilisateurs de leurs 6 droits fondamentaux APDP: droit d\'accès, de rectification, d\'effacement (droit à l\'oubli), de limitation du traitement, de portabilité des données, et d\'opposition. Elle vérifie également la présence de moyens d\'exercer ces droits (formulaire, email, adresse postale).',
-    use: 'Les droits APDP sont au cœur de la protection des données personnelles. Tout site collectant des données doit informer les utilisateurs de ces droits ET leur fournir des moyens simples de les exercer. Le non-respect de ces obligations expose à des sanctions importantes de l\'APDP Monaco.',
-    resources: [
-      { title: 'CNIL - Les droits pour maîtriser vos données', link: 'https://www.cnil.fr/fr/les-droits-pour-maitriser-vos-donnees-personnelles' },
-      { title: 'APDP - Droits de la personne concernée', link: 'https://www.cnil.fr/fr/reglement-europeen-protection-donnees/chapitre3' },
-      { title: 'APDP Monaco - Vos droits', link: 'https://apdp.mc/vos-droits' },
-      { title: 'APDP - Article 15 à 22 (Droits)', link: 'https://gdpr-info.eu/chapter-3/' },
-    ],
-  },
-  {
     id: 'apdp-compliance',
-    title: 'Conformité APDP Globale',
+    title: 'Conformité Loi 1.565 Globale',
     description: 'Cette analyse complète évalue la conformité APDP du site sur tous les aspects: sécurité SSL/TLS, cookies, en-têtes de sécurité (CSP, HSTS), pages légales, droits des utilisateurs, et ressources tierces. Elle génère un score de conformité et identifie les problèmes critiques, avertissements et améliorations recommandées.',
     use: 'Cette vérification globale permet d\'obtenir une vue d\'ensemble de la conformité APDP du site. Elle aide à prioriser les actions correctives et à suivre les progrès vers la conformité complète. Particulièrement utile pour les audits réguliers et la préparation aux contrôles APDP.',
     resources: [

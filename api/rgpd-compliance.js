@@ -432,45 +432,7 @@ function calculateComplianceScore(results) {
   
   const rawScore = Math.max(0, baseScore - penaltyScore + bonusScore);
   
-  // Enhanced grading scale
-  if (rawScore >= 95) {
-    results.overallScore = 'A+';
-    results.complianceLevel = 'Exemplaire';
-  } else if (rawScore >= 90) {
-    results.overallScore = 'A';
-    results.complianceLevel = 'Excellent';
-  } else if (rawScore >= 85) {
-    results.overallScore = 'A-';
-    results.complianceLevel = 'Très excellent';
-  } else if (rawScore >= 80) {
-    results.overallScore = 'B+';
-    results.complianceLevel = 'Très bien';
-  } else if (rawScore >= 75) {
-    results.overallScore = 'B';
-    results.complianceLevel = 'Bien';
-  } else if (rawScore >= 70) {
-    results.overallScore = 'B-';
-    results.complianceLevel = 'Assez bien';
-  } else if (rawScore >= 65) {
-    results.overallScore = 'C+';
-    results.complianceLevel = 'Correct';
-  } else if (rawScore >= 60) {
-    results.overallScore = 'C';
-    results.complianceLevel = 'Passable';
-  } else if (rawScore >= 55) {
-    results.overallScore = 'C-';
-    results.complianceLevel = 'À améliorer';
-  } else if (rawScore >= 50) {
-    results.overallScore = 'D';
-    results.complianceLevel = 'Insuffisant';
-  } else if (rawScore >= 40) {
-    results.overallScore = 'E';
-    results.complianceLevel = 'Problématique';
-  } else {
-    results.overallScore = 'F';
-    results.complianceLevel = 'Critique';
-  }
-  
+  // Set only numeric score - NO letter grades
   results.numericScore = Math.round(rawScore);
   results.scoreBreakdown = {
     baseScore,

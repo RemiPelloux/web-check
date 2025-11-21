@@ -1,5 +1,5 @@
 import jwt from 'jsonwebtoken';
-import { findUserById, addAuditLog, getFailedLoginAttempts } from '../../database/db.js';
+import { findUserById, addAuditLog, getFailedLoginAttempts, findDPDUserByIP } from '../../database/db.js';
 
 // JWT secret key - In production, use environment variable
 const JWT_SECRET = process.env.JWT_SECRET || 'apdp-checkit-secret-key-change-in-production';
@@ -52,6 +52,11 @@ const extractToken = (req) => {
  * @returns {string} Client IP address
  */
 export const getClientIp = (req) => {
+  // Development mode: use configured IP
+  if (process.env.NODE_ENV === 'development' && process.env.DEV_PUBLIC_IP) {
+    return process.env.DEV_PUBLIC_IP;
+  }
+  
   return req.headers['x-forwarded-for']?.split(',')[0]?.trim() ||
          req.headers['x-real-ip'] ||
          req.connection?.remoteAddress ||
@@ -73,6 +78,60 @@ const checkIpRestrictions = (clientIp, restrictions) => {
   
   const allowedIps = restrictions.split(',').map(ip => ip.trim());
   return allowedIps.includes(clientIp);
+};
+
+/**
+ * IP-based auto-authentication middleware for DPD users
+ * Checks if client IP matches any DPD user's whitelist and auto-generates token
+ */
+export const ipAutoAuthMiddleware = async (req, res, next) => {
+  try {
+    const clientIp = getClientIp(req);
+    
+    // Try to find DPD user by IP
+    const dpdUser = findDPDUserByIP(clientIp);
+    
+    if (!dpdUser) {
+      return res.status(403).json({
+        success: false,
+        error: 'Accès refusé',
+        message: `Votre adresse IP (${clientIp}) n'est pas autorisée. Veuillez contacter l'administrateur APDP.`,
+        clientIp
+      });
+    }
+    
+    // Generate JWT token for auto-authenticated user
+    const token = generateToken({
+      id: dpdUser.id,
+      username: dpdUser.username,
+      role: dpdUser.role
+    });
+    
+    // Log successful auto-authentication
+    addAuditLog(dpdUser.id, 'IP_AUTO_AUTH', `Auto-authenticated via IP: ${clientIp}`, clientIp);
+    
+    return res.json({
+      success: true,
+      token,
+      user: {
+        id: dpdUser.id,
+        username: dpdUser.username,
+        role: dpdUser.role,
+        company: dpdUser.company,
+        allowedUrls: dpdUser.allowed_urls,
+        urlRestrictionMode: dpdUser.url_restriction_mode
+      },
+      message: 'Authentification automatique réussie'
+    });
+    
+  } catch (error) {
+    console.error('IP auto-auth error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Erreur serveur',
+      message: 'Une erreur est survenue lors de l\'authentification automatique'
+    });
+  }
 };
 
 /**
@@ -231,6 +290,7 @@ export const pluginAccessMiddleware = (disabledPluginsList) => {
 export default {
   authMiddleware,
   adminOnlyMiddleware,
+  ipAutoAuthMiddleware,
   generateToken,
   verifyToken,
   getClientIp,

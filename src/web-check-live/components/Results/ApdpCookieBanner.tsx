@@ -51,7 +51,7 @@ const ApdpCookieBanner = (props: { data: any, title: string, actionButtons: any 
         <Row lbl="Solution" val={data.detectedLibrary} />
       )}
       
-      <Row lbl="Conformité APDP" val={<Badge type={data.compliance?.level || 'Non conforme'}>{data.compliance?.level || 'Non conforme'}</Badge>} />
+      <Row lbl="Conformité Loi 1.565" val={<Badge type={data.compliance?.level || 'Non conforme'}>{data.compliance?.level || 'Non conforme'}</Badge>} />
       
       {data.features && (
         <>

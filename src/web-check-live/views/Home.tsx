@@ -110,15 +110,98 @@ const SiteFeaturesWrapper = styled(StyledCard)`
   }
 `;
 
+const URLCardsGrid = styled.div`
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 16px;
+  margin: 24px 0;
+`;
+
+const URLCard = styled.div`
+  background: ${colors.backgroundLighter};
+  border: 2px solid ${colors.borderColor};
+  border-radius: 12px;
+  padding: 24px;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  
+  &:hover {
+    border-color: ${colors.primary};
+    box-shadow: 0 8px 20px rgba(220, 38, 38, 0.2);
+    transform: translateY(-4px);
+    background: ${colors.background};
+  }
+  
+  .url-icon {
+    width: 48px;
+    height: 48px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    background: ${colors.background};
+    border-radius: 8px;
+    padding: 8px;
+    
+    img {
+      width: 32px;
+      height: 32px;
+    }
+  }
+  
+  .url-text {
+    font-size: 15px;
+    font-weight: 600;
+    color: ${colors.textColor};
+    word-break: break-word;
+    margin-bottom: 12px;
+    line-height: 1.4;
+  }
+  
+  .url-action {
+    font-size: 13px;
+    color: ${colors.primary};
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+`;
+
 const Home = (): JSX.Element => {
   const defaultPlaceholder = 'e.g. https://duck.com/';
   const [userInput, setUserInput] = useState('');
   const [errorMsg, setErrMsg] = useState('');
   const [placeholder] = useState(defaultPlaceholder);
   const [inputDisabled] = useState(false);
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const [allowedUrls, setAllowedUrls] = useState<string[]>([]);
   const navigate = useNavigate();
 
   const location = useLocation();
+
+  // Load user profile and allowed URLs
+  useEffect(() => {
+    const profileData = localStorage.getItem('checkitUser');
+    if (profileData) {
+      try {
+        const profile = JSON.parse(profileData);
+        setUserProfile(profile);
+        
+        // Load allowed URLs for DPD users
+        if (profile.role === 'DPD' && profile.allowedUrls) {
+          const urls = profile.allowedUrls.split(',').map((url: string) => url.trim()).filter((url: string) => url);
+          setAllowedUrls(urls);
+        }
+      } catch (e) {
+        console.error('Error loading user profile:', e);
+      }
+    }
+  }, []);
 
   /* Redirect strait to results, if somehow we land on /check?url=[] */
   useEffect(() => {
@@ -244,42 +327,82 @@ const Home = (): JSX.Element => {
                 fontWeight: '600',
                 margin: '0'
               }}>
-                Analyse de Conformité APDP
+                Analyse de Conformité Loi 1.565
               </Heading>
             </div>
           </div>
           
-          <div style={{ marginBottom: '16px' }}>
-            <Input
-              id="user-input"
-              value={userInput}
-              label=""
-              size="large"
-              orientation="vertical"
-              name="url"
-              placeholder="URL du site à analyser (ex: visitmonaco.com)"
-              disabled={inputDisabled}
-              handleChange={inputChange}
-              handleKeyDown={handleKeyPress}
-            />
-          </div>
-          { errorMsg && <ErrorMessage style={{
-            color: colors.error,
-            fontSize: '14px',
-            backgroundColor: '#fef2f2',
-            border: '1px solid #fecaca',
-            borderRadius: '4px',
-            padding: '12px',
-            margin: '0 0 16px 0'
-          }}>{errorMsg}</ErrorMessage>}
-          <Button 
-            type="submit" 
-            styles="width: 100%; height: 48px; font-size: 16px; font-weight: 500;" 
-            size="large" 
-            onClick={submit}
-          >
-            Analyser
-          </Button>
+          {userProfile?.role === 'DPD' && allowedUrls.length > 0 ? (
+            // Show URL cards for DPD users
+            <div>
+              <p style={{ 
+                fontSize: '14px', 
+                color: colors.textColorSecondary, 
+                marginBottom: '16px',
+                textAlign: 'center'
+              }}>
+                Cliquez sur un site pour l'analyser
+              </p>
+              <URLCardsGrid>
+                {allowedUrls.map((url, index) => (
+                  <URLCard 
+                    key={index} 
+                    onClick={() => {
+                      const fullUrl = url.startsWith('http') ? url : `https://${url}`;
+                      navigate(`/check/${encodeURIComponent(fullUrl)}`);
+                    }}
+                  >
+                    <div className="url-icon">
+                      <img 
+                        src={`https://www.google.com/s2/favicons?domain=${url}&sz=64`} 
+                        alt=""
+                        style={{ width: '32px', height: '32px', display: 'none' }}
+                        onLoad={(e) => { (e.target as HTMLImageElement).style.display = 'block'; }}
+                        onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                      />
+                    </div>
+                    <div className="url-text">{url.replace(/^https?:\/\//, '').replace(/\/$/, '')}</div>
+                    <div className="url-action">Analyser →</div>
+                  </URLCard>
+                ))}
+              </URLCardsGrid>
+            </div>
+          ) : (
+            // Show input for APDP users
+            <>
+              <div style={{ marginBottom: '16px' }}>
+                <Input
+                  id="user-input"
+                  value={userInput}
+                  label=""
+                  size="large"
+                  orientation="vertical"
+                  name="url"
+                  placeholder="URL du site à analyser (ex: visitmonaco.com)"
+                  disabled={inputDisabled}
+                  handleChange={inputChange}
+                  handleKeyDown={handleKeyPress}
+                />
+              </div>
+              { errorMsg && <ErrorMessage style={{
+                color: colors.error,
+                fontSize: '14px',
+                backgroundColor: '#fef2f2',
+                border: '1px solid #fecaca',
+                borderRadius: '4px',
+                padding: '12px',
+                margin: '0 0 16px 0'
+              }}>{errorMsg}</ErrorMessage>}
+              <Button 
+                type="submit" 
+                styles="width: 100%; height: 48px; font-size: 16px; font-weight: 500;" 
+                size="large" 
+                onClick={submit}
+              >
+                Analyser
+              </Button>
+            </>
+          )}
         </UserInputMain>
         
         <SiteFeaturesWrapper>

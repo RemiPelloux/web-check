@@ -43,6 +43,15 @@ const ViewerToggle = styled.div`
 
 const ViewRaw = (props: { everything: { id: string, result: any}[] }) => {
   const [showViewer, setShowViewer] = useState<boolean>(false);
+  
+  // Check if user is DPD
+  const userProfile = localStorage.getItem('checkitUser');
+  const isDPD = userProfile ? JSON.parse(userProfile).role === 'DPD' : false;
+  
+  // Don't render for DPD users
+  if (isDPD) {
+    return null;
+  }
 
   const makeResults = () => {
     const result: {[key: string]: any} = {};

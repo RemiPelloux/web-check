@@ -12,6 +12,7 @@ interface User {
   ip_restrictions: string;
   url_restriction_mode: string;
   allowed_urls: string;
+  company?: string;
 }
 
 interface UserModalProps {
@@ -233,10 +234,11 @@ const UserModal = ({ user, onClose }: UserModalProps): JSX.Element => {
   const [username, setUsername] = useState(user?.username || '');
   const [password, setPassword] = useState('');
   const [role, setRole] = useState<'APDP' | 'DPD'>(user?.role as 'APDP' | 'DPD' || 'DPD');
+  const [company, setCompany] = useState(user?.company || '');
   const [ipRestrictions, setIpRestrictions] = useState(user?.ip_restrictions || '');
   const [enableIpRestrictions, setEnableIpRestrictions] = useState(!!user?.ip_restrictions);
   const [urlRestrictionMode, setUrlRestrictionMode] = useState<'ALL' | 'RESTRICTED'>(
-    user?.url_restriction_mode as 'ALL' | 'RESTRICTED' || 'ALL'
+    user?.url_restriction_mode as 'ALL' | 'RESTRICTED' || 'RESTRICTED'
   );
   const [allowedUrls, setAllowedUrls] = useState(user?.allowed_urls || '');
   const [loading, setLoading] = useState(false);
@@ -255,7 +257,27 @@ const UserModal = ({ user, onClose }: UserModalProps): JSX.Element => {
     setLoading(true);
 
     const action = user ? 'Mise à jour' : 'Création';
-    const toastId = toast.loading(`${action} de "${username}"...`, {
+    
+    // For DPD users, auto-generate username from company if creating new user
+    let finalUsername = username;
+    let finalPassword = password;
+    
+    if (!user && role === 'DPD') {
+      // Auto-generate username from company name
+      const companySlug = company.toLowerCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // Remove accents
+        .replace(/[^a-z0-9\s]/g, '') // Remove special chars
+        .replace(/\s+/g, '-') // Replace spaces with hyphens
+        .substring(0, 30); // Limit length
+      
+      const timestamp = Date.now().toString().slice(-6);
+      finalUsername = `dpd-${companySlug}-${timestamp}`;
+      
+      // Auto-generate random password (won't be used but required in DB)
+      finalPassword = Math.random().toString(36).slice(-16) + Math.random().toString(36).slice(-16);
+    }
+    
+    const toastId = toast.loading(`${action} de "${role === 'DPD' ? company : username}"...`, {
       position: 'bottom-right',
       theme: 'dark',
     });
@@ -267,16 +289,17 @@ const UserModal = ({ user, onClose }: UserModalProps): JSX.Element => {
         : `${API_BASE_URL}/admin/users`;
       
       const body: any = {
-        username,
+        username: finalUsername,
         role,
-        ipRestrictions: enableIpRestrictions ? ipRestrictions : '',
-        urlRestrictionMode,
-        allowedUrls: urlRestrictionMode === 'RESTRICTED' ? allowedUrls : ''
+        company,
+        ipRestrictions: (role === 'DPD' || enableIpRestrictions) ? ipRestrictions : '',
+        urlRestrictionMode: role === 'DPD' ? 'RESTRICTED' : urlRestrictionMode,
+        allowedUrls: role === 'DPD' ? allowedUrls : (urlRestrictionMode === 'RESTRICTED' ? allowedUrls : '')
       };
 
-      // Only include password if it's provided
-      if (password) {
-        body.password = password;
+      // Only include password if it's provided or auto-generated for DPD
+      if (finalPassword) {
+        body.password = finalPassword;
       }
 
       const response = await fetch(url, {
@@ -295,8 +318,8 @@ const UserModal = ({ user, onClose }: UserModalProps): JSX.Element => {
 
       toast.update(toastId, {
         render: user 
-          ? `Utilisateur "${username}" mis à jour avec succès`
-          : `Utilisateur "${username}" créé avec succès`,
+          ? `Utilisateur "${role === 'DPD' ? company : username}" mis à jour avec succès`
+          : `Utilisateur "${role === 'DPD' ? company : username}" créé avec succès`,
         type: 'success',
         isLoading: false,
         autoClose: 3000,
@@ -330,46 +353,6 @@ const UserModal = ({ user, onClose }: UserModalProps): JSX.Element => {
 
         <Form onSubmit={handleSubmit}>
           <FormGroup>
-            <Label htmlFor="username">Nom d'utilisateur *</Label>
-            <Input
-              id="username"
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="utilisateur@example.mc"
-              required
-              disabled={loading}
-            />
-            <HelpText>Format recommandé : email@domaine.mc</HelpText>
-          </FormGroup>
-
-          <FormGroup>
-            <Label htmlFor="password">
-              Mot de passe {user ? '(laisser vide pour ne pas changer)' : role === 'DPD' ? '(optionnel pour DPD)' : '*'}
-            </Label>
-            <div style={{ display: 'flex', gap: '8px' }}>
-              <Input
-                id="password"
-                type="text"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
-                placeholder="Entrez un mot de passe sécurisé"
-                required={!user && role === 'APDP'}
-                disabled={loading}
-                style={{ flex: 1 }}
-              />
-              <GenerateButton type="button" onClick={generatePassword}>
-                🎲 Générer
-              </GenerateButton>
-            </div>
-            <HelpText>
-              {role === 'DPD' 
-                ? 'Les DPD n\'ont pas besoin de mot de passe (connexion par IP uniquement)'
-                : 'Minimum 8 caractères recommandés pour les administrateurs APDP'}
-            </HelpText>
-          </FormGroup>
-
-          <FormGroup>
             <Label htmlFor="role">Rôle *</Label>
             <Select
               id="role"
@@ -382,68 +365,133 @@ const UserModal = ({ user, onClose }: UserModalProps): JSX.Element => {
             </Select>
           </FormGroup>
 
-          <FormGroup>
-            <CheckboxWrapper>
-              <Checkbox
-                type="checkbox"
-                checked={enableIpRestrictions}
-                onChange={(e) => setEnableIpRestrictions(e.target.checked)}
-                disabled={loading}
-              />
-              <span>Activer les restrictions IP</span>
-            </CheckboxWrapper>
-          </FormGroup>
-
-          {enableIpRestrictions && (
-            <FormGroup>
-              <Label htmlFor="ipRestrictions">Adresses IP autorisées</Label>
-              <Textarea
-                id="ipRestrictions"
-                value={ipRestrictions}
-                onChange={(e) => setIpRestrictions(e.target.value)}
-                placeholder="192.168.1.1, 10.0.0.1"
-                disabled={loading}
-              />
-              <HelpText>
-                Séparez les adresses IP par des virgules. L'utilisateur ne pourra se connecter
-                que depuis ces adresses.
-              </HelpText>
-            </FormGroup>
-          )}
-
-          {role === 'DPD' && (
+          {role === 'DPD' ? (
+            // Simplified form for DPD users: company, IP, URLs only
             <>
               <FormGroup>
-                <Label htmlFor="urlRestrictionMode">Restriction des URLs</Label>
-                <Select
-                  id="urlRestrictionMode"
-                  value={urlRestrictionMode}
-                  onChange={(e) => setUrlRestrictionMode(e.target.value as 'ALL' | 'RESTRICTED')}
+                <Label htmlFor="company">Nom de la société *</Label>
+                <Input
+                  id="company"
+                  type="text"
+                  value={company}
+                  onChange={(e) => setCompany(e.target.value)}
+                  placeholder="Société de Monaco"
+                  required
                   disabled={loading}
-                >
-                  <option value="ALL">Toutes les URLs (aucune restriction)</option>
-                  <option value="RESTRICTED">URLs spécifiques uniquement</option>
-                </Select>
+                />
+                <HelpText>Nom de l'entreprise ou organisation du DPD</HelpText>
+              </FormGroup>
+
+              <FormGroup>
+                <Label htmlFor="ipRestrictions">Adresses IP autorisées *</Label>
+                <Textarea
+                  id="ipRestrictions"
+                  value={ipRestrictions}
+                  onChange={(e) => setIpRestrictions(e.target.value)}
+                  placeholder="192.168.1.1, 10.0.0.1, 172.16.0.1"
+                  required
+                  disabled={loading}
+                  rows={3}
+                />
                 <HelpText>
-                  Contrôlez quels sites web le DPD peut analyser
+                  Séparez les adresses IP par des virgules. Le DPD pourra se connecter uniquement depuis ces adresses.
                 </HelpText>
               </FormGroup>
 
-              {urlRestrictionMode === 'RESTRICTED' && (
-                <FormGroup>
-                  <Label htmlFor="allowedUrls">URLs autorisées *</Label>
-                  <Textarea
-                    id="allowedUrls"
-                    value={allowedUrls}
-                    onChange={(e) => setAllowedUrls(e.target.value)}
-                    placeholder="example.com, monsite.fr, autresite.mc"
-                    required={urlRestrictionMode === 'RESTRICTED'}
+              <FormGroup>
+                <Label htmlFor="allowedUrls">URLs autorisées *</Label>
+                <Textarea
+                  id="allowedUrls"
+                  value={allowedUrls}
+                  onChange={(e) => setAllowedUrls(e.target.value)}
+                  placeholder="example.com, monsite.fr, autresite.mc"
+                  required
+                  disabled={loading}
+                  rows={4}
+                />
+                <HelpText>
+                  Séparez les URLs par des virgules. Le DPD pourra uniquement analyser ces sites.
+                  Exemple: example.com, monsite.fr
+                </HelpText>
+              </FormGroup>
+
+              <HelpText style={{ 
+                padding: '12px 16px', 
+                background: 'rgba(59, 130, 246, 0.1)', 
+                borderRadius: '8px',
+                border: '1px solid rgba(59, 130, 246, 0.2)',
+                color: colors.textColor
+              }}>
+                ℹ️ <strong>Note:</strong> Un nom d'utilisateur et un mot de passe seront générés automatiquement. 
+                Le DPD n'aura pas besoin de les utiliser (connexion automatique par IP).
+              </HelpText>
+            </>
+          ) : (
+            // Full form for APDP administrators
+            <>
+              <FormGroup>
+                <Label htmlFor="username">Nom d'utilisateur *</Label>
+                <Input
+                  id="username"
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)}
+                  placeholder="utilisateur@example.mc"
+                  required
+                  disabled={loading}
+                />
+                <HelpText>Format recommandé : email@domaine.mc</HelpText>
+              </FormGroup>
+
+              <FormGroup>
+                <Label htmlFor="password">
+                  Mot de passe {user ? '(laisser vide pour ne pas changer)' : '*'}
+                </Label>
+                <div style={{ display: 'flex', gap: '8px' }}>
+                  <Input
+                    id="password"
+                    type="text"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="Entrez un mot de passe sécurisé"
+                    required={!user && role === 'APDP'}
                     disabled={loading}
-                    rows={4}
+                    style={{ flex: 1 }}
+                  />
+                  <GenerateButton type="button" onClick={generatePassword}>
+                    🎲 Générer
+                  </GenerateButton>
+                </div>
+                <HelpText>
+                  Minimum 8 caractères recommandés pour les administrateurs APDP
+                </HelpText>
+              </FormGroup>
+
+              <FormGroup>
+                <CheckboxWrapper>
+                  <Checkbox
+                    type="checkbox"
+                    checked={enableIpRestrictions}
+                    onChange={(e) => setEnableIpRestrictions(e.target.checked)}
+                    disabled={loading}
+                  />
+                  <span>Activer les restrictions IP</span>
+                </CheckboxWrapper>
+              </FormGroup>
+
+              {enableIpRestrictions && (
+                <FormGroup>
+                  <Label htmlFor="ipRestrictions">Adresses IP autorisées</Label>
+                  <Textarea
+                    id="ipRestrictions"
+                    value={ipRestrictions}
+                    onChange={(e) => setIpRestrictions(e.target.value)}
+                    placeholder="192.168.1.1, 10.0.0.1"
+                    disabled={loading}
                   />
                   <HelpText>
-                    Séparez les URLs par des virgules. Le DPD pourra uniquement analyser ces sites.
-                    Exemple: example.com, monsite.fr
+                    Séparez les adresses IP par des virgules. L'utilisateur ne pourra se connecter
+                    que depuis ces adresses.
                   </HelpText>
                 </FormGroup>
               )}

@@ -7,7 +7,7 @@ const API_BASE_URL = import.meta.env.PUBLIC_API_ENDPOINT || '/api';
 
 // Plugin list with French translations
 const PLUGINS = [
-  { id: 'apdp-compliance', name: 'Conformité APDP', category: 'Conformité' },
+  { id: 'apdp-compliance', name: 'Conformité Loi 1.565', category: 'Conformité' },
   { id: 'vulnerabilities', name: 'Vulnérabilités', category: 'Sécurité' },
   { id: 'cdn-resources', name: 'Ressources CDN', category: 'Performance' },
   { id: 'get-ip', name: 'Adresse IP', category: 'Réseau' },
@@ -50,7 +50,6 @@ const PLUGINS = [
   { id: 'apdp-cookie-banner', name: 'Bannière Cookies APDP', category: 'Conformité' },
   { id: 'apdp-privacy-policy', name: 'Politique de Confidentialité APDP', category: 'Conformité' },
   { id: 'apdp-legal-notices', name: 'Mentions Légales APDP', category: 'Conformité' },
-  { id: 'apdp-user-rights', name: 'Droits Utilisateurs APDP', category: 'Conformité' },
 ] as const;
 
 // Group plugins by category

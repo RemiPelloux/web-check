@@ -63,7 +63,6 @@ const PATTERNS = {
   // Code & Version Control
   'GitHub Token': /(ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9_]{36}/gm,
   'GitLab Token': /glpat-[a-zA-Z0-9]{20}/gm,
-  'Heroku API Key': /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/gm,
   'Vercel API Key': /vercel_mk_[a-zA-Z0-9]{32}/gm,
   'DigitalOcean API Key': /do_api_key_[a-zA-Z0-9]{32}/gm,
   'Cloudflare API Key': /cf_api_key_[a-zA-Z0-9]{32}/gm,

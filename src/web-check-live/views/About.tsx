@@ -151,7 +151,7 @@ const howToUse = [
   "Entrez l'URL complète du site web que vous souhaitez analyser (exemple: https://monsite.com)",
   "Cliquez sur le bouton 'Analyser' pour lancer l'audit de conformité",
   "Patientez pendant que notre système effectue l'ensemble des vérifications (généralement 15-30 secondes)",
-  "Consultez les résultats organisés par catégories : Conformité APDP, Sécurité, Performance, SEO, etc.",
+  "Consultez les résultats organisés par catégories : Conformité Loi 1.565, Sécurité, Performance, SEO, etc.",
   "Cliquez sur chaque section pour voir les détails complets de l'analyse",
   "Utilisez les recommandations pour améliorer la conformité de votre site",
   "Exportez ou partagez les résultats avec votre équipe",
@@ -181,7 +181,7 @@ const understandingResults = {
     {
       title: "Types d'Analyses",
       items: [
-        "Conformité APDP : Cookies, bannières, politiques de confidentialité, droits des utilisateurs",
+        "Conformité Loi 1.565 : Cookies, bannières, politiques de confidentialité, droits des utilisateurs",
         "Sécurité : SSL/TLS, en-têtes HTTP, certificats, pare-feu, ports ouverts",
         "Performance : Vitesse de chargement, métriques Core Web Vitals, optimisation",
         "SEO : Balises meta, sitemap, robots.txt, structure du contenu",

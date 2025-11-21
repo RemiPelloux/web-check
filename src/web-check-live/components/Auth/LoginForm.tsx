@@ -267,16 +267,108 @@ const LoginForm = ({ onLoginSuccess }: LoginFormProps) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
+  // Periodic IP validation for DPD users (every 5 minutes)
+  useEffect(() => {
+    const validateIPPeriodically = async () => {
+      const userRole = localStorage.getItem('checkitUserRole');
+      const authToken = localStorage.getItem('checkitAuthToken');
+      
+      // Only validate for DPD users who are logged in
+      if (userRole === 'DPD' && authToken) {
+        try {
+          const response = await fetch(`${API_BASE_URL}/auth/ip-auto`, {
+            method: 'GET',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          });
+          
+          if (!response.ok) {
+            // IP no longer valid - logout
+            console.log('IP validation failed - logging out');
+            localStorage.clear();
+            window.location.href = '/login';
+          }
+        } catch (error) {
+          console.error('IP validation error:', error);
+        }
+      }
+    };
+    
+    // Check immediately on mount
+    validateIPPeriodically();
+    
+    // Then check every 5 minutes
+    const intervalId = setInterval(validateIPPeriodically, 5 * 60 * 1000);
+    
+    return () => clearInterval(intervalId);
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
     setLoading(true);
 
     try {
+      // For DPD users, use IP-based auto-authentication
+      if (userType === 'DPD') {
+        const response = await fetch(`${API_BASE_URL}/auth/ip-auto`, {
+          method: 'GET',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          if (response.status === 403) {
+            setError(data.message || `Votre adresse IP n'est pas autorisée. Veuillez contacter l'administrateur APDP.`);
+            if (data.clientIp) {
+              setError(`Votre adresse IP (${data.clientIp}) n'est pas autorisée. Veuillez contacter l'administrateur APDP.`);
+            }
+          } else {
+            setError(data.message || 'Une erreur est survenue lors de l\'authentification automatique');
+          }
+          setLoading(false);
+          return;
+        }
+
+        // Store authentication data
+        const loginTimestamp = Date.now();
+        const expiryTime = loginTimestamp + (24 * 60 * 60 * 1000); // 24 hours
+        
+        localStorage.setItem('checkitAuthToken', data.token);
+        localStorage.setItem('checkitUser', JSON.stringify(data.user));
+        localStorage.setItem('checkitUsername', data.user.username);
+        localStorage.setItem('checkitUserRole', data.user.role);
+        localStorage.setItem('checkitLoginTime', loginTimestamp.toString());
+        localStorage.setItem('checkitSessionExpiry', expiryTime.toString());
+        
+        if (data.user.allowedUrls) {
+          localStorage.setItem('checkitAllowedUrls', data.user.allowedUrls);
+        }
+        if (data.user.urlRestrictionMode) {
+          localStorage.setItem('checkitUrlRestrictionMode', data.user.urlRestrictionMode);
+        }
+        if (data.user.company) {
+          localStorage.setItem('checkitCompany', data.user.company);
+        }
+
+        setLoading(false);
+        
+        if (onLoginSuccess) {
+          onLoginSuccess();
+        } else {
+          window.location.href = '/check';
+        }
+        return;
+      }
+
+      // For APDP users, use traditional username/password login
       const body: any = { username };
       
-      // Only send password for APDP users
-      if (userType === 'APDP' && password) {
+      if (password) {
         body.password = password;
       }
 
@@ -358,19 +450,22 @@ const LoginForm = ({ onLoginSuccess }: LoginFormProps) => {
             </Select>
           </FormGroup>
 
-          <FormGroup>
-            <Label htmlFor="username">Nom d'utilisateur</Label>
-            <Input
-              id="username"
-              type="text"
-              value={username}
-              onChange={(e) => setUsername(e.target.value)}
-              placeholder="Entrez votre nom d'utilisateur"
-              required
-              autoComplete="username"
-              disabled={loading}
-            />
-          </FormGroup>
+          {/* Username field - only shown for APDP users */}
+          {userType === 'APDP' && (
+            <FormGroup>
+              <Label htmlFor="username">Nom d'utilisateur</Label>
+              <Input
+                id="username"
+                type="text"
+                value={username}
+                onChange={(e) => setUsername(e.target.value)}
+                placeholder="Entrez votre nom d'utilisateur"
+                required
+                autoComplete="username"
+                disabled={loading}
+              />
+            </FormGroup>
+          )}
 
           {userType === 'APDP' && (
             <FormGroup>
@@ -409,8 +504,9 @@ const LoginForm = ({ onLoginSuccess }: LoginFormProps) => {
                 borderRadius: '8px',
                 border: '1px solid rgba(100, 116, 139, 0.1)'
               }}>
-                ℹ️ Les utilisateurs DPD n'ont pas besoin de mot de passe. 
-                Seule votre adresse IP sera vérifiée si des restrictions sont configurées.
+                ℹ️ Authentification automatique par adresse IP.
+                <br />
+                Cliquez sur "Se connecter" pour vérifier votre autorisation d'accès.
               </InfoText>
             </FormGroup>
           )}

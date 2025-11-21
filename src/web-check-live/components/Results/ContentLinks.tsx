@@ -5,8 +5,10 @@ import colors from 'web-check-live/styles/colors';
 
 const cardStyles = `
   small { margin-top: 1rem; opacity: 0.5; }
-  a {
+  .link-text {
     color: ${colors.textColor};
+    user-select: all;
+    cursor: text;
   }
   details {
     // display: inline;
@@ -55,7 +57,7 @@ const ContentLinksCard = (props: { data: any, title: string, actionButtons: any 
           <summary><Heading as="h3" size="small" color={colors.primary}>Internal Links</Heading></summary>
           {internal.map((link: string) => (
           <Row key={link} lbl="" val="">
-            <a href={link} target="_blank" rel="noreferrer">{getPathName(link)}</a>
+            <span className="link-text">{getPathName(link)}</span>
           </Row>
         ))}
         </details>
@@ -65,7 +67,7 @@ const ContentLinksCard = (props: { data: any, title: string, actionButtons: any 
           <summary><Heading as="h3" size="small" color={colors.primary}>External Links</Heading></summary>
           {external.map((link: string) => (
             <Row key={link} lbl="" val="">
-              <a href={link} target="_blank" rel="noreferrer">{link}</a>
+              <span className="link-text">{link}</span>
             </Row>
           ))}
         </details>

@@ -10,6 +10,7 @@ interface User {
   id: number;
   username: string;
   role: string;
+  company?: string;
   ip_restrictions: string;
   url_restriction_mode: string;
   allowed_urls: string;
@@ -310,7 +311,14 @@ const UserManagement = (): JSX.Element => {
               {users.map(user => (
                 <Tr key={user.id}>
                   <Td>
-                    <Username>{user.username}</Username>
+                    <Username>
+                      {user.role === 'DPD' && user.company ? user.company : user.username}
+                    </Username>
+                    {user.role === 'DPD' && user.company && (
+                      <div style={{ fontSize: '11px', color: colors.textColorSecondary, marginTop: '4px' }}>
+                        {user.username}
+                      </div>
+                    )}
                   </Td>
                   <Td>
                     <RoleBadge role={user.role}>{user.role}</RoleBadge>

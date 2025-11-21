@@ -21,6 +21,7 @@ app.use(express.urlencoded({ extended: true }));
 import {
   authMiddleware,
   adminOnlyMiddleware,
+  ipAutoAuthMiddleware,
   generateToken,
   getClientIp,
   checkLoginRateLimit
@@ -36,7 +37,12 @@ import {
   getDisabledPlugins,
   setDisabledPlugins,
   addAuditLog,
-  recordLoginAttempt
+  recordLoginAttempt,
+  getScanHistory,
+  getAggregateStatistics,
+  recordScan,
+  updateScanStatistics,
+  getAuditLogs
 } from './database/db.js';
 
 const __filename = new URL(import.meta.url).pathname;
@@ -229,6 +235,66 @@ app.post(`${API_DIR}/auth/logout`, authMiddleware, (req, res) => {
   });
 });
 
+/**
+ * GET /api/auth/ip-auto
+ * IP-based auto-authentication for DPD users
+ */
+app.get(`${API_DIR}/auth/ip-auto`, ipAutoAuthMiddleware);
+
+/**
+ * POST /api/audit/scan
+ * Record a scan in the audit history
+ */
+app.post(`${API_DIR}/audit/scan`, authMiddleware, (req, res) => {
+  try {
+    const { url, results } = req.body;
+    
+    if (!url || !results) {
+      return res.status(400).json({
+        success: false,
+        error: 'Données requises',
+        message: 'URL et résultats du scan requis'
+      });
+    }
+    
+    const scanId = recordScan(
+      req.user.id,
+      url,
+      getClientIp(req),
+      results
+    );
+    
+    // Update anonymous statistics
+    updateScanStatistics(
+      req.user.role,
+      results.criticalCount || 0,
+      results.warningCount || 0,
+      results.improvementCount || 0
+    );
+    
+    // Add to audit log
+    addAuditLog(
+      req.user.id,
+      'SCAN_COMPLETED',
+      `Scanned URL (score: ${results.numericScore || 'N/A'})`,
+      getClientIp(req)
+    );
+    
+    return res.json({
+      success: true,
+      scanId,
+      message: 'Scan enregistré avec succès'
+    });
+  } catch (error) {
+    console.error('Record scan error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Erreur serveur',
+      message: 'Impossible d\'enregistrer le scan'
+    });
+  }
+});
+
 // ==================== Admin Routes ====================
 
 /**
@@ -258,23 +324,27 @@ app.get(`${API_DIR}/admin/users`, authMiddleware, adminOnlyMiddleware, (req, res
  */
 app.post(`${API_DIR}/admin/users`, authMiddleware, adminOnlyMiddleware, (req, res) => {
   try {
-    const { username, password, role, ipRestrictions, urlRestrictionMode, allowedUrls } = req.body;
+    const { username, password, role, ipRestrictions, urlRestrictionMode, allowedUrls, company } = req.body;
     
-    if (!username || !password) {
+    if (!username) {
       return res.status(400).json({
         success: false,
         error: 'Données requises',
-        message: 'Nom d\'utilisateur et mot de passe requis'
+        message: 'Nom d\'utilisateur requis'
       });
     }
     
+    // For DPD users, password is optional (auto-generate random one)
+    const finalPassword = password || Math.random().toString(36).slice(-12);
+    
     const newUser = createUser(
       username, 
-      password, 
+      finalPassword, 
       role || 'DPD', 
       ipRestrictions || '',
-      urlRestrictionMode || 'ALL',
-      allowedUrls || ''
+      urlRestrictionMode || 'RESTRICTED',
+      allowedUrls || '',
+      company || ''
     );
     
     addAuditLog(req.user.id, 'CREATE_USER', `Created user: ${username} (${role || 'DPD'})`, getClientIp(req));
@@ -318,6 +388,7 @@ app.put(`${API_DIR}/admin/users/:id`, authMiddleware, adminOnlyMiddleware, (req,
     if (req.body.ipRestrictions !== undefined) updates.ipRestrictions = req.body.ipRestrictions;
     if (req.body.urlRestrictionMode !== undefined) updates.urlRestrictionMode = req.body.urlRestrictionMode;
     if (req.body.allowedUrls !== undefined) updates.allowedUrls = req.body.allowedUrls;
+    if (req.body.company !== undefined) updates.company = req.body.company;
     
     const success = updateUser(userId, updates);
     
@@ -444,6 +515,85 @@ app.put(`${API_DIR}/admin/plugins`, authMiddleware, adminOnlyMiddleware, (req, r
       success: false,
       error: 'Erreur serveur',
       message: 'Impossible de mettre à jour la configuration des plugins'
+    });
+  }
+});
+
+/**
+ * GET /api/admin/statistics
+ * Get anonymous aggregate statistics (APDP only)
+ */
+app.get(`${API_DIR}/admin/statistics`, authMiddleware, adminOnlyMiddleware, (req, res) => {
+  try {
+    const days = parseInt(req.query.days) || 30;
+    const stats = getAggregateStatistics({ days });
+    
+    return res.json({
+      success: true,
+      statistics: stats,
+      period: `${days} days`
+    });
+  } catch (error) {
+    console.error('Get statistics error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Erreur serveur',
+      message: 'Impossible de récupérer les statistiques'
+    });
+  }
+});
+
+/**
+ * GET /api/admin/audit-log
+ * Get full audit log with filters (APDP only)
+ */
+app.get(`${API_DIR}/admin/audit-log`, authMiddleware, adminOnlyMiddleware, (req, res) => {
+  try {
+    const limit = parseInt(req.query.limit) || 100;
+    const logs = getAuditLogs(limit);
+    
+    return res.json({
+      success: true,
+      logs,
+      count: logs.length
+    });
+  } catch (error) {
+    console.error('Get audit log error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Erreur serveur',
+      message: 'Impossible de récupérer le journal d\'audit'
+    });
+  }
+});
+
+/**
+ * GET /api/admin/scan-history
+ * Get scan history with filters (APDP only)
+ */
+app.get(`${API_DIR}/admin/scan-history`, authMiddleware, adminOnlyMiddleware, (req, res) => {
+  try {
+    const filters = {
+      userId: req.query.userId ? parseInt(req.query.userId) : undefined,
+      role: req.query.role,
+      startDate: req.query.startDate,
+      endDate: req.query.endDate,
+      limit: parseInt(req.query.limit) || 100
+    };
+    
+    const history = getScanHistory(filters);
+    
+    return res.json({
+      success: true,
+      history,
+      count: history.length
+    });
+  } catch (error) {
+    console.error('Get scan history error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Erreur serveur',
+      message: 'Impossible de récupérer l\'historique des scans'
     });
   }
 });

@@ -391,7 +391,7 @@ const ComplianceResume: React.FC<ComplianceResumeProps> = ({ data, allResults })
 
           <SiteInfo>
             <SiteTitle>{data.siteName}</SiteTitle>
-            <SiteSubtitle>Rapport de Conformité APDP Monaco</SiteSubtitle>
+            <SiteSubtitle>Rapport de Conformité Loi 1.565 Monaco</SiteSubtitle>
             <QuickStats>
               <StatItem>
                 <StatValue>{data.totalChecks}</StatValue>

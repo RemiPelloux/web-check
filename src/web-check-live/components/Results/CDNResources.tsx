@@ -404,7 +404,7 @@ const CDNResourcesCard: React.FC<CDNResourcesCardProps> = ({ data, title, action
           paddingTop: '12px',
           borderTop: `1px solid ${colors.borderColor}`
         }}>
-          Analyse des performances • Sécurité CDN • Conformité RGPD
+          Analyse des performances • Sécurité CDN • Conformité APDP
         </div>
       </CDNContainer>
     </Card>

@@ -33,15 +33,15 @@ const initDatabase = () => {
  * @param {string} allowedUrls - Comma-separated URLs (only used when urlRestrictionMode = 'RESTRICTED')
  * @returns {object} Created user (without password)
  */
-export const createUser = (username, password, role = 'DPD', ipRestrictions = '', urlRestrictionMode = 'ALL', allowedUrls = '') => {
+export const createUser = (username, password, role = 'DPD', ipRestrictions = '', urlRestrictionMode = 'ALL', allowedUrls = '', company = '') => {
   const passwordHash = bcrypt.hashSync(password, 10);
   
   const stmt = db.prepare(`
-    INSERT INTO users (username, password_hash, role, ip_restrictions, url_restriction_mode, allowed_urls)
-    VALUES (?, ?, ?, ?, ?, ?)
+    INSERT INTO users (username, password_hash, role, ip_restrictions, url_restriction_mode, allowed_urls, company)
+    VALUES (?, ?, ?, ?, ?, ?, ?)
   `);
   
-  const result = stmt.run(username, passwordHash, role, ipRestrictions, urlRestrictionMode, allowedUrls);
+  const result = stmt.run(username, passwordHash, role, ipRestrictions, urlRestrictionMode, allowedUrls, company);
   
   return {
     id: result.lastInsertRowid,
@@ -50,6 +50,7 @@ export const createUser = (username, password, role = 'DPD', ipRestrictions = ''
     ipRestrictions,
     urlRestrictionMode,
     allowedUrls,
+    company,
     createdAt: new Date().toISOString()
   };
 };
@@ -97,7 +98,7 @@ export const verifyUser = (username, password) => {
  * @returns {Array} List of users (without passwords)
  */
 export const getAllUsers = () => {
-  const stmt = db.prepare('SELECT id, username, role, ip_restrictions, url_restriction_mode, allowed_urls, created_at, updated_at FROM users');
+  const stmt = db.prepare('SELECT id, username, role, company, ip_restrictions, url_restriction_mode, allowed_urls, created_at, updated_at FROM users');
   return stmt.all();
 };
 
@@ -134,6 +135,10 @@ export const updateUser = (id, updates) => {
   if (updates.allowedUrls !== undefined) {
     fields.push('allowed_urls = ?');
     values.push(updates.allowedUrls);
+  }
+  if (updates.company !== undefined) {
+    fields.push('company = ?');
+    values.push(updates.company);
   }
   
   fields.push('updated_at = CURRENT_TIMESTAMP');
@@ -274,6 +279,200 @@ export const clearOldLoginAttempts = (days = 7) => {
   stmt.run(days);
 };
 
+// Scan History Functions
+
+/**
+ * Record a scan in history
+ * @param {number} userId - User ID
+ * @param {string} scannedUrl - URL that was scanned
+ * @param {string} ipAddress - IP address of user
+ * @param {object} resultsSummary - Scan results summary object
+ * @returns {number} Insert ID
+ */
+export const recordScan = (userId, scannedUrl, ipAddress, resultsSummary) => {
+  const stmt = db.prepare(`
+    INSERT INTO scan_history (user_id, scanned_url, ip_address, scan_results_summary, critical_count, warning_count, improvement_count, numeric_score)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+  `);
+  
+  const result = stmt.run(
+    userId,
+    scannedUrl,
+    ipAddress,
+    JSON.stringify(resultsSummary),
+    resultsSummary.criticalCount || 0,
+    resultsSummary.warningCount || 0,
+    resultsSummary.improvementCount || 0,
+    resultsSummary.numericScore || 0
+  );
+  
+  return result.lastInsertRowid;
+};
+
+/**
+ * Get scan history with filters
+ * @param {object} filters - Filter options
+ * @returns {Array} List of scan history entries
+ */
+export const getScanHistory = (filters = {}) => {
+  let query = `
+    SELECT h.*, u.username, u.company, u.role
+    FROM scan_history h
+    JOIN users u ON h.user_id = u.id
+    WHERE 1=1
+  `;
+  const params = [];
+  
+  if (filters.userId) {
+    query += ' AND h.user_id = ?';
+    params.push(filters.userId);
+  }
+  
+  if (filters.startDate) {
+    query += ' AND h.timestamp >= ?';
+    params.push(filters.startDate);
+  }
+  
+  if (filters.endDate) {
+    query += ' AND h.timestamp <= ?';
+    params.push(filters.endDate);
+  }
+  
+  if (filters.role) {
+    query += ' AND u.role = ?';
+    params.push(filters.role);
+  }
+  
+  query += ' ORDER BY h.timestamp DESC';
+  
+  if (filters.limit) {
+    query += ' LIMIT ?';
+    params.push(filters.limit);
+  }
+  
+  const stmt = db.prepare(query);
+  return stmt.all(...params);
+};
+
+/**
+ * Update scan statistics (aggregate anonymous data)
+ * @param {string} userRole - User role (APDP or DPD)
+ * @param {number} criticalCount - Critical issues found
+ * @param {number} warningCount - Warnings found
+ * @param {number} improvementCount - Improvements found
+ */
+export const updateScanStatistics = (userRole, criticalCount, warningCount, improvementCount) => {
+  const today = new Date().toISOString().split('T')[0]; // YYYY-MM-DD
+  
+  const stmt = db.prepare(`
+    INSERT INTO scan_statistics (date, user_role, total_scans, total_critical, total_warnings, total_improvements)
+    VALUES (?, ?, 1, ?, ?, ?)
+    ON CONFLICT(date, user_role) DO UPDATE SET
+      total_scans = total_scans + 1,
+      total_critical = total_critical + ?,
+      total_warnings = total_warnings + ?,
+      total_improvements = total_improvements + ?
+  `);
+  
+  stmt.run(today, userRole, criticalCount, warningCount, improvementCount, criticalCount, warningCount, improvementCount);
+};
+
+/**
+ * Get anonymous aggregate statistics
+ * @param {object} options - Query options
+ * @returns {object} Aggregate statistics
+ */
+export const getAggregateStatistics = (options = {}) => {
+  const { startDate, endDate, days = 30 } = options;
+  
+  // Get total counts
+  const totalStmt = db.prepare(`
+    SELECT 
+      SUM(total_scans) as totalScans,
+      SUM(total_critical) as totalCritical,
+      SUM(total_warnings) as totalWarnings,
+      SUM(total_improvements) as totalImprovements
+    FROM scan_statistics
+    WHERE date >= date('now', '-' || ? || ' days')
+  `);
+  const totals = totalStmt.get(days);
+  
+  // Get user counts
+  const userCountStmt = db.prepare(`
+    SELECT role, COUNT(*) as count
+    FROM users
+    GROUP BY role
+  `);
+  const userCounts = userCountStmt.all();
+  
+  // Get scans by role
+  const roleStmt = db.prepare(`
+    SELECT user_role, SUM(total_scans) as scans
+    FROM scan_statistics
+    WHERE date >= date('now', '-' || ? || ' days')
+    GROUP BY user_role
+  `);
+  const scansByRole = roleStmt.all(days);
+  
+  // Get daily scan counts for charts
+  const dailyStmt = db.prepare(`
+    SELECT date, user_role, total_scans, total_critical, total_warnings
+    FROM scan_statistics
+    WHERE date >= date('now', '-' || ? || ' days')
+    ORDER BY date DESC
+  `);
+  const dailyStats = dailyStmt.all(days);
+  
+  return {
+    totals: {
+      scans: totals.totalScans || 0,
+      critical: totals.totalCritical || 0,
+      warnings: totals.totalWarnings || 0,
+      improvements: totals.totalImprovements || 0
+    },
+    userCounts: userCounts.reduce((acc, row) => {
+      acc[row.role] = row.count;
+      return acc;
+    }, {}),
+    scansByRole: scansByRole.reduce((acc, row) => {
+      acc[row.user_role] = row.scans;
+      return acc;
+    }, {}),
+    dailyStats,
+    scansPerUser: userCounts.reduce((acc, row) => {
+      const scans = scansByRole.find(s => s.user_role === row.role)?.scans || 0;
+      acc[row.role] = row.count > 0 ? (scans / row.count).toFixed(2) : 0;
+      return acc;
+    }, {})
+  };
+};
+
+/**
+ * Find DPD user by IP address
+ * @param {string} ipAddress - Client IP address
+ * @returns {object|null} User object or null
+ */
+export const findDPDUserByIP = (ipAddress) => {
+  const stmt = db.prepare(`
+    SELECT * FROM users 
+    WHERE role = 'DPD' 
+    AND ip_restrictions != '' 
+    AND ip_restrictions IS NOT NULL
+  `);
+  
+  const dpdUsers = stmt.all();
+  
+  for (const user of dpdUsers) {
+    const allowedIps = user.ip_restrictions.split(',').map(ip => ip.trim());
+    if (allowedIps.includes(ipAddress)) {
+      const { password_hash, ...userWithoutPassword } = user;
+      return userWithoutPassword;
+    }
+  }
+  
+  return null;
+};
+
 // Export database instance for direct queries if needed
 export { db, initDatabase };
 
@@ -292,6 +491,11 @@ export default {
   recordLoginAttempt,
   getFailedLoginAttempts,
   clearOldLoginAttempts,
+  recordScan,
+  getScanHistory,
+  updateScanStatistics,
+  getAggregateStatistics,
+  findDPDUserByIP,
   initDatabase,
   db
 };

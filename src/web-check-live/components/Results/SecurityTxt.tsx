@@ -44,7 +44,7 @@ const SecurityTxtCard = (props: {data: any, title: string, actionButtons: any })
           if (securityTxt.fields[field].includes('http')) return (
             <Row lbl="" val="" key={`policy-url-row-${index}`}>
               <span className="lbl">{field}</span>
-              <span className="val"><a href={securityTxt.fields[field]}>{getPagePath(securityTxt.fields[field])}</a></span>
+              <span className="val link-text" style={{userSelect: 'all', cursor: 'text'}}>{getPagePath(securityTxt.fields[field])}</span>
             </Row>
           );
           return (

@@ -233,7 +233,6 @@ const jobNames = [
   'apdp-cookie-banner',
   'apdp-privacy-policy',
   'apdp-legal-notices',
-  'apdp-user-rights',
   'exposed-files',
   'subdomain-takeover',
   'lighthouse',

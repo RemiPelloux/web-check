@@ -115,7 +115,7 @@ const ComplianceHelp = ({ section = 'overview' }: ComplianceHelpProps): JSX.Elem
   
   const renderOverview = () => (
     <>
-      <h2>📋 Analyse de Conformité APDP</h2>
+      <h2>📋 Analyse de Conformité Loi 1.565</h2>
       
       <div className="highlight-box info">
         <strong>Outil Professionnel APDP Monaco</strong><br/>

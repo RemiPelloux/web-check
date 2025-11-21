@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, type ReactNode } from 'react';
-import { useParams, useLocation } from 'react-router-dom';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import styled from '@emotion/styled';
 import { ToastContainer } from 'react-toastify';
 import Masonry from 'react-masonry-css'
@@ -67,7 +67,6 @@ import TlsClientSupportCard from 'web-check-live/components/Results/TlsClientSup
 import ApdpCookieBannerCard from 'web-check-live/components/Results/ApdpCookieBanner';
 import ApdpPrivacyPolicyCard from 'web-check-live/components/Results/ApdpPrivacyPolicy';
 import ApdpLegalNoticesCard from 'web-check-live/components/Results/ApdpLegalNotices';
-import ApdpUserRightsCard from 'web-check-live/components/Results/ApdpUserRights';
 import SecretsCard from 'web-check-live/components/Results/Secrets';
 import LinkAuditCard from 'web-check-live/components/Results/LinkAudit';
 import ExposedFilesCard from 'web-check-live/components/Results/ExposedFiles';
@@ -180,6 +179,7 @@ const Results = (props: { address?: string }): JSX.Element => {
   const startTime = new Date().getTime();
 
   const address = props.address || useParams().urlToScan || '';
+  const navigate = useNavigate();
 
   const [addressType, setAddressType] = useState<AddressType>('empt');
 
@@ -190,6 +190,56 @@ const Results = (props: { address?: string }): JSX.Element => {
   const [showFilters, setShowFilters] = useState(false);
   const [searchTerm, setSearchTerm] = useState<string>('');
   const [tags, setTags] = useState<string[]>([]);
+  const [urlBlocked, setUrlBlocked] = useState(false);
+  const [userProfile, setUserProfile] = useState<any>(null);
+  const [allowedUrls, setAllowedUrls] = useState<string[]>([]);
+  const [isCheckingAccess, setIsCheckingAccess] = useState(true);
+
+  // Check URL restrictions for DPD users
+  useEffect(() => {
+    const checkUrlAccess = async () => {
+      const token = localStorage.getItem('checkitAuthToken');
+      const userProfileData = localStorage.getItem('checkitUser');
+      
+      if (userProfileData) {
+        try {
+          const profile = JSON.parse(userProfileData);
+          setUserProfile(profile);
+          
+          // Load allowed URLs for DPD users
+          if (profile.role === 'DPD' && profile.allowedUrls) {
+            const urls = profile.allowedUrls.split(',').map((url: string) => url.trim()).filter((url: string) => url);
+            setAllowedUrls(urls);
+          }
+          
+          // Only check for DPD users with an address
+          if (profile.role === 'DPD' && token && address) {
+            const checkResponse = await fetch('/api/check-url', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ url: decodeURIComponent(address) })
+            });
+
+            if (checkResponse.ok) {
+              const checkData = await checkResponse.json();
+              if (!checkData.allowed) {
+                setUrlBlocked(true);
+              }
+            }
+          }
+        } catch (error) {
+          console.error('Error checking URL restrictions:', error);
+        }
+      }
+      
+      setIsCheckingAccess(false);
+    };
+    
+    checkUrlAccess();
+  }, [address]);
 
   // Initialize filtered jobs based on user role and disabled plugins
   useEffect(() => {
@@ -614,13 +664,6 @@ const Results = (props: { address?: string }): JSX.Element => {
     fetchRequest: () => fetch(`${api}/apdp-legal-notices?url=${address}`).then(res => parseJson(res)),
   });
 
-  const [apdpUserRightsResults, updateApdpUserRightsResults] = useMotherHook({
-    jobId: 'apdp-user-rights',
-    updateLoadingJobs,
-    addressInfo: { address, addressType, expectedAddressTypes: urlTypeOnly },
-    fetchRequest: () => fetch(`${api}/apdp-user-rights?url=${address}`).then(res => parseJson(res)),
-  });
-
   // PII & Secrets Scanner
   const [secretsResults, updateSecretsResults] = useMotherHook({
     jobId: 'secrets',
@@ -826,7 +869,7 @@ const Results = (props: { address?: string }): JSX.Element => {
   const resultCardData = [
     {
       id: 'enhanced-compliance-summary',
-      title: 'Résumé de Conformité APDP',
+      title: 'Résumé de Conformité Loi 1.565',
       result: rgpdComplianceResults || calculateBasicCompliance(),
       Component: ProfessionalComplianceDashboard,
       refresh: updateRgpdComplianceResults,
@@ -1188,14 +1231,6 @@ const Results = (props: { address?: string }): JSX.Element => {
       refresh: updateApdpLegalNoticesResults,
       tags: ['compliance', 'apdp'],
       priority: 1,
-    }, {
-      id: 'apdp-user-rights',
-      title: 'Droits Utilisateurs APDP',
-      result: apdpUserRightsResults,
-      Component: ApdpUserRightsCard,
-      refresh: updateApdpUserRightsResults,
-      tags: ['compliance', 'apdp'],
-      priority: 1,
     },
   ];
 
@@ -1222,52 +1257,153 @@ const Results = (props: { address?: string }): JSX.Element => {
   return (
     <ResultsOuter>
       <Header />
-      <Nav>
-        {address &&
-          <Heading color={colors.textColor} size="medium">
-            {addressType === 'url' && <a target="_blank" rel="noreferrer" href={address}><img width="32px" src={`https://icon.horse/icon/${makeSiteName(address)}`} alt="" /></a>}
-            {makeSiteName(address)}
-          </Heading>
-        }
-      </Nav>
+      
+      {isCheckingAccess ? (
+        <div style={{
+          maxWidth: '800px',
+          margin: '100px auto',
+          padding: '40px',
+          textAlign: 'center'
+        }}>
+          <Loader show={true} />
+        </div>
+      ) : urlBlocked ? (
+        <div style={{
+          maxWidth: '800px',
+          margin: '100px auto',
+          padding: '40px',
+          backgroundColor: colors.backgroundLighter,
+          border: `2px solid ${colors.danger}`,
+          borderRadius: '12px',
+          textAlign: 'center',
+          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+        }}>
+          <div style={{ fontSize: '64px', marginBottom: '20px' }}>🚫</div>
+          <h2 style={{ color: colors.danger, marginBottom: '16px', fontSize: '24px' }}>Accès Non Autorisé</h2>
+          <p style={{ fontSize: '16px', color: colors.textColor, marginBottom: '24px', lineHeight: '1.6' }}>
+            Vous n'êtes pas autorisé à analyser cette URL.<br/>
+            Veuillez contacter votre administrateur APDP pour obtenir l'accès.
+          </p>
+          <a href="/check" style={{
+            display: 'inline-block',
+            padding: '12px 24px',
+            backgroundColor: colors.primary,
+            color: 'white',
+            textDecoration: 'none',
+            borderRadius: '8px',
+            fontWeight: '600',
+            transition: 'transform 0.2s ease, box-shadow 0.2s ease',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
+          }}
+          onMouseOver={(e) => {
+            e.currentTarget.style.transform = 'translateY(-2px)';
+            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
+          }}
+          onMouseOut={(e) => {
+            e.currentTarget.style.transform = 'translateY(0)';
+            e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
+          }}>
+            ← Retour à l'accueil
+          </a>
+        </div>
+      ) : (
+        <>
+          <Nav>
+            {address &&
+              <Heading color={colors.textColor} size="medium">
+                {addressType === 'url' && <a target="_blank" rel="noreferrer" href={address}><img width="32px" src={`https://icon.horse/icon/${makeSiteName(address)}`} alt="" /></a>}
+                {makeSiteName(address)}
+              </Heading>
+            }
+          </Nav>
       <ProgressBar loadStatus={loadingJobs} showModal={showErrorModal} showJobDocs={showInfo} />
       {/* { address?.includes(window?.location?.hostname || 'web-check.xyz') && <SelfScanMsg />} */}
       <Loader show={loadingJobs.filter((job: LoadingJob) => job.state !== 'loading').length < 5} />
-      <FilterButtons>{showFilters ? <>
-        <div className="one-half">
-          <span className="group-label">Filter by</span>
-          {['server', 'client', 'meta'].map((tag: string) => (
-            <button
-              key={tag}
-              className={tags.includes(tag) ? 'selected' : ''}
-              onClick={() => updateTags(tag)}>
-              {tag}
-            </button>
-          ))}
-          {(tags.length > 0 || searchTerm.length > 0) && <span onClick={clearFilters} className="clear">Clear Filters</span>}
-        </div>
-        <div className="one-half">
-          <span className="group-label">Search</span>
-          <input
-            type="text"
-            placeholder="Filter Results"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          <span className="toggle-filters" onClick={() => setShowFilters(false)}>Hide</span>
-        </div>
-      </> : (
-        <div className="control-options">
-          <span className="toggle-filters" onClick={() => setShowFilters(true)}>Show Filters</span>
-          <a href="#view-download-raw-data"><span className="toggle-filters">Export Data</span></a>
-          <a href="/about"><span className="toggle-filters">Learn about the Results</span></a>
-        </div>
+      
+      {/* Show allowed URLs for DPD users */}
+      {userProfile?.role === 'DPD' && allowedUrls.length > 0 && (
+        <FilterButtons>
+          <div className="control-options" style={{ 
+            display: 'flex', 
+            gap: '10px', 
+            flexWrap: 'wrap',
+            alignItems: 'center',
+            padding: '12px 0',
+            justifyContent: 'center'
+          }}>
+            <span style={{ 
+              fontWeight: '600', 
+              color: colors.textColor,
+              fontSize: '14px',
+              marginRight: '8px'
+            }}>
+              Sites autorisés:
+            </span>
+            {allowedUrls.map((url, index) => {
+              const cleanUrl = url.replace(/^https?:\/\//, '').replace(/\/$/, '');
+              const decodedAddress = decodeURIComponent(address).replace(/^https?:\/\//, '').replace(/\/$/, '');
+              const isCurrentUrl = decodedAddress === cleanUrl || decodedAddress.includes(cleanUrl) || cleanUrl.includes(decodedAddress);
+              
+              return (
+                <button
+                  key={index}
+                  onClick={() => {
+                    const fullUrl = url.startsWith('http') ? url : `https://${url}`;
+                    navigate(`/check/${encodeURIComponent(fullUrl)}`);
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '8px',
+                    padding: '10px 18px',
+                    backgroundColor: isCurrentUrl ? colors.primary : 'transparent',
+                    color: isCurrentUrl ? 'white' : colors.textColor,
+                    border: `2px solid ${isCurrentUrl ? colors.primary : colors.textColorFaded}`,
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    fontSize: '14px',
+                    fontWeight: isCurrentUrl ? '600' : '500',
+                    transition: 'all 0.2s ease',
+                    boxShadow: isCurrentUrl ? '0 2px 8px rgba(0,0,0,0.15)' : 'none',
+                    transform: isCurrentUrl ? 'scale(1.02)' : 'scale(1)'
+                  }}
+                  onMouseOver={(e) => {
+                    if (!isCurrentUrl) {
+                      e.currentTarget.style.backgroundColor = colors.primary;
+                      e.currentTarget.style.color = 'white';
+                      e.currentTarget.style.borderColor = colors.primary;
+                      e.currentTarget.style.transform = 'scale(1.02)';
+                      e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.15)';
+                    }
+                  }}
+                  onMouseOut={(e) => {
+                    if (!isCurrentUrl) {
+                      e.currentTarget.style.backgroundColor = 'transparent';
+                      e.currentTarget.style.color = colors.textColor;
+                      e.currentTarget.style.borderColor = colors.textColorFaded;
+                      e.currentTarget.style.transform = 'scale(1)';
+                      e.currentTarget.style.boxShadow = 'none';
+                    }
+                  }}
+                >
+                  <img 
+                    src={`https://www.google.com/s2/favicons?domain=${url}&sz=32`} 
+                    alt=""
+                    style={{ width: '16px', height: '16px', display: 'none' }}
+                    onLoad={(e) => { (e.target as HTMLImageElement).style.display = 'block'; }}
+                    onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                  />
+                  <span>{cleanUrl}</span>
+                </button>
+              );
+            })}
+          </div>
+        </FilterButtons>
       )}
-      </FilterButtons>
 
       {/* Full-width Enhanced Compliance Dashboard */}
       <div style={{ maxWidth: '100%', margin: '0 auto' }}>
-        <ErrorBoundary title="Tableau de Bord de Conformité APDP">
+        <ErrorBoundary title="Tableau de Bord de Conformité Loi 1.565">
           <ProfessionalComplianceDashboard
             allResults={getAllResults()}
             siteName={address || 'Site Web'}
@@ -1335,6 +1471,8 @@ const Results = (props: { address?: string }): JSX.Element => {
       <Footer />
       <Modal isOpen={modalOpen} closeModal={() => setModalOpen(false)}>{modalContent}</Modal>
       <ToastContainer limit={3} draggablePercent={60} autoClose={2500} theme="dark" position="bottom-right" />
+      </>
+      )}
     </ResultsOuter>
   );
 }

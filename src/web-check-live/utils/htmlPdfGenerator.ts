@@ -69,7 +69,7 @@ const generateHTMLReport = (
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rapport de Conformité APDP - ${data.url}</title>
+  <title>Rapport de Conformité Loi 1.565 - ${data.url}</title>
   <style>
     @page {
       margin: 18mm 12mm;
@@ -1229,14 +1229,6 @@ const generateHTMLReport = (
           <span class="cover-info-label">Date d'audit:</span>
           <span class="cover-info-value">${currentDate}</span>
         </div>
-        <div class="cover-info-row">
-          <span class="cover-info-label">Type d'analyse:</span>
-          <span class="cover-info-value">Audit Complet APDP</span>
-        </div>
-        <div class="cover-info-row" style="margin-top: 25px; padding-top: 20px; border-top: 1px solid rgba(255,255,255,0.2);">
-          <span class="cover-info-label">Score de conformité:</span>
-          <span class="cover-info-value" style="font-size: 24pt; font-weight: 700;">${data.numericScore}/100</span>
-        </div>
       </div>
       
       <div class="cover-footer">
@@ -1375,7 +1367,7 @@ const generateHTMLReport = (
       </div>
       
       <!-- APDP Compliance -->
-      <h3 style="font-size: 10pt; color: #DC2626; margin: 15px 0 10px 0; border-bottom: 2px solid #DC2626; padding-bottom: 4px;">📋 CONFORMITÉ APDP/RGPD</h3>
+      <h3 style="font-size: 10pt; color: #DC2626; margin: 15px 0 10px 0; border-bottom: 2px solid #DC2626; padding-bottom: 4px;">📋 CONFORMITÉ APDP</h3>
       <div class="summary-grid" style="grid-template-columns: repeat(4, 1fr); gap: 10px;">
         <div class="summary-card" style="background: ${
           allResults?.['apdp-cookie-banner']?.compliance?.level === 'Conforme' ? '#F0FDF4' : 
@@ -1441,25 +1433,6 @@ const generateHTMLReport = (
             ${allResults['apdp-legal-notices'].requiredInfo.found.length}/${allResults['apdp-legal-notices'].requiredInfo.found.length + allResults['apdp-legal-notices'].requiredInfo.missing.length} infos
           </div>
           ` : ''}
-        </div>
-        <div class="summary-card" style="background: ${
-          allResults?.['apdp-user-rights']?.compliance?.level === 'Conforme' ? '#F0FDF4' : 
-          allResults?.['apdp-user-rights']?.compliance?.level === 'Partiellement conforme' ? '#FFFBEB' : 
-          '#FEF2F2'
-        }; border-left: 3px solid ${
-          allResults?.['apdp-user-rights']?.compliance?.level === 'Conforme' ? '#16A34A' : 
-          allResults?.['apdp-user-rights']?.compliance?.level === 'Partiellement conforme' ? '#F59E0B' : 
-          '#DC2626'
-        }; padding: 12px;">
-          <div style="font-size: 18pt;">${
-            allResults?.['apdp-user-rights']?.compliance?.level === 'Conforme' ? '✅' : 
-            allResults?.['apdp-user-rights']?.compliance?.level === 'Partiellement conforme' ? '⚠️' : 
-            '❌'
-          }</div>
-          <div class="summary-label" style="font-size: 9pt; margin: 5px 0;">Droits Utilisateurs</div>
-          <div style="font-size: 10pt; color: #6B7280;">${allResults?.['apdp-user-rights']?.compliance?.level || 'Non analysés'}</div>
-          ${allResults?.['apdp-user-rights']?.rightsFound ? `<div style="font-size: 10pt; color: #6B7280; margin-top: 2px;">${allResults['apdp-user-rights'].rightsFound}/6 droits détectés</div>` : ''}
-          ${allResults?.['apdp-user-rights']?.compliance?.score ? `<div style="font-size: 10pt; color: #6B7280; margin-top: 2px;">${allResults['apdp-user-rights'].compliance.score}/100</div>` : ''}
         </div>
       </div>
       
@@ -1587,7 +1560,7 @@ const generateHTMLReport = (
         <div style="font-size: 10pt; color: #1E3A8A; line-height: 1.5;">
           <strong>📊 Statistiques de l'audit :</strong> ${Object.keys(allResults || {}).length} modules d'analyse exécutés | 
           ${(allResults?.cookies?.clientCookies?.length || 0) + (allResults?.['cdn-resources']?.externalResources?.length || 0) + (allResults?.['tech-stack']?.analytics?.length || 0)} points de données collectés |
-          Couverture APDP/RGPD complète
+          Couverture APDP complète
         </div>
       </div>
     </div>
@@ -1774,7 +1747,7 @@ const generateHTMLReport = (
         <div style="margin-top: 20px; padding: 15px; background: #F9FAFB; border-radius: 8px;">
           <h3 style="font-size: 10pt; color: #111827; margin-bottom: 10px;">🔍 Points importants vérifiés :</h3>
           <ul style="margin-left: 20px; color: #374151; font-size: 11pt; line-height: 1.8;">
-            <li>Configuration des cookies conforme aux exigences RGPD/APDP</li>
+            <li>Configuration des cookies conforme aux exigences APDP</li>
             <li>Présence et qualité des pages légales (mentions, confidentialité)</li>
             <li>Informations sur les droits des utilisateurs (accès, rectification, effacement)</li>
             <li>Configuration DNS et infrastructure sécurisée</li>
@@ -1859,7 +1832,7 @@ const generateHTMLReport = (
           <h3 style="font-size: 10pt; color: #075985; margin-bottom: 10px;">💡 Bonnes pratiques à maintenir :</h3>
           <ul style="margin-left: 20px; color: #0C4A6E; font-size: 9pt; line-height: 1.8;">
             <li><strong>Revue régulière :</strong> Effectuez des audits de conformité trimestriels</li>
-            <li><strong>Veille juridique :</strong> Restez informé des évolutions réglementaires APDP/RGPD</li>
+            <li><strong>Veille juridique :</strong> Restez informé des évolutions réglementaires APDP</li>
             <li><strong>Formation continue :</strong> Assurez la formation régulière de vos équipes</li>
             <li><strong>Documentation :</strong> Maintenez à jour votre registre des traitements</li>
             <li><strong>Tests de sécurité :</strong> Planifiez des tests d'intrusion annuels</li>
@@ -2136,7 +2109,7 @@ const generateHTMLReport = (
             <div style="font-size: 10pt">MONACO</div>
           </div>
           <div class="header-title">
-            <h1>CONFORMITÉ APDP DÉTAILLÉE</h1>
+            <h1>CONFORMITÉ LOI 1.565 DÉTAILLÉE</h1>
             <p>Protection des données personnelles</p>
           </div>
         </div>
@@ -2207,21 +2180,6 @@ const generateHTMLReport = (
       </div>
       ` : ''}
       
-      ${allResults['apdp-user-rights'] ? `
-      <div class="category-card ${allResults['apdp-user-rights'].compliance?.level === 'Conforme' ? 'good' : allResults['apdp-user-rights'].compliance?.level === 'Partiellement conforme' ? 'warning' : 'critical'}">
-        <div class="category-header">
-          <div class="category-name">👤 Droits des Utilisateurs (RGPD)</div>
-          <div class="category-score">${allResults['apdp-user-rights'].compliance?.score || 0}/100</div>
-        </div>
-        <div style="font-size: 10pt; margin: 8px 0;">
-          ${allResults['apdp-user-rights'].rights?.found?.map((r: any) => `✓ ${r.right}`).join(' | ') || 'Informations sur les droits non trouvées'}
-        </div>
-        <div class="progress-bar">
-          <div class="progress-fill" style="width: ${allResults['apdp-user-rights'].compliance?.score || 0}%"></div>
-        </div>
-      </div>
-      ` : ''}
-      
       ${allResults['carbon-footprint'] ? `
       <h3 style="font-size: 11pt; margin: 20px 0 10px 0; color: #111827; border-bottom: 1px solid #E5E7EB; padding-bottom: 5px;">🌍 Impact Environnemental</h3>
       <div class="info-box" style="background: linear-gradient(135deg, #F0FDF4 0%, #DCFCE7 100%);">
@@ -2248,7 +2206,7 @@ const generateHTMLReport = (
         <div class="footer-content">
           <div class="footer-left"><strong>APDP Monaco</strong> - Autorité de Protection des Données Personnelles</div>
           <div class="footer-center">${currentDate}</div>
-          <div class="footer-right">Conformité APDP</div>
+          <div class="footer-right">Conformité Loi 1.565</div>
         </div>
         <div class="confidential">DOCUMENT CONFIDENTIEL - Ne pas diffuser sans autorisation</div>
       </div>
@@ -2300,9 +2258,6 @@ const generateHTMLReport = (
                   </div>
                   ${tech.description ? `<div style="font-size: 10pt; color: #6B7280; margin-top: 6px; line-height: 1.4;">${tech.description.substring(0, 100)}${tech.description.length > 100 ? '...' : ''}</div>` : ''}
                   ${tech.website ? `<div style="font-size: 10pt; color: #3B82F6; margin-top: 4px;">🌐 ${tech.website}</div>` : ''}
-                  <div style="font-size: 10pt; margin-top: 6px; padding-top: 6px; border-top: 1px solid #E5E7EB;">
-                    <strong>Confiance:</strong> <span style="color: ${tech.confidence >= 80 ? '#059669' : tech.confidence >= 50 ? '#D97706' : '#DC2626'}">${tech.confidence}%</span>
-                  </div>
                 </div>
               `).join('')}
             </div>
@@ -2847,7 +2802,7 @@ const generateHTMLReport = (
           <div style="margin: 6px 0;"><strong>✓</strong> Sécurité SSL/TLS & Certificats</div>
           <div style="margin: 6px 0;"><strong>✓</strong> Configuration DNS complète</div>
           <div style="margin: 6px 0;"><strong>✓</strong> En-têtes HTTP de sécurité</div>
-          <div style="margin: 6px 0;"><strong>✓</strong> Conformité APDP/RGPD</div>
+          <div style="margin: 6px 0;"><strong>✓</strong> Conformité Loi 1.565</div>
           <div style="margin: 6px 0;"><strong>✓</strong> Analyse des cookies</div>
           <div style="margin: 6px 0;"><strong>✓</strong> Technologies & stack technique</div>
           <div style="margin: 6px 0;"><strong>✓</strong> Performance & disponibilité</div>

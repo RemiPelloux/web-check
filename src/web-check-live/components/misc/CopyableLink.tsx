@@ -15,15 +15,12 @@ const LinkContainer = styled.span<{ isCode?: boolean }>`
   gap: 0.5rem;
   position: relative;
   
-  a {
+  .link-text {
     color: ${colors.primary};
     text-decoration: none;
-    &:visited { 
-      opacity: 0.8; 
-    }
-    &:hover {
-      text-decoration: underline;
-    }
+    user-select: all;
+    cursor: text;
+    font-weight: 500;
   }
 
   ${props => props.isCode && `
@@ -99,9 +96,9 @@ const CopyableLink = ({ url, label, showIcon = true, isCode = false }: CopyableL
   return (
     <>
       <LinkContainer isCode={isCode}>
-        <a href={url} target="_blank" rel="noreferrer">
+        <span className="link-text">
           {label || url}
-        </a>
+        </span>
         {showIcon && (
           <CopyButton onClick={handleCopy} title="Copier le lien">
             <svg 

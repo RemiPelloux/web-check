@@ -3,6 +3,7 @@ import styled from '@emotion/styled';
 import colors from 'web-check-live/styles/colors';
 import { EnhancedComplianceAnalyzer } from 'web-check-live/utils/enhancedComplianceAnalyzer';
 import { openComplianceReportHTML } from 'web-check-live/utils/htmlPdfGenerator';
+import SiteFavicon from 'web-check-live/components/misc/SiteFavicon';
 
 interface ProfessionalComplianceDashboardProps {
   allResults: any;
@@ -565,7 +566,7 @@ const ProfessionalComplianceDashboard: React.FC<ProfessionalComplianceDashboardP
         <HeaderContent>
           <HeaderLeft>
             <HeaderTitle>
-              <span style={{ fontSize: '24px', color: '#dc2626' }}>📄</span>
+              <SiteFavicon domain={siteName} size={32} />
               <div>
                 <Title>Rapport d'Audit de Conformité</Title>
                 <Subtitle>Analyse automatisée APDP Monaco</Subtitle>
