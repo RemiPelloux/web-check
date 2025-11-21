@@ -74,33 +74,6 @@ const HeaderRight = styled.div`
   gap: 16px;
 `;
 
-const ScoreCircle = styled.div<{ score: number }>`
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  background: ${({ score }) => 
-    score >= 90 ? '#10b981' :
-    score >= 80 ? '#22c55e' :
-    score >= 70 ? '#f59e0b' :
-    score >= 60 ? '#f97316' :
-    '#dc2626'
-  };
-  color: white;
-  font-size: 18px;
-  font-weight: 700;
-`;
-
-const ScoreLabel = styled.div`
-  text-align: center;
-  margin-top: 8px;
-  font-size: 12px;
-  color: #6b7280;
-  font-weight: 500;
-`;
-
 const ExportButton = styled.button`
   display: flex;
   align-items: center;
@@ -584,12 +557,6 @@ const ProfessionalComplianceDashboard: React.FC<ProfessionalComplianceDashboardP
             </HeaderMeta>
           </HeaderLeft>
           <HeaderRight>
-            <div>
-              <ScoreCircle score={analysis.score}>
-                {analysis.score}
-              </ScoreCircle>
-              <ScoreLabel>Score Global</ScoreLabel>
-            </div>
             <ExportButton onClick={handleViewReport}>
               <span style={{ fontSize: '18px' }}>📄</span>
               Voir le Rapport
