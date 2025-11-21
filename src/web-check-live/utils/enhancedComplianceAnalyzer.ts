@@ -488,8 +488,9 @@ export class EnhancedComplianceAnalyzer {
   private analyzeAPDPCookieBanner(): void {
     const data = this.results['apdp-cookie-banner'];
     
-    // Only show "non analysable" if data is completely missing or has no structure
-    if (!data || (data.error && !data.hasCookieBanner && data.hasCookieBanner !== false)) {
+    // Only show "non analysable" if data is TRULY missing or unanalyzable
+    // If hasCookieBanner is explicitly true or false, analysis succeeded
+    if (!data || (data.hasCookieBanner === undefined && data.hasCookieBanner === null)) {
       this.addIssue({
         type: 'warning',
         severity: 'Attention',
@@ -560,8 +561,9 @@ export class EnhancedComplianceAnalyzer {
   private analyzeAPDPPrivacyPolicy(): void {
     const data = this.results['apdp-privacy-policy'];
     
-    // Only show "non analysable" if data is completely missing or has no structure
-    if (!data || (data.error && !data.hasPrivacyPolicy && data.hasPrivacyPolicy !== false)) {
+    // Only show "non analysable" if data is TRULY missing or unanalyzable
+    // If hasPrivacyPolicy is explicitly true or false, analysis succeeded
+    if (!data || (data.hasPrivacyPolicy === undefined && data.hasPrivacyPolicy === null)) {
       this.addIssue({
         type: 'warning',
         severity: 'Attention',
@@ -626,8 +628,9 @@ export class EnhancedComplianceAnalyzer {
   private analyzeAPDPLegalNotices(): void {
     const data = this.results['apdp-legal-notices'];
     
-    // Only show "non analysable" if data is completely missing or has no structure
-    if (!data || (data.error && !data.hasLegalNotice && data.hasLegalNotice !== false)) {
+    // Only show "non analysable" if data is TRULY missing or unanalyzable
+    // If hasLegalNotice is explicitly true or false, analysis succeeded
+    if (!data || (data.hasLegalNotice === undefined && data.hasLegalNotice === null)) {
       this.addIssue({
         type: 'warning',
         severity: 'Attention',
