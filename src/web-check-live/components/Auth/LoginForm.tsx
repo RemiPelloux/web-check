@@ -276,6 +276,7 @@ const LoginForm = ({ onLoginSuccess }: LoginFormProps) => {
       // Only validate for DPD users who are logged in
       if (userRole === 'DPD' && authToken) {
         try {
+          // Don't log periodic validation checks
           const response = await fetch(`${API_BASE_URL}/auth/ip-auto`, {
             method: 'GET',
             headers: {
@@ -312,7 +313,8 @@ const LoginForm = ({ onLoginSuccess }: LoginFormProps) => {
     try {
       // For DPD users, use IP-based auto-authentication
       if (userType === 'DPD') {
-        const response = await fetch(`${API_BASE_URL}/auth/ip-auto`, {
+        // Add logAuth=true to log this as an actual login attempt
+        const response = await fetch(`${API_BASE_URL}/auth/ip-auto?logAuth=true`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json',

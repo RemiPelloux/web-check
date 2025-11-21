@@ -155,7 +155,8 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://api.openpro.ai/api
     // Auto-authenticate via IP
     async function autoAuthenticate() {
       try {
-        const response = await fetch(`${API_BASE_URL}/auth/ip-auto`, {
+        // Add logAuth=true to log this as an actual login
+        const response = await fetch(`${API_BASE_URL}/auth/ip-auto?logAuth=true`, {
           method: 'GET',
           headers: {
             'Content-Type': 'application/json'

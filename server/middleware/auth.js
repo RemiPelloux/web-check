@@ -83,6 +83,7 @@ const checkIpRestrictions = (clientIp, restrictions) => {
 /**
  * IP-based auto-authentication middleware for DPD users
  * Checks if client IP matches any DPD user's whitelist and auto-generates token
+ * Only logs on first authentication, not on every call
  */
 export const ipAutoAuthMiddleware = async (req, res, next) => {
   try {
@@ -107,8 +108,11 @@ export const ipAutoAuthMiddleware = async (req, res, next) => {
       role: dpdUser.role
     });
     
-    // Log successful auto-authentication
-    addAuditLog(dpdUser.id, 'IP_AUTO_AUTH', `Auto-authenticated via IP: ${clientIp}`, clientIp);
+    // ONLY log if this is a new login (check if 'logAuth' query param is present)
+    // This prevents logging every auto-auth API call
+    if (req.query.logAuth === 'true') {
+      addAuditLog(dpdUser.id, 'IP_AUTO_AUTH', `Auto-authenticated via IP: ${clientIp}`, clientIp);
+    }
     
     return res.json({
       success: true,
