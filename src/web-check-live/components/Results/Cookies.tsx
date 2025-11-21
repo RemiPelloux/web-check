@@ -168,7 +168,7 @@ const CookiesCard = (props: { data: any, title: string, actionButtons: any }): J
       <Card heading={props.title} actionButtons={props.actionButtons}>
         <div style={{ textAlign: 'center', padding: '2rem', color: colors.textColorSecondary }}>
           <span style={{ fontSize: '2rem', display: 'block', marginBottom: '1rem' }}>🍪</span>
-          No cookies detected. This site is clean!
+          Aucun cookie détecté. Ce site est propre !
         </div>
       </Card>
     );

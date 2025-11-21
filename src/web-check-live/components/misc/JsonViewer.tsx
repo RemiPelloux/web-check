@@ -53,7 +53,7 @@ interface JsonViewerProps {
 const JsonViewer: React.FC<JsonViewerProps> = ({ data, initialCollapsed = 2 }) => {
   return (
     <ViewerContainer>
-      <Suspense fallback={<div>Loading JSON viewer...</div>}>
+      <Suspense fallback={<div>Chargement du visualiseur JSON...</div>}>
         <LazyJsonView
           value={data}
           collapsed={initialCollapsed}

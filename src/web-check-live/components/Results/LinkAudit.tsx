@@ -117,7 +117,7 @@ interface LinkAuditData {
 const LinkAuditCard = (props: { data: LinkAuditData }): JSX.Element => {
   const { data } = props;
 
-  if (!data) return <Card heading="Link & Content Auditor">Loading...</Card>;
+  if (!data) return <Card heading="Link & Content Auditor">Chargement...</Card>;
 
   const getScoreColor = (score: number) => {
     if (score >= 90) return '#22c55e';

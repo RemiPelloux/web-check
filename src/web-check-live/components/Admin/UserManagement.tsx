@@ -182,7 +182,7 @@ const UserManagement = (): JSX.Element => {
       });
 
       if (!response.ok) {
-        throw new Error('Failed to fetch users');
+        throw new Error('Échec de la récupération des utilisateurs');
       }
 
       const data = await response.json();
@@ -233,7 +233,7 @@ const UserManagement = (): JSX.Element => {
 
       if (!response.ok) {
         const data = await response.json();
-        throw new Error(data.message || 'Failed to delete user');
+        throw new Error(data.message || 'Échec de la suppression de l\'utilisateur');
       }
 
       toast.update(toastId, {

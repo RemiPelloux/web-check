@@ -465,7 +465,7 @@ const ProgressLoader = (props: { loadStatus: LoadingJob[], showModal: (err: Reac
   return (
     <>
       <ReShowContainer className={!hideLoader ? 'hidden' : ''}>
-        <DismissButton onClick={() => setHideLoader(false)}>Show Load State</DismissButton>
+        <DismissButton onClick={() => setHideLoader(false)}>Afficher l'état</DismissButton>
       </ReShowContainer>
       <LoadCard className={hideLoader ? 'hidden' : ''}>
         <ProgressBarContainer>

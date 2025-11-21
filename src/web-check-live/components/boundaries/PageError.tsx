@@ -95,7 +95,7 @@ class ErrorBoundary extends React.Component<ErrorBoundaryProps, ErrorBoundarySta
         <ErrorPageContainer>
           <Nav>
             <HeaderLinkContainer>
-              <Link to="/"><Button>Go back Home</Button></Link>
+              <Link to="/"><Button>Retour à l'accueil</Button></Link>
               <a target="_blank" rel="noreferrer" href="https://github.com/lissy93/web-check"><Button>View on GitHub</Button></a>
             </HeaderLinkContainer>
           </Nav>

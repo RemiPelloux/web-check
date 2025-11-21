@@ -326,11 +326,11 @@ const Results = (props: { address?: string }): JSX.Element => {
         .then(data => resolve(data))
         .catch(error => resolve(
           {
-            error: `Failed to get a valid response 😢\n`
-              + 'This is likely due the target not exposing the required data, '
-              + 'or limitations in imposed by the infrastructure this instance '
-              + 'of Web Check is running on.\n\n'
-              + `Error info:\n${error}`
+            error: `Échec de la récupération d'une réponse valide 😢\n`
+              + 'Cela est probablement dû au fait que la cible n\'expose pas les données requises, '
+              + 'ou aux limitations imposées par l\'infrastructure sur laquelle '
+              + 'cette instance de Web Check s\'exécute.\n\n'
+              + `Informations sur l\'erreur:\n${error}`
           }
         ));
     });
