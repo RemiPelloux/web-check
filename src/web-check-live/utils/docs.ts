@@ -572,6 +572,43 @@ const docs: Doc[] = [
       { title: 'APDP Monaco - Obligations', link: 'https://apdp.mc/' },
     ],
   },
+  {
+    id: 'vulnerabilities',
+    title: 'Analyse de Vulnérabilités',
+    description: 'Cette analyse détecte et évalue les vulnérabilités de sécurité potentielles présentes sur le site web cible. Elle examine plusieurs catégories: vulnérabilités applicatives (XSS, injection SQL, CSRF), configurations serveur non sécurisées, dépendances obsolètes, en-têtes de sécurité manquants, et expositions de données sensibles. Un score de sécurité global est calculé basé sur la sévérité et le nombre de vulnérabilités détectées.',
+    use: 'Essentiel pour les auditeurs de sécurité et responsables RSSI afin d\'identifier les failles de sécurité avant qu\'elles ne soient exploitées par des attaquants. Cette analyse permet de prioriser les corrections en fonction de la criticité, de comprendre la surface d\'attaque du site, et d\'assurer une posture de sécurité robuste. Les résultats incluent des recommandations actionnables pour remédier à chaque vulnérabilité identifiée.',
+    resources: [
+      { title: 'OWASP Top 10', link: 'https://owasp.org/www-project-top-ten/' },
+      { title: 'CWE - Common Weakness Enumeration', link: 'https://cwe.mitre.org/' },
+      { title: 'NIST Cybersecurity Framework', link: 'https://www.nist.gov/cyberframework' },
+      { title: 'Guide ANSSI - Sécurité Web', link: 'https://www.ssi.gouv.fr/' },
+      { title: 'OWASP Testing Guide', link: 'https://owasp.org/www-project-web-security-testing-guide/' },
+    ],
+  },
+  {
+    id: 'secrets',
+    title: 'Scanner Secrets & PII',
+    description: 'Cette analyse détecte les fuites potentielles de données sensibles dans le code source du site web. Elle recherche activement les clés API exposées (Google, AWS, Stripe, Twilio, etc.), les tokens d\'authentification, les clés privées (RSA, PGP), les JWT, les informations d\'identification en dur, et les données personnelles identifiables (PII). L\'analyse crawle le code JavaScript, HTML, et les fichiers sources accessibles pour identifier ces expositions dangereuses.',
+    use: 'Critique pour prévenir les violations de sécurité majeures. Les secrets exposés peuvent permettre à des attaquants d\'accéder à des services cloud, bases de données, ou comptes utilisateurs. Cette analyse est indispensable avant mise en production et lors d\'audits de sécurité réguliers. Elle aide à détecter les erreurs de développement courantes comme les credentials commitées par erreur, les clés API non révoquées, ou les tokens JWT exposés dans le frontend.',
+    resources: [
+      { title: 'OWASP - Gestion des Secrets', link: 'https://cheatsheetseries.owasp.org/cheatsheets/Secrets_Management_Cheat_Sheet.html' },
+      { title: 'GitHub - Sécurité des Secrets', link: 'https://docs.github.com/en/code-security/secret-scanning' },
+      { title: 'GitGuardian - Secret Detection', link: 'https://www.gitguardian.com/' },
+      { title: 'ANSSI - Recommandations de sécurité', link: 'https://www.ssi.gouv.fr/entreprise/guide/recommandations-de-securite-relatives-a-tls/' },
+    ],
+  },
+  {
+    id: 'link-audit',
+    title: 'Audit de Liens & Contenu Mixte',
+    description: 'Cette vérification analyse tous les liens présents sur le site pour identifier les liens brisés (erreurs 404, 500) et les problèmes de contenu mixte (ressources HTTP chargées sur une page HTTPS). Elle crawle les liens internes et externes, teste leur accessibilité, et détecte les configurations non sécurisées qui peuvent compromettre la sécurité HTTPS du site. Un score de santé des liens est calculé basé sur le taux de liens fonctionnels.',
+    use: 'Important pour le SEO, l\'expérience utilisateur et la sécurité. Les liens brisés nuisent au référencement et à la crédibilité du site. Le contenu mixte (HTTP sur HTTPS) déclenche des avertissements de sécurité dans les navigateurs et expose les utilisateurs aux attaques MITM. Cette analyse aide à maintenir l\'intégrité du site, améliorer le parcours utilisateur, et garantir une sécurité HTTPS complète. Essentiel pour la conformité APDP qui exige des communications sécurisées.',
+    resources: [
+      { title: 'Google Search Console - Liens brisés', link: 'https://support.google.com/webmasters/answer/9044175?hl=fr' },
+      { title: 'MDN - Contenu Mixte', link: 'https://developer.mozilla.org/fr/docs/Web/Security/Mixed_content' },
+      { title: 'W3C Link Checker', link: 'https://validator.w3.org/checklink' },
+      { title: 'Cloudflare - Mixed Content', link: 'https://developers.cloudflare.com/ssl/troubleshooting/mixed-content-errors/' },
+    ],
+  },
 ];
 
 
