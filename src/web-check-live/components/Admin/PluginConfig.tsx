@@ -5,51 +5,83 @@ import { toast } from 'react-toastify';
 
 const API_BASE_URL = import.meta.env.PUBLIC_API_ENDPOINT || '/api';
 
-// Plugin list with French translations
+// Plugin list with French translations - synced with /api folder
 const PLUGINS = [
-  { id: 'apdp-compliance', name: 'Conformité Loi 1.565', category: 'Conformité' },
-  { id: 'vulnerabilities', name: 'Vulnérabilités', category: 'Sécurité' },
-  { id: 'cdn-resources', name: 'Ressources CDN', category: 'Performance' },
-  { id: 'get-ip', name: 'Adresse IP', category: 'Réseau' },
-  { id: 'location', name: 'Géolocalisation Serveur', category: 'Réseau' },
-  { id: 'ssl', name: 'Certificat SSL', category: 'Sécurité' },
-  { id: 'tls', name: 'Configuration TLS', category: 'Sécurité' },
-  { id: 'domain', name: 'Informations Domaine', category: 'DNS' },
-  { id: 'quality', name: 'Qualité du Site', category: 'Performance' },
-  { id: 'tech-stack', name: 'Technologies Utilisées', category: 'Technique' },
-  { id: 'server-info', name: 'Informations Serveur', category: 'Réseau' },
-  { id: 'cookies', name: 'Cookies', category: 'Conformité' },
-  { id: 'headers', name: 'En-têtes HTTP', category: 'Sécurité' },
-  { id: 'dns', name: 'Enregistrements DNS', category: 'DNS' },
-  { id: 'subdomain-enumeration', name: 'Énumération Sous-domaines', category: 'DNS' },
-  { id: 'hosts', name: 'Noms d\'hôtes', category: 'DNS' },
-  { id: 'http-security', name: 'Sécurité HTTP', category: 'Sécurité' },
-  { id: 'social-tags', name: 'Balises Sociales', category: 'SEO' },
-  { id: 'trace-route', name: 'Traceroute', category: 'Réseau' },
-  { id: 'security-txt', name: 'Security.txt', category: 'Sécurité' },
-  { id: 'dns-server', name: 'Serveurs DNS', category: 'DNS' },
-  { id: 'firewall', name: 'Pare-feu', category: 'Sécurité' },
-  { id: 'dnssec', name: 'DNSSEC', category: 'DNS' },
-  { id: 'hsts', name: 'HSTS', category: 'Sécurité' },
-  { id: 'threats', name: 'Menaces', category: 'Sécurité' },
-  { id: 'mail-config', name: 'Configuration Email', category: 'Email' },
-  { id: 'archives', name: 'Archives', category: 'Historique' },
-  { id: 'rank', name: 'Classement', category: 'SEO' },
-  { id: 'tls-cipher-suites', name: 'Suites de Chiffrement TLS', category: 'Sécurité' },
-  { id: 'tls-security-config', name: 'Configuration Sécurité TLS', category: 'Sécurité' },
-  { id: 'tls-client-support', name: 'Support Client TLS', category: 'Sécurité' },
-  { id: 'redirects', name: 'Redirections', category: 'Technique' },
-  { id: 'linked-pages', name: 'Pages Liées', category: 'SEO' },
-  { id: 'robots-txt', name: 'Robots.txt', category: 'SEO' },
-  { id: 'status', name: 'Statut Serveur', category: 'Réseau' },
-  { id: 'ports', name: 'Ports Ouverts', category: 'Sécurité' },
-  { id: 'txt-records', name: 'Enregistrements TXT', category: 'DNS' },
-  { id: 'block-lists', name: 'Listes de Blocage', category: 'Sécurité' },
-  { id: 'sitemap', name: 'Plan du Site', category: 'SEO' },
-  { id: 'carbon', name: 'Empreinte Carbone', category: 'Performance' },
+  // Conformité APDP
+  { id: 'rgpd-compliance', name: 'Conformité Loi 1.565', category: 'Conformité' },
   { id: 'apdp-cookie-banner', name: 'Bannière Cookies APDP', category: 'Conformité' },
   { id: 'apdp-privacy-policy', name: 'Politique de Confidentialité APDP', category: 'Conformité' },
   { id: 'apdp-legal-notices', name: 'Mentions Légales APDP', category: 'Conformité' },
+  { id: 'cookies', name: 'Cookies', category: 'Conformité' },
+  { id: 'legal-pages', name: 'Pages Légales', category: 'Conformité' },
+  
+  // Sécurité
+  { id: 'vulnerabilities', name: 'Vulnérabilités', category: 'Sécurité' },
+  { id: 'ssl', name: 'Certificat SSL', category: 'Sécurité' },
+  { id: 'tls', name: 'Configuration TLS', category: 'Sécurité' },
+  { id: 'tls-cipher-suites', name: 'Suites de Chiffrement TLS', category: 'Sécurité' },
+  { id: 'tls-security-config', name: 'Configuration Sécurité TLS', category: 'Sécurité' },
+  { id: 'tls-client-support', name: 'Support Client TLS', category: 'Sécurité' },
+  { id: 'headers', name: 'En-têtes HTTP', category: 'Sécurité' },
+  { id: 'http-security', name: 'Sécurité HTTP', category: 'Sécurité' },
+  { id: 'hsts', name: 'HSTS', category: 'Sécurité' },
+  { id: 'security-txt', name: 'Security.txt', category: 'Sécurité' },
+  { id: 'firewall', name: 'Pare-feu', category: 'Sécurité' },
+  { id: 'ports', name: 'Ports Ouverts', category: 'Sécurité' },
+  { id: 'block-lists', name: 'Listes de Blocage', category: 'Sécurité' },
+  { id: 'threats', name: 'Menaces', category: 'Sécurité' },
+  { id: 'secrets', name: 'Scanner de Secrets', category: 'Sécurité' },
+  { id: 'exposed-files', name: 'Fichiers Exposés', category: 'Sécurité' },
+  { id: 'mixed-content', name: 'Contenu Mixte', category: 'Sécurité' },
+  { id: 'subdomain-takeover', name: 'Prise de Contrôle Sous-domaine', category: 'Sécurité' },
+  { id: 'third-party-risk', name: 'Risques Tiers', category: 'Sécurité' },
+  
+  // DNS
+  { id: 'dns', name: 'Enregistrements DNS', category: 'DNS' },
+  { id: 'dns-server', name: 'Serveurs DNS', category: 'DNS' },
+  { id: 'dnssec', name: 'DNSSEC', category: 'DNS' },
+  { id: 'txt-records', name: 'Enregistrements TXT', category: 'DNS' },
+  { id: 'subdomain-enumeration', name: 'Énumération Sous-domaines', category: 'DNS' },
+  { id: 'whois', name: 'Informations WHOIS', category: 'DNS' },
+  
+  // Réseau
+  { id: 'get-ip', name: 'Adresse IP', category: 'Réseau' },
+  { id: 'trace-route', name: 'Traceroute', category: 'Réseau' },
+  { id: 'status', name: 'Statut Serveur', category: 'Réseau' },
+  
+  // Performance
+  { id: 'cdn-resources', name: 'Ressources CDN', category: 'Performance' },
+  { id: 'quality', name: 'Qualité du Site', category: 'Performance' },
+  { id: 'carbon', name: 'Empreinte Carbone', category: 'Performance' },
+  { id: 'lighthouse', name: 'Audit Lighthouse', category: 'Performance' },
+  { id: 'performance-metrics', name: 'Métriques de Performance', category: 'Performance' },
+  
+  // SEO
+  { id: 'social-tags', name: 'Balises Sociales', category: 'SEO' },
+  { id: 'rank', name: 'Classement', category: 'SEO' },
+  { id: 'legacy-rank', name: 'Classement Legacy', category: 'SEO' },
+  { id: 'linked-pages', name: 'Pages Liées', category: 'SEO' },
+  { id: 'robots-txt', name: 'Robots.txt', category: 'SEO' },
+  { id: 'sitemap', name: 'Plan du Site', category: 'SEO' },
+  { id: 'seo-analysis', name: 'Analyse SEO', category: 'SEO' },
+  
+  // Technique
+  { id: 'tech-stack', name: 'Technologies Utilisées', category: 'Technique' },
+  { id: 'redirects', name: 'Redirections', category: 'Technique' },
+  { id: 'features', name: 'Fonctionnalités Web', category: 'Technique' },
+  { id: 'api-surface', name: 'Surface API', category: 'Technique' },
+  { id: 'pwa-audit', name: 'Audit PWA', category: 'Technique' },
+  { id: 'screenshot', name: 'Capture d\'écran', category: 'Technique' },
+  
+  // Email
+  { id: 'mail-config', name: 'Configuration Email', category: 'Email' },
+  
+  // Audit & Analyse
+  { id: 'accessibility-check', name: 'Vérification Accessibilité', category: 'Audit' },
+  { id: 'link-audit', name: 'Audit des Liens', category: 'Audit' },
+  
+  // Historique
+  { id: 'archives', name: 'Archives', category: 'Historique' },
 ] as const;
 
 // Group plugins by category
@@ -320,6 +352,7 @@ const PluginConfig = (): JSX.Element => {
             {category === 'SEO' && '🔍'}
             {category === 'Email' && '📧'}
             {category === 'Technique' && '⚙️'}
+            {category === 'Audit' && '🔍'}
             {category === 'Historique' && '📚'}
             {category}
           </CategoryTitle>
