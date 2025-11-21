@@ -461,6 +461,43 @@ app.delete(`${API_DIR}/admin/users/:id`, authMiddleware, adminOnlyMiddleware, (r
 });
 
 /**
+ * GET /api/admin/plugins/available
+ * Get list of all available plugins by scanning the API folder (APDP only)
+ */
+app.get(`${API_DIR}/admin/plugins/available`, authMiddleware, adminOnlyMiddleware, (req, res) => {
+  try {
+    const apiPath = path.join(__dirname, 'api');
+    const files = fs.readdirSync(apiPath);
+    
+    // Filter only .js files, exclude _common folder and middleware files
+    const plugins = files
+      .filter(file => {
+        if (!file.endsWith('.js')) return false;
+        if (file.startsWith('_')) return false;
+        return true;
+      })
+      .map(file => {
+        // Remove .js extension to get plugin ID
+        const pluginId = file.replace('.js', '');
+        return pluginId;
+      })
+      .sort();
+    
+    return res.json({
+      success: true,
+      plugins
+    });
+  } catch (error) {
+    console.error('Get available plugins error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Erreur serveur',
+      message: 'Impossible de récupérer la liste des plugins disponibles'
+    });
+  }
+});
+
+/**
  * GET /api/admin/plugins
  * Get disabled plugins list (APDP only)
  */
