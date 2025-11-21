@@ -14,7 +14,7 @@ const extractLinksFromHtml = (html, baseUrl) => {
   $('a[href]').each((i, link) => {
     const href = $(link).attr('href');
     if (!href || href.startsWith('#') || href.startsWith('mailto:') || href.startsWith('tel:')) {
-      return; // Skip anchors, email, and phone links
+      return; // Skip anchors, e-mail, and phone links
     }
 
     try {

@@ -233,6 +233,16 @@ export const getAuditLogs = (limit = 100) => {
   return stmt.all(limit);
 };
 
+/**
+ * Clean all audit logs
+ * @returns {number} Number of deleted logs
+ */
+export const cleanAuditLogs = () => {
+  const stmt = db.prepare('DELETE FROM audit_log');
+  const result = stmt.run();
+  return result.changes;
+};
+
 // Login Attempts Functions
 
 /**

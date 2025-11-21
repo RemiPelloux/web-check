@@ -43,6 +43,7 @@ import {
   recordScan,
   updateScanStatistics,
   getAuditLogs,
+  cleanAuditLogs,
   db
 } from './database/db.js';
 
@@ -648,6 +649,37 @@ app.get(`${API_DIR}/admin/audit-log`, authMiddleware, adminOnlyMiddleware, (req,
       success: false,
       error: 'Erreur serveur',
       message: 'Impossible de récupérer le journal d\'audit'
+    });
+  }
+});
+
+/**
+ * DELETE /api/admin/audit-log/clean
+ * Clean all audit logs (APDP only)
+ */
+app.delete(`${API_DIR}/admin/audit-log/clean`, authMiddleware, adminOnlyMiddleware, (req, res) => {
+  try {
+    const deletedCount = cleanAuditLogs();
+    
+    // Log the action
+    addAuditLog(
+      req.user.id,
+      'LOGS_CLEANED',
+      `Suppression de ${deletedCount} logs`,
+      getClientIp(req)
+    );
+    
+    return res.json({
+      success: true,
+      message: `${deletedCount} logs supprimés avec succès`,
+      deletedCount
+    });
+  } catch (error) {
+    console.error('Clean audit log error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Erreur serveur',
+      message: 'Impossible de nettoyer le journal d\'audit'
     });
   }
 });

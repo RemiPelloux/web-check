@@ -440,7 +440,7 @@ const UserModal = ({ user, onClose }: UserModalProps): JSX.Element => {
                   required
                   disabled={loading}
                 />
-                <HelpText>Format recommandé : email@domaine.mc</HelpText>
+                <HelpText>Format recommandé : e-mail@domaine.mc</HelpText>
               </FormGroup>
 
               <FormGroup>

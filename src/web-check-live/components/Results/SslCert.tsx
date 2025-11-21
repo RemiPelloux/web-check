@@ -44,7 +44,7 @@ function getExtendedKeyUsage(oids: string[]) {
     "1.3.6.1.5.5.7.3.1": "TLS Web Server Authentication",
     "1.3.6.1.5.5.7.3.2": "TLS Web Client Authentication",
     "1.3.6.1.5.5.7.3.3": "Code Signing",
-    "1.3.6.1.5.5.7.3.4": "Email Protection (SMIME)",
+    "1.3.6.1.5.5.7.3.4": "Protection E-mail (SMIME)",
     "1.3.6.1.5.5.7.3.8": "Time Stamping",
     "1.3.6.1.5.5.7.3.9": "OCSP Signing",
     "1.3.6.1.5.5.7.3.5": "IPSec End System",
@@ -56,7 +56,7 @@ function getExtendedKeyUsage(oids: string[]) {
     "1.3.6.1.4.1.311.10.3.4": "Microsoft Encrypted File System",
     "1.3.6.1.4.1.311.20.2.2": "Microsoft Smartcard Logon",
     "1.3.6.1.4.1.311.10.3.12": "Microsoft Document Signing",
-    "0.9.2342.19200300.100.1.3": "Email Address (in Subject Alternative Name)",
+    "0.9.2342.19200300.100.1.3": "Adresse E-mail (in Subject Alternative Name)",
   };
   const results = oids.map(oid => oidMap[oid] || oid);
   return results.filter((item, index) => results.indexOf(item) === index);

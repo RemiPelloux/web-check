@@ -2502,7 +2502,7 @@ const generateHTMLReport = (
       ` : ''}
       
       ${allResults?.['mail-config'] ? `
-      <h3 style="font-size: 11pt; margin: 15px 0 10px 0; color: #111827; border-bottom: 1px solid #E5E7EB; padding-bottom: 5px;">📧 Configuration Email & SPF</h3>
+      <h3 style="font-size: 11pt; margin: 15px 0 10px 0; color: #111827; border-bottom: 1px solid #E5E7EB; padding-bottom: 5px;">📧 Configuration E-mail & SPF</h3>
       <div class="info-box">
         ${allResults['mail-config'].mxRecords?.length ? `
           <div style="margin-bottom: 12px;">
@@ -2810,7 +2810,7 @@ const generateHTMLReport = (
           <div style="margin: 6px 0;"><strong>✓</strong> Ports réseau ouverts</div>
           <div style="margin: 6px 0;"><strong>✓</strong> Vulnérabilités connues</div>
           <div style="margin: 6px 0;"><strong>✓</strong> Listes de blocage</div>
-          <div style="margin: 6px 0;"><strong>✓</strong> Configuration email (MX, SPF)</div>
+          <div style="margin: 6px 0;"><strong>✓</strong> Configuration e-mail (MX, SPF)</div>
           <div style="margin: 6px 0;"><strong>✓</strong> Métadonnées & tags sociaux</div>
           <div style="margin: 6px 0;"><strong>✓</strong> Sitemap XML</div>
           <div style="margin: 6px 0;"><strong>✓</strong> Robots.txt</div>

@@ -214,24 +214,24 @@ const SecretsCard = (props: { data: SecretsData }): JSX.Element => {
           <StatusMessage>
             <h3>
               {data.totalFindings === 0 
-                ? "No Secrets Detected" 
-                : `${data.totalFindings} Potential Issue${data.totalFindings > 1 ? 's' : ''} Found`}
+                ? "Aucun secret détecté" 
+                : `${data.totalFindings} problème${data.totalFindings > 1 ? 's' : ''} potentiel${data.totalFindings > 1 ? 's' : ''} trouvé${data.totalFindings > 1 ? 's' : ''}`}
             </h3>
             <p>
-              Scanned {data.scannedFilesCount} source files (HTML & JS).
-              {criticalCount > 0 && ` ⚠️ ${criticalCount} Critical Secrets Found!`}
+              {data.scannedFilesCount} fichiers source analysés (HTML & JS).
+              {criticalCount > 0 && ` ⚠️ ${criticalCount} secrets critiques trouvés !`}
             </p>
           </StatusMessage>
           <SeverityBadge severity={severity} style={{ fontSize: '14px', padding: '8px 16px' }}>
-            {severity} Risk
+            Risque {severity}
           </SeverityBadge>
         </SummaryBanner>
 
         {data.totalFindings === 0 ? (
           <EmptyState>
             <span className="icon">🛡️</span>
-            <h3>Clean Codebase</h3>
-            <p>No exposed API keys, tokens, or PII were detected in the scanned source code.</p>
+            <h3>Code source propre</h3>
+            <p>Aucune clé API, token ou données personnelles exposés détectés dans le code source analysé.</p>
           </EmptyState>
         ) : (
           data.findings.map((finding, idx) => (
@@ -246,7 +246,7 @@ const SecretsCard = (props: { data: SecretsData }): JSX.Element => {
               </CodeBlock>
               
               <SourceInfo>
-                Found in <strong>{finding.sourceType}</strong>: 
+                Trouvé dans <strong>{finding.sourceType}</strong>: 
                 <a href={finding.sourceUrl} target="_blank" rel="noopener noreferrer">
                   {finding.sourceUrl.split('/').pop() || 'index'}
                 </a>

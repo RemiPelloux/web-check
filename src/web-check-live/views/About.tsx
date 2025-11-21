@@ -145,6 +145,10 @@ const makeAnchor = (title: string): string => {
 const about = [
   "Outil d'Audit de Conformité est une plateforme professionnelle d'audit de conformité développée par OpenPro. Elle offre une analyse complète et automatisée de la conformité réglementaire, de la sécurité et des meilleures pratiques pour les sites web et applications.",
   "Notre outil effectue plus de 30 vérifications différentes couvrant la conformité APDP, la sécurité des données, l'analyse SEO, les performances, l'accessibilité et bien plus encore. Chaque analyse fournit des résultats détaillés avec des recommandations actionnables.",
+  "Notre outil d'analyse de la sécurité des sites Internet, « Je teste mon site », permet de détecter, en quelques minutes à peine et de manière anonyme, certaines vulnérabilités des sites Internet et applications.",
+  "Les tests réalisés ne sont pas exhaustifs et ne prétendent pas à une garantie absolue de conformité et/ou d'absence de failles. Néanmoins, ils offrent une couverture représentative de certaines menaces, permettant ainsi aux utilisateurs de renforcer la protection de leur(s) environnement(s) web grâce à des recommandations adaptées aux risques rencontrés.",
+  "Outil d'Audit de Conformité est développé et maintenu par OpenPro. Cette plateforme d'audit de conformité professionnelle fournit une analyse complète des écarts réglementaires et des capacités d'audit de sécurité pour les responsables de la conformité et les gestionnaires de risques.",
+  "Cet outil d'analyse de la sécurité est développé et maintenu par notre prestataire, la société OpenPro (France).",
 ];
 
 const howToUse = [
@@ -299,13 +303,6 @@ const About = (): JSX.Element => {
         {about.map((para, index: number) => (
           <p key={index}>{para}</p>
         ))}
-        <hr />
-        <p>
-          Outil d'Audit de Conformité est développé et maintenu par <strong>OpenPro</strong>.
-          Cette plateforme d'audit de conformité professionnelle fournit une analyse complète 
-          des écarts réglementaires et des capacités d'audit de sécurité pour les responsables 
-          de la conformité et les gestionnaires de risques.
-        </p>
       </Section>
 
       <Heading as="h2" size="medium" color={colors.primary}>Comment Utiliser l'Outil d'Audit de Conformité</Heading>
@@ -351,12 +348,7 @@ const About = (): JSX.Element => {
       
       <Heading as="h2" size="medium" color={colors.primary}>Analyses Disponibles</Heading>
       <Section>
-        <p>
-          L'Outil d'Audit de Conformité effectue plus de 30 types d'analyses différentes couvrant tous les aspects 
-          de la conformité, de la sécurité et de la qualité web. Voici la liste complète :
-        </p>
         <div className="contents">
-          <Heading as="h3" size="small" id="feature-contents" color={colors.primary}>Table des Matières</Heading>
           <ul>
             {docs.map((section, index: number) => (
               <li key={`content-${index}-${section.title}`}>
@@ -457,14 +449,29 @@ const About = (): JSX.Element => {
         
         <Heading as="h3" size="small" color={colors.primary}>Confidentialité</Heading>
         <p>
-          Des analyses statistiques anonymes sont utilisées sur l'instance de démonstration 
-          (via une instance Plausible auto-hébergée), qui enregistre uniquement l'URL visitée 
-          mais aucune donnée personnelle. Il existe également une journalisation d'erreurs basique 
-          (via une instance GlitchTip auto-hébergée), utilisée uniquement pour corriger les bugs.
-          <br /><br />
-          Ni votre adresse IP, ni les informations sur votre navigateur/OS/matériel, ni aucune 
-          autre donnée ne seront jamais collectées ou enregistrées. (Vous pouvez le vérifier 
-          vous-même, soit en inspectant le code source, soit en utilisant les outils de développement)
+          La mise en place de cet outil par l'APDP est justifiée par l'existence d'un motif d'intérêt 
+          public puisqu'il permet à l'APDP d'accompagner les responsables du traitement dans leurs 
+          démarches de mise en conformité avec la Loi et en particulier de promouvoir, dans le cadre 
+          de ses missions, l'utilisation de technologies protectrices de la vie privée.
+        </p>
+        <p>
+          Les seules données collectées sont le nom de l'entité concernée, l'URL ou les URL(s) du ou 
+          des sites Internet à tester et l'Adresse IP publique utilisée par le DPD.
+        </p>
+        <p>
+          Ces données sont conservées 1 an renouvelable, avec le consentement de l'utilisateur, à la 
+          fin de chaque année suivant son inscription.
+        </p>
+        <p>
+          L'exercice des droits d'accès, de rectification, d'effacement, de limitation du traitement 
+          et d'opposition s'exerce par e-mail à l'adresse <a href="mailto:dpd@apdp.mc">dpd@apdp.mc</a> ou 
+          par courrier postal à APDP – 11 rue du Gabian – 98000 MONACO.
+        </p>
+        <p>
+          De plus amples informations sont disponibles sur le site Internet de l'APDP dans la rubrique{' '}
+          <a href="https://apdp.mc" target="_blank" rel="noopener noreferrer">
+            Politique de protection des données personnelles
+          </a>.
         </p>
         <hr />
         

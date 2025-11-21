@@ -20,7 +20,7 @@ const COMMON_SUBDOMAINS = [
   'm', 'gateway', 'proxy', 'git', 'docs', 'monitor', 'assets',
   'login', 'register', 'auth', 'cloud', 'download', 'upload',
   'mx', 'mx1', 'mx2', 'pop', 'imap', 'exchange', 'webdisk',
-  'cpanel', 'whm', 'autodiscover', 'autoconfig', 'email'
+  'cpanel', 'whm', 'autodiscover', 'autoconfig', 'e-mail'
 ];
 
 // Maximum concurrent DNS lookups

@@ -86,13 +86,13 @@ const PATTERNS = {
   'Generic Secret Assignment': /(?:password|passwd|pwd|token|secret|access_key|api_key|client_secret)[=:]\s*['"]([a-zA-Z0-9_\-]{20,})['"]/gim,
 
   // PII & Infrastructure
-  'Email Address': /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b/gm,
+  'Adresse E-mail': /\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Z|a-z]{2,7}\b/gm,
   'Internal IP': /(^|\s)((10\.|172\.(1[6-9]|2[0-9]|3[0-1])\.|192\.168\.)([0-9]{1,3}\.){1}[0-9]{1,3})(\s|$)/gm,
 };
 
 // Whitelist for false positives
 const WHITELIST = [
-  'support@', 'contact@', 'info@', 'example.com', 'email@', 'admin@',
+  'support@', 'contact@', 'info@', 'example.com', 'e-mail@', 'admin@',
   'bootstrap', 'jquery', 'node_modules', 'react', 'vue', 'webpack',
   'google-analytics', 'googletagmanager', 'sentry', 'cdn',
   '.png', '.jpg', '.jpeg', '.gif', '.svg', '.css', '.js', '.woff', '.woff2',
@@ -260,7 +260,7 @@ function isWhitelisted(value, type, context = '') {
     if (lowerValue.includes('test') || lowerValue.includes('example') || lowerValue.includes('dummy')) return true;
   }
 
-  if (type === 'Email Address') {
+  if (type === 'Adresse E-mail') {
     // Ignore common placeholder domains and file extensions
     if (value.endsWith('.png') || value.endsWith('.jpg') || value.endsWith('.js') || value.endsWith('.css') || value.endsWith('.svg')) return true;
     if (value.includes('w3.org') || value.includes('schema.org') || value.includes('sentry.io')) return true;
@@ -293,7 +293,7 @@ function getSeverity(type) {
     'Stripe Publishable Key', 'Google Captcha', 'Twilio Account SID', 'Basic Auth',
     'Amazon AWS URL'
   ];
-  const LOW = ['Email Address', 'Internal IP'];
+  const LOW = ['Adresse E-mail', 'Internal IP'];
 
   if (CRITICAL.includes(type)) return 'Critical';
   if (HIGH.includes(type)) return 'High';
@@ -302,7 +302,7 @@ function getSeverity(type) {
 }
 
 function maskSecret(value, type) {
-  if (type === 'Email Address' || type === 'Internal IP') return value;
+  if (type === 'Adresse E-mail' || type === 'Internal IP') return value;
   if (value.length < 8) return '***';
   return value.substring(0, 4) + '...' + value.substring(value.length - 4);
 }

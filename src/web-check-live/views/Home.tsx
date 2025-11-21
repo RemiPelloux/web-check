@@ -59,11 +59,17 @@ const Logo = styled.div`
   border-radius: 20px;
   display: flex;
   align-items: center;
-  justifyContent: center;
+  justify-content: center;
   margin: 0 auto 24px;
-  font-size: 40px;
   box-shadow: 0 10px 40px rgba(220, 38, 38, 0.3);
   animation: pulse 2s ease-in-out infinite;
+  overflow: hidden;
+  
+  img {
+    width: 60px;
+    height: 60px;
+    object-fit: contain;
+  }
   
   @keyframes pulse {
     0%, 100% {
@@ -222,13 +228,17 @@ const URLCard = styled.div`
   .url-icon {
     width: 48px;
     height: 48px;
-    display: flex;
+    display: none; /* Hidden by default, shown only if favicon loads */
     align-items: center;
     justify-content: center;
     margin-bottom: 16px;
     background: ${colors.background};
     border-radius: 8px;
     padding: 8px;
+    
+    &.loaded {
+      display: flex; /* Show only when favicon is loaded */
+    }
     
     img {
       width: 32px;
@@ -384,7 +394,9 @@ const Home = (): JSX.Element => {
       <MainContent>
         {/* Hero Section */}
         <HeroSection>
-          <Logo>🔍</Logo>
+          <Logo>
+            <img src="/assets/images/Logo-APDP.svg" alt="APDP Monaco" />
+          </Logo>
           <Title>Analyse de Conformité Loi 1.565</Title>
           <Subtitle>
             Outil professionnel d'audit de conformité APDP Monaco. 
@@ -417,19 +429,20 @@ const Home = (): JSX.Element => {
                   >
                     <div className="url-icon">
                       <img 
-                        src={`https://www.google.com/s2/favicons?domain=${url}&sz=64`} 
+                        src={`https://${url.replace(/^https?:\/\//, '')}/favicon.ico`}
                         alt=""
                         style={{ 
                           width: '32px', 
                           height: '32px',
-                          objectFit: 'contain',
-                          display: 'none'
+                          objectFit: 'contain'
                         }}
                         onLoad={(e) => { 
-                          (e.target as HTMLImageElement).style.display = 'block';
+                          const icon = (e.target as HTMLImageElement).parentElement;
+                          if (icon) icon.classList.add('loaded');
                         }}
                         onError={(e) => { 
-                          (e.target as HTMLImageElement).style.display = 'none';
+                          const icon = (e.target as HTMLImageElement).parentElement;
+                          if (icon) icon.style.display = 'none';
                         }}
                       />
                     </div>

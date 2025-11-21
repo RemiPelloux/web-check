@@ -39,26 +39,26 @@ const MalwareCard = (props: {data: any, title: string, actionButtons: any }): JS
   return (
     <Card heading={props.title} actionButtons={props.actionButtons}>
       { safeBrowsing && !safeBrowsing.error && (
-        <Row lbl="Google Safe Browsing" val={safeBrowsing.unsafe ? '❌ Unsafe' : '✅ Safe'} />
+        <Row lbl="Google Safe Browsing" val={safeBrowsing.unsafe ? '❌ Non sécurisé' : '✅ Sécurisé'} />
       )}
       { ((cloudmersive && !cloudmersive.error) || safeBrowsing?.details) && (
-        <Row lbl="Threat Type" val={safeBrowsing?.details?.threatType || cloudmersive.WebsiteThreatType || 'None :)'} />
+        <Row lbl="Type de menace" val={safeBrowsing?.details?.threatType || cloudmersive.WebsiteThreatType || 'Aucune :)'} />
       )}
       { phishTank && !phishTank.error && (
-        <Row lbl="Phishing Status" val={phishTank?.url0?.in_database !== 'false' ? '❌ Phishing Identified' : '✅ No Phishing Found'} />
+        <Row lbl="Statut de phishing" val={phishTank?.url0?.in_database !== 'false' ? '❌ Phishing identifié' : '✅ Aucun phishing détecté'} />
       )}
       { phishTank.url0 && phishTank.url0.phish_detail_page && (
         <Row lbl="" val="">
-          <span className="lbl">Phish Info</span>
+          <span className="lbl">Infos phishing</span>
           <span className="val"><a href={phishTank.url0.phish_detail_page}>{phishTank.url0.phish_id}</a></span>  
         </Row>
       )}
-      { urlHaus.query_status === 'no_results' && <Row lbl="Malware Status" val="✅ No Malwares Found" />}
+      { urlHaus.query_status === 'no_results' && <Row lbl="Statut malware" val="✅ Aucun malware détecté" />}
       { urlHaus.query_status === 'ok' && (
         <>
-        <Row lbl="Status" val="❌ Malware Identified" />
-        <Row lbl="First Seen" val={convertToDate(urlHaus.firstseen)} />
-        <Row lbl="Bad URLs Count" val={urlHaus.url_count} />
+        <Row lbl="Statut" val="❌ Malware identifié" />
+        <Row lbl="Première détection" val={convertToDate(urlHaus.firstseen)} />
+        <Row lbl="Nombre d'URLs malveillantes" val={urlHaus.url_count} />
         </>
       )}
       {urlHaus.urls && (
@@ -67,15 +67,15 @@ const MalwareCard = (props: {data: any, title: string, actionButtons: any }): JS
           { urlHaus.urls.map((urlResult: any, index: number) => {
           const rows = [
             { lbl: 'ID', val: urlResult.id },
-            { lbl: 'Status', val: urlResult.url_status },
-            { lbl: 'Date Added', val: convertToDate(urlResult.date_added) },
-            { lbl: 'Threat Type', val: urlResult.threat },
-            { lbl: 'Reported By', val: urlResult.reporter },
-            { lbl: 'Takedown Time', val: urlResult.takedown_time_seconds },
+            { lbl: 'Statut', val: urlResult.url_status },
+            { lbl: 'Date d\'ajout', val: convertToDate(urlResult.date_added) },
+            { lbl: 'Type de menace', val: urlResult.threat },
+            { lbl: 'Signalé par', val: urlResult.reporter },
+            { lbl: 'Temps de retrait', val: urlResult.takedown_time_seconds },
             { lbl: 'Larted', val: urlResult.larted },
             { lbl: 'Tags', val: (urlResult.tags || []).join(', ') },
-            { lbl: 'Reference', val: urlResult.urlhaus_reference },      
-            { lbl: 'File Path', val: urlResult.url },      
+            { lbl: 'Référence', val: urlResult.urlhaus_reference },      
+            { lbl: 'Chemin du fichier', val: urlResult.url },      
           ];
           return (<ExpandableRow lbl={getExpandableTitle(urlResult)} val="" rowList={rows} />)
         })}

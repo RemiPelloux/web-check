@@ -51,7 +51,7 @@ const LEGAL_PATTERNS = {
     { name: 'Numéro SIRET/RCS', patterns: [/siret|siren|rcs/i, /registre.*commerce/i] },
     { name: 'Responsable publication', patterns: [/responsable.*publication/i, /directeur.*publication/i] },
     { name: 'Hébergeur', patterns: [/hébergeur|hébergé|hosting/i, /serveur/i] },
-    { name: 'Contact', patterns: [/contact|email|téléphone|phone/i] }
+    { name: 'Contact', patterns: [/contact|e-mail|téléphone|phone/i] }
   ]
 };
 

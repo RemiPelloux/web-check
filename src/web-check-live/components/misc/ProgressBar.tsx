@@ -269,14 +269,14 @@ const JobListItem: React.FC<JobListItemProps> = ({ job, showJobDocs, showErrorMo
 
   const showModalButton = error && ['error', 'timed-out', 'skipped'].includes(state) &&
     <FailedJobActionButton onClick={() => showErrorModal(name, state, timeTaken, error, state === 'skipped')}>
-      {state === 'timed-out' ? '■ Show Timeout Reason' : '■ Show Error'}
+      {state === 'timed-out' ? '■ Afficher la Raison du Timeout' : '■ Afficher l\'Erreur'}
     </FailedJobActionButton>;
 
   return (
     <li key={name}>
       <b onClick={() => showJobDocs(name)}>{getStatusEmoji(state)} {name}</b>
       <span style={{ color: barColors[state][0] }}> ({state})</span>.
-      <i>{timeTaken && state !== 'loading' ? ` Took ${timeTaken} ms` : ''}</i>
+      <i>{timeTaken && state !== 'loading' ? ` Durée ${timeTaken} ms` : ''}</i>
       {actionButton}
       {showModalButton}
     </li>

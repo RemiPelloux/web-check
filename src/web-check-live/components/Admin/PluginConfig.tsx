@@ -84,7 +84,7 @@ const getPluginInfo = (pluginId: string): { name: string; category: string } => 
     'pwa': 'PWA',
     'audit': 'Audit',
     'screenshot': 'Capture d\'écran',
-    'mail': 'Email',
+    'mail': 'E-mail',
     'accessibility': 'Accessibilité',
     'check': 'Vérification',
     'link': 'Liens',
@@ -123,7 +123,7 @@ const getPluginInfo = (pluginId: string): { name: string; category: string } => 
              pluginId.includes('linked') || pluginId.includes('robots') || pluginId.includes('sitemap')) {
     category = 'SEO';
   } else if (pluginId.includes('mail')) {
-    category = 'Email';
+    category = 'E-mail';
   } else if (pluginId.includes('accessibility') || pluginId.includes('audit') || pluginId.includes('link-audit')) {
     category = 'Audit';
   } else if (pluginId.includes('archive')) {
@@ -419,7 +419,7 @@ const PluginConfig = (): JSX.Element => {
     <Container>
       <InfoBox>
         <InfoText>
-          <strong>Note :</strong> Les plugins cochés ci-dessous seront <strong>désactivés</strong> pour
+          <strong>Note :</strong> Les plugins <strong>cochés</strong> ci-dessous seront <strong>désactivés</strong> pour
           tous les utilisateurs DPD. Cette configuration s'applique globalement à tous les comptes DPD.
         </InfoText>
       </InfoBox>
@@ -433,7 +433,7 @@ const PluginConfig = (): JSX.Element => {
             {category === 'Réseau' && '📡'}
             {category === 'Performance' && '⚡'}
             {category === 'SEO' && '🔍'}
-            {category === 'Email' && '📧'}
+            {category === 'E-mail' && '📧'}
             {category === 'Technique' && '⚙️'}
             {category === 'Audit' && '🔍'}
             {category === 'Historique' && '📚'}

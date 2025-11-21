@@ -74,6 +74,30 @@ const FilterTab = styled.button<{ active: boolean }>`
   }
 `;
 
+const ControlsRow = styled.div`
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+`;
+
+const DateFilter = styled.input`
+  padding: 10px 16px;
+  background: ${colors.background};
+  border: 2px solid ${colors.borderColor};
+  border-radius: 8px;
+  font-size: 14px;
+  color: ${colors.textColor};
+  transition: all 0.2s;
+
+  &:focus {
+    outline: none;
+    border-color: ${colors.primary};
+    box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.1);
+  }
+`;
+
 const SearchBox = styled.input`
   padding: 10px 16px;
   background: ${colors.background};
@@ -82,6 +106,7 @@ const SearchBox = styled.input`
   font-size: 14px;
   color: ${colors.textColor};
   min-width: 280px;
+  flex: 1;
   transition: all 0.2s;
 
   &:focus {
@@ -95,11 +120,43 @@ const SearchBox = styled.input`
   }
 `;
 
+const ActionButton = styled.button<{ danger?: boolean }>`
+  padding: 10px 20px;
+  background: ${props => props.danger 
+    ? 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)'
+    : 'linear-gradient(135deg, #059669 0%, #047857 100%)'};
+  color: white;
+  border: none;
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  white-space: nowrap;
+
+  &:hover {
+    transform: translateY(-2px);
+    box-shadow: ${props => props.danger
+      ? '0 8px 16px rgba(220, 38, 38, 0.3)'
+      : '0 8px 16px rgba(5, 150, 105, 0.3)'};
+  }
+
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+  }
+`;
+
 const LogsTable = styled.div`
   background: ${colors.background};
   border: 1px solid ${colors.borderColor};
   border-radius: 12px;
   overflow: hidden;
+  margin-bottom: 16px;
 `;
 
 const TableHeader = styled.div`
@@ -202,6 +259,71 @@ const UserInfo = styled.div`
   }
 `;
 
+const PaginationContainer = styled.div`
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 16px;
+  padding: 16px;
+  background: ${colors.background};
+  border-radius: 12px;
+  border: 1px solid ${colors.borderColor};
+  flex-wrap: wrap;
+`;
+
+const PaginationInfo = styled.div`
+  font-size: 14px;
+  color: ${colors.textColorSecondary};
+`;
+
+const PaginationControls = styled.div`
+  display: flex;
+  gap: 8px;
+  align-items: center;
+`;
+
+const PageButton = styled.button<{ active?: boolean }>`
+  padding: 8px 12px;
+  min-width: 40px;
+  background: ${props => props.active 
+    ? 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)'
+    : colors.backgroundLighter};
+  color: ${props => props.active ? 'white' : colors.textColor};
+  border: 2px solid ${props => props.active ? '#dc2626' : colors.borderColor};
+  border-radius: 8px;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover:not(:disabled) {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+
+  &:disabled {
+    opacity: 0.3;
+    cursor: not-allowed;
+    transform: none;
+  }
+`;
+
+const PerPageSelect = styled.select`
+  padding: 8px 12px;
+  background: ${colors.backgroundLighter};
+  border: 2px solid ${colors.borderColor};
+  border-radius: 8px;
+  font-size: 14px;
+  color: ${colors.textColor};
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:focus {
+    outline: none;
+    border-color: ${colors.primary};
+  }
+`;
+
 const LoadingState = styled.div`
   text-align: center;
   padding: 48px 24px;
@@ -231,6 +353,10 @@ const Logs = (): JSX.Element => {
   const [loading, setLoading] = useState(true);
   const [activeFilter, setActiveFilter] = useState('all');
   const [searchQuery, setSearchQuery] = useState('');
+  const [dateFilter, setDateFilter] = useState('');
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(20);
+  const [cleaning, setCleaning] = useState(false);
 
   useEffect(() => {
     fetchLogs();
@@ -238,12 +364,16 @@ const Logs = (): JSX.Element => {
 
   useEffect(() => {
     filterLogs();
-  }, [logs, activeFilter, searchQuery]);
+  }, [logs, activeFilter, searchQuery, dateFilter]);
+
+  useEffect(() => {
+    setCurrentPage(1); // Reset to first page when filters change
+  }, [activeFilter, searchQuery, dateFilter]);
 
   const fetchLogs = async () => {
     try {
       const token = localStorage.getItem('checkitAuthToken');
-      const response = await fetch(`${API_BASE_URL}/admin/audit-log?limit=200`, {
+      const response = await fetch(`${API_BASE_URL}/admin/audit-log?limit=10000`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
@@ -266,6 +396,43 @@ const Logs = (): JSX.Element => {
     }
   };
 
+  const handleCleanLogs = async () => {
+    if (!confirm('Êtes-vous sûr de vouloir supprimer tous les logs ? Cette action est irréversible.')) {
+      return;
+    }
+
+    setCleaning(true);
+    try {
+      const token = localStorage.getItem('checkitAuthToken');
+      const response = await fetch(`${API_BASE_URL}/admin/audit-log/clean`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Échec du nettoyage des logs');
+      }
+
+      toast.success('Tous les logs ont été supprimés', {
+        position: 'bottom-right',
+        theme: 'dark',
+      });
+
+      // Refresh logs
+      await fetchLogs();
+    } catch (error) {
+      console.error('Error cleaning logs:', error);
+      toast.error('Impossible de supprimer les logs', {
+        position: 'bottom-right',
+        theme: 'dark',
+      });
+    } finally {
+      setCleaning(false);
+    }
+  };
+
   const getLogType = (action: string): string => {
     if (action.includes('login') || action.includes('logout') || action.includes('auth')) {
       return 'connection';
@@ -282,6 +449,15 @@ const Logs = (): JSX.Element => {
     // Filter by category
     if (activeFilter !== 'all') {
       filtered = filtered.filter(log => getLogType(log.action) === activeFilter);
+    }
+
+    // Filter by date
+    if (dateFilter) {
+      const filterDate = new Date(dateFilter);
+      filtered = filtered.filter(log => {
+        const logDate = new Date(log.timestamp);
+        return logDate.toDateString() === filterDate.toDateString();
+      });
     }
 
     // Filter by search query
@@ -326,6 +502,58 @@ const Logs = (): JSX.Element => {
     return translations[action] || action;
   };
 
+  // Pagination calculations
+  const totalPages = Math.ceil(filteredLogs.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentLogs = filteredLogs.slice(startIndex, endIndex);
+
+  const goToPage = (page: number) => {
+    setCurrentPage(Math.max(1, Math.min(page, totalPages)));
+  };
+
+  const renderPageNumbers = () => {
+    const pages = [];
+    const maxVisible = 7;
+    
+    if (totalPages <= maxVisible) {
+      for (let i = 1; i <= totalPages; i++) {
+        pages.push(i);
+      }
+    } else {
+      if (currentPage <= 4) {
+        for (let i = 1; i <= 5; i++) pages.push(i);
+        pages.push('...');
+        pages.push(totalPages);
+      } else if (currentPage >= totalPages - 3) {
+        pages.push(1);
+        pages.push('...');
+        for (let i = totalPages - 4; i <= totalPages; i++) pages.push(i);
+      } else {
+        pages.push(1);
+        pages.push('...');
+        for (let i = currentPage - 1; i <= currentPage + 1; i++) pages.push(i);
+        pages.push('...');
+        pages.push(totalPages);
+      }
+    }
+
+    return pages.map((page, index) => {
+      if (page === '...') {
+        return <span key={`ellipsis-${index}`} style={{ padding: '0 8px', color: colors.textColorSecondary }}>...</span>;
+      }
+      return (
+        <PageButton
+          key={page}
+          active={currentPage === page}
+          onClick={() => goToPage(page as number)}
+        >
+          {page}
+        </PageButton>
+      );
+    });
+  };
+
   if (loading) {
     return (
       <Container>
@@ -349,67 +577,114 @@ const Logs = (): JSX.Element => {
             </FilterTab>
           ))}
         </FilterTabs>
+      </Header>
+
+      <ControlsRow>
+        <DateFilter
+          type="date"
+          value={dateFilter}
+          onChange={(e) => setDateFilter(e.target.value)}
+          title="Filtrer par date"
+        />
         <SearchBox
           type="text"
           placeholder="🔍 Rechercher (utilisateur, action, IP...)"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
-      </Header>
+        <ActionButton danger onClick={handleCleanLogs} disabled={cleaning || logs.length === 0}>
+          <span>🗑️</span>
+          <span>{cleaning ? 'Nettoyage...' : 'Nettoyer les logs'}</span>
+        </ActionButton>
+      </ControlsRow>
 
       {filteredLogs.length === 0 ? (
         <EmptyState>
           <div className="icon">📭</div>
           <div className="message">
-            {searchQuery ? 'Aucun log ne correspond à votre recherche' : 'Aucun log disponible'}
+            {searchQuery || dateFilter ? 'Aucun log ne correspond à votre recherche' : 'Aucun log disponible'}
           </div>
         </EmptyState>
       ) : (
-        <LogsTable>
-          <TableHeader>
-            <div>Horodatage</div>
-            <div>Type</div>
-            <div>Action</div>
-            <div>Utilisateur</div>
-            <div>Adresse IP</div>
-          </TableHeader>
-          {filteredLogs.map((log) => {
-            const logType = getLogType(log.action);
-            return (
-              <TableRow key={log.id} type={logType}>
-                <Cell data-label="Horodatage:">{formatTimestamp(log.timestamp)}</Cell>
-                <Cell data-label="Type:">
-                  <Badge type={logType}>
-                    {logType === 'connection' && '🔐 Connexion'}
-                    {logType === 'scan' && '🔍 Analyse'}
-                    {logType === 'admin' && '⚙️ Admin'}
-                  </Badge>
-                </Cell>
-                <Cell data-label="Action:">
-                  <div>
-                    <div style={{ fontWeight: 500 }}>{translateAction(log.action)}</div>
-                    {log.details && (
-                      <div style={{ fontSize: '12px', color: colors.textColorSecondary, marginTop: '4px' }}>
-                        {log.details}
-                      </div>
-                    )}
-                  </div>
-                </Cell>
-                <Cell data-label="Utilisateur:">
-                  <UserInfo>
-                    <span className="username">{log.username}</span>
-                    <span className="user-id">ID: {log.user_id}</span>
-                  </UserInfo>
-                </Cell>
-                <Cell data-label="IP:">{log.ip_address}</Cell>
-              </TableRow>
-            );
-          })}
-        </LogsTable>
+        <>
+          <LogsTable>
+            <TableHeader>
+              <div>Horodatage</div>
+              <div>Type</div>
+              <div>Action</div>
+              <div>Utilisateur</div>
+              <div>Adresse IP</div>
+            </TableHeader>
+            {currentLogs.map((log) => {
+              const logType = getLogType(log.action);
+              return (
+                <TableRow key={log.id} type={logType}>
+                  <Cell data-label="Horodatage:">{formatTimestamp(log.timestamp)}</Cell>
+                  <Cell data-label="Type:">
+                    <Badge type={logType}>
+                      {logType === 'connection' && '🔐 Connexion'}
+                      {logType === 'scan' && '🔍 Analyse'}
+                      {logType === 'admin' && '⚙️ Admin'}
+                    </Badge>
+                  </Cell>
+                  <Cell data-label="Action:">
+                    <div>
+                      <div style={{ fontWeight: 500 }}>{translateAction(log.action)}</div>
+                      {log.details && (
+                        <div style={{ fontSize: '12px', color: colors.textColorSecondary, marginTop: '4px' }}>
+                          {log.details}
+                        </div>
+                      )}
+                    </div>
+                  </Cell>
+                  <Cell data-label="Utilisateur:">
+                    <UserInfo>
+                      <span className="username">{log.username}</span>
+                      <span className="user-id">ID: {log.user_id}</span>
+                    </UserInfo>
+                  </Cell>
+                  <Cell data-label="IP:">{log.ip_address}</Cell>
+                </TableRow>
+              );
+            })}
+          </LogsTable>
+
+          <PaginationContainer>
+            <PaginationInfo>
+              Affichage de {startIndex + 1} à {Math.min(endIndex, filteredLogs.length)} sur {filteredLogs.length} logs
+            </PaginationInfo>
+            <PaginationControls>
+              <PageButton onClick={() => goToPage(1)} disabled={currentPage === 1}>
+                ⏮️
+              </PageButton>
+              <PageButton onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1}>
+                ◀️
+              </PageButton>
+              {renderPageNumbers()}
+              <PageButton onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages}>
+                ▶️
+              </PageButton>
+              <PageButton onClick={() => goToPage(totalPages)} disabled={currentPage === totalPages}>
+                ⏭️
+              </PageButton>
+              <PerPageSelect
+                value={itemsPerPage}
+                onChange={(e) => {
+                  setItemsPerPage(Number(e.target.value));
+                  setCurrentPage(1);
+                }}
+              >
+                <option value={10}>10 / page</option>
+                <option value={20}>20 / page</option>
+                <option value={50}>50 / page</option>
+                <option value={100}>100 / page</option>
+              </PerPageSelect>
+            </PaginationControls>
+          </PaginationContainer>
+        </>
       )}
     </Container>
   );
 };
 
 export default Logs;
-

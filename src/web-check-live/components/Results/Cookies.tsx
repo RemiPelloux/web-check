@@ -146,9 +146,9 @@ const FilterButton = styled.button<{ active: boolean }>`
 // --- Helper Functions ---
 
 const getSecurityLevel = (score: number) => {
-  if (score <= 2) return { label: 'Critical Risk', color: colors.danger };
-  if (score <= 4) return { label: 'Medium Risk', color: colors.warning };
-  return { label: 'Secure', color: colors.success };
+  if (score <= 2) return { label: 'Risque Critique', color: colors.danger };
+  if (score <= 4) return { label: 'Risque Moyen', color: colors.warning };
+  return { label: 'Sécurisé', color: colors.success };
 };
 
 const formatCookieValue = (value: string): string => {
@@ -257,9 +257,9 @@ const CookiesCard = (props: { data: any, title: string, actionButtons: any }): J
         {/* Cookie List with Filters */}
         <div>
           <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-            <Heading as="h3" size="small" color={colors.textColor}>Detailed Cookie Inventory</Heading>
+            <Heading as="h3" size="small" color={colors.textColor}>Inventaire Détaillé des Cookies</Heading>
             <span style={{ fontSize: '0.8rem', color: colors.textColorSecondary }}>
-              Showing {filteredCookies.length} of {allCookies.length}
+              Affichage de {filteredCookies.length} sur {allCookies.length}
             </span>
           </div>
 

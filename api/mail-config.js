@@ -40,7 +40,7 @@ const mailConfigHandler = async (url, event, context) => {
       // Continue without TXT records
     }
 
-    // Filter for only email related TXT records (SPF, DKIM, DMARC, and certain provider verifications)
+    // Filter for only e-mail related TXT records (SPF, DKIM, DMARC, and certain provider verifications)
     const emailTxtRecords = txtRecords.filter(record => {
       const recordString = record.join('');
       return (
@@ -117,7 +117,7 @@ const mailConfigHandler = async (url, event, context) => {
       }
     });
 
-    // Analyze email security
+    // Analyze e-mail security
     const hasSpf = emailTxtRecords.some(record => record.join('').startsWith('v=spf1'));
     const hasDmarc = emailTxtRecords.some(record => record.join('').startsWith('v=DMARC1'));
     const hasDkim = emailTxtRecords.some(record => record.join('').startsWith('v=DKIM1'));
@@ -132,13 +132,13 @@ const mailConfigHandler = async (url, event, context) => {
     };
 
     if (!hasSpf) {
-      securityAnalysis.recommendations.push('Configure SPF record to prevent email spoofing');
+      securityAnalysis.recommendations.push('Configure SPF record to prevent e-mail spoofing');
     }
     if (!hasDmarc) {
-      securityAnalysis.recommendations.push('Configure DMARC policy for email authentication');
+      securityAnalysis.recommendations.push('Configure DMARC policy for e-mail authentication');
     }
     if (!hasDkim) {
-      securityAnalysis.recommendations.push('Set up DKIM signing for email integrity');
+      securityAnalysis.recommendations.push('Set up DKIM signing for e-mail integrity');
     }
 
     // If no mail records found at all

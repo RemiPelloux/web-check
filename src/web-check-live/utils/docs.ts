@@ -152,8 +152,8 @@ const docs: Doc[] = [
     id: "txt-records",
     title: "Enregistrements TXT",
     description:
-      "Les enregistrements TXT sont un type d'enregistrement DNS qui fournit des informations textuelles aux sources externes à votre domaine. Ils peuvent être utilisés à diverses fins, telles que la vérification de la propriété du domaine, la sécurisation des emails, et même la prévention de modifications non autorisées de votre site web.",
-    use: "Les enregistrements TXT révèlent souvent quels services et technologies externes sont utilisés avec un domaine donné. Ils peuvent révéler des détails sur la configuration email du domaine, l'utilisation de services spécifiques comme Google Workspace ou Microsoft 365, ou des mesures de sécurité en place telles que SPF et DKIM. Comprendre ces détails peut donner un aperçu des technologies utilisées par l'organisation, de leurs pratiques de sécurité email, et des vulnérabilités potentielles.",
+      "Les enregistrements TXT sont un type d'enregistrement DNS qui fournit des informations textuelles aux sources externes à votre domaine. Ils peuvent être utilisés à diverses fins, telles que la vérification de la propriété du domaine, la sécurisation des e-mails, et même la prévention de modifications non autorisées de votre site web.",
+    use: "Les enregistrements TXT révèlent souvent quels services et technologies externes sont utilisés avec un domaine donné. Ils peuvent révéler des détails sur la configuration e-mail du domaine, l'utilisation de services spécifiques comme Google Workspace ou Microsoft 365, ou des mesures de sécurité en place telles que SPF et DKIM. Comprendre ces détails peut donner un aperçu des technologies utilisées par l'organisation, de leurs pratiques de sécurité e-mail, et des vulnérabilités potentielles.",
     resources: [
       { title: 'Enregistrements TXT (Cloudflare)', link: 'https://www.cloudflare.com/fr-fr/learning/dns/dns-records/dns-txt-record/' },
       { title: 'Enregistrements TXT - Wiki', link: 'https://fr.wikipedia.org/wiki/Enregistrement_DNS' },
@@ -336,7 +336,7 @@ const docs: Doc[] = [
     id: 'security-txt',
     title: 'Security.txt',
     description: "Le fichier security.txt indique aux chercheurs comment ils peuvent divulguer de manière responsable tout problème de sécurité trouvé sur votre site. "
-    + "La norme a été proposée dans la RFC 9116, et spécifie que ce fichier doit inclure un point de contact (adresse email), "
+    + "La norme a été proposée dans la RFC 9116, et spécifie que ce fichier doit inclure un point de contact (adresse e-mail), "
     + "ainsi qu'optionnellement d'autres infos, comme un lien vers la politique de divulgation de sécurité, clé PGP, langue préférée, expiration de la politique et plus. "
     + "Le fichier doit être situé à la racine de votre domaine, soit à /security.txt ou /.well-known/security.txt.",
     use: "Ceci est important, car sans point de contact défini un chercheur en sécurité peut être incapable de signaler un problème de sécurité critique, "
@@ -381,14 +381,14 @@ const docs: Doc[] = [
   },
   {
     id: 'mail-config',
-    title: 'Configuration Email',
-    description: "DMARC (Domain-based Message Authentication, Reporting & Conformance): DMARC est un protocole d'authentification email qui fonctionne avec SPF et DKIM pour prévenir l'usurpation d'email et le phishing. Il permet aux propriétaires de domaines de spécifier comment gérer le courrier non authentifié via une politique publiée dans DNS, et fournit un moyen pour les serveurs de réception de courrier d'envoyer des retours sur la conformité des emails à l'expéditeur. " +
-    "BIMI (Brand Indicators for Message Identification): BIMI est un standard email émergent qui permet aux organisations d'afficher automatiquement un logo dans les clients email de leurs clients. BIMI lie le logo à l'enregistrement DMARC du domaine, fournissant un autre niveau d'assurance visuelle aux destinataires que l'email est légitime. " +
-    "DKIM (DomainKeys Identified Mail): DKIM est un standard de sécurité email conçu pour s'assurer que les messages n'ont pas été altérés en transit entre les serveurs d'envoi et de réception. Il utilise des signatures numériques liées au domaine de l'expéditeur pour vérifier l'expéditeur et assurer l'intégrité du message. " +
-    "SPF (Sender Policy Framework): SPF est une méthode d'authentification email conçue pour prévenir l'usurpation d'email. Elle spécifie quels serveurs de messagerie sont autorisés à envoyer des emails au nom d'un domaine en créant un enregistrement DNS. Cela aide à protéger contre le spam en fournissant un moyen pour les serveurs de messagerie de réception de vérifier que le courrier entrant provient d'un hôte autorisé par les administrateurs du domaine.",
-    use: "Ces informations sont utiles pour les chercheurs car elles aident à évaluer la posture de sécurité email d'un domaine, découvrir des vulnérabilités potentielles, et vérifier la légitimité des emails pour la détection de phishing. Ces détails peuvent également fournir un aperçu de l'environnement d'hébergement, des fournisseurs de services potentiels, et des modèles de configuration d'une organisation cible, assistant dans les efforts d'investigation.",
+    title: 'Configuration E-mail',
+    description: "DMARC (Domain-based Message Authentication, Reporting & Conformance): DMARC est un protocole d'authentification e-mail qui fonctionne avec SPF et DKIM pour prévenir l'usurpation d'e-mail et le phishing. Il permet aux propriétaires de domaines de spécifier comment gérer le courrier non authentifié via une politique publiée dans DNS, et fournit un moyen pour les serveurs de réception de courrier d'envoyer des retours sur la conformité des e-mails à l'expéditeur. " +
+    "BIMI (Brand Indicators for Message Identification): BIMI est un standard e-mail émergent qui permet aux organisations d'afficher automatiquement un logo dans les clients e-mail de leurs clients. BIMI lie le logo à l'enregistrement DMARC du domaine, fournissant un autre niveau d'assurance visuelle aux destinataires que l'e-mail est légitime. " +
+    "DKIM (DomainKeys Identified Mail): DKIM est un standard de sécurité e-mail conçu pour s'assurer que les messages n'ont pas été altérés en transit entre les serveurs d'envoi et de réception. Il utilise des signatures numériques liées au domaine de l'expéditeur pour vérifier l'expéditeur et assurer l'intégrité du message. " +
+    "SPF (Sender Policy Framework): SPF est une méthode d'authentification e-mail conçue pour prévenir l'usurpation d'e-mail. Elle spécifie quels serveurs de messagerie sont autorisés à envoyer des e-mails au nom d'un domaine en créant un enregistrement DNS. Cela aide à protéger contre le spam en fournissant un moyen pour les serveurs de messagerie de réception de vérifier que le courrier entrant provient d'un hôte autorisé par les administrateurs du domaine.",
+    use: "Ces informations sont utiles pour les chercheurs car elles aident à évaluer la posture de sécurité e-mail d'un domaine, découvrir des vulnérabilités potentielles, et vérifier la légitimité des e-mails pour la détection de phishing. Ces détails peuvent également fournir un aperçu de l'environnement d'hébergement, des fournisseurs de services potentiels, et des modèles de configuration d'une organisation cible, assistant dans les efforts d'investigation.",
     resources: [
-      { title: 'Intro à DMARC, DKIM et SPF (Cloudflare)', link: 'https://www.cloudflare.com/fr-fr/learning/email-security/dmarc-dkim-spf/' },
+      { title: 'Intro à DMARC, DKIM et SPF (Cloudflare)', link: 'https://www.cloudflare.com/fr-fr/learning/e-mail-security/dmarc-dkim-spf/' },
       { title: 'EasyDMARC Domain Scanner', link: 'https://easydmarc.com/tools/domain-scanner' },
       { title: 'MX Toolbox', link: 'https://mxtoolbox.com/' },
       { title: 'RFC-7208 - SPF', link: 'https://datatracker.ietf.org/doc/html/rfc7208' },

@@ -92,7 +92,7 @@ const resources = [
     title: 'Hudson Rock',
     link: 'https://hudsonrock.com/free-tools/?=webcheck',
     icon: 'https://i.ibb.co/0rF3rZh/logo-1-967abb2c.png',
-    description: 'Identify Infostealer infection data related to domains and emails',
+    description: 'Identify Infostealer infection data related to domains and e-mails',
   },
   {
     title: 'SSL Labs Test',
@@ -119,7 +119,7 @@ const resources = [
     title: 'Archive',
     link: 'https://archive.org/',
     icon: 'https://i.ibb.co/nfKMvCm/Archive-org.png',
-    description: 'View previous versions of a site via the Internet Archive',
+    description: 'Voir les versions précédentes d\'un site via Internet Archive',
     searchLink: 'https://web.archive.org/web/*/{URL}',
   },
   {
@@ -147,7 +147,7 @@ const resources = [
     title: 'NS Lookup',
     link: 'https://nslookup.io/',
     icon: 'https://i.ibb.co/BLSWvBv/Ns-lookup.png',
-    description: 'View DNS records for a domain',
+    description: 'Voir les enregistrements DNS d\'un domaine',
     searchLink: 'https://www.nslookup.io/domains/{DOMAIN}/dns-records/',
   },
   {
@@ -175,7 +175,7 @@ const resources = [
     title: 'Built With',
     link: 'https://builtwith.com/',
     icon: 'https://i.ibb.co/5LXBDfD/Built-with.png',
-    description: 'View the tech stack of a website',
+    description: 'Voir la pile technologique d\'un site web',
     searchLink: 'https://builtwith.com/{URL}',
   },
   {
@@ -188,28 +188,28 @@ const resources = [
     title: 'BGP Tools',
     link: 'https://bgp.tools/',
     icon: 'https://i.ibb.co/zhcSnmh/Bgp-tools.png',
-    description: 'View realtime BGP data for any ASN, Prefix or DNS',
+    description: 'Voir les données BGP en temps réel pour tout ASN, Préfixe ou DNS',
     searchLink: 'https://bgp.tools/dns/{URL}',
   },
   {
     title: 'Similar Web',
     link: 'https://similarweb.com/',
     icon: 'https://i.ibb.co/9YX8x3c/Similar-web.png',
-    description: 'View approx traffic and engagement stats for a website',
+    description: 'Voir les statistiques approximatives de trafic et d\'engagement d\'un site',
     searchLink: 'https://similarweb.com/website/{URL}',
   },
   {
     title: 'Blacklist Checker',
     link: 'https://blacklistchecker.com/',
     icon: 'https://i.ibb.co/7ygCyz3/black-list-checker.png',
-    description: 'Check if a domain, IP or email is present on the top blacklists',
+    description: 'Check if a domain, IP or e-mail is present on the top blacklists',
     searchLink: 'https://blacklistchecker.com/check?input={URL}',
   },
   {
     title: 'Cloudflare Radar',
     link: 'https://radar.cloudflare.com/',
     icon: 'https://i.ibb.co/DGZXRgh/Cloudflare.png',
-    description: 'View traffic source locations for a domain through Cloudflare',
+    description: 'Voir les sources de trafic géographiques d\'un domaine via Cloudflare',
     searchLink: 'https://radar.cloudflare.com/domains/domain/{URL}',
   },
   {
@@ -230,7 +230,7 @@ const resources = [
     title: 'IBM X-Force Exchange',
     link: 'https://exchange.xforce.ibmcloud.com/',
     icon: 'https://i.ibb.co/tsTsCV5/x-force.png',
-    description: 'View shared human and machine generated threat intelligence',
+    description: 'Voir les renseignements partagés sur les menaces humaines et générées par machine',
     searchLink: 'https://exchange.xforce.ibmcloud.com/url/{URL_ENCODED}',
   },
   {
@@ -260,7 +260,7 @@ const makeLink = (resource: any, scanUrl: string | undefined): string => {
 };
 
 const AdditionalResources = (props: { url?: string }): JSX.Element => {
-  return (<Card heading="External Tools for Further Research" styles={CardStyles}>
+  return (<Card heading="Outils Externes pour Recherches Approfondies" styles={CardStyles}>
     <ResourceListOuter>
       {
         resources.map((resource, index) => {
@@ -268,7 +268,7 @@ const AdditionalResources = (props: { url?: string }): JSX.Element => {
             <li key={index}>
               <a className="resource-wrap" target="_blank" rel="noreferrer" href={makeLink(resource, props.url)}>
                 <p className="resource-title">{resource.title}</p>
-                <span className="resource-link" onClick={()=> window.open(resource.link, '_blank')} title={`Open: ${resource.link}`}>
+                <span className="resource-link" onClick={()=> window.open(resource.link, '_blank')} title={`Ouvrir: ${resource.link}`}>
                   {new URL(resource.link).hostname}
                 </span>
                 <div className="resource-lower">
@@ -284,9 +284,9 @@ const AdditionalResources = (props: { url?: string }): JSX.Element => {
       }
     </ResourceListOuter>
     <Note>
-      These tools are not affiliated with Web-Check. Please use them at your own risk.<br />
-      At the time of listing, all of the above were available and free to use
-      - if this changes, please report it through our support channels.
+      Ces outils ne sont pas affiliés à Web-Check. Veuillez les utiliser à vos propres risques.<br />
+      Au moment de la mise en liste, tous ces outils étaient disponibles et gratuits
+      - si cela change, veuillez le signaler via nos canaux de support.
     </Note>
   </Card>);
 }

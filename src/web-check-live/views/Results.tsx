@@ -1080,7 +1080,7 @@ const Results = (props: { address?: string }): JSX.Element => {
       tags: ['security'],
     }, {
       id: 'mail-config',
-      title: 'Configuration Email',
+      title: 'Configuration E-mail',
       result: mailConfigResults,
       Component: MailConfigCard,
       refresh: updateMailConfigResults,
@@ -1311,7 +1311,18 @@ const Results = (props: { address?: string }): JSX.Element => {
           <Nav>
             {address &&
               <Heading color={colors.textColor} size="medium">
-                {addressType === 'url' && <a target="_blank" rel="noreferrer" href={address}><img width="32px" src={`https://icon.horse/icon/${makeSiteName(address)}`} alt="" /></a>}
+                {addressType === 'url' && (
+                  <a target="_blank" rel="noreferrer" href={address}>
+                    <img 
+                      width="32px" 
+                      src={`https://${makeSiteName(address)}/favicon.ico`}
+                      alt=""
+                      style={{ display: 'none' }}
+                      onLoad={(e) => { (e.target as HTMLImageElement).style.display = 'inline'; }}
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }}
+                    />
+                  </a>
+                )}
                 {makeSiteName(address)}
               </Heading>
             }

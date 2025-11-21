@@ -116,7 +116,7 @@ Les plugins sont organisés par catégorie :
 - **📡 Réseau** : Informations serveur, traceroute, ports
 - **⚡ Performance** : Qualité du site, empreinte carbone
 - **🔍 SEO** : Balises sociales, sitemap, robots.txt
-- **📧 Email** : Configuration email
+- **📧 E-mail** : Configuration e-mail
 - **⚙️ Technique** : Technologies utilisées, redirections
 - **📚 Historique** : Archives du site
 
@@ -418,7 +418,7 @@ cp database/checkit.db database/backups/checkit-$(date +%Y%m%d-%H%M%S).db
 ## Contacts et support
 
 ### Support technique APDP
-- **Email** : support.technique@apdp.mc
+- **E-mail** : support.technique@apdp.mc
 - **Téléphone** : +377 XX XX XX XX
 - **Horaires** : Lundi-Vendredi, 9h-17h
 
