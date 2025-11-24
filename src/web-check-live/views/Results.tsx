@@ -22,7 +22,6 @@ import { fetchDisabledPlugins } from 'web-check-live/utils/plugin-filter';
 
 import ViewRaw from 'web-check-live/components/misc/ViewRaw';
 
-import ComplianceSummaryCard from 'web-check-live/components/Results/ComplianceSummary';
 import ProfessionalComplianceDashboard from 'web-check-live/components/Results/ProfessionalComplianceDashboard';
 import VulnerabilitiesCard from 'web-check-live/components/Results/Vulnerabilities';
 import CDNResourcesCard from 'web-check-live/components/Results/CDNResources';

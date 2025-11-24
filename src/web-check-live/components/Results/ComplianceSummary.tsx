@@ -2,7 +2,7 @@ import styled from '@emotion/styled';
 import colors from 'web-check-live/styles/colors';
 import { Card } from 'web-check-live/components/Form/Card';
 import Row from 'web-check-live/components/Form/Row';
-import { generateComplianceReport } from 'web-check-live/utils/pdfGenerator';
+import { openComplianceReportHTML, generateComplianceReportHTML } from 'web-check-live/utils/htmlPdfGenerator';
 
 const SummaryContainer = styled.div`
   display: grid;

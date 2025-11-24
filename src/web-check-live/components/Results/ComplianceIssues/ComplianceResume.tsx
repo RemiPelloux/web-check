@@ -1,7 +1,7 @@
 import React from 'react';
 import styled from '@emotion/styled';
 import colors from 'web-check-live/styles/colors';
-import { generateComplianceReport } from 'web-check-live/utils/pdfGenerator';
+import { openComplianceReportHTML, generateComplianceReportHTML } from 'web-check-live/utils/htmlPdfGenerator';
 
 interface ComplianceData {
   score: number;
