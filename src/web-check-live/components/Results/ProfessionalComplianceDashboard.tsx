@@ -281,21 +281,19 @@ const CategoryBadge = styled.span`
 
 const SeverityBadge = styled.span<{ severity: string }>`
   background: ${({ severity }) => 
-    severity === 'critical' ? '#fecaca' :
-    severity === 'warning' ? '#fed7aa' :
-    severity === 'improvement' ? '#fef3c7' :
-    '#dcfce7'
-  };
-  color: ${({ severity }) => 
     severity === 'critical' ? '#dc2626' :
     severity === 'warning' ? '#f59e0b' :
     severity === 'improvement' ? '#eab308' :
     '#10b981'
   };
-  padding: 4px 8px;
-  border-radius: 4px;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
 
 const ActionButton = styled.button`
@@ -404,8 +402,6 @@ const ProfessionalComplianceDashboard: React.FC<ProfessionalComplianceDashboardP
   allResults, 
   siteName 
 }) => {
-  const [selectedIssue, setSelectedIssue] = useState<any>(null);
-
   const analysis = useMemo(() => {
     if (!allResults || Object.keys(allResults).length === 0) {
       return null;
@@ -599,9 +595,8 @@ const ProfessionalComplianceDashboard: React.FC<ProfessionalComplianceDashboardP
               <TableHeaderCell style={{ width: '40px' }}></TableHeaderCell>
               <TableHeaderCell>Problème</TableHeaderCell>
               <TableHeaderCell style={{ width: '120px' }}>Catégorie</TableHeaderCell>
-              <TableHeaderCell style={{ width: '100px' }}>Sévérité</TableHeaderCell>
+              <TableHeaderCell style={{ width: '140px' }}>Sévérité</TableHeaderCell>
               <TableHeaderCell>Recommandation</TableHeaderCell>
-              <TableHeaderCell style={{ width: '60px' }}>Action</TableHeaderCell>
             </TableRow>
           </TableHeader>
           <tbody>
@@ -625,61 +620,15 @@ const ProfessionalComplianceDashboard: React.FC<ProfessionalComplianceDashboardP
                   </SeverityBadge>
                 </TableCell>
                 <TableCell>
-                  <div style={{ fontSize: '13px', color: '#6b7280', lineHeight: '1.4' }}>
+                  <div style={{ fontSize: '13px', color: colors.textColorSecondary, lineHeight: '1.4' }}>
                     {issue.recommendation}
                   </div>
-                </TableCell>
-                <TableCell style={{ textAlign: 'center' }}>
-                  <ActionButton onClick={() => setSelectedIssue(issue)}>
-                    <span style={{ fontSize: '16px' }}>👁️</span>
-                  </ActionButton>
                 </TableCell>
               </TableRow>
             ))}
           </tbody>
         </Table>
       </ContentSection>
-
-      {/* Modal */}
-      {selectedIssue && (
-        <Modal onClick={(e) => e.target === e.currentTarget && setSelectedIssue(null)}>
-          <ModalContent>
-            <ModalHeader>
-              <ModalTitle>{selectedIssue.title}</ModalTitle>
-              <CloseButton onClick={() => setSelectedIssue(null)}>
-                <span style={{ fontSize: '20px' }}>✕</span>
-              </CloseButton>
-            </ModalHeader>
-            <ModalBody>
-              <div style={{ marginBottom: '16px' }}>
-                <SeverityBadge severity={selectedIssue.severity}>
-                  {getSeverityText(selectedIssue.severity)}
-                </SeverityBadge>
-                {' '}
-                <CategoryBadge>{selectedIssue.category}</CategoryBadge>
-              </div>
-              
-              <div style={{ marginBottom: '16px' }}>
-                <h4 style={{ fontSize: '14px', fontWeight: '600', color: '#111827', margin: '0 0 8px 0' }}>
-                  Description
-                </h4>
-                <p style={{ fontSize: '14px', color: '#6b7280', margin: '0', lineHeight: '1.5' }}>
-                  {selectedIssue.description}
-                </p>
-              </div>
-              
-              <RecommendationBox>
-                <RecommendationTitle>
-                  💡 Recommandation
-                </RecommendationTitle>
-                <RecommendationText>
-                  {selectedIssue.recommendation}
-                </RecommendationText>
-              </RecommendationBox>
-            </ModalBody>
-          </ModalContent>
-        </Modal>
-      )}
     </DashboardContainer>
   );
 };
