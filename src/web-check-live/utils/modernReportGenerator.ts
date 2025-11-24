@@ -43,14 +43,19 @@ export const generateModernReport = (data: ComplianceData, allResults?: any): st
     year: 'numeric'
   });
 
-  const scoreColor = data.numericScore >= 80 ? '#10b981' : data.numericScore >= 60 ? '#f59e0b' : '#dc2626';
-  const scoreLabel = data.numericScore >= 80 ? 'Conforme' : data.numericScore >= 60 ? 'À améliorer' : 'Non conforme';
-
   const allIssues = [
     ...(data.issues?.critical || []),
     ...(data.issues?.warnings || []),
     ...(data.issues?.improvements || [])
   ];
+
+  // Extract technologies
+  const technologies = allResults?.['tech-stack']?.technologies || [];
+  const topTechs = technologies.slice(0, 10);
+
+  // Extract subdomains
+  const subdomains = allResults?.['subdomain-enumeration']?.subdomains || [];
+  const hasSubdomains = subdomains.length > 0;
 
   return `
 <!DOCTYPE html>
@@ -122,59 +127,10 @@ export const generateModernReport = (data: ComplianceData, allResults?: any): st
       font-weight: 500;
     }
 
-    /* Score Section */
-    .score-section {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 25px;
-      background: linear-gradient(135deg, #f9fafb 0%, #f3f4f6 100%);
-      border-radius: 12px;
-      margin-bottom: 30px;
-      border: 2px solid #e5e7eb;
-    }
-
-    .score-circle {
-      width: 100px;
-      height: 100px;
-      border-radius: 50%;
-      background: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      border: 4px solid ${scoreColor};
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
-    }
-
-    .score-number {
-      font-size: 32pt;
-      font-weight: 800;
-      color: ${scoreColor};
-      line-height: 1;
-    }
-
-    .score-max {
-      font-size: 10pt;
-      color: #6b7280;
-      font-weight: 600;
-    }
-
-    .score-info {
-      flex: 1;
-      padding-left: 30px;
-    }
-
-    .score-label {
-      font-size: 14pt;
-      font-weight: 700;
-      color: ${scoreColor};
-      margin-bottom: 8px;
-    }
-
-    .score-date {
+    .report-date {
       font-size: 9pt;
-      color: #6b7280;
+      color: #9ca3af;
+      margin-top: 8px;
     }
 
     /* Stats Grid */
@@ -378,6 +334,57 @@ export const generateModernReport = (data: ComplianceData, allResults?: any): st
       font-weight: 700;
     }
 
+    /* Info Section */
+    .info-section {
+      background: #f9fafb;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      padding: 20px;
+      margin-bottom: 20px;
+    }
+
+    .info-section h3 {
+      font-size: 11pt;
+      font-weight: 700;
+      color: #111827;
+      margin-bottom: 12px;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+
+    .tech-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 8px;
+    }
+
+    .tech-item {
+      font-size: 9pt;
+      color: #374151;
+      padding: 6px 10px;
+      background: white;
+      border-radius: 4px;
+      border: 1px solid #e5e7eb;
+    }
+
+    .subdomain-list {
+      font-size: 9pt;
+      color: #374151;
+      line-height: 1.6;
+      max-height: 150px;
+      overflow-y: auto;
+    }
+
+    .subdomain-item {
+      padding: 4px 0;
+      border-bottom: 1px solid #f3f4f6;
+    }
+
+    .subdomain-item:last-child {
+      border-bottom: none;
+    }
+
     /* Footer */
     .footer {
       margin-top: 40px;
@@ -427,18 +434,7 @@ export const generateModernReport = (data: ComplianceData, allResults?: any): st
     <div class="logo">APDP MONACO</div>
     <h1>Rapport de Conformité Loi 1.565</h1>
     <div class="site-url">${data.url}</div>
-  </div>
-
-  <!-- Score Section -->
-  <div class="score-section">
-    <div class="score-circle">
-      <div class="score-number">${data.numericScore}</div>
-      <div class="score-max">/100</div>
-    </div>
-    <div class="score-info">
-      <div class="score-label">${scoreLabel}</div>
-      <div class="score-date">Analyse effectuée le ${date}</div>
-    </div>
+    <div class="report-date">Analyse effectuée le ${date}</div>
   </div>
 
   <!-- Stats Grid -->
@@ -467,6 +463,31 @@ export const generateModernReport = (data: ComplianceData, allResults?: any): st
       <div class="stat-label">Conformes</div>
     </div>
   </div>
+
+  ${topTechs.length > 0 ? `
+  <!-- Technologies Used -->
+  <div class="info-section">
+    <h3>⚙️ Technologies Utilisées</h3>
+    <div class="tech-grid">
+      ${topTechs.map((tech: any) => `
+        <div class="tech-item">${tech.name || tech.slug || tech}</div>
+      `).join('')}
+    </div>
+  </div>
+  ` : ''}
+
+  ${hasSubdomains ? `
+  <!-- Subdomains -->
+  <div class="info-section">
+    <h3>🌐 Sous-domaines Découverts (${subdomains.length})</h3>
+    <div class="subdomain-list">
+      ${subdomains.slice(0, 20).map((sub: any) => `
+        <div class="subdomain-item">${sub}</div>
+      `).join('')}
+      ${subdomains.length > 20 ? `<div class="subdomain-item" style="color: #9ca3af; font-style: italic;">... et ${subdomains.length - 20} autres</div>` : ''}
+    </div>
+  </div>
+  ` : ''}
 
   ${data.compliantItems > 0 ? `
   <!-- Compliant Items Summary -->
