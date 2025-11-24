@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import styled from '@emotion/styled';
 import colors from 'web-check-live/styles/colors';
 import { EnhancedComplianceAnalyzer } from 'web-check-live/utils/enhancedComplianceAnalyzer';
-import { openComplianceReportHTML } from 'web-check-live/utils/htmlPdfGenerator';
+import { openModernComplianceReport } from 'web-check-live/utils/modernReportGenerator';
 import SiteFavicon from 'web-check-live/components/misc/SiteFavicon';
 
 interface ProfessionalComplianceDashboardProps {
@@ -423,34 +423,22 @@ const ProfessionalComplianceDashboard: React.FC<ProfessionalComplianceDashboardP
     }
 
     try {
-      console.log('Opening HTML report with data:', { 
+      console.log('Opening modern compliance report with data:', { 
         analysis: !!analysis, 
         allResults: !!allResults, 
         siteName,
         score: analysis.score 
       });
 
-      openComplianceReportHTML(
+      openModernComplianceReport(
         {
           url: siteName || 'Site Web',
-          overallScore: getScoreGrade(analysis.score),
-          complianceLevel: analysis.level,
           numericScore: analysis.score,
           criticalIssues: analysis.criticalIssues.length,
           warnings: analysis.warnings.length,
           improvements: analysis.improvements.length,
           compliantItems: analysis.compliantItems.length,
           timestamp: new Date().toISOString(),
-          detailedAnalysis: {
-            cookieCompliance: {
-              status: allResults.cookies ? 'Analysé' : 'Non analysé',
-              cookieCount: allResults.cookies?.clientCookies?.length || allResults.cookies?.cookies?.length || 0
-            },
-            sslSecurity: {
-              isValid: allResults.ssl?.valid || allResults.ssl?.validCertificate || false,
-              protocol: allResults.ssl?.protocol || 'TLS'
-            }
-          },
           issues: {
             critical: analysis.criticalIssues || [],
             warnings: analysis.warnings || [],
@@ -459,10 +447,7 @@ const ProfessionalComplianceDashboard: React.FC<ProfessionalComplianceDashboardP
           },
           categories: analysis.categories || {}
         },
-        allResults.vulnerabilities,
-        undefined, // legal-pages removed
-        allResults['cdn-resources'],
-        allResults // Pass all results for comprehensive report
+        allResults
       );
     } catch (error) {
       console.error('Erreur lors de l\'ouverture du rapport:', error);
