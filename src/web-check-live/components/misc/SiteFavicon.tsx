@@ -77,3 +77,4 @@ const SiteFavicon = ({ domain, size = 32 }: SiteFaviconProps): JSX.Element => {
 export default SiteFavicon;
 
 
+
