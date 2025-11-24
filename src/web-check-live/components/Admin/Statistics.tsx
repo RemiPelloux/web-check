@@ -38,80 +38,135 @@ const StatsContainer = styled.div`
 
 const StatsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 20px;
-  margin-bottom: 32px;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 24px;
+  margin-bottom: 40px;
 `;
 
-const StatCard = styled.div`
-  background: linear-gradient(135deg, ${colors.backgroundLighter} 0%, ${colors.backgroundDarker} 100%);
-  border: 2px solid ${colors.borderColor};
-  border-radius: 16px;
-  padding: 28px;
+const StatCard = styled.div<{ variant?: 'primary' | 'danger' | 'warning' | 'success' | 'info' }>`
+  background: ${({ variant }) => {
+    if (variant === 'danger') return 'linear-gradient(135deg, rgba(220, 38, 38, 0.1) 0%, rgba(153, 27, 27, 0.05) 100%)';
+    if (variant === 'warning') return 'linear-gradient(135deg, rgba(245, 158, 11, 0.1) 0%, rgba(217, 119, 6, 0.05) 100%)';
+    if (variant === 'success') return 'linear-gradient(135deg, rgba(16, 185, 129, 0.1) 0%, rgba(5, 150, 105, 0.05) 100%)';
+    if (variant === 'info') return 'linear-gradient(135deg, rgba(59, 130, 246, 0.1) 0%, rgba(29, 78, 216, 0.05) 100%)';
+    return `linear-gradient(135deg, ${colors.backgroundLighter} 0%, ${colors.backgroundDarker} 100%)`;
+  }};
+  border: 2px solid ${({ variant }) => {
+    if (variant === 'danger') return 'rgba(220, 38, 38, 0.3)';
+    if (variant === 'warning') return 'rgba(245, 158, 11, 0.3)';
+    if (variant === 'success') return 'rgba(16, 185, 129, 0.3)';
+    if (variant === 'info') return 'rgba(59, 130, 246, 0.3)';
+    return colors.borderColor;
+  }};
+  border-radius: 20px;
+  padding: 32px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  gap: 16px;
+  transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
   position: relative;
   overflow: hidden;
+  backdrop-filter: blur(10px);
 
   &::before {
     content: '';
     position: absolute;
     top: 0;
     right: 0;
-    width: 100px;
-    height: 100px;
-    background: linear-gradient(135deg, ${colors.primary}20, transparent);
-    border-radius: 50%;
+    width: 120px;
+    height: 120px;
+    background: ${({ variant }) => {
+      if (variant === 'danger') return 'radial-gradient(circle, rgba(220, 38, 38, 0.15), transparent)';
+      if (variant === 'warning') return 'radial-gradient(circle, rgba(245, 158, 11, 0.15), transparent)';
+      if (variant === 'success') return 'radial-gradient(circle, rgba(16, 185, 129, 0.15), transparent)';
+      if (variant === 'info') return 'radial-gradient(circle, rgba(59, 130, 246, 0.15), transparent)';
+      return `radial-gradient(circle, ${colors.primary}15, transparent)`;
+    }};
     transform: translate(30%, -30%);
-    transition: transform 0.3s ease;
+    transition: transform 0.4s ease;
   }
 
   &:hover {
-    border-color: ${colors.primary};
-    box-shadow: 0 8px 24px rgba(220, 38, 38, 0.15);
-    transform: translateY(-4px) scale(1.02);
+    transform: translateY(-8px) scale(1.03);
+    border-color: ${({ variant }) => {
+      if (variant === 'danger') return '#dc2626';
+      if (variant === 'warning') return '#f59e0b';
+      if (variant === 'success') return '#10b981';
+      if (variant === 'info') return '#3b82f6';
+      return colors.primary;
+    }};
+    box-shadow: ${({ variant }) => {
+      if (variant === 'danger') return '0 12px 32px rgba(220, 38, 38, 0.25)';
+      if (variant === 'warning') return '0 12px 32px rgba(245, 158, 11, 0.25)';
+      if (variant === 'success') return '0 12px 32px rgba(16, 185, 129, 0.25)';
+      if (variant === 'info') return '0 12px 32px rgba(59, 130, 246, 0.25)';
+      return '0 12px 32px rgba(220, 38, 38, 0.2)';
+    }};
   }
 
   &:hover::before {
-    transform: translate(20%, -20%) scale(1.2);
+    transform: translate(20%, -20%) scale(1.3);
   }
 `;
 
 const StatLabel = styled.div`
-  font-size: 12px;
+  font-size: 13px;
   font-weight: 700;
   color: ${colors.textColorSecondary};
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 1.2px;
   position: relative;
   z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
 `;
 
-const StatValue = styled.div`
-  font-size: 36px;
+const StatValue = styled.div<{ variant?: string }>`
+  font-size: 48px;
   font-weight: 900;
-  color: ${colors.textColor};
+  color: ${({ variant }) => {
+    if (variant === 'danger') return '#dc2626';
+    if (variant === 'warning') return '#f59e0b';
+    if (variant === 'success') return '#10b981';
+    if (variant === 'info') return '#3b82f6';
+    return colors.textColor;
+  }};
   display: flex;
   align-items: baseline;
-  gap: 10px;
+  gap: 12px;
   position: relative;
   z-index: 1;
+  line-height: 1;
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
 
 const StatUnit = styled.span`
-  font-size: 16px;
+  font-size: 18px;
   font-weight: 600;
   color: ${colors.textColorSecondary};
+  text-shadow: none;
 `;
 
-const StatIcon = styled.div`
-  font-size: 28px;
-  opacity: 0.9;
+const StatIcon = styled.div<{ variant?: string }>`
+  font-size: 36px;
+  opacity: 0.95;
   position: relative;
   z-index: 1;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.15));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 56px;
+  height: 56px;
+  border-radius: 16px;
+  background: ${({ variant }) => {
+    if (variant === 'danger') return 'rgba(220, 38, 38, 0.15)';
+    if (variant === 'warning') return 'rgba(245, 158, 11, 0.15)';
+    if (variant === 'success') return 'rgba(16, 185, 129, 0.15)';
+    if (variant === 'info') return 'rgba(59, 130, 246, 0.15)';
+    return 'rgba(220, 38, 38, 0.1)';
+  }};
 `;
 
 const ChartsGrid = styled.div`
@@ -422,46 +477,46 @@ const Statistics = (): JSX.Element => {
     <StatsContainer>
       {/* Summary Cards */}
       <StatsGrid>
-        <StatCard>
-          <StatIcon>📊</StatIcon>
+        <StatCard variant="primary">
+          <StatIcon variant="primary">📊</StatIcon>
           <StatLabel>Total Analyses</StatLabel>
-          <StatValue>
-            {stats.totalScans}
+          <StatValue variant="primary">
+            {stats.totalScans.toLocaleString()}
             <StatUnit>scans</StatUnit>
           </StatValue>
         </StatCard>
 
-        <StatCard>
-          <StatIcon>🔴</StatIcon>
+        <StatCard variant="danger">
+          <StatIcon variant="danger">🔴</StatIcon>
           <StatLabel>Problèmes Critiques</StatLabel>
-          <StatValue>
-            {stats.criticalIssues}
+          <StatValue variant="danger">
+            {stats.criticalIssues.toLocaleString()}
             <StatUnit>trouvés</StatUnit>
           </StatValue>
         </StatCard>
 
-        <StatCard>
-          <StatIcon>⚠️</StatIcon>
+        <StatCard variant="warning">
+          <StatIcon variant="warning">⚠️</StatIcon>
           <StatLabel>Avertissements</StatLabel>
-          <StatValue>
-            {stats.warningIssues}
+          <StatValue variant="warning">
+            {stats.warningIssues.toLocaleString()}
             <StatUnit>détectés</StatUnit>
           </StatValue>
         </StatCard>
 
-        <StatCard>
-          <StatIcon>👥</StatIcon>
+        <StatCard variant="success">
+          <StatIcon variant="success">👥</StatIcon>
           <StatLabel>Utilisateurs DPD</StatLabel>
-          <StatValue>
-            {stats.dpdUsers}
+          <StatValue variant="success">
+            {stats.dpdUsers.toLocaleString()}
             <StatUnit>actifs</StatUnit>
           </StatValue>
         </StatCard>
 
-        <StatCard>
-          <StatIcon>📈</StatIcon>
+        <StatCard variant="info">
+          <StatIcon variant="info">📈</StatIcon>
           <StatLabel>Moyenne par Utilisateur</StatLabel>
-          <StatValue>
+          <StatValue variant="info">
             {stats.scansPerUser.toFixed(1)}
             <StatUnit>scans</StatUnit>
           </StatValue>
