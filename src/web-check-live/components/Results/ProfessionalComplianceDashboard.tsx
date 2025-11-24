@@ -13,13 +13,13 @@ interface ProfessionalComplianceDashboardProps {
 const DashboardContainer = styled.div`
   max-width: 1400px;
   margin: 0 auto;
-  background: #f8fafc;
+  background: ${colors.backgroundLighter};
   min-height: 100vh;
 `;
 
 const Header = styled.div`
-  background: white;
-  border-bottom: 1px solid #e5e7eb;
+  background: ${colors.background};
+  border-bottom: 1px solid ${colors.border};
   padding: 24px;
 `;
 
@@ -44,13 +44,13 @@ const HeaderTitle = styled.div`
 const Title = styled.h1`
   font-size: 24px;
   font-weight: 700;
-  color: #111827;
+  color: ${colors.textColor};
   margin: 0;
 `;
 
 const Subtitle = styled.p`
   font-size: 14px;
-  color: #6b7280;
+  color: ${colors.textColorSecondary};
   margin: 0;
 `;
 
@@ -59,7 +59,7 @@ const HeaderMeta = styled.div`
   align-items: center;
   gap: 24px;
   font-size: 14px;
-  color: #6b7280;
+  color: ${colors.textColorSecondary};
 `;
 
 const MetaItem = styled.div`
@@ -155,14 +155,14 @@ const StatsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1px;
-  background: #e5e7eb;
+  background: ${colors.border};
   border-radius: 8px;
   overflow: hidden;
   margin: 24px;
 `;
 
 const StatCard = styled.div<{ color: string }>`
-  background: white;
+  background: ${colors.background};
   padding: 24px;
   text-align: center;
 `;
@@ -181,28 +181,28 @@ const StatNumber = styled.div<{ color: string }>`
 
 const StatLabel = styled.div`
   font-size: 14px;
-  color: #6b7280;
+  color: ${colors.textColorSecondary};
   font-weight: 500;
 `;
 
 const ContentSection = styled.div`
-  background: white;
+  background: ${colors.background};
   margin: 0 24px 24px 24px;
   border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid ${colors.border};
   overflow: hidden;
 `;
 
 const SectionHeader = styled.div`
-  background: #f9fafb;
+  background: ${colors.backgroundLighter};
   padding: 16px 24px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid ${colors.border};
 `;
 
 const SectionTitle = styled.h2`
   font-size: 16px;
   font-weight: 600;
-  color: #111827;
+  color: ${colors.textColor};
   margin: 0;
 `;
 
@@ -212,14 +212,14 @@ const Table = styled.table`
 `;
 
 const TableHeader = styled.thead`
-  background: #f9fafb;
+  background: ${colors.backgroundLighter};
 `;
 
 const TableRow = styled.tr`
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid ${colors.border};
   
   &:hover {
-    background: #f9fafb;
+    background: ${colors.backgroundLighter};
   }
 `;
 
@@ -228,7 +228,7 @@ const TableHeaderCell = styled.th`
   text-align: left;
   font-size: 12px;
   font-weight: 600;
-  color: #6b7280;
+  color: ${colors.textColorSecondary};
   text-transform: uppercase;
   letter-spacing: 0.05em;
 `;
@@ -236,7 +236,7 @@ const TableHeaderCell = styled.th`
 const TableCell = styled.td`
   padding: 16px;
   font-size: 14px;
-  color: #111827;
+  color: ${colors.textColor};
   vertical-align: top;
 `;
 
@@ -260,19 +260,19 @@ const SeverityIcon = styled.div<{ severity: string }>`
 
 const ProblemTitle = styled.div`
   font-weight: 600;
-  color: #111827;
+  color: ${colors.textColor};
   margin-bottom: 4px;
 `;
 
 const ProblemDescription = styled.div`
   font-size: 13px;
-  color: #6b7280;
+  color: ${colors.textColorSecondary};
   line-height: 1.4;
 `;
 
 const CategoryBadge = styled.span`
-  background: #f3f4f6;
-  color: #374151;
+  background: ${colors.backgroundLighter};
+  color: ${colors.textColor};
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 12px;
@@ -301,15 +301,15 @@ const SeverityBadge = styled.span<{ severity: string }>`
 const ActionButton = styled.button`
   background: none;
   border: none;
-  color: #6b7280;
+  color: ${colors.textColorSecondary};
   cursor: pointer;
   padding: 4px;
   border-radius: 4px;
   transition: color 0.2s ease;
 
   &:hover {
-    color: #374151;
-    background: #f3f4f6;
+    color: ${colors.textColor};
+    background: ${colors.backgroundLighter};
   }
 `;
 
@@ -328,7 +328,7 @@ const Modal = styled.div`
 `;
 
 const ModalContent = styled.div`
-  background: white;
+  background: ${colors.background};
   border-radius: 8px;
   max-width: 600px;
   width: 100%;
@@ -340,7 +340,7 @@ const ModalContent = styled.div`
 
 const ModalHeader = styled.div`
   padding: 24px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid ${colors.border};
   display: flex;
   align-items: center;
   justify-content: between;
@@ -349,7 +349,7 @@ const ModalHeader = styled.div`
 const ModalTitle = styled.h3`
   font-size: 18px;
   font-weight: 600;
-  color: #111827;
+  color: ${colors.textColor};
   margin: 0;
   flex: 1;
 `;
@@ -363,15 +363,15 @@ const ModalBody = styled.div`
 const CloseButton = styled.button`
   background: none;
   border: none;
-  color: #6b7280;
+  color: ${colors.textColorSecondary};
   cursor: pointer;
   padding: 4px;
   border-radius: 4px;
   transition: color 0.2s ease;
 
   &:hover {
-    color: #374151;
-    background: #f3f4f6;
+    color: ${colors.textColor};
+    background: ${colors.backgroundLighter};
   }
 `;
 
