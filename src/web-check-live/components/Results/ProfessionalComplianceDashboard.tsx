@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import styled from '@emotion/styled';
 import colors from 'web-check-live/styles/colors';
 import { EnhancedComplianceAnalyzer } from 'web-check-live/utils/enhancedComplianceAnalyzer';
-import { openModernComplianceReport } from 'web-check-live/utils/modernReportGenerator';
+import { openComplianceReportHTML, generateComplianceReportHTML } from 'web-check-live/utils/htmlPdfGenerator';
 import SiteFavicon from 'web-check-live/components/misc/SiteFavicon';
 
 interface ProfessionalComplianceDashboardProps {
@@ -430,9 +430,11 @@ const ProfessionalComplianceDashboard: React.FC<ProfessionalComplianceDashboardP
         score: analysis.score 
       });
 
-      openModernComplianceReport(
+      openComplianceReportHTML(
         {
           url: siteName || 'Site Web',
+          overallScore: getScoreGrade(analysis.score),
+          complianceLevel: analysis.level,
           numericScore: analysis.score,
           criticalIssues: analysis.criticalIssues.length,
           warnings: analysis.warnings.length,
@@ -447,6 +449,9 @@ const ProfessionalComplianceDashboard: React.FC<ProfessionalComplianceDashboardP
           },
           categories: analysis.categories || {}
         },
+        allResults.vulnerabilities,
+        undefined,
+        allResults['cdn-resources'],
         allResults
       );
     } catch (error) {
@@ -469,8 +474,7 @@ const ProfessionalComplianceDashboard: React.FC<ProfessionalComplianceDashboardP
         score: analysis.score 
       });
 
-      // Import dynamique de la fonction
-      const { generateComplianceReportHTML } = await import('../../utils/htmlPdfGenerator');
+      // Utiliser la fonction déjà importée
 
       await generateComplianceReportHTML(
         {
