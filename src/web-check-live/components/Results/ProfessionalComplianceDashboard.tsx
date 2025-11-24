@@ -2,7 +2,7 @@ import React, { useState, useMemo } from 'react';
 import styled from '@emotion/styled';
 import colors from 'web-check-live/styles/colors';
 import { EnhancedComplianceAnalyzer } from 'web-check-live/utils/enhancedComplianceAnalyzer';
-import { openComplianceReportHTML } from 'web-check-live/utils/htmlPdfGenerator';
+import { openModernComplianceReport } from 'web-check-live/utils/modernReportGenerator';
 import SiteFavicon from 'web-check-live/components/misc/SiteFavicon';
 
 interface ProfessionalComplianceDashboardProps {
@@ -13,13 +13,13 @@ interface ProfessionalComplianceDashboardProps {
 const DashboardContainer = styled.div`
   max-width: 1400px;
   margin: 0 auto;
-  background: #f8fafc;
+  background: ${colors.backgroundLighter};
   min-height: 100vh;
 `;
 
 const Header = styled.div`
-  background: white;
-  border-bottom: 1px solid #e5e7eb;
+  background: ${colors.background};
+  border-bottom: 1px solid ${colors.border};
   padding: 24px;
 `;
 
@@ -44,13 +44,13 @@ const HeaderTitle = styled.div`
 const Title = styled.h1`
   font-size: 24px;
   font-weight: 700;
-  color: #111827;
+  color: ${colors.textColor};
   margin: 0;
 `;
 
 const Subtitle = styled.p`
   font-size: 14px;
-  color: #6b7280;
+  color: ${colors.textColorSecondary};
   margin: 0;
 `;
 
@@ -59,7 +59,7 @@ const HeaderMeta = styled.div`
   align-items: center;
   gap: 24px;
   font-size: 14px;
-  color: #6b7280;
+  color: ${colors.textColorSecondary};
 `;
 
 const MetaItem = styled.div`
@@ -155,14 +155,14 @@ const StatsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(4, 1fr);
   gap: 1px;
-  background: #e5e7eb;
+  background: ${colors.border};
   border-radius: 8px;
   overflow: hidden;
   margin: 24px;
 `;
 
 const StatCard = styled.div<{ color: string }>`
-  background: white;
+  background: ${colors.background};
   padding: 24px;
   text-align: center;
 `;
@@ -181,28 +181,28 @@ const StatNumber = styled.div<{ color: string }>`
 
 const StatLabel = styled.div`
   font-size: 14px;
-  color: #6b7280;
+  color: ${colors.textColorSecondary};
   font-weight: 500;
 `;
 
 const ContentSection = styled.div`
-  background: white;
+  background: ${colors.background};
   margin: 0 24px 24px 24px;
   border-radius: 8px;
-  border: 1px solid #e5e7eb;
+  border: 1px solid ${colors.border};
   overflow: hidden;
 `;
 
 const SectionHeader = styled.div`
-  background: #f9fafb;
+  background: ${colors.backgroundLighter};
   padding: 16px 24px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid ${colors.border};
 `;
 
 const SectionTitle = styled.h2`
   font-size: 16px;
   font-weight: 600;
-  color: #111827;
+  color: ${colors.textColor};
   margin: 0;
 `;
 
@@ -212,14 +212,14 @@ const Table = styled.table`
 `;
 
 const TableHeader = styled.thead`
-  background: #f9fafb;
+  background: ${colors.backgroundLighter};
 `;
 
 const TableRow = styled.tr`
-  border-bottom: 1px solid #f3f4f6;
+  border-bottom: 1px solid ${colors.border};
   
   &:hover {
-    background: #f9fafb;
+    background: ${colors.backgroundLighter};
   }
 `;
 
@@ -228,7 +228,7 @@ const TableHeaderCell = styled.th`
   text-align: left;
   font-size: 12px;
   font-weight: 600;
-  color: #6b7280;
+  color: ${colors.textColorSecondary};
   text-transform: uppercase;
   letter-spacing: 0.05em;
 `;
@@ -236,7 +236,7 @@ const TableHeaderCell = styled.th`
 const TableCell = styled.td`
   padding: 16px;
   font-size: 14px;
-  color: #111827;
+  color: ${colors.textColor};
   vertical-align: top;
 `;
 
@@ -260,19 +260,19 @@ const SeverityIcon = styled.div<{ severity: string }>`
 
 const ProblemTitle = styled.div`
   font-weight: 600;
-  color: #111827;
+  color: ${colors.textColor};
   margin-bottom: 4px;
 `;
 
 const ProblemDescription = styled.div`
   font-size: 13px;
-  color: #6b7280;
+  color: ${colors.textColorSecondary};
   line-height: 1.4;
 `;
 
 const CategoryBadge = styled.span`
-  background: #f3f4f6;
-  color: #374151;
+  background: ${colors.backgroundLighter};
+  color: ${colors.textColor};
   padding: 4px 8px;
   border-radius: 4px;
   font-size: 12px;
@@ -281,35 +281,33 @@ const CategoryBadge = styled.span`
 
 const SeverityBadge = styled.span<{ severity: string }>`
   background: ${({ severity }) => 
-    severity === 'critical' ? '#fecaca' :
-    severity === 'warning' ? '#fed7aa' :
-    severity === 'improvement' ? '#fef3c7' :
-    '#dcfce7'
-  };
-  color: ${({ severity }) => 
     severity === 'critical' ? '#dc2626' :
     severity === 'warning' ? '#f59e0b' :
     severity === 'improvement' ? '#eab308' :
     '#10b981'
   };
-  padding: 4px 8px;
-  border-radius: 4px;
+  color: white;
+  padding: 6px 12px;
+  border-radius: 6px;
   font-size: 12px;
-  font-weight: 600;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 `;
 
 const ActionButton = styled.button`
   background: none;
   border: none;
-  color: #6b7280;
+  color: ${colors.textColorSecondary};
   cursor: pointer;
   padding: 4px;
   border-radius: 4px;
   transition: color 0.2s ease;
 
   &:hover {
-    color: #374151;
-    background: #f3f4f6;
+    color: ${colors.textColor};
+    background: ${colors.backgroundLighter};
   }
 `;
 
@@ -328,7 +326,7 @@ const Modal = styled.div`
 `;
 
 const ModalContent = styled.div`
-  background: white;
+  background: ${colors.background};
   border-radius: 8px;
   max-width: 600px;
   width: 100%;
@@ -340,7 +338,7 @@ const ModalContent = styled.div`
 
 const ModalHeader = styled.div`
   padding: 24px;
-  border-bottom: 1px solid #e5e7eb;
+  border-bottom: 1px solid ${colors.border};
   display: flex;
   align-items: center;
   justify-content: between;
@@ -349,7 +347,7 @@ const ModalHeader = styled.div`
 const ModalTitle = styled.h3`
   font-size: 18px;
   font-weight: 600;
-  color: #111827;
+  color: ${colors.textColor};
   margin: 0;
   flex: 1;
 `;
@@ -363,15 +361,15 @@ const ModalBody = styled.div`
 const CloseButton = styled.button`
   background: none;
   border: none;
-  color: #6b7280;
+  color: ${colors.textColorSecondary};
   cursor: pointer;
   padding: 4px;
   border-radius: 4px;
   transition: color 0.2s ease;
 
   &:hover {
-    color: #374151;
-    background: #f3f4f6;
+    color: ${colors.textColor};
+    background: ${colors.backgroundLighter};
   }
 `;
 
@@ -404,8 +402,6 @@ const ProfessionalComplianceDashboard: React.FC<ProfessionalComplianceDashboardP
   allResults, 
   siteName 
 }) => {
-  const [selectedIssue, setSelectedIssue] = useState<any>(null);
-
   const analysis = useMemo(() => {
     if (!allResults || Object.keys(allResults).length === 0) {
       return null;
@@ -427,34 +423,22 @@ const ProfessionalComplianceDashboard: React.FC<ProfessionalComplianceDashboardP
     }
 
     try {
-      console.log('Opening HTML report with data:', { 
+      console.log('Opening modern compliance report with data:', { 
         analysis: !!analysis, 
         allResults: !!allResults, 
         siteName,
         score: analysis.score 
       });
 
-      openComplianceReportHTML(
+      openModernComplianceReport(
         {
           url: siteName || 'Site Web',
-          overallScore: getScoreGrade(analysis.score),
-          complianceLevel: analysis.level,
           numericScore: analysis.score,
           criticalIssues: analysis.criticalIssues.length,
           warnings: analysis.warnings.length,
           improvements: analysis.improvements.length,
           compliantItems: analysis.compliantItems.length,
           timestamp: new Date().toISOString(),
-          detailedAnalysis: {
-            cookieCompliance: {
-              status: allResults.cookies ? 'Analysé' : 'Non analysé',
-              cookieCount: allResults.cookies?.clientCookies?.length || allResults.cookies?.cookies?.length || 0
-            },
-            sslSecurity: {
-              isValid: allResults.ssl?.valid || allResults.ssl?.validCertificate || false,
-              protocol: allResults.ssl?.protocol || 'TLS'
-            }
-          },
           issues: {
             critical: analysis.criticalIssues || [],
             warnings: analysis.warnings || [],
@@ -463,10 +447,7 @@ const ProfessionalComplianceDashboard: React.FC<ProfessionalComplianceDashboardP
           },
           categories: analysis.categories || {}
         },
-        allResults.vulnerabilities,
-        undefined, // legal-pages removed
-        allResults['cdn-resources'],
-        allResults // Pass all results for comprehensive report
+        allResults
       );
     } catch (error) {
       console.error('Erreur lors de l\'ouverture du rapport:', error);
@@ -668,9 +649,8 @@ const ProfessionalComplianceDashboard: React.FC<ProfessionalComplianceDashboardP
               <TableHeaderCell style={{ width: '40px' }}></TableHeaderCell>
               <TableHeaderCell>Problème</TableHeaderCell>
               <TableHeaderCell style={{ width: '120px' }}>Catégorie</TableHeaderCell>
-              <TableHeaderCell style={{ width: '100px' }}>Sévérité</TableHeaderCell>
+              <TableHeaderCell style={{ width: '140px' }}>Sévérité</TableHeaderCell>
               <TableHeaderCell>Recommandation</TableHeaderCell>
-              <TableHeaderCell style={{ width: '60px' }}>Action</TableHeaderCell>
             </TableRow>
           </TableHeader>
           <tbody>
@@ -694,61 +674,15 @@ const ProfessionalComplianceDashboard: React.FC<ProfessionalComplianceDashboardP
                   </SeverityBadge>
                 </TableCell>
                 <TableCell>
-                  <div style={{ fontSize: '13px', color: '#6b7280', lineHeight: '1.4' }}>
+                  <div style={{ fontSize: '13px', color: colors.textColorSecondary, lineHeight: '1.4' }}>
                     {issue.recommendation}
                   </div>
-                </TableCell>
-                <TableCell style={{ textAlign: 'center' }}>
-                  <ActionButton onClick={() => setSelectedIssue(issue)}>
-                    <span style={{ fontSize: '16px' }}>👁️</span>
-                  </ActionButton>
                 </TableCell>
               </TableRow>
             ))}
           </tbody>
         </Table>
       </ContentSection>
-
-      {/* Modal */}
-      {selectedIssue && (
-        <Modal onClick={(e) => e.target === e.currentTarget && setSelectedIssue(null)}>
-          <ModalContent>
-            <ModalHeader>
-              <ModalTitle>{selectedIssue.title}</ModalTitle>
-              <CloseButton onClick={() => setSelectedIssue(null)}>
-                <span style={{ fontSize: '20px' }}>✕</span>
-              </CloseButton>
-            </ModalHeader>
-            <ModalBody>
-              <div style={{ marginBottom: '16px' }}>
-                <SeverityBadge severity={selectedIssue.severity}>
-                  {getSeverityText(selectedIssue.severity)}
-                </SeverityBadge>
-                {' '}
-                <CategoryBadge>{selectedIssue.category}</CategoryBadge>
-              </div>
-              
-              <div style={{ marginBottom: '16px' }}>
-                <h4 style={{ fontSize: '14px', fontWeight: '600', color: '#111827', margin: '0 0 8px 0' }}>
-                  Description
-                </h4>
-                <p style={{ fontSize: '14px', color: '#6b7280', margin: '0', lineHeight: '1.5' }}>
-                  {selectedIssue.description}
-                </p>
-              </div>
-              
-              <RecommendationBox>
-                <RecommendationTitle>
-                  💡 Recommandation
-                </RecommendationTitle>
-                <RecommendationText>
-                  {selectedIssue.recommendation}
-                </RecommendationText>
-              </RecommendationBox>
-            </ModalBody>
-          </ModalContent>
-        </Modal>
-      )}
     </DashboardContainer>
   );
 };

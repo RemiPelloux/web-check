@@ -38,80 +38,91 @@ const StatsContainer = styled.div`
 
 const StatsGrid = styled.div`
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
-  gap: 20px;
+  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+  gap: 16px;
   margin-bottom: 32px;
 `;
 
-const StatCard = styled.div`
-  background: linear-gradient(135deg, ${colors.backgroundLighter} 0%, ${colors.backgroundDarker} 100%);
-  border: 2px solid ${colors.borderColor};
-  border-radius: 16px;
-  padding: 28px;
+const StatCard = styled.div<{ variant?: 'primary' | 'danger' | 'warning' | 'success' | 'info' }>`
+  background: ${colors.background};
+  border: 1px solid ${({ variant }) => {
+    if (variant === 'danger') return 'rgba(220, 38, 38, 0.2)';
+    if (variant === 'warning') return 'rgba(245, 158, 11, 0.2)';
+    if (variant === 'success') return 'rgba(16, 185, 129, 0.2)';
+    if (variant === 'info') return 'rgba(59, 130, 246, 0.2)';
+    return colors.borderColor;
+  }};
+  border-radius: 12px;
+  padding: 20px;
   display: flex;
   flex-direction: column;
-  gap: 12px;
-  transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  gap: 8px;
+  transition: all 0.2s ease;
   position: relative;
   overflow: hidden;
 
-  &::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 100px;
-    height: 100px;
-    background: linear-gradient(135deg, ${colors.primary}20, transparent);
-    border-radius: 50%;
-    transform: translate(30%, -30%);
-    transition: transform 0.3s ease;
-  }
-
   &:hover {
-    border-color: ${colors.primary};
-    box-shadow: 0 8px 24px rgba(220, 38, 38, 0.15);
-    transform: translateY(-4px) scale(1.02);
-  }
-
-  &:hover::before {
-    transform: translate(20%, -20%) scale(1.2);
+    transform: translateY(-2px);
+    border-color: ${({ variant }) => {
+      if (variant === 'danger') return 'rgba(220, 38, 38, 0.4)';
+      if (variant === 'warning') return 'rgba(245, 158, 11, 0.4)';
+      if (variant === 'success') return 'rgba(16, 185, 129, 0.4)';
+      if (variant === 'info') return 'rgba(59, 130, 246, 0.4)';
+      return colors.borderColor;
+    }};
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.08);
   }
 `;
 
 const StatLabel = styled.div`
-  font-size: 12px;
-  font-weight: 700;
+  font-size: 11px;
+  font-weight: 600;
   color: ${colors.textColorSecondary};
   text-transform: uppercase;
-  letter-spacing: 1px;
+  letter-spacing: 0.8px;
   position: relative;
   z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 6px;
 `;
 
-const StatValue = styled.div`
-  font-size: 36px;
-  font-weight: 900;
+const StatValue = styled.div<{ variant?: string }>`
+  font-size: 32px;
+  font-weight: 700;
   color: ${colors.textColor};
   display: flex;
   align-items: baseline;
-  gap: 10px;
+  gap: 8px;
   position: relative;
   z-index: 1;
+  line-height: 1;
 `;
 
 const StatUnit = styled.span`
-  font-size: 16px;
-  font-weight: 600;
+  font-size: 14px;
+  font-weight: 500;
   color: ${colors.textColorSecondary};
 `;
 
-const StatIcon = styled.div`
-  font-size: 28px;
-  opacity: 0.9;
+const StatIcon = styled.div<{ variant?: string }>`
+  font-size: 20px;
+  opacity: 0.8;
   position: relative;
   z-index: 1;
-  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  background: ${({ variant }) => {
+    if (variant === 'danger') return 'rgba(220, 38, 38, 0.1)';
+    if (variant === 'warning') return 'rgba(245, 158, 11, 0.1)';
+    if (variant === 'success') return 'rgba(16, 185, 129, 0.1)';
+    if (variant === 'info') return 'rgba(59, 130, 246, 0.1)';
+    return 'rgba(220, 38, 38, 0.1)';
+  }};
 `;
 
 const ChartsGrid = styled.div`
@@ -422,46 +433,46 @@ const Statistics = (): JSX.Element => {
     <StatsContainer>
       {/* Summary Cards */}
       <StatsGrid>
-        <StatCard>
-          <StatIcon>📊</StatIcon>
+        <StatCard variant="primary">
+          <StatIcon variant="primary">📊</StatIcon>
           <StatLabel>Total Analyses</StatLabel>
-          <StatValue>
-            {stats.totalScans}
+          <StatValue variant="primary">
+            {stats.totalScans.toLocaleString()}
             <StatUnit>scans</StatUnit>
           </StatValue>
         </StatCard>
 
-        <StatCard>
-          <StatIcon>🔴</StatIcon>
+        <StatCard variant="danger">
+          <StatIcon variant="danger">🔴</StatIcon>
           <StatLabel>Problèmes Critiques</StatLabel>
-          <StatValue>
-            {stats.criticalIssues}
+          <StatValue variant="danger">
+            {stats.criticalIssues.toLocaleString()}
             <StatUnit>trouvés</StatUnit>
           </StatValue>
         </StatCard>
 
-        <StatCard>
-          <StatIcon>⚠️</StatIcon>
+        <StatCard variant="warning">
+          <StatIcon variant="warning">⚠️</StatIcon>
           <StatLabel>Avertissements</StatLabel>
-          <StatValue>
-            {stats.warningIssues}
+          <StatValue variant="warning">
+            {stats.warningIssues.toLocaleString()}
             <StatUnit>détectés</StatUnit>
           </StatValue>
         </StatCard>
 
-        <StatCard>
-          <StatIcon>👥</StatIcon>
+        <StatCard variant="success">
+          <StatIcon variant="success">👥</StatIcon>
           <StatLabel>Utilisateurs DPD</StatLabel>
-          <StatValue>
-            {stats.dpdUsers}
+          <StatValue variant="success">
+            {stats.dpdUsers.toLocaleString()}
             <StatUnit>actifs</StatUnit>
           </StatValue>
         </StatCard>
 
-        <StatCard>
-          <StatIcon>📈</StatIcon>
+        <StatCard variant="info">
+          <StatIcon variant="info">📈</StatIcon>
           <StatLabel>Moyenne par Utilisateur</StatLabel>
-          <StatValue>
+          <StatValue variant="info">
             {stats.scansPerUser.toFixed(1)}
             <StatUnit>scans</StatUnit>
           </StatValue>
