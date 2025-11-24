@@ -248,12 +248,34 @@ const getIssueArray = (issues: ComplianceIssue[] | number | undefined): Complian
 const ComplianceSummaryCard = ({ data, title, actionButtons }: ComplianceSummaryProps): JSX.Element => {
   const handlePDFExport = async () => {
     try {
+      // Import dynamique des fonctions de génération HTML
+      const { openComplianceReportHTML } = await import('../../utils/htmlPdfGenerator');
+      
       // Get additional data from window.webCheck if available
       const vulnerabilities = (window as any)?.webCheck?.['vulnerabilities'];
       const legalPages = (window as any)?.webCheck?.['legal-pages'];
       const cdnResources = (window as any)?.webCheck?.['cdn-resources'];
+      const allResults = (window as any)?.webCheck;
       
-      await generateComplianceReport(data, vulnerabilities, legalPages, cdnResources);
+      await openComplianceReportHTML(data, vulnerabilities, legalPages, cdnResources, allResults);
+    } catch (error) {
+      console.error('Error opening PDF report:', error);
+      alert('Erreur lors de l\'ouverture du rapport. Veuillez autoriser les pop-ups et réessayer.');
+    }
+  };
+
+  const handleDirectPDFDownload = async () => {
+    try {
+      // Import dynamique de la fonction de génération HTML
+      const { generateComplianceReportHTML } = await import('../../utils/htmlPdfGenerator');
+      
+      // Get additional data from window.webCheck if available
+      const vulnerabilities = (window as any)?.webCheck?.['vulnerabilities'];
+      const legalPages = (window as any)?.webCheck?.['legal-pages'];
+      const cdnResources = (window as any)?.webCheck?.['cdn-resources'];
+      const allResults = (window as any)?.webCheck;
+      
+      await generateComplianceReportHTML(data, vulnerabilities, legalPages, cdnResources, allResults);
     } catch (error) {
       console.error('Error generating PDF report:', error);
       alert('Erreur lors de la génération du rapport PDF. Veuillez réessayer.');
@@ -467,48 +489,89 @@ const ComplianceSummaryCard = ({ data, title, actionButtons }: ComplianceSummary
         </div>
       </div>
       
-      {/* PDF Export Button */}
+      {/* PDF Export Buttons */}
       <div style={{ 
         marginTop: '20px', 
         textAlign: 'center',
         paddingTop: '16px',
         borderTop: `1px solid ${colors.borderColor}`
       }}>
-        <button
-          onClick={handlePDFExport}
-          style={{
-            background: colors.primary,
-            color: 'white',
-            border: 'none',
-            borderRadius: '6px',
-            padding: '10px 20px',
-            fontSize: '14px',
-            fontWeight: '600',
-            cursor: 'pointer',
-            display: 'inline-flex',
-            alignItems: 'center',
-            gap: '8px',
-            transition: 'all 0.2s ease',
-            boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
-          }}
-          onMouseOver={(e) => {
-            e.currentTarget.style.background = '#b91c1c';
-            e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.background = colors.primary;
-            e.currentTarget.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, 0.05)';
-          }}
-          title="Télécharger le rapport complet en PDF"
-        >
-          📄 Générer Rapport PDF
-        </button>
+        <div style={{
+          display: 'flex',
+          gap: '12px',
+          justifyContent: 'center',
+          flexWrap: 'wrap'
+        }}>
+          <button
+            onClick={handlePDFExport}
+            style={{
+              background: 'white',
+              color: colors.primary,
+              border: `2px solid ${colors.primary}`,
+              borderRadius: '6px',
+              padding: '10px 20px',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              transition: 'all 0.2s ease',
+              boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.background = '#fef2f2';
+              e.currentTarget.style.borderColor = '#b91c1c';
+              e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.background = 'white';
+              e.currentTarget.style.borderColor = colors.primary;
+              e.currentTarget.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, 0.05)';
+            }}
+            title="Ouvrir le rapport dans une nouvelle fenêtre"
+          >
+            👁️ Prévisualiser
+          </button>
+          
+          <button
+            onClick={handleDirectPDFDownload}
+            style={{
+              background: colors.primary,
+              color: 'white',
+              border: 'none',
+              borderRadius: '6px',
+              padding: '10px 20px',
+              fontSize: '14px',
+              fontWeight: '600',
+              cursor: 'pointer',
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: '8px',
+              transition: 'all 0.2s ease',
+              boxShadow: '0 1px 2px 0 rgba(0, 0, 0, 0.05)'
+            }}
+            onMouseOver={(e) => {
+              e.currentTarget.style.background = '#b91c1c';
+              e.currentTarget.style.boxShadow = '0 4px 6px -1px rgba(0, 0, 0, 0.1)';
+              e.currentTarget.style.transform = 'translateY(-1px)';
+            }}
+            onMouseOut={(e) => {
+              e.currentTarget.style.background = colors.primary;
+              e.currentTarget.style.boxShadow = '0 1px 2px 0 rgba(0, 0, 0, 0.05)';
+              e.currentTarget.style.transform = 'translateY(0)';
+            }}
+            title="Télécharger le rapport PDF optimisé pour A4"
+          >
+            📥 Télécharger PDF
+          </button>
+        </div>
         <div style={{ 
           fontSize: '11px', 
           color: colors.textColorSecondary, 
           marginTop: '8px' 
         }}>
-          Rapport de conformité APDP complet avec toutes les analyses
+          Rapport de conformité APDP complet • Format A4 optimisé
         </div>
       </div>
     </Card>

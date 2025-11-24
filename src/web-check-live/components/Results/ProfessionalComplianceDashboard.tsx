@@ -474,6 +474,63 @@ const ProfessionalComplianceDashboard: React.FC<ProfessionalComplianceDashboardP
     }
   };
 
+  const handleDownloadPDF = async () => {
+    if (!analysis || !allResults) {
+      alert('Aucune donnée d\'analyse disponible pour générer le PDF.');
+      return;
+    }
+
+    try {
+      console.log('Generating PDF report with data:', { 
+        analysis: !!analysis, 
+        allResults: !!allResults, 
+        siteName,
+        score: analysis.score 
+      });
+
+      // Import dynamique de la fonction
+      const { generateComplianceReportHTML } = await import('../../utils/htmlPdfGenerator');
+
+      await generateComplianceReportHTML(
+        {
+          url: siteName || 'Site Web',
+          overallScore: getScoreGrade(analysis.score),
+          complianceLevel: analysis.level,
+          numericScore: analysis.score,
+          criticalIssues: analysis.criticalIssues.length,
+          warnings: analysis.warnings.length,
+          improvements: analysis.improvements.length,
+          compliantItems: analysis.compliantItems.length,
+          timestamp: new Date().toISOString(),
+          detailedAnalysis: {
+            cookieCompliance: {
+              status: allResults.cookies ? 'Analysé' : 'Non analysé',
+              cookieCount: allResults.cookies?.clientCookies?.length || allResults.cookies?.cookies?.length || 0
+            },
+            sslSecurity: {
+              isValid: allResults.ssl?.valid || allResults.ssl?.validCertificate || false,
+              protocol: allResults.ssl?.protocol || 'TLS'
+            }
+          },
+          issues: {
+            critical: analysis.criticalIssues || [],
+            warnings: analysis.warnings || [],
+            improvements: analysis.improvements || [],
+            compliant: analysis.compliantItems || []
+          },
+          categories: analysis.categories || {}
+        },
+        allResults.vulnerabilities,
+        undefined, // legal-pages removed
+        allResults['cdn-resources'],
+        allResults // Pass all results for comprehensive report
+      );
+    } catch (error) {
+      console.error('Erreur lors de la génération du PDF:', error);
+      alert('Erreur lors de la génération du PDF. Veuillez réessayer.');
+    }
+  };
+
   const getScoreGrade = (score: number): string => {
     if (score >= 90) return 'A';
     if (score >= 80) return 'B';
@@ -557,9 +614,21 @@ const ProfessionalComplianceDashboard: React.FC<ProfessionalComplianceDashboardP
             </HeaderMeta>
           </HeaderLeft>
           <HeaderRight>
-            <ExportButton onClick={handleViewReport}>
-              <span style={{ fontSize: '18px' }}>📄</span>
-              Voir le Rapport
+            <ExportButton 
+              onClick={handleViewReport}
+              style={{ 
+                marginRight: '10px',
+                background: 'white',
+                color: '#DC2626',
+                border: '2px solid #DC2626'
+              }}
+            >
+              <span style={{ fontSize: '18px' }}>👁️</span>
+              Prévisualiser
+            </ExportButton>
+            <ExportButton onClick={handleDownloadPDF}>
+              <span style={{ fontSize: '18px' }}>📥</span>
+              Télécharger PDF
             </ExportButton>
           </HeaderRight>
         </HeaderContent>
