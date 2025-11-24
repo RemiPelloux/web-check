@@ -488,19 +488,8 @@ export class EnhancedComplianceAnalyzer {
   private analyzeAPDPCookieBanner(): void {
     const data = this.results['apdp-cookie-banner'];
     
-    // Only show "non analysable" if data is TRULY missing or has an error
-    // If hasCookieBanner is explicitly true or false, analysis succeeded
+    // Skip if no data - don't show "non analysable" warnings
     if (!data || data.error || data.hasCookieBanner === undefined) {
-      this.addIssue({
-        type: 'warning',
-        severity: 'Attention',
-        title: 'Bannière cookies non analysable',
-        description: 'Impossible de vérifier la présence d\'une bannière de consentement aux cookies.',
-        category: 'APDP',
-        recommendation: 'Vérifier manuellement la présence et la conformité de la bannière cookies.',
-        article: 'Article 82 Loi APDP / APDP',
-        priority: 'medium'
-      });
       return;
     }
 
@@ -561,19 +550,8 @@ export class EnhancedComplianceAnalyzer {
   private analyzeAPDPPrivacyPolicy(): void {
     const data = this.results['apdp-privacy-policy'];
     
-    // Only show "non analysable" if data is TRULY missing or has an error
-    // If hasPrivacyPolicy is explicitly true or false, analysis succeeded
+    // Skip if no data - don't show "non analysable" warnings
     if (!data || data.error || data.hasPrivacyPolicy === undefined) {
-      this.addIssue({
-        type: 'warning',
-        severity: 'Attention',
-        title: 'Politique de confidentialité non analysable',
-        description: 'Impossible de vérifier la présence de la politique de confidentialité.',
-        category: 'APDP',
-        recommendation: 'Vérifier manuellement la présence et la complétude de la politique de confidentialité.',
-        article: 'Articles 13-14 APDP / APDP',
-        priority: 'medium'
-      });
       return;
     }
 
@@ -628,19 +606,8 @@ export class EnhancedComplianceAnalyzer {
   private analyzeAPDPLegalNotices(): void {
     const data = this.results['apdp-legal-notices'];
     
-    // Only show "non analysable" if data is TRULY missing or has an error
-    // If hasLegalNotice is explicitly true or false, analysis succeeded
+    // Skip if no data - don't show "non analysable" warnings
     if (!data || data.error || data.hasLegalNotice === undefined) {
-      this.addIssue({
-        type: 'warning',
-        severity: 'Attention',
-        title: 'Mentions légales non analysables',
-        description: 'Impossible de vérifier la présence des mentions légales.',
-        category: 'APDP',
-        recommendation: 'Vérifier manuellement la présence et la complétude des mentions légales.',
-        article: 'Article 6-III LCEN',
-        priority: 'medium'
-      });
       return;
     }
 
