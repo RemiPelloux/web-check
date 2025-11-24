@@ -599,21 +599,9 @@ const ProfessionalComplianceDashboard: React.FC<ProfessionalComplianceDashboardP
             </HeaderMeta>
           </HeaderLeft>
           <HeaderRight>
-            <ExportButton 
-              onClick={handleViewReport}
-              style={{ 
-                marginRight: '10px',
-                background: 'white',
-                color: '#DC2626',
-                border: '2px solid #DC2626'
-              }}
-            >
-              <span style={{ fontSize: '18px' }}>👁️</span>
-              Prévisualiser
-            </ExportButton>
-            <ExportButton onClick={handleDownloadPDF}>
-              <span style={{ fontSize: '18px' }}>📥</span>
-              Télécharger PDF
+            <ExportButton onClick={handleViewReport}>
+              <span style={{ fontSize: '18px' }}>📄</span>
+              Voir le Rapport
             </ExportButton>
           </HeaderRight>
         </HeaderContent>
