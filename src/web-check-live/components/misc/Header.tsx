@@ -33,6 +33,16 @@ const LogoSection = styled.div`
 const LogoImage = styled.img`
   height: 28px;
   width: auto;
+  cursor: pointer;
+  transition: transform 0.2s;
+
+  &:hover {
+    transform: scale(1.05);
+  }
+
+  &:active {
+    transform: scale(0.95);
+  }
 `;
 
 const LogoDivider = styled.div`
@@ -41,6 +51,17 @@ const LogoDivider = styled.div`
 `;
 
 const LogoText = styled.div`
+  cursor: pointer;
+  transition: opacity 0.2s;
+
+  &:hover {
+    opacity: 0.8;
+  }
+
+  &:active {
+    opacity: 0.6;
+  }
+
   h1 {
     font-size: 16px;
     font-weight: 600;
@@ -52,6 +73,32 @@ const LogoText = styled.div`
     color: ${colors.primary};
     font-weight: 500;
     margin: 0;
+  }
+`;
+
+const HomeButton = styled.a`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: ${colors.primary};
+  color: white;
+  border: none;
+  border-radius: 8px;
+  padding: 8px 12px;
+  font-size: 14px;
+  font-weight: 500;
+  text-decoration: none;
+  cursor: pointer;
+  transition: all 0.2s;
+
+  &:hover {
+    background: #b91c1c;
+    transform: translateY(-1px);
+    box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+  }
+
+  &:active {
+    transform: scale(0.98);
   }
 `;
 
@@ -241,6 +288,10 @@ const Header = (): JSX.Element => {
 
   const isAdmin = userRole === 'APDP';
 
+  const handleGoHome = () => {
+    window.location.href = '/';
+  };
+
   return (
     <HeaderContainer>
       <HeaderContent>
@@ -248,16 +299,22 @@ const Header = (): JSX.Element => {
           <LogoSection>
             <LogoImage 
               src="https://i.postimg.cc/W4Lfm5Zs/image.png" 
-              alt="APDP Logo" 
+              alt="APDP Logo"
+              onClick={handleGoHome}
+              title="Retour à l'accueil"
             />
             <LogoDivider>
-              <LogoText>
+              <LogoText onClick={handleGoHome} title="Retour à l'accueil">
                 <h1>Outil d'Audit de Conformité</h1>
                 <p>Usage interne - Contrôleurs APDP Monaco</p>
               </LogoText>
             </LogoDivider>
           </LogoSection>
           <RightSection>
+            <HomeButton href="/" title="Retour à l'accueil">
+              <span>🏠</span>
+              <span>Accueil</span>
+            </HomeButton>
             <VersionBadge>
               Version 2.1.0
             </VersionBadge>
