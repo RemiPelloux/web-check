@@ -183,11 +183,27 @@ const Checkbox = styled.input`
   flex-shrink: 0;
 `;
 
+const PluginBadge = styled.span`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 4px 8px;
+  border-radius: 6px;
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  background: ${colors.backgroundDarker};
+  color: ${colors.textColorSecondary};
+  border: 1px solid ${colors.borderColor};
+  flex-shrink: 0;
+`;
+
 const PluginLabel = styled.span`
   font-size: 14px;
   color: ${colors.textColor};
   font-weight: 500;
   user-select: none;
+  flex: 1;
 `;
 
 const ActionButtons = styled.div`
@@ -360,7 +376,7 @@ const PluginConfig = (): JSX.Element => {
             {category}
           </CategoryTitle>
           <PluginGrid>
-            {plugins.map(plugin => (
+            {plugins.map((plugin, index) => (
               <PluginItem
                 key={plugin.id}
                 disabled={disabledPlugins.includes(plugin.id)}
@@ -370,6 +386,9 @@ const PluginConfig = (): JSX.Element => {
                   checked={disabledPlugins.includes(plugin.id)}
                   onChange={() => handleTogglePlugin(plugin.id)}
                 />
+                <PluginBadge>
+                  {getCategoryAbbr(category)}-{String(index + 1).padStart(3, '0')}
+                </PluginBadge>
                 <PluginLabel>{plugin.name}</PluginLabel>
               </PluginItem>
             ))}
