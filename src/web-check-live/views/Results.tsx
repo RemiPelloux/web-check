@@ -1,4 +1,4 @@
-import { useState, useEffect, useCallback, type ReactNode } from 'react';
+import { useState, useEffect, useCallback, useRef, type ReactNode } from 'react';
 import { useParams, useLocation, useNavigate } from 'react-router-dom';
 import styled from '@emotion/styled';
 import { ToastContainer } from 'react-toastify';
@@ -252,6 +252,57 @@ const Results = (props: { address?: string }): JSX.Element => {
     };
     initializeJobs();
   }, []);
+
+  // Track if scan has been recorded to prevent duplicates
+  const scanRecordedRef = useRef(false);
+
+  // Record scan to statistics when all jobs are done
+  useEffect(() => {
+    const loadingCount = loadingJobs.filter(job => job.state === 'loading').length;
+    const isDone = loadingCount === 0 && loadingJobs.length > 0;
+    
+    if (isDone && !scanRecordedRef.current && address) {
+      scanRecordedRef.current = true;
+      
+      // Count issues from completed jobs
+      const successJobs = loadingJobs.filter(job => job.state === 'success').length;
+      const errorJobs = loadingJobs.filter(job => job.state === 'error').length;
+      
+      // Calculate a basic score
+      const totalJobs = loadingJobs.length;
+      const numericScore = Math.round((successJobs / totalJobs) * 100);
+      
+      // Record the scan
+      const recordScan = async () => {
+        try {
+          const token = localStorage.getItem('checkitAuthToken');
+          if (!token) return;
+          
+          await fetch('/api/audit/scan', {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              url: decodeURIComponent(address),
+              results: {
+                numericScore,
+                criticalCount: errorJobs,
+                warningCount: 0,
+                improvementCount: successJobs
+              }
+            })
+          });
+          console.log('Scan recorded to statistics');
+        } catch (error) {
+          console.error('Failed to record scan:', error);
+        }
+      };
+      
+      recordScan();
+    }
+  }, [loadingJobs, address]);
 
   const clearFilters = () => {
     setTags([]);
