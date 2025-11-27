@@ -183,7 +183,7 @@ const Checkbox = styled.input`
   flex-shrink: 0;
 `;
 
-const PluginBadge = styled.span<{ variant: string }>`
+const PluginBadge = styled.span`
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -192,22 +192,9 @@ const PluginBadge = styled.span<{ variant: string }>`
   font-size: 10px;
   font-weight: 700;
   letter-spacing: 0.5px;
-  background: ${props => {
-    switch (props.variant) {
-      case 'Conformité': return 'linear-gradient(135deg, #059669 0%, #047857 100%)';
-      case 'Sécurité': return 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)';
-      case 'DNS': return 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)';
-      case 'Réseau': return 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)';
-      case 'Performance': return 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
-      case 'SEO': return 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)';
-      case 'Email': return 'linear-gradient(135deg, #ec4899 0%, #db2777 100%)';
-      case 'Technique': return 'linear-gradient(135deg, #64748b 0%, #475569 100%)';
-      case 'Historique': return 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)';
-      default: return 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)';
-    }
-  }};
-  color: white;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  background: ${colors.backgroundDarker};
+  color: ${colors.textColorSecondary};
+  border: 1px solid ${colors.borderColor};
   flex-shrink: 0;
 `;
 
@@ -399,7 +386,7 @@ const PluginConfig = (): JSX.Element => {
                   checked={disabledPlugins.includes(plugin.id)}
                   onChange={() => handleTogglePlugin(plugin.id)}
                 />
-                <PluginBadge variant={category}>
+                <PluginBadge>
                   {getCategoryAbbr(category)}-{String(index + 1).padStart(3, '0')}
                 </PluginBadge>
                 <PluginLabel>{plugin.name}</PluginLabel>
