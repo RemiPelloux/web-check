@@ -19,10 +19,10 @@ const cardStyles = `
   }
 `;
 
-const RedirectsCard = (props: { data: any, title: string, actionButtons: any }): JSX.Element => {
+const RedirectsCard = (props: { data: any, title: string, actionButtons: any, refCode?: string }): JSX.Element => {
   const redirects = props.data;
   return (
-    <Card heading={props.title} actionButtons={props.actionButtons} styles={cardStyles}>
+    <Card heading={props.title} actionButtons={props.actionButtons} styles={cardStyles} refCode={props.refCode}>
       { !redirects?.redirects.length && <Row lbl="" val="No redirects" />}
       <p className="redirect-count">
         Followed {redirects.redirects.length}{' '}

@@ -32,11 +32,11 @@ p {
 
 const cardStyles = ``;
 
-const TraceRouteCard = (props: { data: any, title: string, actionButtons: any }): JSX.Element => {
+const TraceRouteCard = (props: { data: any, title: string, actionButtons: any, refCode?: string }): JSX.Element => {
   const traceRouteResponse = props.data;
   const routes = traceRouteResponse?.result || [];
   return (
-    <Card heading={props.title} actionButtons={props.actionButtons} styles={cardStyles}>
+    <Card heading={props.title} actionButtons={props.actionButtons} styles={cardStyles} refCode={props.refCode}>
       {routes.filter((x: any) => x).map((route: any, index: number) => (
           <RouteRow key={index}>
             <span className="ipName">{Object.keys(route)[0]}</span>

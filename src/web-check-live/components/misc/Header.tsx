@@ -299,13 +299,13 @@ const Header = (): JSX.Element => {
           <LogoSection>
             <LogoImage 
               src="https://i.postimg.cc/W4Lfm5Zs/image.png" 
-              alt="APDP Logo"
+              alt="APDP Logo" 
               onClick={handleGoHome}
               title="Retour à l'accueil"
             />
             <LogoDivider>
               <LogoText onClick={handleGoHome} title="Retour à l'accueil">
-                <h1>Outil d'Audit de Conformité</h1>
+                <h1>Outil d'analyse de la sécurité</h1>
                 <p>Usage interne - Contrôleurs APDP Monaco</p>
               </LogoText>
             </LogoDivider>
@@ -337,7 +337,7 @@ const Header = (): JSX.Element => {
                     {isAdmin && (
                       <>
                         <MenuItem href="/admin">
-                          <span>⚙️</span>
+                          <span>Admin</span>
                           <span>Administration</span>
                         </MenuItem>
                         <MenuDivider />

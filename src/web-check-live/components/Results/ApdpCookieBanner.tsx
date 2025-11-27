@@ -32,19 +32,19 @@ const ListItem = styled.div<{ status?: string }>`
   };
 `;
 
-const ApdpCookieBanner = (props: { data: any, title: string, actionButtons: any }): JSX.Element => {
+const ApdpCookieBanner = (props: { data: any, title: string, actionButtons: any, refCode?: string }): JSX.Element => {
   const { data } = props;
   
   if (!data || data.error) {
     return (
-      <Card heading={props.title} actionButtons={props.actionButtons}>
+      <Card heading={props.title} actionButtons={props.actionButtons} refCode={props.refCode}>
         <Row lbl="Erreur" val={data?.error || 'Aucune donnée'} />
       </Card>
     );
   }
 
   return (
-    <Card heading={props.title} actionButtons={props.actionButtons}>
+    <Card heading={props.title} actionButtons={props.actionButtons} refCode={props.refCode}>
       <Row lbl="Bannière cookies" val={data.hasCookieBanner ? 'Détectée ✓' : 'Non détectée ✗'} />
       
       {data.detectedLibrary && (

@@ -10,10 +10,10 @@ const styles = `
   }
 `;
 
-const DnsRecordsCard = (props: { data: any, title: string, actionButtons: any }): JSX.Element => {
+const DnsRecordsCard = (props: { data: any, title: string, actionButtons: any, refCode?: string }): JSX.Element => {
   const dnsRecords = props.data;
   return (
-    <Card heading={props.title} actionButtons={props.actionButtons} styles={styles}>
+    <Card heading={props.title} actionButtons={props.actionButtons} styles={styles} refCode={props.refCode}>
       <div className="content">
       { dnsRecords.A && <Row lbl="A" val={dnsRecords.A.address} /> }
       { dnsRecords.AAAA?.length > 0 && <ListRow title="AAAA" list={dnsRecords.AAAA} /> }

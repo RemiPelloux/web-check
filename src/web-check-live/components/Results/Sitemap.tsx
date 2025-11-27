@@ -17,7 +17,7 @@ const cardStyles = `
   }
 `;
 
-const SitemapCard = (props: {data: any, title: string, actionButtons: any }): JSX.Element => {
+const SitemapCard = (props: {data: any, title: string, actionButtons: any, refCode?: string }): JSX.Element => {
   const normalSiteMap = props.data.url ||  props.data.urlset?.url || null;
   const siteMapIndex = props.data.sitemapindex?.sitemap || null;
 
@@ -39,7 +39,7 @@ const SitemapCard = (props: {data: any, title: string, actionButtons: any }): JS
   };
 
   return (
-    <Card heading={props.title} actionButtons={props.actionButtons} styles={cardStyles}>
+    <Card heading={props.title} actionButtons={props.actionButtons} styles={cardStyles} refCode={props.refCode}>
       {
         normalSiteMap && normalSiteMap.map((subpage: any, index: number) => {
           return (<ExpandableRow lbl={getPathFromUrl(subpage.loc[0])} key={index} val="" rowList={makeExpandableRowData(subpage)}></ExpandableRow>)

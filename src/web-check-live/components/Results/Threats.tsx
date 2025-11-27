@@ -31,13 +31,13 @@ const convertToDate = (dateString: string): string => {
   return dateObject.toString();
 }
 
-const MalwareCard = (props: {data: any, title: string, actionButtons: any }): JSX.Element => {
+const MalwareCard = (props: {data: any, title: string, actionButtons: any, refCode?: string }): JSX.Element => {
   const urlHaus = props.data.urlHaus || {};
   const phishTank = props.data.phishTank || {};
   const cloudmersive = props.data.cloudmersive || {};
   const safeBrowsing = props.data.safeBrowsing || {};
   return (
-    <Card heading={props.title} actionButtons={props.actionButtons}>
+    <Card heading={props.title} actionButtons={props.actionButtons} refCode={props.refCode}>
       { safeBrowsing && !safeBrowsing.error && (
         <Row lbl="Google Safe Browsing" val={safeBrowsing.unsafe ? '❌ Non sécurisé' : '✅ Sécurisé'} />
       )}

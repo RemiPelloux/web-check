@@ -463,31 +463,69 @@ app.delete(`${API_DIR}/admin/users/:id`, authMiddleware, adminOnlyMiddleware, (r
 });
 
 /**
+ * Active plugins list - matches the jobNames in ProgressBar.tsx
+ * Only these plugins are actually used in scans
+ */
+const ACTIVE_PLUGINS = [
+  'rgpd-compliance',
+  'vulnerabilities',
+  'cdn-resources',
+  'get-ip',
+  'location',
+  'ssl',
+  'tls',
+  'domain',
+  'quality',
+  'tech-stack',
+  'secrets',
+  'link-audit',
+  'server-info',
+  'cookies',
+  'headers',
+  'dns',
+  'subdomain-enumeration',
+  'hosts',
+  'http-security',
+  'social-tags',
+  'trace-route',
+  'security-txt',
+  'dns-server',
+  'firewall',
+  'dnssec',
+  'hsts',
+  'threats',
+  'mail-config',
+  'archives',
+  'rank',
+  'tls-cipher-suites',
+  'tls-security-config',
+  'tls-client-support',
+  'redirects',
+  'linked-pages',
+  'robots-txt',
+  'status',
+  'ports',
+  'txt-records',
+  'block-lists',
+  'sitemap',
+  'carbon',
+  'apdp-cookie-banner',
+  'apdp-privacy-policy',
+  'apdp-legal-notices',
+  'exposed-files',
+  'subdomain-takeover',
+  'lighthouse',
+];
+
+/**
  * GET /api/admin/plugins/available
- * Get list of all available plugins by scanning the API folder (APDP only)
+ * Get list of all active plugins (APDP only)
  */
 app.get(`${API_DIR}/admin/plugins/available`, authMiddleware, adminOnlyMiddleware, (req, res) => {
   try {
-    const apiPath = path.join(__dirname, 'api');
-    const files = fs.readdirSync(apiPath);
-    
-    // Filter only .js files, exclude _common folder and middleware files
-    const plugins = files
-      .filter(file => {
-        if (!file.endsWith('.js')) return false;
-        if (file.startsWith('_')) return false;
-        return true;
-      })
-      .map(file => {
-        // Remove .js extension to get plugin ID
-        const pluginId = file.replace('.js', '');
-        return pluginId;
-      })
-      .sort();
-    
     return res.json({
       success: true,
-      plugins
+      plugins: ACTIVE_PLUGINS.sort()
     });
   } catch (error) {
     console.error('Get available plugins error:', error);

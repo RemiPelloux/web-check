@@ -606,7 +606,7 @@ export const featureIntro = [
 ];
 
 export const about = [
-`L'Outil d'Audit de Conformité est une plateforme professionnelle d'audit de conformité conçue pour une analyse complète des écarts réglementaires et des audits de sécurité.
+`L'Outil d'analyse de la sécurité est une plateforme professionnelle d'analyse de sécurité conçue pour une analyse complète de la sécurité.
 Notre plateforme permet aux responsables de la conformité, gestionnaires de risques et auditeurs de sécurité d'obtenir des insights approfondis sur la posture de sécurité des sites web et l'état de conformité réglementaire.`,
 
 `Le moteur d'évaluation fournit une analyse détaillée des écarts de conformité, des configurations de sécurité,
@@ -615,7 +615,7 @@ Les résultats permettent une prise de décision éclairée pour l'atténuation 
 et le reporting réglementaire sur vos actifs numériques.`,
 
 `Que vous effectuiez des audits de conformité, des évaluations réglementaires ou gériez des risques d'entreprise,
-l'Outil d'Audit de Conformité offre des capacités de conformité professionnelles à travers une interface intuitive, axée sur les auditeurs.`,
+l'Outil d'analyse de la sécurité offre des capacités d'analyse professionnelles à travers une interface intuitive.`,
 ];
 
 export const license = `The MIT License (MIT)
@@ -640,11 +640,11 @@ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
 `;
 
 export const supportUs = [
-  "L'Outil d'Audit de Conformité est une plateforme professionnelle d'audit de conformité disponible pour une utilisation en entreprise.",
+  "L'Outil d'analyse de la sécurité est une plateforme professionnelle d'analyse de sécurité disponible pour une utilisation en entreprise.",
   "La plateforme est open source sous licence MIT, vous permettant de déployer vos propres instances et de personnaliser la plateforme pour les exigences de conformité spécifiques de votre organisation.",
   "Notre mission est de fournir des outils d'évaluation de conformité de niveau entreprise accessibles aux responsables de conformité, gestionnaires de risques et organisations de toutes tailles.",
   "Nous nous engageons à maintenir un service de haute qualité et fiable tout en élargissant continuellement nos capacités d'évaluation et notre couverture des cadres réglementaires.",
-  "L'Outil d'Audit de Conformité restera toujours ouvert et accessible, soutenant la communauté de la conformité avec des outils d'audit professionnels.",
+  "L'Outil d'analyse de la sécurité restera toujours ouvert et accessible, soutenant la communauté avec des outils d'analyse professionnels.",
 ];
 
 export const fairUse = [

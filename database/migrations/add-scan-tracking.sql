@@ -41,3 +41,5 @@ CREATE INDEX IF NOT EXISTS idx_scan_statistics_date ON scan_statistics(date);
 CREATE INDEX IF NOT EXISTS idx_scan_statistics_role ON scan_statistics(user_role);
 
 
+
+

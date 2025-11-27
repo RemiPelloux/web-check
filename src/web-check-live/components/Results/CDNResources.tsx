@@ -198,12 +198,13 @@ interface CDNResourcesCardProps {
   };
   title: string;
   actionButtons?: any;
+  refCode?: string;
 }
 
-const CDNResourcesCard: React.FC<CDNResourcesCardProps> = ({ data, title, actionButtons }) => {
+const CDNResourcesCard: React.FC<CDNResourcesCardProps> = ({ data, title, actionButtons, refCode }) => {
   if (data?.error) {
     return (
-      <Card heading={title} actionButtons={actionButtons}>
+      <Card heading={title} actionButtons={actionButtons} refCode={refCode}>
         <div style={{ textAlign: 'center', padding: '40px 20px', color: colors.textColorSecondary }}>
           <div style={{ fontSize: '48px', marginBottom: '16px' }}>🌐</div>
           <h3 style={{ margin: '0 0 8px 0', color: colors.textColor }}>Analyse CDN indisponible</h3>
@@ -253,7 +254,7 @@ const CDNResourcesCard: React.FC<CDNResourcesCardProps> = ({ data, title, action
   }, {} as Record<string, any>);
 
   return (
-    <Card heading={title} actionButtons={actionButtons}>
+    <Card heading={title} actionButtons={actionButtons} refCode={refCode}>
       <CDNContainer>
         <CDNHeader>
           <div>

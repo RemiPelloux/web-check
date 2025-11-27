@@ -68,7 +68,7 @@ const makeResults = (results: any) => {
   return rows;
 };
 
-const TlsCard = (props: {data: any, title: string, actionButtons: any }): JSX.Element => {
+const TlsCard = (props: {data: any, title: string, actionButtons: any, refCode?: string }): JSX.Element => {
 
   const [tlsRowData, setTlsRowWata] = useState(makeExpandableData(props.data));
   const [tlsResults, setTlsResults] = useState(makeResults(props.data));
@@ -96,7 +96,7 @@ const TlsCard = (props: {data: any, title: string, actionButtons: any }): JSX.El
   
   const scanId = props.data?.id;
   return (
-    <Card heading={props.title} actionButtons={props.actionButtons}>
+    <Card heading={props.title} actionButtons={props.actionButtons} refCode={props.refCode}>
       { tlsResults.length > 0 && tlsResults.map((row: any, index: number) => {
         return (
           <Row

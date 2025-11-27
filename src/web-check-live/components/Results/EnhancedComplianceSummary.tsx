@@ -449,7 +449,7 @@ const EnhancedComplianceSummaryCard: React.FC<EnhancedComplianceSummaryProps> = 
         </div>
 
         <div class="footer">
-          <p>Rapport généré par l'Outil d'Audit de Conformité Loi 1.565 Monaco</p>
+          <p>Rapport généré par l'Outil d'analyse de la sécurité</p>
           <p>Usage interne - Contrôleurs APDP Monaco</p>
           <p>Confidentiel - Ne pas diffuser sans autorisation</p>
         </div>

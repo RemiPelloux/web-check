@@ -20,19 +20,19 @@ const ListItem = styled.div<{ status?: string }>`
   border-left: 3px solid ${props => props.status === 'success' ? colors.success : props.status === 'error' ? colors.danger : colors.primary};
 `;
 
-const ApdpPrivacyPolicy = (props: { data: any, title: string, actionButtons: any }): JSX.Element => {
+const ApdpPrivacyPolicy = (props: { data: any, title: string, actionButtons: any, refCode?: string }): JSX.Element => {
   const { data } = props;
   
   if (!data || data.error) {
     return (
-      <Card heading={props.title} actionButtons={props.actionButtons}>
+      <Card heading={props.title} actionButtons={props.actionButtons} refCode={props.refCode}>
         <Row lbl="Erreur" val={data?.error || 'Aucune donnée'} />
       </Card>
     );
   }
 
   return (
-    <Card heading={props.title} actionButtons={props.actionButtons}>
+    <Card heading={props.title} actionButtons={props.actionButtons} refCode={props.refCode}>
       <Row lbl="Politique confidentialité" val={data.hasPrivacyPolicy ? 'Trouvée ✓' : 'Manquante ✗'} />
       {data.privacyPolicyUrl && <Row lbl="URL" val={data.privacyPolicyUrl} />}
       {data.detectedVia && <Row lbl="Détecté via" val={data.detectedVia} />}

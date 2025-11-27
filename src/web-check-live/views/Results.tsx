@@ -19,6 +19,7 @@ import DocContent from 'web-check-live/components/misc/DocContent';
 import ProgressBar, { type LoadingJob, type LoadingState, initialJobs, createFilteredInitialJobs } from 'web-check-live/components/misc/ProgressBar';
 import ActionButtons from 'web-check-live/components/misc/ActionButtons';
 import { fetchDisabledPlugins } from 'web-check-live/utils/plugin-filter';
+import { getPluginRefCode } from 'web-check-live/utils/pluginReferences';
 
 import ViewRaw from 'web-check-live/components/misc/ViewRaw';
 
@@ -1472,18 +1473,22 @@ const Results = (props: { address?: string }): JSX.Element => {
                 if (priorityA !== priorityB) return priorityA - priorityB;
                 return a.title.localeCompare(b.title);
               })
-              .map(({ id, title, result, tags, refresh, Component, allResults, siteName }, index: number) => (
-                <ErrorBoundary title={title} key={`eb-${index}`}>
-                  <Component
-                    key={`${title}-${index}`}
-                    data={{ ...result }}
-                    title={title}
-                    actionButtons={refresh ? makeActionButtons(title, refresh, () => showInfo(id)) : undefined}
-                    {...(allResults && { allResults })}
-                    {...(siteName && { siteName })}
-                  />
-                </ErrorBoundary>
-              ))
+              .map(({ id, title, result, tags, refresh, Component, allResults, siteName }, index: number) => {
+                const refCode = getPluginRefCode(id);
+                return (
+                  <ErrorBoundary title={title} key={`eb-${index}`}>
+                    <Component
+                      key={`${title}-${index}`}
+                      data={{ ...result }}
+                      title={title}
+                      refCode={refCode}
+                      actionButtons={refresh ? makeActionButtons(title, refresh, () => showInfo(id)) : undefined}
+                      {...(allResults && { allResults })}
+                      {...(siteName && { siteName })}
+                    />
+                  </ErrorBoundary>
+                );
+              })
           }
         </Masonry>
       </ResultsContent>

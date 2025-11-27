@@ -15,12 +15,12 @@ const StatusBanner = styled.div<{ vulnerable: boolean }>`
   border: 1px solid ${props => props.vulnerable ? colors.danger : colors.success};
 `;
 
-const SubdomainTakeoverCard = (props: { data: any }): JSX.Element => {
+const SubdomainTakeoverCard = (props: { data: any, title?: string, actionButtons?: any, refCode?: string }): JSX.Element => {
     const { data } = props;
     const isVulnerable = data?.vulnerable === true;
 
     return (
-        <Card heading="Subdomain Takeover" actionButtons={undefined}>
+        <Card heading={props.title || "Subdomain Takeover"} actionButtons={props.actionButtons} refCode={props.refCode}>
             <StatusBanner vulnerable={isVulnerable}>
                 {isVulnerable ? '⚠️ VULNÉRABILITÉ DÉTECTÉE' : '✅ Aucun risque détecté'}
             </StatusBanner>

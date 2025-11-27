@@ -1,10 +1,10 @@
 import { Card } from 'web-check-live/components/Form/Card';
 import Row from 'web-check-live/components/Form/Row';
 
-const HttpSecurityCard = (props: { data: any, title: string, actionButtons: any }): JSX.Element => {
+const HttpSecurityCard = (props: { data: any, title: string, actionButtons: any, refCode?: string }): JSX.Element => {
   const data = props.data;
   return (
-    <Card heading={props.title} actionButtons={props.actionButtons}>
+    <Card heading={props.title} actionButtons={props.actionButtons} refCode={props.refCode}>
       <Row lbl="Content Security Policy" val={data.contentSecurityPolicy ? '✅ Yes' : '❌ No' } />
       <Row lbl="Strict Transport Policy" val={data.strictTransportPolicy ? '✅ Yes' : '❌ No' } />
       <Row lbl="X-Content-Type-Options" val={data.xContentTypeOptions ? '✅ Yes' : '❌ No' } />

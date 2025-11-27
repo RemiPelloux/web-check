@@ -55,7 +55,8 @@ const HeroSection = styled.div`
 const Logo = styled.div`
   width: 80px;
   height: 80px;
-  background: linear-gradient(135deg, #dc2626 0%, #b91c1c 100%);
+  background: white;
+  border: 3px solid #dc2626;
   border-radius: 20px;
   display: flex;
   align-items: center;

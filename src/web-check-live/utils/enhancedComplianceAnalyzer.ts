@@ -490,7 +490,7 @@ export class EnhancedComplianceAnalyzer {
     
     // Skip if no data - don't show "non analysable" warnings
     if (!data || data.error || data.hasCookieBanner === undefined) {
-      return;
+        return;
     }
 
     if (!data.hasCookieBanner) {

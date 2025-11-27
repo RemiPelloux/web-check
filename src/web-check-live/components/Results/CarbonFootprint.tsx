@@ -10,7 +10,7 @@ opacity: 0.75;
 a { color: ${colors.primary}; }
 `;
 
-const CarbonCard = (props: { data: any, title: string, actionButtons: any }): JSX.Element => {
+const CarbonCard = (props: { data: any, title: string, actionButtons: any, refCode?: string }): JSX.Element => {
   const carbons = props.data?.statistics;
   const rating = props.data?.rating;
   const cleanerThan = props.data?.cleanerThan;
@@ -18,7 +18,7 @@ const CarbonCard = (props: { data: any, title: string, actionButtons: any }): JS
   const hasError = props.data?.error || props.data?.skipped;
 
   return (
-    <Card heading={props.title} actionButtons={props.actionButtons}>
+    <Card heading={props.title} actionButtons={props.actionButtons} refCode={props.refCode}>
       { hasError && (
         <div>
           <p><strong>À propos</strong></p>

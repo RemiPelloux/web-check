@@ -56,12 +56,12 @@ function Chart(chartData: { date: string; uv: number; }[], data: any) {
   </ResponsiveContainer>;
 }
 
-const RankCard = (props: { data: any, title: string, actionButtons: any }): JSX.Element => {
+const RankCard = (props: { data: any, title: string, actionButtons: any, refCode?: string }): JSX.Element => {
   const data = props.data.ranks || [];
   const { average, percentageChange } = makeRankStats(data);
   const chartData = makeChartData(data);
   return (
-    <Card heading={props.title} actionButtons={props.actionButtons} styles={cardStyles}>
+    <Card heading={props.title} actionButtons={props.actionButtons} styles={cardStyles} refCode={props.refCode}>
       <div className="rank-average">{data[0].rank.toLocaleString()}</div>
       <Row lbl="Change since Yesterday" val={`${percentageChange > 0 ? '+':''} ${percentageChange.toFixed(2)}%`} />
       <Row lbl="Historical Average Rank" val={average.toLocaleString()} />

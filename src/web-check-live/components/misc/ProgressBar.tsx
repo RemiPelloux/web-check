@@ -499,7 +499,7 @@ const ProgressLoader = (props: { loadStatus: LoadingJob[], showModal: (err: Reac
                 Il est normal que certains jobs échouent, soit parce que l'hôte ne retourne pas les informations requises,
                 ou en raison de restrictions dans la fonction lambda, ou en atteignant une limite d'API.
               </p>}
-            <AboutPageLink href="/wiki" target="_blank" rel="noopener noreferrer" >En savoir plus sur l'Outil d'Audit de Conformité</AboutPageLink>
+            <AboutPageLink href="/wiki" target="_blank" rel="noopener noreferrer" >En savoir plus sur l'Outil d'analyse de la sécurité</AboutPageLink>
           </Details>
         )}
         <DismissButton onClick={() => setHideLoader(true)}>Masquer</DismissButton>

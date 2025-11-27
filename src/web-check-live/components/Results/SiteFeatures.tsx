@@ -37,10 +37,10 @@ const formatDate = (timestamp: number): string => {
 
 
 
-const SiteFeaturesCard = (props: { data: any, title: string, actionButtons: any }): JSX.Element => {
+const SiteFeaturesCard = (props: { data: any, title: string, actionButtons: any, refCode?: string }): JSX.Element => {
   const features = props.data;
   return (
-    <Card heading={props.title} actionButtons={props.actionButtons} styles={styles}>
+    <Card heading={props.title} actionButtons={props.actionButtons} styles={styles} refCode={props.refCode}>
       <div className="content">
         { (features?.groups || []).filter((group: any) => group.categories.length > 0).map((group: any, index: number) => (
           <div key={`${group.name}-${index}`}>

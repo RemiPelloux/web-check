@@ -11,10 +11,10 @@ const cardStyles = `
   }
 `;
 
-const ScreenshotCard = (props: { data: { image?: string, data?: string, }, title: string, actionButtons: any }): JSX.Element => {
+const ScreenshotCard = (props: { data: { image?: string, data?: string, }, title: string, actionButtons: any, refCode?: string }): JSX.Element => {
   const screenshot = props.data;
   return (
-    <Card heading={props.title} actionButtons={props.actionButtons} styles={cardStyles}>
+    <Card heading={props.title} actionButtons={props.actionButtons} styles={cardStyles} refCode={props.refCode}>
       { screenshot.image && <img src={`data:image/png;base64,${screenshot.image}`}  alt="Full page screenshot" /> }
       { (!screenshot.image && screenshot.data) && <img src={screenshot.data} alt="Full page screenshot" /> }
     </Card>

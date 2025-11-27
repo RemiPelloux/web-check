@@ -2,10 +2,10 @@ import { Card } from 'web-check-live/components/Form/Card';
 import Row from 'web-check-live/components/Form/Row';
 import type { ReactNode } from 'react';
 
-const HeadersCard = (props: { data: any, title: string, actionButtons: ReactNode }): JSX.Element => {
+const HeadersCard = (props: { data: any, title: string, actionButtons: ReactNode, refCode?: string }): JSX.Element => {
   const headers = props.data;
   return (
-    <Card heading={props.title} styles="grid-row: span 2;" actionButtons={props.actionButtons}>
+    <Card heading={props.title} styles="grid-row: span 2;" actionButtons={props.actionButtons} refCode={props.refCode}>
       {
         Object.keys(headers).map((header: string, index: number) => {
           return (

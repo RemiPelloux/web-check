@@ -181,12 +181,12 @@ const getCategoryIcon = (category: string): string => {
   return icons[category] || '📄';
 };
 
-const SubdomainEnumerationCard = (props: { data: SubdomainData, title: string, actionButtons: any }): JSX.Element => {
+const SubdomainEnumerationCard = (props: { data: SubdomainData, title: string, actionButtons: any, refCode?: string }): JSX.Element => {
   const { data } = props;
   
   if (!data || !data.subdomains) {
     return (
-      <Card heading={props.title} actionButtons={props.actionButtons}>
+      <Card heading={props.title} actionButtons={props.actionButtons} refCode={props.refCode}>
         <EmptyState>No subdomain data available</EmptyState>
       </Card>
     );
@@ -231,7 +231,7 @@ const SubdomainEnumerationCard = (props: { data: SubdomainData, title: string, a
   };
 
   return (
-    <Card heading={props.title} actionButtons={props.actionButtons} styles="grid-row: span 3;">
+    <Card heading={props.title} actionButtons={props.actionButtons} styles="grid-row: span 3;" refCode={props.refCode}>
       <ScrollableContent>
         {/* Categorized Subdomains */}
         {data.subdomains.length > 0 ? (

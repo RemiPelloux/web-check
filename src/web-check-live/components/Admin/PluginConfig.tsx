@@ -5,139 +5,62 @@ import { toast } from 'react-toastify';
 
 const API_BASE_URL = import.meta.env.PUBLIC_API_ENDPOINT || '/api';
 
-// Smart categorization and French translation for plugins
-const getPluginInfo = (pluginId: string): { name: string; category: string } => {
-  // Translation map for common terms
-  const translations: Record<string, string> = {
-    'apdp': 'APDP',
-    'rgpd': 'RGPD',
-    'cookie': 'Cookie',
-    'cookies': 'Cookies',
-    'banner': 'Bannière',
-    'privacy': 'Confidentialité',
-    'policy': 'Politique',
-    'legal': 'Légal',
-    'notices': 'Mentions',
-    'pages': 'Pages',
-    'compliance': 'Conformité',
-    'vulnerabilities': 'Vulnérabilités',
-    'ssl': 'Certificat SSL',
-    'tls': 'TLS',
-    'cipher': 'Chiffrement',
-    'suites': 'Suites',
-    'security': 'Sécurité',
-    'config': 'Configuration',
-    'client': 'Client',
-    'support': 'Support',
-    'headers': 'En-têtes',
-    'http': 'HTTP',
-    'hsts': 'HSTS',
-    'txt': 'TXT',
-    'firewall': 'Pare-feu',
-    'ports': 'Ports',
-    'block': 'Blocage',
-    'lists': 'Listes',
-    'threats': 'Menaces',
-    'secrets': 'Secrets',
-    'exposed': 'Exposés',
-    'files': 'Fichiers',
-    'mixed': 'Mixte',
-    'content': 'Contenu',
-    'subdomain': 'Sous-domaine',
-    'takeover': 'Prise de Contrôle',
-    'third': 'Tiers',
-    'party': 'Partie',
-    'risk': 'Risque',
-    'dns': 'DNS',
-    'server': 'Serveur',
-    'dnssec': 'DNSSEC',
-    'records': 'Enregistrements',
-    'enumeration': 'Énumération',
-    'whois': 'WHOIS',
-    'ip': 'Adresse IP',
-    'get': 'Obtenir',
-    'trace': 'Tracer',
-    'route': 'Route',
-    'status': 'Statut',
-    'cdn': 'CDN',
-    'resources': 'Ressources',
-    'quality': 'Qualité',
-    'carbon': 'Empreinte Carbone',
-    'lighthouse': 'Lighthouse',
-    'performance': 'Performance',
-    'metrics': 'Métriques',
-    'social': 'Social',
-    'tags': 'Balises',
-    'rank': 'Classement',
-    'legacy': 'Legacy',
-    'linked': 'Liées',
-    'robots': 'Robots',
-    'sitemap': 'Plan du Site',
-    'seo': 'SEO',
-    'analysis': 'Analyse',
-    'tech': 'Technologies',
-    'stack': 'Stack',
-    'redirects': 'Redirections',
-    'features': 'Fonctionnalités',
-    'api': 'API',
-    'surface': 'Surface',
-    'pwa': 'PWA',
-    'audit': 'Audit',
-    'screenshot': 'Capture d\'écran',
-    'mail': 'E-mail',
-    'accessibility': 'Accessibilité',
-    'check': 'Vérification',
-    'link': 'Liens',
-    'archives': 'Archives',
-  };
+// Plugin list with French translations
+const PLUGINS = [
+  { id: 'apdp-compliance', name: 'Conformité APDP', category: 'Conformité' },
+  { id: 'vulnerabilities', name: 'Vulnérabilités', category: 'Sécurité' },
+  { id: 'cdn-resources', name: 'Ressources CDN', category: 'Performance' },
+  { id: 'get-ip', name: 'Adresse IP', category: 'Réseau' },
+  { id: 'location', name: 'Géolocalisation Serveur', category: 'Réseau' },
+  { id: 'ssl', name: 'Certificat SSL', category: 'Sécurité' },
+  { id: 'tls', name: 'Configuration TLS', category: 'Sécurité' },
+  { id: 'domain', name: 'Informations Domaine', category: 'DNS' },
+  { id: 'quality', name: 'Qualité du Site', category: 'Performance' },
+  { id: 'tech-stack', name: 'Technologies Utilisées', category: 'Technique' },
+  { id: 'server-info', name: 'Informations Serveur', category: 'Réseau' },
+  { id: 'cookies', name: 'Cookies', category: 'Conformité' },
+  { id: 'headers', name: 'En-têtes HTTP', category: 'Sécurité' },
+  { id: 'dns', name: 'Enregistrements DNS', category: 'DNS' },
+  { id: 'subdomain-enumeration', name: 'Énumération Sous-domaines', category: 'DNS' },
+  { id: 'hosts', name: 'Noms d\'hôtes', category: 'DNS' },
+  { id: 'http-security', name: 'Sécurité HTTP', category: 'Sécurité' },
+  { id: 'social-tags', name: 'Balises Sociales', category: 'SEO' },
+  { id: 'trace-route', name: 'Traceroute', category: 'Réseau' },
+  { id: 'security-txt', name: 'Security.txt', category: 'Sécurité' },
+  { id: 'dns-server', name: 'Serveurs DNS', category: 'DNS' },
+  { id: 'firewall', name: 'Pare-feu', category: 'Sécurité' },
+  { id: 'dnssec', name: 'DNSSEC', category: 'DNS' },
+  { id: 'hsts', name: 'HSTS', category: 'Sécurité' },
+  { id: 'threats', name: 'Menaces', category: 'Sécurité' },
+  { id: 'mail-config', name: 'Configuration Email', category: 'Email' },
+  { id: 'archives', name: 'Archives', category: 'Historique' },
+  { id: 'rank', name: 'Classement', category: 'SEO' },
+  { id: 'tls-cipher-suites', name: 'Suites de Chiffrement TLS', category: 'Sécurité' },
+  { id: 'tls-security-config', name: 'Configuration Sécurité TLS', category: 'Sécurité' },
+  { id: 'tls-client-support', name: 'Support Client TLS', category: 'Sécurité' },
+  { id: 'redirects', name: 'Redirections', category: 'Technique' },
+  { id: 'linked-pages', name: 'Pages Liées', category: 'SEO' },
+  { id: 'robots-txt', name: 'Robots.txt', category: 'SEO' },
+  { id: 'status', name: 'Statut Serveur', category: 'Réseau' },
+  { id: 'ports', name: 'Ports Ouverts', category: 'Sécurité' },
+  { id: 'txt-records', name: 'Enregistrements TXT', category: 'DNS' },
+  { id: 'block-lists', name: 'Listes de Blocage', category: 'Sécurité' },
+  { id: 'sitemap', name: 'Plan du Site', category: 'SEO' },
+  { id: 'carbon', name: 'Empreinte Carbone', category: 'Performance' },
+  { id: 'apdp-cookie-banner', name: 'Bannière Cookies APDP', category: 'Conformité' },
+  { id: 'apdp-privacy-policy', name: 'Politique de Confidentialité APDP', category: 'Conformité' },
+  { id: 'apdp-legal-notices', name: 'Mentions Légales APDP', category: 'Conformité' },
+  { id: 'apdp-user-rights', name: 'Droits Utilisateurs APDP', category: 'Conformité' },
+] as const;
 
-  // Smart translation
-  const words = pluginId.split('-');
-  const translatedWords = words.map(word => translations[word.toLowerCase()] || word);
-  let name = translatedWords.join(' ');
-  
-  // Capitalize first letter
-  name = name.charAt(0).toUpperCase() + name.slice(1);
-
-  // Categorization logic
-  let category = 'Technique';
-  
-  if (pluginId.includes('apdp') || pluginId.includes('rgpd') || pluginId.includes('cookie') || 
-      pluginId.includes('privacy') || pluginId.includes('legal') || pluginId.includes('compliance')) {
-    category = 'Conformité';
-  } else if (pluginId.includes('vulnerab') || pluginId.includes('ssl') || pluginId.includes('tls') || 
-             pluginId.includes('security') || pluginId.includes('header') || pluginId.includes('hsts') ||
-             pluginId.includes('firewall') || pluginId.includes('port') || pluginId.includes('threat') ||
-             pluginId.includes('secret') || pluginId.includes('exposed') || pluginId.includes('mixed') ||
-             pluginId.includes('takeover') || pluginId.includes('risk') || pluginId.includes('block')) {
-    category = 'Sécurité';
-  } else if (pluginId.includes('dns') || pluginId.includes('whois') || pluginId.includes('subdomain') ||
-             pluginId.includes('txt-record')) {
-    category = 'DNS';
-  } else if (pluginId.includes('ip') || pluginId.includes('trace') || pluginId.includes('status')) {
-    category = 'Réseau';
-  } else if (pluginId.includes('cdn') || pluginId.includes('quality') || pluginId.includes('carbon') ||
-             pluginId.includes('lighthouse') || pluginId.includes('performance')) {
-    category = 'Performance';
-  } else if (pluginId.includes('seo') || pluginId.includes('social') || pluginId.includes('rank') ||
-             pluginId.includes('linked') || pluginId.includes('robots') || pluginId.includes('sitemap')) {
-    category = 'SEO';
-  } else if (pluginId.includes('mail')) {
-    category = 'E-mail';
-  } else if (pluginId.includes('accessibility') || pluginId.includes('audit') || pluginId.includes('link-audit')) {
-    category = 'Audit';
-  } else if (pluginId.includes('archive')) {
-    category = 'Historique';
+// Group plugins by category
+const groupedPlugins = PLUGINS.reduce((acc, plugin) => {
+  if (!acc[plugin.category]) {
+    acc[plugin.category] = [];
   }
-
-  return { name, category };
-};
-
-interface Plugin {
-  id: string;
-  name: string;
-  category: string;
-}
+  acc[plugin.category].push(plugin);
+  return acc;
+}, {} as Record<string, typeof PLUGINS>);
 
 const Container = styled.div`
   background: ${colors.backgroundLighter};
@@ -183,8 +106,51 @@ const CategoryTitle = styled.h3`
   border-bottom: 2px solid ${colors.borderColor};
   display: flex;
   align-items: center;
-  gap: 8px;
+  gap: 10px;
 `;
+
+const CategoryIcon = styled.span<{ variant: string }>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  background: ${props => {
+    switch (props.variant) {
+      case 'Conformité': return 'linear-gradient(135deg, #059669 0%, #047857 100%)';
+      case 'Sécurité': return 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)';
+      case 'DNS': return 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)';
+      case 'Réseau': return 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)';
+      case 'Performance': return 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
+      case 'SEO': return 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)';
+      case 'Email': return 'linear-gradient(135deg, #ec4899 0%, #db2777 100%)';
+      case 'Technique': return 'linear-gradient(135deg, #64748b 0%, #475569 100%)';
+      case 'Historique': return 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)';
+      default: return 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)';
+    }
+  }};
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+`;
+
+const getCategoryAbbr = (category: string): string => {
+  switch (category) {
+    case 'Conformité': return 'CF';
+    case 'Sécurité': return 'SEC';
+    case 'DNS': return 'DNS';
+    case 'Réseau': return 'NET';
+    case 'Performance': return 'PRF';
+    case 'SEO': return 'SEO';
+    case 'Email': return 'ML';
+    case 'Technique': return 'TCH';
+    case 'Historique': return 'HST';
+    default: return '—';
+  }
+};
 
 const PluginGrid = styled.div`
   display: grid;
@@ -270,57 +236,29 @@ const LoadingState = styled.div`
 `;
 
 const PluginConfig = (): JSX.Element => {
-  const [plugins, setPlugins] = useState<Plugin[]>([]);
   const [disabledPlugins, setDisabledPlugins] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    fetchPluginsAndDisabled();
+    fetchDisabledPlugins();
   }, []);
 
-  const fetchPluginsAndDisabled = async () => {
+  const fetchDisabledPlugins = async () => {
     try {
       const token = localStorage.getItem('checkitAuthToken');
-      
-      // Fetch available plugins
-      const pluginsResponse = await fetch(`${API_BASE_URL}/admin/plugins/available`, {
+      const response = await fetch(`${API_BASE_URL}/admin/plugins`, {
         headers: {
           'Authorization': `Bearer ${token}`
         }
       });
 
-      if (!pluginsResponse.ok) {
-        throw new Error('Échec de la récupération des plugins disponibles');
+      if (!response.ok) {
+        throw new Error('Failed to fetch plugins');
       }
 
-      const pluginsData = await pluginsResponse.json();
-      
-      // Convert plugin IDs to full plugin objects with names and categories
-      const pluginList: Plugin[] = pluginsData.plugins.map((id: string) => {
-        const info = getPluginInfo(id);
-        return {
-          id,
-          name: info.name,
-          category: info.category
-        };
-      });
-      
-      setPlugins(pluginList);
-
-      // Fetch disabled plugins
-      const disabledResponse = await fetch(`${API_BASE_URL}/admin/plugins`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
-
-      if (!disabledResponse.ok) {
-        throw new Error('Échec de la récupération de la configuration');
-      }
-
-      const disabledData = await disabledResponse.json();
-      setDisabledPlugins(disabledData.disabledPlugins || []);
+      const data = await response.json();
+      setDisabledPlugins(data.disabledPlugins || []);
     } catch (error) {
       console.error('Error fetching plugins:', error);
       toast.error('Impossible de récupérer la configuration des plugins', {
@@ -390,22 +328,13 @@ const PluginConfig = (): JSX.Element => {
   };
 
   const handleReset = () => {
-    fetchPluginsAndDisabled();
+    fetchDisabledPlugins();
     toast.info('Modifications annulées', {
       position: 'bottom-right',
       theme: 'dark',
       autoClose: 2000,
     });
   };
-
-  // Group plugins by category
-  const groupedPlugins = plugins.reduce((acc, plugin) => {
-    if (!acc[plugin.category]) {
-      acc[plugin.category] = [];
-    }
-    acc[plugin.category].push(plugin);
-    return acc;
-  }, {} as Record<string, Plugin[]>);
 
   if (loading) {
     return (
@@ -419,7 +348,7 @@ const PluginConfig = (): JSX.Element => {
     <Container>
       <InfoBox>
         <InfoText>
-          <strong>Note :</strong> Les plugins <strong>cochés</strong> ci-dessous seront <strong>désactivés</strong> pour
+          <strong>Note :</strong> Les plugins cochés ci-dessous seront <strong>désactivés</strong> pour
           tous les utilisateurs DPD. Cette configuration s'applique globalement à tous les comptes DPD.
         </InfoText>
       </InfoBox>
@@ -427,16 +356,7 @@ const PluginConfig = (): JSX.Element => {
       {Object.entries(groupedPlugins).map(([category, plugins]) => (
         <CategorySection key={category}>
           <CategoryTitle>
-            {category === 'Conformité' && '📋'}
-            {category === 'Sécurité' && '🔒'}
-            {category === 'DNS' && '🌐'}
-            {category === 'Réseau' && '📡'}
-            {category === 'Performance' && '⚡'}
-            {category === 'SEO' && '🔍'}
-            {category === 'E-mail' && '📧'}
-            {category === 'Technique' && '⚙️'}
-            {category === 'Audit' && '🔍'}
-            {category === 'Historique' && '📚'}
+            <CategoryIcon variant={category}>{getCategoryAbbr(category)}</CategoryIcon>
             {category}
           </CategoryTitle>
           <PluginGrid>

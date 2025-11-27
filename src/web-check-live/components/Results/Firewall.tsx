@@ -8,10 +8,10 @@ display: block;
 margin-top: 0.5rem;
 `;
 
-const FirewallCard = (props: { data: any, title: string, actionButtons: any }): JSX.Element => {
+const FirewallCard = (props: { data: any, title: string, actionButtons: any, refCode?: string }): JSX.Element => {
   const data = props.data;
   return (
-    <Card heading={props.title} actionButtons={props.actionButtons}>
+    <Card heading={props.title} actionButtons={props.actionButtons} refCode={props.refCode}>
       <Row lbl="Firewall" val={data.hasWaf ? '✅ Yes' : '❌ No*' } />
       { data.waf && <Row lbl="WAF" val={data.waf} /> }
       { !data.hasWaf && (<Note>

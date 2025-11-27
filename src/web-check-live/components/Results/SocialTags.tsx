@@ -26,10 +26,10 @@ const OgBanner = ({ ogImage, ogUrl }: { ogImage: string; ogUrl?: string }): JSX.
   );
 };
 
-const SocialTagsCard = (props: {data: any, title: string, actionButtons: any }): JSX.Element => {
+const SocialTagsCard = (props: {data: any, title: string, actionButtons: any, refCode?: string }): JSX.Element => {
   const tags = props.data;
   return (
-    <Card heading={props.title} actionButtons={props.actionButtons} styles={cardStyles}>
+    <Card heading={props.title} actionButtons={props.actionButtons} styles={cardStyles} refCode={props.refCode}>
       { tags.title && <Row lbl="Title" val={tags.title} /> }
       { tags.description && <Row lbl="Description" val={tags.description} /> }
       { tags.keywords && <Row lbl="Keywords" val={tags.keywords} /> }

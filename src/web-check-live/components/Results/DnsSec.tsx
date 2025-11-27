@@ -174,10 +174,10 @@ const makeAnswerList = (recordData: any): RowProps[] => {
   ].filter((rowData) => rowData.val && rowData.val !== 'Unknown');
 };
 
-const DnsSecCard = (props: { data: any, title: string, actionButtons: any }): JSX.Element => {
+const DnsSecCard = (props: { data: any, title: string, actionButtons: any, refCode?: string }): JSX.Element => {
   const dnsSec = props.data;
   return (
-    <Card heading={props.title} actionButtons={props.actionButtons}>
+    <Card heading={props.title} actionButtons={props.actionButtons} refCode={props.refCode}>
       {
         ['DNSKEY', 'DS', 'RRSIG'].map((key: string, index: number) => {
           const record = dnsSec[key];

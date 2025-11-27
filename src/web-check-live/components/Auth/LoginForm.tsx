@@ -428,7 +428,7 @@ const LoginForm = ({ onLoginSuccess }: LoginFormProps) => {
         <LogoContainer>
           <Logo src="/assets/images/Logo-APDP.svg" alt="APDP Monaco" />
           <Title>Connexion</Title>
-          <Subtitle>Outil d'Audit de Conformité - Accès Sécurisé</Subtitle>
+          <Subtitle>Outil d'analyse de la sécurité - Accès Sécurisé</Subtitle>
         </LogoContainer>
 
         {error && (
@@ -448,7 +448,7 @@ const LoginForm = ({ onLoginSuccess }: LoginFormProps) => {
               disabled={loading}
             >
               <option value="DPD">🏢 DPD - Délégué à la Protection des Données</option>
-              <option value="APDP">⚙️ APDP - Administrateur</option>
+              <option value="APDP">APDP - Administrateur</option>
             </Select>
           </FormGroup>
 

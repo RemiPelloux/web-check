@@ -20,11 +20,11 @@ const parseHeader = (headerString: string): RowProps[] => {
   });
 };
 
-const HstsCard = (props: {data: any, title: string, actionButtons: any }): JSX.Element => {
+const HstsCard = (props: {data: any, title: string, actionButtons: any, refCode?: string }): JSX.Element => {
   const hstsResults = props.data;
   const hstsHeaders = hstsResults?.hstsHeader ? parseHeader(hstsResults.hstsHeader) : [];
   return (
-    <Card heading={props.title} actionButtons={props.actionButtons} styles={cardStyles}>
+    <Card heading={props.title} actionButtons={props.actionButtons} styles={cardStyles} refCode={props.refCode}>
       {typeof hstsResults.compatible === 'boolean' && (
         <Row lbl="HSTS Enabled?" val={hstsResults.compatible ? '✅ Yes' : '❌ No'} />
       )}

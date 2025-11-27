@@ -46,13 +46,13 @@ const EmptyState = styled.div`
   font-style: italic;
 `;
 
-const ExposedFilesCard = (props: { data: any }): JSX.Element => {
+const ExposedFilesCard = (props: { data: any, title?: string, actionButtons?: any, refCode?: string }): JSX.Element => {
     const { data } = props;
     const exposedFiles = data?.exposedFiles || [];
     const scannedCount = data?.scannedCount || 0;
 
     return (
-        <Card heading="Fichiers Exposés" actionButtons={undefined}>
+        <Card heading={props.title || "Fichiers Exposés"} actionButtons={props.actionButtons} refCode={props.refCode}>
             <Row lbl="Fichiers Scannés" val={scannedCount.toString()} />
             <Row lbl="Fichiers Trouvés" val={exposedFiles.length.toString()} />
 

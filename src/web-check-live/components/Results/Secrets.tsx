@@ -184,10 +184,10 @@ interface SecretsData {
   findings: Finding[];
 }
 
-const SecretsCard = (props: { data: SecretsData }): JSX.Element => {
+const SecretsCard = (props: { data: SecretsData, title?: string, actionButtons?: any, refCode?: string }): JSX.Element => {
   const { data } = props;
 
-  if (!data) return <Card heading="PII & Secrets Scanner">Chargement...</Card>;
+  if (!data) return <Card heading={props.title || "PII & Secrets Scanner"} refCode={props.refCode}>Chargement...</Card>;
 
   const getHighestSeverity = () => {
     if (data.findings.some(f => f.severity === 'Critical')) return 'Critical';
@@ -208,7 +208,7 @@ const SecretsCard = (props: { data: SecretsData }): JSX.Element => {
   };
 
   return (
-    <Card heading="PII & Secrets Scanner (Source Code Analysis)">
+    <Card heading={props.title || "PII & Secrets Scanner (Source Code Analysis)"} actionButtons={props.actionButtons} refCode={props.refCode}>
       <Container>
         <SummaryBanner severity={severity}>
           <StatusMessage>

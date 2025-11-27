@@ -159,13 +159,13 @@ const formatCookieValue = (value: string): string => {
 
 // --- Main Component ---
 
-const CookiesCard = (props: { data: any, title: string, actionButtons: any }): JSX.Element => {
+const CookiesCard = (props: { data: any, title: string, actionButtons: any, refCode?: string }): JSX.Element => {
   const { headerCookies = [], clientCookies = [], analysis, summary } = props.data;
   const [filter, setFilter] = useState<'all' | 'header' | 'client' | 'secure' | 'insecure'>('all');
 
   if (!summary || summary.total === 0) {
     return (
-      <Card heading={props.title} actionButtons={props.actionButtons}>
+      <Card heading={props.title} actionButtons={props.actionButtons} refCode={props.refCode}>
         <div style={{ textAlign: 'center', padding: '2rem', color: colors.textColorSecondary }}>
           <span style={{ fontSize: '2rem', display: 'block', marginBottom: '1rem' }}>🍪</span>
           Aucun cookie détecté. Ce site est propre !
@@ -191,7 +191,7 @@ const CookiesCard = (props: { data: any, title: string, actionButtons: any }): J
   const securityStatus = getSecurityLevel(summary.securityScore);
 
   return (
-    <Card heading={props.title} actionButtons={props.actionButtons}>
+    <Card heading={props.title} actionButtons={props.actionButtons} refCode={props.refCode}>
       <DashboardContainer>
 
         {/* Summary Section */}

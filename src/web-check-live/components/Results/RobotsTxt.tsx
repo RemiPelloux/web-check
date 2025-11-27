@@ -10,12 +10,12 @@ const cardStyles = `
   }
 `;
 
-const RobotsTxtCard = ( props: { data: { robots: RowProps[]}, title: string, actionButtons: any}): JSX.Element => {
+const RobotsTxtCard = ( props: { data: { robots: RowProps[]}, title: string, actionButtons: any, refCode?: string}): JSX.Element => {
   const { data } = props;
   const robots = data?.robots || [];
 
   return (
-    <Card heading={props.title} actionButtons={props.actionButtons} styles={cardStyles}>
+    <Card heading={props.title} actionButtons={props.actionButtons} styles={cardStyles} refCode={props.refCode}>
       <div className="content">
       {
         robots.length === 0 && <p>No crawl rules found.</p>

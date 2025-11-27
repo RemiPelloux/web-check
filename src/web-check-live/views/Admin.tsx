@@ -134,14 +134,56 @@ const NavItem = styled.button<{ active: boolean }>`
     transform: translateX(2px) scale(0.98);
   }
 
-  span:first-of-type {
-    font-size: 22px;
-    min-width: 28px;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    filter: ${props => props.active ? 'drop-shadow(0 2px 4px rgba(0,0,0,0.2))' : 'none'};
-  }
+`;
+
+const NavIcon = styled.span<{ variant: string; active?: boolean }>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 8px;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  background: ${props => {
+    if (props.active) return 'rgba(255, 255, 255, 0.2)';
+    switch (props.variant) {
+      case 'users': return 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)';
+      case 'statistics': return 'linear-gradient(135deg, #059669 0%, #047857 100%)';
+      case 'logs': return 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)';
+      case 'plugins': return 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
+      case 'admin': return 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)';
+      default: return 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)';
+    }
+  }};
+  color: white;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
+  flex-shrink: 0;
+`;
+
+const ContentIcon = styled.div<{ variant: string }>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
+  font-size: 14px;
+  font-weight: 700;
+  letter-spacing: 0.5px;
+  background: ${props => {
+    switch (props.variant) {
+      case 'users': return 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)';
+      case 'statistics': return 'linear-gradient(135deg, #059669 0%, #047857 100%)';
+      case 'logs': return 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)';
+      case 'plugins': return 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
+      default: return 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)';
+    }
+  }};
+  color: white;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+  margin-right: 16px;
 `;
 
 const SidebarFooter = styled.div`
@@ -278,27 +320,31 @@ const Admin = (): JSX.Element => {
   const getContentTitle = () => {
     if (activeTab === 'users') {
       return {
-        icon: '👥',
+        abbr: 'USR',
+        variant: 'users',
         title: 'Gestion des Utilisateurs',
         description: 'Créez et gérez les comptes DPD, configurez les restrictions IP et les autorisations.'
       };
     }
     if (activeTab === 'statistics') {
       return {
-        icon: '📊',
+        abbr: 'STAT',
+        variant: 'statistics',
         title: 'Statistiques',
         description: 'Visualisez les statistiques anonymes des analyses et des problèmes détectés.'
       };
     }
     if (activeTab === 'logs') {
       return {
-        icon: '📋',
+        abbr: 'LOG',
+        variant: 'logs',
         title: 'Journal d\'Audit',
         description: 'Consultez l\'historique complet des connexions, analyses et actions administratives.'
       };
     }
     return {
-      icon: '🔌',
+      abbr: 'PLG',
+      variant: 'plugins',
       title: 'Configuration des Plugins',
       description: 'Activez ou désactivez les plugins disponibles pour tous les utilisateurs DPD.'
     };
@@ -311,7 +357,7 @@ const Admin = (): JSX.Element => {
       <Sidebar>
         <SidebarHeader>
           <SidebarTitle>
-            <span>⚙️</span>
+            <NavIcon variant="admin" active>ADM</NavIcon>
             Administration APDP
           </SidebarTitle>
           <SidebarSubtitle>Panneau de contrôle</SidebarSubtitle>
@@ -322,28 +368,28 @@ const Admin = (): JSX.Element => {
             active={activeTab === 'users'}
             onClick={() => setActiveTab('users')}
           >
-            <span>👥</span>
+            <NavIcon variant="users" active={activeTab === 'users'}>USR</NavIcon>
             <span>Gestion des Utilisateurs</span>
           </NavItem>
           <NavItem
             active={activeTab === 'statistics'}
             onClick={() => setActiveTab('statistics')}
           >
-            <span>📊</span>
+            <NavIcon variant="statistics" active={activeTab === 'statistics'}>STAT</NavIcon>
             <span>Statistiques</span>
           </NavItem>
           <NavItem
             active={activeTab === 'logs'}
             onClick={() => setActiveTab('logs')}
           >
-            <span>📋</span>
+            <NavIcon variant="logs" active={activeTab === 'logs'}>LOG</NavIcon>
             <span>Journal d'Audit</span>
           </NavItem>
           <NavItem
             active={activeTab === 'plugins'}
             onClick={() => setActiveTab('plugins')}
           >
-            <span>🔌</span>
+            <NavIcon variant="plugins" active={activeTab === 'plugins'}>PLG</NavIcon>
             <span>Configuration des Plugins</span>
           </NavItem>
         </SidebarNav>
@@ -359,7 +405,7 @@ const Admin = (): JSX.Element => {
       <MainContent>
         <ContentHeader>
           <ContentTitle>
-            <span>{content.icon}</span>
+            <ContentIcon variant={content.variant}>{content.abbr}</ContentIcon>
             <span>{content.title}</span>
           </ContentTitle>
           <ContentDescription>{content.description}</ContentDescription>

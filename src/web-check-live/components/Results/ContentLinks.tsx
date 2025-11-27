@@ -44,11 +44,11 @@ const getPathName = (link: string) => {
   }
 };
 
-const ContentLinksCard = (props: { data: any, title: string, actionButtons: any }): JSX.Element => {
+const ContentLinksCard = (props: { data: any, title: string, actionButtons: any, refCode?: string }): JSX.Element => {
   const internal = props.data.internal || [];
   const external = props.data.external || [];
   return (
-    <Card heading={props.title} actionButtons={props.actionButtons} styles={cardStyles}>
+    <Card heading={props.title} actionButtons={props.actionButtons} styles={cardStyles} refCode={props.refCode}>
       <Heading as="h3" size="small" color={colors.primary}>Summary</Heading>
       <Row lbl="Internal Link Count" val={internal.length} />
       <Row lbl="External Link Count" val={external.length} />

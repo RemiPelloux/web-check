@@ -32,10 +32,10 @@ const cardStyles = `
   overflow: auto;
 `;
 
-const HostNamesCard = (props: { data: HostNames, title: string, actionButtons: any }): JSX.Element => {
+const HostNamesCard = (props: { data: HostNames, title: string, actionButtons: any, refCode?: string }): JSX.Element => {
   const hosts = props.data;
   return (
-    <Card heading={props.title} actionButtons={props.actionButtons} styles={cardStyles}>
+    <Card heading={props.title} actionButtons={props.actionButtons} styles={cardStyles} refCode={props.refCode}>
       { hosts.domains.length > 0 &&
         <HostListSection list={hosts.domains} title="Domains" />
       }

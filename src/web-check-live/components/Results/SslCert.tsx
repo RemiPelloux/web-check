@@ -77,11 +77,11 @@ const ListRow = (props: { list: string[], title: string }) => {
 );
 }
 
-const SslCertCard = (props: { data: any, title: string, actionButtons: any }): JSX.Element => {
+const SslCertCard = (props: { data: any, title: string, actionButtons: any, refCode?: string }): JSX.Element => {
   const sslCert = props.data;
   const { subject, issuer, fingerprint, serialNumber, asn1Curve, nistCurve, valid_to, valid_from, ext_key_usage } = sslCert;
   return (
-    <Card heading={props.title} actionButtons={props.actionButtons}>
+    <Card heading={props.title} actionButtons={props.actionButtons} refCode={props.refCode}>
       { subject && <DataRow lbl="Subject" val={subject?.CN} /> }
       { issuer?.O && <DataRow lbl="Issuer" val={issuer.O} /> }
       { asn1Curve && <DataRow lbl="ASN1 Curve" val={asn1Curve} /> }

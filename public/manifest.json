@@ -1,6 +1,6 @@
 {
-  "short_name": "Outil d'Audit de Conformité",
-  "name": "Outil d'Audit de Conformité",
+  "short_name": "Analyse Sécurité",
+  "name": "Outil d'analyse de la sécurité",
   "icons": [
     {
       "src": "favicon.ico",

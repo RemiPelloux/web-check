@@ -343,7 +343,7 @@ const UserModal = ({ user, onClose }: UserModalProps): JSX.Element => {
     <Overlay onClick={() => onClose(false)}>
       <Modal onClick={(e) => e.stopPropagation()}>
         <Header>
-          <Title>{user ? '✏️ Modifier l\'utilisateur' : '➕ Nouvel utilisateur'}</Title>
+          <Title>{user ? 'Modifier l\'utilisateur' : 'Nouvel utilisateur'}</Title>
           <Subtitle>
             {user
               ? 'Modifiez les informations de l\'utilisateur'
@@ -422,7 +422,7 @@ const UserModal = ({ user, onClose }: UserModalProps): JSX.Element => {
                 border: '1px solid rgba(59, 130, 246, 0.2)',
                 color: colors.textColor
               }}>
-                ℹ️ <strong>Note:</strong> Un nom d'utilisateur et un mot de passe seront générés automatiquement. 
+                <strong>Note :</strong> Un nom d'utilisateur et un mot de passe seront générés automatiquement. 
                 Le DPD n'aura pas besoin de les utiliser (connexion automatique par IP).
               </HelpText>
             </>

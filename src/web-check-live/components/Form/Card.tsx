@@ -19,20 +19,54 @@ export const StyledCard = styled.section<{ styles?: string}>`
   ${props => props.styles}
 `;
 
+const CardHeader = styled.div`
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-bottom: 0.5rem;
+`;
+
+const HeadingWrapper = styled.div`
+  flex: 1;
+  min-width: 0;
+`;
+
+const RefCodeBadge = styled.span`
+  font-family: 'Monaco', 'Consolas', 'Courier New', monospace;
+  font-size: 10px;
+  background: rgba(100, 100, 100, 0.25);
+  padding: 3px 8px;
+  border-radius: 4px;
+  color: ${colors.textColorSecondary};
+  white-space: nowrap;
+  letter-spacing: 0.5px;
+  font-weight: 600;
+  flex-shrink: 0;
+`;
+
 interface CardProps {
   children: ReactNode;
-  heading?: string,
+  heading?: string;
+  refCode?: string;
   styles?: string;
   actionButtons?: ReactNode | undefined;
-};
+}
 
 export const Card = (props: CardProps): JSX.Element => {
-  const { children, heading, styles, actionButtons } = props;
+  const { children, heading, refCode, styles, actionButtons } = props;
   return (
     <ErrorBoundary title={heading}>
       <StyledCard styles={styles}>
         { actionButtons && actionButtons }
-        { heading && <Heading className="inner-heading" as="h3" align="left" color={colors.primary}>{heading}</Heading> }
+        { heading && (
+          <CardHeader>
+            <HeadingWrapper>
+              <Heading className="inner-heading" as="h3" align="left" color={colors.primary}>{heading}</Heading>
+            </HeadingWrapper>
+            {refCode && <RefCodeBadge>{refCode}</RefCodeBadge>}
+          </CardHeader>
+        )}
         {children}
       </StyledCard>
     </ErrorBoundary>

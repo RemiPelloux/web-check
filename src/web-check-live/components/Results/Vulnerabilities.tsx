@@ -320,9 +320,10 @@ interface VulnerabilitiesCardProps {
   };
   title: string;
   actionButtons?: any;
+  refCode?: string;
 }
 
-const VulnerabilitiesCard: React.FC<VulnerabilitiesCardProps> = ({ data, title, actionButtons }) => {
+const VulnerabilitiesCard: React.FC<VulnerabilitiesCardProps> = ({ data, title, actionButtons, refCode }) => {
   const [activeTab, setActiveTab] = useState('all');
   const [expandedItems, setExpandedItems] = useState<Set<number>>(new Set());
 
@@ -338,7 +339,7 @@ const VulnerabilitiesCard: React.FC<VulnerabilitiesCardProps> = ({ data, title, 
 
   if (data?.error) {
     return (
-      <Card heading={title} actionButtons={actionButtons}>
+      <Card heading={title} actionButtons={actionButtons} refCode={refCode}>
         <div style={{ textAlign: 'center', padding: '40px', color: colors.textColorSecondary }}>
           <h3>Analyse indisponible</h3>
           <p>{data.error}</p>
@@ -382,7 +383,7 @@ const VulnerabilitiesCard: React.FC<VulnerabilitiesCardProps> = ({ data, title, 
   };
 
   return (
-    <Card heading={title} actionButtons={actionButtons}>
+    <Card heading={title} actionButtons={actionButtons} refCode={refCode}>
       <Container>
         <SummaryBanner riskLevel={displayRisk || 'Minimal'}>
           <ScoreInfo>

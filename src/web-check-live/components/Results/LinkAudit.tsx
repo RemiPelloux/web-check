@@ -114,10 +114,10 @@ interface LinkAuditData {
   score: number;
 }
 
-const LinkAuditCard = (props: { data: LinkAuditData }): JSX.Element => {
+const LinkAuditCard = (props: { data: LinkAuditData, title?: string, actionButtons?: any, refCode?: string }): JSX.Element => {
   const { data } = props;
 
-  if (!data) return <Card heading="Link & Content Auditor">Chargement...</Card>;
+  if (!data) return <Card heading={props.title || "Link & Content Auditor"} refCode={props.refCode}>Chargement...</Card>;
 
   const getScoreColor = (score: number) => {
     if (score >= 90) return '#22c55e';
@@ -126,7 +126,7 @@ const LinkAuditCard = (props: { data: LinkAuditData }): JSX.Element => {
   };
 
   return (
-    <Card heading="Link & Content Audit (SEO & Quality)">
+    <Card heading={props.title || "Link & Content Audit (SEO & Quality)"} actionButtons={props.actionButtons} refCode={props.refCode}>
       <Container>
         <StatsGrid>
           <StatCard color={getScoreColor(data.score)}>

@@ -20,19 +20,19 @@ const ListItem = styled.div<{ status?: string }>`
   border-left: 3px solid ${props => props.status === 'success' ? colors.success : props.status === 'error' ? colors.danger : colors.primary};
 `;
 
-const ApdpUserRights = (props: { data: any, title: string, actionButtons: any }): JSX.Element => {
+const ApdpUserRights = (props: { data: any, title: string, actionButtons: any, refCode?: string }): JSX.Element => {
   const { data } = props;
   
   if (!data || data.error) {
     return (
-      <Card heading={props.title} actionButtons={props.actionButtons}>
+      <Card heading={props.title} actionButtons={props.actionButtons} refCode={props.refCode}>
         <Row lbl="Erreur" val={data?.error || 'Aucune donnée'} />
       </Card>
     );
   }
 
   return (
-    <Card heading={props.title} actionButtons={props.actionButtons}>
+    <Card heading={props.title} actionButtons={props.actionButtons} refCode={props.refCode}>
       <Row lbl="Conformité" val={<Badge type={data.compliance?.level || 'Non conforme'}>{data.compliance?.level || 'Non conforme'}</Badge>} />
       <Row lbl="Score" val={`${data.compliance?.score || 0}/100`} />
       <Row lbl="Droits implémentés" val={`${data.implementedRights?.length || 0}/6`} />

@@ -18,14 +18,14 @@ interface AuditLog {
 interface LogCategory {
   id: string;
   label: string;
-  icon: string;
+  abbr: string;
 }
 
 const LOG_CATEGORIES: LogCategory[] = [
-  { id: 'all', label: 'Tous', icon: '📋' },
-  { id: 'connection', label: 'Connexion', icon: '🔐' },
-  { id: 'scan', label: 'Analyses', icon: '🔍' },
-  { id: 'admin', label: 'Actions Admin', icon: '⚙️' },
+  { id: 'all', label: 'Tous', abbr: 'ALL' },
+  { id: 'connection', label: 'Connexion', abbr: 'AUTH' },
+  { id: 'scan', label: 'Analyses', abbr: 'SCAN' },
+  { id: 'admin', label: 'Actions Admin', abbr: 'ADM' },
 ];
 
 const Container = styled.div`
@@ -72,6 +72,75 @@ const FilterTab = styled.button<{ active: boolean }>`
       ? '0 8px 16px rgba(220, 38, 38, 0.3)'
       : '0 4px 12px rgba(0, 0, 0, 0.1)'};
   }
+`;
+
+const FilterIcon = styled.span<{ active: boolean; variant: string }>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 24px;
+  height: 24px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  background: ${props => {
+    if (props.active) return 'rgba(255, 255, 255, 0.2)';
+    switch (props.variant) {
+      case 'all': return 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)';
+      case 'connection': return 'linear-gradient(135deg, #2563eb 0%, #1d4ed8 100%)';
+      case 'scan': return 'linear-gradient(135deg, #059669 0%, #047857 100%)';
+      case 'admin': return 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)';
+      default: return 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)';
+    }
+  }};
+  color: white;
+`;
+
+const TypeIcon = styled.span<{ variant: string }>`
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 20px;
+  height: 20px;
+  padding: 0 6px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.3px;
+  margin-right: 6px;
+  background: ${props => {
+    switch (props.variant) {
+      case 'connection': return 'rgba(37, 99, 235, 0.15)';
+      case 'scan': return 'rgba(5, 150, 105, 0.15)';
+      case 'admin': return 'rgba(220, 38, 38, 0.15)';
+      default: return 'rgba(107, 114, 128, 0.15)';
+    }
+  }};
+  color: ${props => {
+    switch (props.variant) {
+      case 'connection': return '#2563eb';
+      case 'scan': return '#059669';
+      case 'admin': return '#dc2626';
+      default: return '#6b7280';
+    }
+  }};
+`;
+
+const EmptyIcon = styled.div`
+  width: 64px;
+  height: 64px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, ${colors.backgroundLighter} 0%, ${colors.background} 100%);
+  border: 2px solid ${colors.borderColor};
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin: 0 auto 16px;
+  font-size: 11px;
+  font-weight: 700;
+  color: ${colors.textColorSecondary};
+  letter-spacing: 0.5px;
 `;
 
 const ControlsRow = styled.div`
@@ -434,12 +503,16 @@ const Logs = (): JSX.Element => {
   };
 
   const getLogType = (action: string): string => {
-    if (action.includes('login') || action.includes('logout') || action.includes('auth')) {
+    const a = action.toUpperCase();
+    // Connection-related actions
+    if (a.includes('LOGIN') || a.includes('LOGOUT') || a.includes('AUTH') || a.includes('SESSION')) {
       return 'connection';
     }
-    if (action.includes('scan') || action.includes('analyze')) {
+    // Scan/Analysis actions
+    if (a.includes('SCAN') || a.includes('ANALYZ') || a.includes('CHECK') || a.includes('REPORT')) {
       return 'scan';
     }
+    // Everything else is admin
     return 'admin';
   };
 
@@ -572,7 +645,7 @@ const Logs = (): JSX.Element => {
               active={activeFilter === category.id}
               onClick={() => setActiveFilter(category.id)}
             >
-              <span>{category.icon}</span>
+              <FilterIcon active={activeFilter === category.id} variant={category.id}>{category.abbr}</FilterIcon>
               <span>{category.label}</span>
             </FilterTab>
           ))}
@@ -588,19 +661,18 @@ const Logs = (): JSX.Element => {
         />
         <SearchBox
           type="text"
-          placeholder="🔍 Rechercher (utilisateur, action, IP...)"
+          placeholder="Rechercher (utilisateur, action, IP...)"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
         <ActionButton danger onClick={handleCleanLogs} disabled={cleaning || logs.length === 0}>
-          <span>🗑️</span>
-          <span>{cleaning ? 'Nettoyage...' : 'Nettoyer les logs'}</span>
+          {cleaning ? 'Nettoyage...' : 'Nettoyer les logs'}
         </ActionButton>
       </ControlsRow>
 
       {filteredLogs.length === 0 ? (
         <EmptyState>
-          <div className="icon">📭</div>
+          <EmptyIcon>LOGS</EmptyIcon>
           <div className="message">
             {searchQuery || dateFilter ? 'Aucun log ne correspond à votre recherche' : 'Aucun log disponible'}
           </div>
@@ -622,9 +694,14 @@ const Logs = (): JSX.Element => {
                   <Cell data-label="Horodatage:">{formatTimestamp(log.timestamp)}</Cell>
                   <Cell data-label="Type:">
                     <Badge type={logType}>
-                      {logType === 'connection' && '🔐 Connexion'}
-                      {logType === 'scan' && '🔍 Analyse'}
-                      {logType === 'admin' && '⚙️ Admin'}
+                      <TypeIcon variant={logType}>
+                        {logType === 'connection' && 'AUTH'}
+                        {logType === 'scan' && 'SCAN'}
+                        {logType === 'admin' && 'ADM'}
+                      </TypeIcon>
+                      {logType === 'connection' && 'Connexion'}
+                      {logType === 'scan' && 'Analyse'}
+                      {logType === 'admin' && 'Admin'}
                     </Badge>
                   </Cell>
                   <Cell data-label="Action:">
@@ -655,17 +732,17 @@ const Logs = (): JSX.Element => {
             </PaginationInfo>
             <PaginationControls>
               <PageButton onClick={() => goToPage(1)} disabled={currentPage === 1}>
-                ⏮️
+                «
               </PageButton>
               <PageButton onClick={() => goToPage(currentPage - 1)} disabled={currentPage === 1}>
-                ◀️
+                ‹
               </PageButton>
               {renderPageNumbers()}
               <PageButton onClick={() => goToPage(currentPage + 1)} disabled={currentPage === totalPages}>
-                ▶️
+                ›
               </PageButton>
               <PageButton onClick={() => goToPage(totalPages)} disabled={currentPage === totalPages}>
-                ⏭️
+                »
               </PageButton>
               <PerPageSelect
                 value={itemsPerPage}

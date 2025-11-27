@@ -31,10 +31,10 @@ const getPagePath = (url: string): string => {
   }
 }
 
-const SecurityTxtCard = (props: {data: any, title: string, actionButtons: any }): JSX.Element => {
+const SecurityTxtCard = (props: {data: any, title: string, actionButtons: any, refCode?: string }): JSX.Element => {
   const securityTxt = props.data;
   return (
-    <Card heading={props.title} actionButtons={props.actionButtons} styles={cardStyles}>
+    <Card heading={props.title} actionButtons={props.actionButtons} styles={cardStyles} refCode={props.refCode}>
       <Row lbl="Present" val={securityTxt.isPresent ? '✅ Yes' : '❌ No'} />
       { securityTxt.isPresent && (
         <>

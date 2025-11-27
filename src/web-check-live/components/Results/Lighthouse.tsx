@@ -3,7 +3,7 @@ import { Card } from 'web-check-live/components/Form/Card';
 import { ExpandableRow } from 'web-check-live/components/Form/Row';
 import Row from 'web-check-live/components/Form/Row';
 
-const LighthouseCard = (props: { data: any, title: string, actionButtons: any }): JSX.Element => {
+const LighthouseCard = (props: { data: any, title: string, actionButtons: any, refCode?: string }): JSX.Element => {
   const data = props.data;
 
   // Handle both old (raw) and new (simplified) data formats
@@ -14,7 +14,7 @@ const LighthouseCard = (props: { data: any, title: string, actionButtons: any })
   // If we have the new format
   if (data?.scores) {
     return (
-      <Card heading={props.title} actionButtons={props.actionButtons}>
+      <Card heading={props.title} actionButtons={props.actionButtons} refCode={props.refCode}>
         {/* Overall Scores */}
         {Object.entries(scores).map(([category, score]) => (
           <Row
@@ -61,7 +61,7 @@ const LighthouseCard = (props: { data: any, title: string, actionButtons: any })
   const rawAudits = data?.audits || [];
 
   return (
-    <Card heading={props.title} actionButtons={props.actionButtons}>
+    <Card heading={props.title} actionButtons={props.actionButtons} refCode={props.refCode}>
       {Object.keys(categories).map((title: string, index: number) => {
         const scoreIds = categories[title].auditRefs.map((ref: { id: string }) => ref.id);
         const scoreList = scoreIds.map((id: string) => {

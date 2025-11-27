@@ -26,7 +26,7 @@ const CountryValue = styled.span`
   gap: 0.5rem;
 `;
 
-const ServerLocationCard = (props: { data: ServerLocation, title: string, actionButtons: any }): JSX.Element => {
+const ServerLocationCard = (props: { data: ServerLocation, title: string, actionButtons: any, refCode?: string }): JSX.Element => {
   const location = props.data;
   const {
     city, region, country,
@@ -35,7 +35,7 @@ const ServerLocationCard = (props: { data: ServerLocation, title: string, action
   } = location;
 
   return (
-    <Card heading={props.title} actionButtons={props.actionButtons} styles={cardStyles}>
+    <Card heading={props.title} actionButtons={props.actionButtons} styles={cardStyles} refCode={props.refCode}>
       <Row lbl="City" val={`${postCode}, ${city}, ${region}`} />
       <Row lbl="" val="">
         <b>Country</b>

@@ -33,7 +33,7 @@ const makeClientSupport = (results: any) => {
   
 };
 
-const TlsCard = (props: {data: any, title: string, actionButtons: any }): JSX.Element => {
+const TlsCard = (props: {data: any, title: string, actionButtons: any, refCode?: string }): JSX.Element => {
 
   const [clientSupport, setClientSupport] = useState(makeClientSupport(props.data));
   const [loadState, setLoadState] = useState<undefined | 'loading' | 'success' | 'error'>(undefined);
@@ -58,7 +58,7 @@ const TlsCard = (props: {data: any, title: string, actionButtons: any }): JSX.El
   
   const scanId = props.data?.id;
   return (
-    <Card heading={props.title} actionButtons={props.actionButtons}>
+    <Card heading={props.title} actionButtons={props.actionButtons} refCode={props.refCode}>
       {clientSupport.map((support: any, index: number) => {
         return (
         <ExpandableRow

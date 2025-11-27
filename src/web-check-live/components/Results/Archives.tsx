@@ -12,10 +12,10 @@ a {
 }
 `;
 
-const ArchivesCard = (props: { data: any, title: string, actionButtons: any }): JSX.Element => {
+const ArchivesCard = (props: { data: any, title: string, actionButtons: any, refCode?: string }): JSX.Element => {
   const data = props.data;
   return (
-    <Card heading={props.title} actionButtons={props.actionButtons}>
+    <Card heading={props.title} actionButtons={props.actionButtons} refCode={props.refCode}>
       <Row lbl="First Scan" val={data.firstScan} />
       <Row lbl="Last Scan" val={data.lastScan} />
       <Row lbl="Total Scans" val={data.totalScans} />

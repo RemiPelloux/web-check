@@ -53,11 +53,11 @@ const ListRow = (props: { list: string[], title: string }) => {
 );
 }
 
-const WhoIsCard = (props: { data: Whois, title: string, actionButtons: any }): JSX.Element => {
+const WhoIsCard = (props: { data: Whois, title: string, actionButtons: any, refCode?: string }): JSX.Element => {
   const whois = props.data;
   const { created, updated, expires, nameservers } = whois;
   return (
-    <Card heading={props.title} actionButtons={props.actionButtons}>
+    <Card heading={props.title} actionButtons={props.actionButtons} refCode={props.refCode}>
       { created && <DataRow lbl="Created" val={formatDate(created)} /> }
       { updated && <DataRow lbl="Updated" val={formatDate(updated)} /> }
       { expires && <DataRow lbl="Expires" val={formatDate(expires)} /> }

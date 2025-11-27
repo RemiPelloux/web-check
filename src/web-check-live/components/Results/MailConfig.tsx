@@ -6,11 +6,11 @@ import colors from 'web-check-live/styles/colors';
 
 const cardStyles = ``;
 
-const MailConfigCard = (props: {data: any, title: string, actionButtons: any }): JSX.Element => {
+const MailConfigCard = (props: {data: any, title: string, actionButtons: any, refCode?: string }): JSX.Element => {
   const mailServer = props.data;
   const txtRecords = (mailServer.txtRecords || []).join('').toLowerCase() || '';
   return (
-    <Card heading={props.title} actionButtons={props.actionButtons} styles={cardStyles}>
+    <Card heading={props.title} actionButtons={props.actionButtons} styles={cardStyles} refCode={props.refCode}>
       <Heading as="h3" color={colors.primary} size="small">Mail Security Checklist</Heading>
       <Row lbl="SPF" val={txtRecords.includes('spf')} />
       <Row lbl="DKIM" val={txtRecords.includes('dkim')} />

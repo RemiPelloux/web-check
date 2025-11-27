@@ -13,10 +13,10 @@ const cardStyles = `
   }
 `;
 
-const DnsServerCard = (props: {data: any, title: string, actionButtons: any }): JSX.Element => {
+const DnsServerCard = (props: {data: any, title: string, actionButtons: any, refCode?: string }): JSX.Element => {
   const dnsSecurity = props.data;
   return (
-    <Card heading={props.title} actionButtons={props.actionButtons} styles={cardStyles}>
+    <Card heading={props.title} actionButtons={props.actionButtons} styles={cardStyles} refCode={props.refCode}>
       {dnsSecurity.dns.map((dns: any, index: number) => {
         return (<div key={`dns-${index}`}>
           { dnsSecurity.dns.length > 1 && <Heading as="h4" size="small" color={colors.primary}>DNS Server #{index+1}</Heading> }

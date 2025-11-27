@@ -286,7 +286,7 @@ const UserManagement = (): JSX.Element => {
       <Container>
         <Header>
           <AddButton onClick={handleAddUser}>
-            <span>➕</span>
+            <span>+</span>
             <span>Ajouter un utilisateur</span>
           </AddButton>
         </Header>
@@ -332,8 +332,8 @@ const UserManagement = (): JSX.Element => {
                     <IpInfo>
                       {user.role === 'DPD' ? (
                         user.url_restriction_mode === 'ALL' 
-                          ? '✅ Toutes les URLs' 
-                          : `🔒 ${user.allowed_urls?.split(',').length || 0} URL(s)`
+                          ? 'Toutes les URLs' 
+                          : `${user.allowed_urls?.split(',').length || 0} URL(s) autorisée(s)`
                       ) : (
                         '— N/A —'
                       )}
@@ -345,13 +345,13 @@ const UserManagement = (): JSX.Element => {
                   <Td>
                     <ActionButtons>
                       <ActionButton onClick={() => handleEditUser(user)}>
-                        ✏️ Modifier
+                        Modifier
                       </ActionButton>
                       <ActionButton
                         danger
                         onClick={() => handleDeleteUser(user)}
                       >
-                        🗑️ Supprimer
+                        Supprimer
                       </ActionButton>
                     </ActionButtons>
                   </Td>
