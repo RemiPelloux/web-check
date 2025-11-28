@@ -58,10 +58,10 @@ const WhoIsCard = (props: { data: Whois, title: string, actionButtons: any, refC
   const { created, updated, expires, nameservers } = whois;
   return (
     <Card heading={props.title} actionButtons={props.actionButtons} refCode={props.refCode}>
-      { created && <DataRow lbl="Created" val={formatDate(created)} /> }
-      { updated && <DataRow lbl="Updated" val={formatDate(updated)} /> }
-      { expires && <DataRow lbl="Expires" val={formatDate(expires)} /> }
-      { nameservers && <ListRow title="Name Servers" list={nameservers} /> }
+      { created && <DataRow lbl="Créé le" val={formatDate(created)} /> }
+      { updated && <DataRow lbl="Mis à jour" val={formatDate(updated)} /> }
+      { expires && <DataRow lbl="Expire le" val={formatDate(expires)} /> }
+      { nameservers && <ListRow title="Serveurs de noms" list={nameservers} /> }
     </Card>
   );
 }

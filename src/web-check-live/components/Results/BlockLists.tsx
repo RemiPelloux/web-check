@@ -10,7 +10,7 @@ const BlockListsCard = (props: {data: any, title: string, actionButtons: any, re
         <Row
           title={blocklist.serverIp}
           lbl={blocklist.server}
-          val={blocklist.isBlocked ? '❌ Blocked' : '✅ Not Blocked'}
+          val={blocklist.isBlocked ? '❌ Bloqué' : '✅ Non bloqué'}
           key={`blocklist-${blockIndex}-${blocklist.serverIp}`}
         />
       ))}

@@ -174,15 +174,6 @@ const understandingResults = {
       ]
     },
     {
-      title: "Scores de Conformité",
-      items: [
-        "90-100% : Excellence - Conformité exemplaire",
-        "70-89% : Bon - Conformité satisfaisante avec quelques améliorations possibles",
-        "50-69% : Moyen - Actions correctives recommandées",
-        "0-49% : Faible - Actions correctives urgentes requises",
-      ]
-    },
-    {
       title: "Types d'Analyses",
       items: [
         "Conformité Loi 1.565 : Cookies, bannières, politiques de confidentialité, droits des utilisateurs",
@@ -477,7 +468,7 @@ const About = (): JSX.Element => {
         
         <Heading as="h3" size="small" color={colors.primary}>Support</Heading>
         <p>
-          <strong>OpenPro</strong> s'engage à maintenir et améliorer continuellement l'Outil d'analyse de la sécurité 
+          <strong><a href="https://apdp.mc/" target="_blank" rel="noopener noreferrer" style={{ color: colors.primary }}>L'APDP</a></strong> s'engage à maintenir et améliorer continuellement l'Outil d'analyse de la sécurité 
           pour offrir la meilleure expérience d'audit de conformité possible.
         </p>
       </Section>

@@ -20,13 +20,13 @@ const SubdomainTakeoverCard = (props: { data: any, title?: string, actionButtons
     const isVulnerable = data?.vulnerable === true;
 
     return (
-        <Card heading={props.title || "Subdomain Takeover"} actionButtons={props.actionButtons} refCode={props.refCode}>
+        <Card heading={props.title || "Prise de Contrôle Sous-domaine"} actionButtons={props.actionButtons} refCode={props.refCode}>
             <StatusBanner vulnerable={isVulnerable}>
                 {isVulnerable ? '⚠️ VULNÉRABILITÉ DÉTECTÉE' : '✅ Aucun risque détecté'}
             </StatusBanner>
 
-            <Row lbl="Status" val={data?.status || 'Unknown'} />
-            {data?.cname && <Row lbl="CNAME Record" val={data.cname} />}
+            <Row lbl="Statut" val={data?.status || 'Inconnu'} />
+            {data?.cname && <Row lbl="Enregistrement CNAME" val={data.cname} />}
             {data?.service && <Row lbl="Service Détecté" val={data.service} />}
 
             {isVulnerable && (

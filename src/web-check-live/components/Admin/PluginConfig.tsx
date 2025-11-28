@@ -2,65 +2,90 @@ import { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import colors from 'web-check-live/styles/colors';
 import { toast } from 'react-toastify';
+import { getPluginRefCode } from 'web-check-live/utils/pluginReferences';
 
 const API_BASE_URL = import.meta.env.PUBLIC_API_ENDPOINT || '/api';
 
-// Plugin list with French translations
+// Plugin list with French translations - must match ACTIVE_PLUGINS in server.js
 const PLUGINS = [
-  { id: 'apdp-compliance', name: 'Conformité APDP', category: 'Conformité' },
-  { id: 'vulnerabilities', name: 'Vulnérabilités', category: 'Sécurité' },
-  { id: 'cdn-resources', name: 'Ressources CDN', category: 'Performance' },
-  { id: 'get-ip', name: 'Adresse IP', category: 'Réseau' },
-  { id: 'location', name: 'Géolocalisation Serveur', category: 'Réseau' },
-  { id: 'ssl', name: 'Certificat SSL', category: 'Sécurité' },
-  { id: 'tls', name: 'Configuration TLS', category: 'Sécurité' },
-  { id: 'domain', name: 'Informations Domaine', category: 'DNS' },
-  { id: 'quality', name: 'Qualité du Site', category: 'Performance' },
-  { id: 'tech-stack', name: 'Technologies Utilisées', category: 'Technique' },
-  { id: 'server-info', name: 'Informations Serveur', category: 'Réseau' },
-  { id: 'cookies', name: 'Cookies', category: 'Conformité' },
-  { id: 'headers', name: 'En-têtes HTTP', category: 'Sécurité' },
-  { id: 'dns', name: 'Enregistrements DNS', category: 'DNS' },
-  { id: 'subdomain-enumeration', name: 'Énumération Sous-domaines', category: 'DNS' },
-  { id: 'hosts', name: 'Noms d\'hôtes', category: 'DNS' },
-  { id: 'http-security', name: 'Sécurité HTTP', category: 'Sécurité' },
-  { id: 'social-tags', name: 'Balises Sociales', category: 'SEO' },
-  { id: 'trace-route', name: 'Traceroute', category: 'Réseau' },
-  { id: 'security-txt', name: 'Security.txt', category: 'Sécurité' },
-  { id: 'dns-server', name: 'Serveurs DNS', category: 'DNS' },
-  { id: 'firewall', name: 'Pare-feu', category: 'Sécurité' },
-  { id: 'dnssec', name: 'DNSSEC', category: 'DNS' },
-  { id: 'hsts', name: 'HSTS', category: 'Sécurité' },
-  { id: 'threats', name: 'Menaces', category: 'Sécurité' },
-  { id: 'mail-config', name: 'Configuration Email', category: 'Email' },
-  { id: 'archives', name: 'Archives', category: 'Historique' },
-  { id: 'rank', name: 'Classement', category: 'SEO' },
-  { id: 'tls-cipher-suites', name: 'Suites de Chiffrement TLS', category: 'Sécurité' },
-  { id: 'tls-security-config', name: 'Configuration Sécurité TLS', category: 'Sécurité' },
-  { id: 'tls-client-support', name: 'Support Client TLS', category: 'Sécurité' },
-  { id: 'redirects', name: 'Redirections', category: 'Technique' },
-  { id: 'linked-pages', name: 'Pages Liées', category: 'SEO' },
-  { id: 'robots-txt', name: 'Robots.txt', category: 'SEO' },
-  { id: 'status', name: 'Statut Serveur', category: 'Réseau' },
-  { id: 'ports', name: 'Ports Ouverts', category: 'Sécurité' },
-  { id: 'txt-records', name: 'Enregistrements TXT', category: 'DNS' },
-  { id: 'block-lists', name: 'Listes de Blocage', category: 'Sécurité' },
-  { id: 'sitemap', name: 'Plan du Site', category: 'SEO' },
-  { id: 'carbon', name: 'Empreinte Carbone', category: 'Performance' },
+  // Conformité
+  { id: 'rgpd-compliance', name: 'Conformité RGPD', category: 'Conformité' },
   { id: 'apdp-cookie-banner', name: 'Bannière Cookies APDP', category: 'Conformité' },
   { id: 'apdp-privacy-policy', name: 'Politique de Confidentialité APDP', category: 'Conformité' },
   { id: 'apdp-legal-notices', name: 'Mentions Légales APDP', category: 'Conformité' },
-  { id: 'apdp-user-rights', name: 'Droits Utilisateurs APDP', category: 'Conformité' },
+  { id: 'cookies', name: 'Cookies', category: 'Conformité' },
+  
+  // Sécurité
+  { id: 'ssl', name: 'Certificat SSL', category: 'Sécurité' },
+  { id: 'tls', name: 'Configuration TLS', category: 'Sécurité' },
+  { id: 'vulnerabilities', name: 'Vulnérabilités', category: 'Sécurité' },
+  { id: 'secrets', name: 'Secrets Exposés', category: 'Sécurité' },
+  { id: 'http-security', name: 'Sécurité HTTP', category: 'Sécurité' },
+  { id: 'firewall', name: 'Pare-feu', category: 'Sécurité' },
+  { id: 'hsts', name: 'HSTS', category: 'Sécurité' },
+  { id: 'threats', name: 'Menaces', category: 'Sécurité' },
+  { id: 'block-lists', name: 'Listes de Blocage', category: 'Sécurité' },
+  { id: 'tls-cipher-suites', name: 'Suites de Chiffrement TLS', category: 'Sécurité' },
+  { id: 'tls-security-config', name: 'Configuration Sécurité TLS', category: 'Sécurité' },
+  { id: 'tls-client-support', name: 'Support Client TLS', category: 'Sécurité' },
+  { id: 'security-txt', name: 'Security.txt', category: 'Sécurité' },
+  { id: 'exposed-files', name: 'Fichiers Exposés', category: 'Sécurité' },
+  { id: 'subdomain-takeover', name: 'Subdomain Takeover', category: 'Sécurité' },
+  { id: 'headers', name: 'En-têtes HTTP', category: 'Sécurité' },
+  { id: 'ports', name: 'Ports Ouverts', category: 'Sécurité' },
+  
+  // DNS
+  { id: 'dns', name: 'Enregistrements DNS', category: 'DNS' },
+  { id: 'dns-server', name: 'Serveurs DNS', category: 'DNS' },
+  { id: 'dnssec', name: 'DNSSEC', category: 'DNS' },
+  { id: 'subdomain-enumeration', name: 'Énumération Sous-domaines', category: 'DNS' },
+  { id: 'txt-records', name: 'Enregistrements TXT', category: 'DNS' },
+  { id: 'domain', name: 'Informations Domaine', category: 'DNS' },
+  { id: 'hosts', name: 'Noms d\'hôtes', category: 'DNS' },
+  
+  // Réseau
+  { id: 'get-ip', name: 'Adresse IP', category: 'Réseau' },
+  { id: 'location', name: 'Géolocalisation Serveur', category: 'Réseau' },
+  { id: 'trace-route', name: 'Traceroute', category: 'Réseau' },
+  { id: 'status', name: 'Statut Serveur', category: 'Réseau' },
+  { id: 'server-info', name: 'Informations Serveur', category: 'Réseau' },
+  
+  // Performance
+  { id: 'quality', name: 'Qualité du Site', category: 'Performance' },
+  { id: 'lighthouse', name: 'Lighthouse', category: 'Performance' },
+  { id: 'cdn-resources', name: 'Ressources CDN', category: 'Performance' },
+  { id: 'carbon', name: 'Empreinte Carbone', category: 'Performance' },
+  
+  // SEO
+  { id: 'social-tags', name: 'Balises Sociales', category: 'SEO' },
+  { id: 'sitemap', name: 'Plan du Site', category: 'SEO' },
+  { id: 'robots-txt', name: 'Robots.txt', category: 'SEO' },
+  { id: 'linked-pages', name: 'Pages Liées', category: 'SEO' },
+  { id: 'rank', name: 'Classement', category: 'SEO' },
+  
+  // Email
+  { id: 'mail-config', name: 'Configuration Email', category: 'Email' },
+  
+  // Audit
+  { id: 'link-audit', name: 'Audit des Liens', category: 'Audit' },
+  
+  // Historique
+  { id: 'archives', name: 'Archives', category: 'Historique' },
+  
+  // Technique
+  { id: 'tech-stack', name: 'Technologies Utilisées', category: 'Technique' },
+  { id: 'redirects', name: 'Redirections', category: 'Technique' },
 ] as const;
 
 // Group plugins by category
+type Plugin = { id: string; name: string; category: string };
 const groupedPlugins = PLUGINS.reduce((acc, plugin) => {
   if (!acc[plugin.category]) {
     acc[plugin.category] = [];
   }
-  acc[plugin.category].push(plugin);
+  acc[plugin.category].push(plugin as Plugin);
   return acc;
-}, {} as Record<string, typeof PLUGINS>);
+}, {} as Record<string, Plugin[]>);
 
 const Container = styled.div`
   background: ${colors.backgroundLighter};
@@ -128,6 +153,7 @@ const CategoryIcon = styled.span<{ variant: string }>`
       case 'Performance': return 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
       case 'SEO': return 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)';
       case 'Email': return 'linear-gradient(135deg, #ec4899 0%, #db2777 100%)';
+      case 'Audit': return 'linear-gradient(135deg, #f97316 0%, #ea580c 100%)';
       case 'Technique': return 'linear-gradient(135deg, #64748b 0%, #475569 100%)';
       case 'Historique': return 'linear-gradient(135deg, #8b5cf6 0%, #7c3aed 100%)';
       default: return 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)';
@@ -146,6 +172,7 @@ const getCategoryAbbr = (category: string): string => {
     case 'Performance': return 'PRF';
     case 'SEO': return 'SEO';
     case 'Email': return 'ML';
+    case 'Audit': return 'AUD';
     case 'Technique': return 'TCH';
     case 'Historique': return 'HST';
     default: return '—';
@@ -158,20 +185,26 @@ const PluginGrid = styled.div`
   gap: 12px;
 `;
 
-const PluginItem = styled.label<{ disabled: boolean }>`
+const PluginItem = styled.label<{ enabled: boolean }>`
   display: flex;
   align-items: center;
   gap: 12px;
   padding: 12px 16px;
-  background: ${props => props.disabled ? 'rgba(220, 38, 38, 0.05)' : colors.background};
-  border: 2px solid ${props => props.disabled ? 'rgba(220, 38, 38, 0.2)' : colors.borderColor};
+  background: ${props => props.enabled 
+    ? 'rgba(5, 150, 105, 0.08)' 
+    : 'rgba(220, 38, 38, 0.08)'};
+  border: 2px solid ${props => props.enabled 
+    ? 'rgba(5, 150, 105, 0.3)' 
+    : 'rgba(220, 38, 38, 0.3)'};
   border-radius: 8px;
   cursor: pointer;
   transition: all 0.2s;
 
   &:hover {
-    border-color: ${colors.primary};
-    background: ${props => props.disabled ? 'rgba(220, 38, 38, 0.1)' : colors.backgroundDarker};
+    border-color: ${props => props.enabled ? '#059669' : '#dc2626'};
+    background: ${props => props.enabled 
+      ? 'rgba(5, 150, 105, 0.15)' 
+      : 'rgba(220, 38, 38, 0.15)'};
   }
 `;
 
@@ -252,15 +285,18 @@ const LoadingState = styled.div`
 `;
 
 const PluginConfig = (): JSX.Element => {
-  const [disabledPlugins, setDisabledPlugins] = useState<string[]>([]);
+  const [enabledPlugins, setEnabledPlugins] = useState<string[]>([]);
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
+  // All plugin IDs
+  const allPluginIds = PLUGINS.map(p => p.id);
+
   useEffect(() => {
-    fetchDisabledPlugins();
+    fetchPluginConfig();
   }, []);
 
-  const fetchDisabledPlugins = async () => {
+  const fetchPluginConfig = async () => {
     try {
       const token = localStorage.getItem('checkitAuthToken');
       const response = await fetch(`${API_BASE_URL}/admin/plugins`, {
@@ -274,7 +310,10 @@ const PluginConfig = (): JSX.Element => {
       }
 
       const data = await response.json();
-      setDisabledPlugins(data.disabledPlugins || []);
+      const disabledPlugins = data.disabledPlugins || [];
+      // Convert disabled to enabled: all plugins except disabled ones
+      const enabled = allPluginIds.filter(id => !disabledPlugins.includes(id));
+      setEnabledPlugins(enabled);
     } catch (error) {
       console.error('Error fetching plugins:', error);
       toast.error('Impossible de récupérer la configuration des plugins', {
@@ -287,10 +326,12 @@ const PluginConfig = (): JSX.Element => {
   };
 
   const handleTogglePlugin = (pluginId: string) => {
-    setDisabledPlugins(prev => {
+    setEnabledPlugins(prev => {
       if (prev.includes(pluginId)) {
+        // Remove from enabled = disable it
         return prev.filter(id => id !== pluginId);
       } else {
+        // Add to enabled = enable it
         return [...prev, pluginId];
       }
     });
@@ -307,6 +348,8 @@ const PluginConfig = (): JSX.Element => {
     
     try {
       const token = localStorage.getItem('checkitAuthToken');
+      // Convert enabled to disabled for API
+      const disabledPlugins = allPluginIds.filter(id => !enabledPlugins.includes(id));
       const response = await fetch(`${API_BASE_URL}/admin/plugins`, {
         method: 'PUT',
         headers: {
@@ -344,7 +387,7 @@ const PluginConfig = (): JSX.Element => {
   };
 
   const handleReset = () => {
-    fetchDisabledPlugins();
+    fetchPluginConfig();
     toast.info('Modifications annulées', {
       position: 'bottom-right',
       theme: 'dark',
@@ -364,10 +407,19 @@ const PluginConfig = (): JSX.Element => {
     <Container>
       <InfoBox>
         <InfoText>
-          <strong>Note :</strong> Les plugins cochés ci-dessous seront <strong>désactivés</strong> pour
-          tous les utilisateurs DPD. Cette configuration s'applique globalement à tous les comptes DPD.
+          <strong>Note :</strong> Les plugins <strong style={{color: '#059669'}}>cochés (vert)</strong> sont <strong>activés</strong>, 
+          les plugins <strong style={{color: '#dc2626'}}>non cochés (rouge)</strong> sont <strong>désactivés</strong> pour les utilisateurs DPD.
         </InfoText>
       </InfoBox>
+
+      <ActionButtons style={{ marginTop: 0, paddingTop: 0, borderTop: 'none' }}>
+        <Button onClick={handleReset} disabled={saving}>
+          Annuler les modifications
+        </Button>
+        <Button variant="primary" onClick={handleSave} disabled={saving}>
+          {saving ? 'Enregistrement...' : 'Enregistrer la configuration'}
+        </Button>
+      </ActionButtons>
 
       {Object.entries(groupedPlugins).map(([category, plugins]) => (
         <CategorySection key={category}>
@@ -376,22 +428,23 @@ const PluginConfig = (): JSX.Element => {
             {category}
           </CategoryTitle>
           <PluginGrid>
-            {plugins.map((plugin, index) => (
-              <PluginItem
-                key={plugin.id}
-                disabled={disabledPlugins.includes(plugin.id)}
-              >
-                <Checkbox
-                  type="checkbox"
-                  checked={disabledPlugins.includes(plugin.id)}
-                  onChange={() => handleTogglePlugin(plugin.id)}
-                />
-                <PluginBadge>
-                  {getCategoryAbbr(category)}-{String(index + 1).padStart(3, '0')}
-                </PluginBadge>
-                <PluginLabel>{plugin.name}</PluginLabel>
-              </PluginItem>
-            ))}
+            {plugins.map((plugin) => {
+              const refCode = getPluginRefCode(plugin.id);
+              return (
+                <PluginItem
+                  key={plugin.id}
+                  enabled={enabledPlugins.includes(plugin.id)}
+                >
+                  <Checkbox
+                    type="checkbox"
+                    checked={enabledPlugins.includes(plugin.id)}
+                    onChange={() => handleTogglePlugin(plugin.id)}
+                  />
+                  {refCode && <PluginBadge>{refCode}</PluginBadge>}
+                  <PluginLabel>{plugin.name}</PluginLabel>
+                </PluginItem>
+              );
+            })}
           </PluginGrid>
         </CategorySection>
       ))}

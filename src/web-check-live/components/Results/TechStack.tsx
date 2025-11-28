@@ -91,7 +91,7 @@ const TechStackCard = (props: {data: any, title: string, actionButtons: any, ref
               {tech.name}
               <span className="tech-version">{tech.version? `(v${tech.version})` : ''}</span>
             </Heading>  
-            <span className="tech-confidence" title={`${tech.confidence}% certain`}>Certainty: {tech.confidence}%</span>
+            <span className="tech-confidence" title={`${tech.confidence}% de certitude`}>Certitude : {tech.confidence}%</span>
             <span className="tech-categories">
               {tech.categories.map((cat: any, i: number) => `${cat.name}${i < tech.categories.length - 1 ? ', ' : ''}`)}
             </span>
@@ -100,7 +100,7 @@ const TechStackCard = (props: {data: any, title: string, actionButtons: any, ref
             <img className="tech-icon" width="10" src={`${iconsCdn}${tech.icon}`} alt={tech.name} />
             <div>
             <p className="tech-description">{tech.description}</p>
-            <p className="tech-website">Learn more at: <a href={tech.website}>{tech.website}</a></p>
+            <p className="tech-website">En savoir plus : <a href={tech.website}>{tech.website}</a></p>
             </div>
           </div>
           

@@ -95,14 +95,30 @@ const isValidDate = (date: any): boolean => {
     return date >= new Date('1995-01-01') && date <= new Date('2030-12-31');
   };
 
-  // Check if input is a timestamp
+  // Check if input is a timestamp (must be a large number, not a small int)
   if (typeof date === 'number') {
+    // Timestamps should be > 1000000000 (year ~2001 in seconds) or > 1000000000000 (in ms)
+    if (date < 1000000000) return false;
     const timestampDate = new Date(date);
     return !isNaN(timestampDate.getTime()) && isInRange(timestampDate);
   }
 
   // Check if input is a date string
   if (typeof date === 'string') {
+    // Don't treat simple numbers as dates (e.g., "0", "1", "100")
+    if (/^\d+$/.test(date.trim())) return false;
+    
+    // Must contain date-like patterns (e.g., "2024-01-01", "Jan 1, 2024", etc.)
+    const datePatterns = [
+      /\d{4}-\d{2}-\d{2}/, // ISO format: 2024-01-01
+      /\d{2}\/\d{2}\/\d{4}/, // US/EU format: 01/01/2024
+      /\d{1,2}\s+\w+\s+\d{4}/, // Long format: 1 January 2024
+      /\w+\s+\d{1,2},?\s+\d{4}/, // US long: January 1, 2024
+    ];
+    
+    const looksLikeDate = datePatterns.some(pattern => pattern.test(date));
+    if (!looksLikeDate) return false;
+    
     const dateStringDate = new Date(date);
     return !isNaN(dateStringDate.getTime()) && isInRange(dateStringDate);
   }

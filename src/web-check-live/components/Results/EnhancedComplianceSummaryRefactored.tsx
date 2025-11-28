@@ -341,7 +341,7 @@ const EnhancedComplianceSummaryCard: React.FC<EnhancedComplianceSummaryProps> = 
         </h3>
         
         <DetailGrid>
-          <DetailCard icon="🍪" title="Cookies & Tracking">
+          <DetailCard icon="🍪" title="Cookies & Suivi">
             <CookiesSection cookies={allResults.cookies} />
           </DetailCard>
 

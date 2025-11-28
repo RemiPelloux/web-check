@@ -30,21 +30,21 @@ const SocialTagsCard = (props: {data: any, title: string, actionButtons: any, re
   const tags = props.data;
   return (
     <Card heading={props.title} actionButtons={props.actionButtons} styles={cardStyles} refCode={props.refCode}>
-      { tags.title && <Row lbl="Title" val={tags.title} /> }
+      { tags.title && <Row lbl="Titre" val={tags.title} /> }
       { tags.description && <Row lbl="Description" val={tags.description} /> }
-      { tags.keywords && <Row lbl="Keywords" val={tags.keywords} /> }
-      { tags.canonicalUrl && <Row lbl="Canonical URL" val={tags.canonicalUrl} /> }
+      { tags.keywords && <Row lbl="Mots-clés" val={tags.keywords} /> }
+      { tags.canonicalUrl && <Row lbl="URL Canonique" val={tags.canonicalUrl} /> }
       { tags.themeColor && <Row lbl="" val="">
-        <span className="lbl">Theme Color</span>
+        <span className="lbl">Couleur du thème</span>
         <span className="val color-field" style={{background: tags.themeColor}}>{tags.themeColor}</span>
       </Row> }
       { tags.twitterSite && <Row lbl="" val="">
-        <span className="lbl">Twitter Site</span>
+        <span className="lbl">Compte Twitter</span>
         <span className="val"><a href={`https://x.com/${tags.twitterSite}`}>{tags.twitterSite}</a></span>
       </Row> }
-      { tags.author && <Row lbl="Author" val={tags.author} />}
-      { tags.publisher && <Row lbl="Publisher" val={tags.publisher} />}
-      { tags.generator && <Row lbl="Generator" val={tags.generator} />}
+      { tags.author && <Row lbl="Auteur" val={tags.author} />}
+      { tags.publisher && <Row lbl="Éditeur" val={tags.publisher} />}
+      { tags.generator && <Row lbl="Générateur" val={tags.generator} />}
       {tags.ogImage && <OgBanner ogImage={tags.ogImage} ogUrl={tags.ogUrl} />}
     </Card>
   );

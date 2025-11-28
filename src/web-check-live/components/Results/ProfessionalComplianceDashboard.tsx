@@ -641,7 +641,7 @@ const ProfessionalComplianceDashboard: React.FC<ProfessionalComplianceDashboardP
               <TableHeaderCell style={{ width: '40px' }}></TableHeaderCell>
               <TableHeaderCell>Problème</TableHeaderCell>
               <TableHeaderCell style={{ width: '120px' }}>Catégorie</TableHeaderCell>
-              <TableHeaderCell style={{ width: '140px' }}>Sévérité</TableHeaderCell>
+              <TableHeaderCell style={{ width: '140px' }}>Criticité</TableHeaderCell>
               <TableHeaderCell>Recommandation</TableHeaderCell>
             </TableRow>
           </TableHeader>

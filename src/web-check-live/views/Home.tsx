@@ -483,17 +483,19 @@ const Home = (): JSX.Element => {
           )}
         </UserInputMain>
         
-        {/* Info Notice */}
-        <InfoNotice>
-          <div className="icon">🏛️</div>
-          <div className="content">
-            <h3>Outil professionnel APDP Monaco</h3>
-            <p>
-              Réservé aux contrôleurs pour les audits de conformité APDP et sécurité web. 
-              Les rapports générés peuvent être utilisés dans le cadre des procédures officielles de contrôle.
-            </p>
-          </div>
-        </InfoNotice>
+        {/* Info Notice - Only show for APDP users */}
+        {userProfile?.role === 'APDP' && (
+          <InfoNotice>
+            <div className="icon">🏛️</div>
+            <div className="content">
+              <h3>Outil professionnel APDP Monaco</h3>
+              <p>
+                Réservé aux contrôleurs pour les audits de conformité APDP et sécurité web. 
+                Les rapports générés peuvent être utilisés dans le cadre des procédures officielles de contrôle.
+              </p>
+            </div>
+          </InfoNotice>
+        )}
         
         <Footer isFixed={false} />
       </MainContent>

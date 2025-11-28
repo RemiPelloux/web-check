@@ -37,10 +37,10 @@ const HostNamesCard = (props: { data: HostNames, title: string, actionButtons: a
   return (
     <Card heading={props.title} actionButtons={props.actionButtons} styles={cardStyles} refCode={props.refCode}>
       { hosts.domains.length > 0 &&
-        <HostListSection list={hosts.domains} title="Domains" />
+        <HostListSection list={hosts.domains} title="Domaines" />
       }
       { hosts.hostnames.length > 0 &&
-        <HostListSection list={hosts.hostnames} title="Hosts" />
+        <HostListSection list={hosts.hostnames} title="Noms d'hôtes" />
       }
     </Card>
   );

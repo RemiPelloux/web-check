@@ -550,17 +550,6 @@ const docs: Doc[] = [
     ],
   },
   {
-    id: 'apdp-compliance',
-    title: 'Conformité Loi 1.565 Globale',
-    description: 'Cette analyse complète évalue la conformité APDP du site sur tous les aspects: sécurité SSL/TLS, cookies, en-têtes de sécurité (CSP, HSTS), pages légales, droits des utilisateurs, et ressources tierces. Elle génère un score de conformité et identifie les problèmes critiques, avertissements et améliorations recommandées.',
-    use: 'Cette vérification globale permet d\'obtenir une vue d\'ensemble de la conformité APDP du site. Elle aide à prioriser les actions correctives et à suivre les progrès vers la conformité complète. Particulièrement utile pour les audits réguliers et la préparation aux contrôles APDP.',
-    resources: [
-      { title: 'APDP - Texte officiel complet', link: 'https://eur-lex.europa.eu/legal-content/FR/TXT/?uri=CELEX:32016R0679' },
-      { title: 'CNIL - Guide de la sécurité des données personnelles', link: 'https://www.cnil.fr/fr/principes-cles/guide-de-la-securite-des-donnees-personnelles' },
-      { title: 'APDP Monaco - Obligations', link: 'https://apdp.mc/' },
-    ],
-  },
-  {
     id: 'vulnerabilities',
     title: 'Analyse de Vulnérabilités',
     description: 'Cette analyse détecte et évalue les vulnérabilités de sécurité potentielles présentes sur le site web cible. Elle examine plusieurs catégories: vulnérabilités applicatives (XSS, injection SQL, CSRF), configurations serveur non sécurisées, dépendances obsolètes, en-têtes de sécurité manquants, et expositions de données sensibles. Un score de sécurité global est calculé basé sur la sévérité et le nombre de vulnérabilités détectées.',
@@ -570,6 +559,7 @@ const docs: Doc[] = [
       { title: 'CWE - Common Weakness Enumeration', link: 'https://cwe.mitre.org/' },
       { title: 'NIST Cybersecurity Framework', link: 'https://www.nist.gov/cyberframework' },
       { title: 'Guide ANSSI - Sécurité Web', link: 'https://www.ssi.gouv.fr/' },
+      { title: 'AMSN - Agence de sécurité numérique de Monaco', link: 'https://amsn.gouv.mc/' },
       { title: 'OWASP Testing Guide', link: 'https://owasp.org/www-project-web-security-testing-guide/' },
     ],
   },
@@ -583,6 +573,7 @@ const docs: Doc[] = [
       { title: 'GitHub - Sécurité des Secrets', link: 'https://docs.github.com/en/code-security/secret-scanning' },
       { title: 'GitGuardian - Secret Detection', link: 'https://www.gitguardian.com/' },
       { title: 'ANSSI - Recommandations de sécurité', link: 'https://www.ssi.gouv.fr/entreprise/guide/recommandations-de-securite-relatives-a-tls/' },
+      { title: 'AMSN - Agence de sécurité numérique de Monaco', link: 'https://amsn.gouv.mc/' },
     ],
   },
   {

@@ -26,7 +26,7 @@ const HstsCard = (props: {data: any, title: string, actionButtons: any, refCode?
   return (
     <Card heading={props.title} actionButtons={props.actionButtons} styles={cardStyles} refCode={props.refCode}>
       {typeof hstsResults.compatible === 'boolean' && (
-        <Row lbl="HSTS Enabled?" val={hstsResults.compatible ? '✅ Yes' : '❌ No'} />
+        <Row lbl="HSTS Activé ?" val={hstsResults.compatible ? '✅ Oui' : '❌ Non'} />
       )}
       {hstsHeaders.length > 0 && hstsHeaders.map((header: RowProps, index: number) => {
         return (

@@ -35,11 +35,11 @@ const SecurityTxtCard = (props: {data: any, title: string, actionButtons: any, r
   const securityTxt = props.data;
   return (
     <Card heading={props.title} actionButtons={props.actionButtons} styles={cardStyles} refCode={props.refCode}>
-      <Row lbl="Present" val={securityTxt.isPresent ? '✅ Yes' : '❌ No'} />
+      <Row lbl="Présent" val={securityTxt.isPresent ? '✅ Oui' : '❌ Non'} />
       { securityTxt.isPresent && (
         <>
-        <Row lbl="File Location" val={securityTxt.foundIn} />
-        <Row lbl="PGP Signed" val={securityTxt.isPgpSigned ? '✅ Yes' : '❌ No'} />
+        <Row lbl="Emplacement" val={securityTxt.foundIn} />
+        <Row lbl="Signé PGP" val={securityTxt.isPgpSigned ? '✅ Oui' : '❌ Non'} />
         {securityTxt.fields && Object.keys(securityTxt.fields).map((field: string, index: number) => {
           if (securityTxt.fields[field].includes('http')) return (
             <Row lbl="" val="" key={`policy-url-row-${index}`}>
@@ -52,13 +52,13 @@ const SecurityTxtCard = (props: {data: any, title: string, actionButtons: any, r
           );
         })}
         <Details>
-          <summary>View Full Policy</summary>
+          <summary>Voir la politique complète</summary>
           <pre>{securityTxt.content}</pre>
         </Details>
         </>
       )}
       {!securityTxt.isPresent && (<small>
-        Having a security.txt ensures security researchers know how and where to safely report vulnerabilities.
+        Un fichier security.txt permet aux chercheurs en sécurité de savoir comment signaler les vulnérabilités de manière sécurisée.
       </small>)}
     </Card>
   );

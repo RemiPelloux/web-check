@@ -298,7 +298,7 @@ const EnhancedComplianceSummaryCard: React.FC<EnhancedComplianceSummaryProps> = 
           ${complianceAnalysis.criticalIssues.map((issue, index) => `
             <div class="issue">
               <h3>${index + 1}. ${issue.title || 'Problème critique'}</h3>
-              <p><strong>Sévérité:</strong> ${issue.severity || 'Critique'}</p>
+              <p><strong>Criticité:</strong> ${issue.severity || 'Critique'}</p>
               <p><strong>Description:</strong> ${issue.description || 'Description non disponible'}</p>
               ${issue.recommendation ? `<p><strong>Recommandation:</strong> ${issue.recommendation}</p>` : ''}
               ${issue.article ? `<p><strong>Article Loi 1.565:</strong> ${issue.article}</p>` : ''}
@@ -313,7 +313,7 @@ const EnhancedComplianceSummaryCard: React.FC<EnhancedComplianceSummaryProps> = 
           ${complianceAnalysis.warnings.map((warning, index) => `
             <div class="warning">
               <h3>${index + 1}. ${warning.title || 'Avertissement'}</h3>
-              <p><strong>Sévérité:</strong> ${warning.severity || 'Moyenne'}</p>
+              <p><strong>Criticité:</strong> ${warning.severity || 'Moyenne'}</p>
               <p><strong>Description:</strong> ${warning.description || 'Description non disponible'}</p>
               ${warning.recommendation ? `<p><strong>Recommandation:</strong> ${warning.recommendation}</p>` : ''}
               ${warning.article ? `<p><strong>Article APDP:</strong> ${warning.article}</p>` : ''}
@@ -604,7 +604,7 @@ const EnhancedComplianceSummaryCard: React.FC<EnhancedComplianceSummaryProps> = 
         </h3>
         
         <DetailGrid>
-          <DetailCard icon="🍪" title="Cookies & Tracking">
+          <DetailCard icon="🍪" title="Cookies & Suivi">
             <CookiesSection cookies={allResults.cookies} />
           </DetailCard>
 

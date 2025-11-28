@@ -99,10 +99,11 @@ const generateHTMLReport = (
     // HTTPS
     if (allResults['http-security']) {
       const score = allResults['http-security'].securityScore || 0;
+      const level = score >= 70 ? 'Bon' : score >= 40 ? 'Moyen' : 'Faible';
       analysisResults.push({
         name: 'Sécurité HTTP',
-        status: score >= 70 ? '✓' : '✗',
-        detail: `Score: ${score}/100`
+        status: score >= 70 ? '✓' : score >= 40 ? '!' : '✗',
+        detail: level
       });
     }
     
@@ -112,7 +113,7 @@ const generateHTMLReport = (
       analysisResults.push({
         name: 'Cookies',
         status: cookieCount > 0 ? '!' : '✓',
-        detail: `${cookieCount} cookie(s) détecté(s)`
+        detail: `${cookieCount} ${cookieCount <= 1 ? 'cookie détecté' : 'cookies détectés'}`
       });
     }
     
@@ -203,7 +204,7 @@ const generateHTMLReport = (
       analysisResults.push({
         name: 'Contenu mixte',
         status: issues === 0 ? '✓' : '✗',
-        detail: issues === 0 ? 'Aucun problème' : `${issues} ressource(s) non sécurisée(s)`
+        detail: issues === 0 ? 'Aucun problème' : `${issues} ${issues <= 1 ? 'ressource non sécurisée' : 'ressources non sécurisées'}`
       });
     }
     
@@ -213,7 +214,7 @@ const generateHTMLReport = (
       analysisResults.push({
         name: 'Redirections',
         status: redirects <= 2 ? '✓' : '!',
-        detail: `${redirects} redirection(s)`
+        detail: `${redirects} ${redirects <= 1 ? 'redirection' : 'redirections'}`
       });
     }
     
@@ -263,7 +264,7 @@ const generateHTMLReport = (
       analysisResults.push({
         name: 'Vulnérabilités',
         status: vulnCount === 0 ? '✓' : '✗',
-        detail: vulnCount === 0 ? 'Aucune détectée' : `${vulnCount} vulnérabilité(s)`
+        detail: vulnCount === 0 ? 'Aucune détectée' : `${vulnCount} ${vulnCount <= 1 ? 'vulnérabilité' : 'vulnérabilités'}`
       });
     }
     
@@ -284,7 +285,7 @@ const generateHTMLReport = (
         analysisResults.push({
           name: 'En-têtes manquants',
           status: '!',
-          detail: `${headers.length} en-tête(s) de sécurité manquant(s)`
+          detail: `${headers.length} ${headers.length <= 1 ? 'en-tête de sécurité manquant' : 'en-têtes de sécurité manquants'}`
         });
       }
     }
@@ -295,7 +296,7 @@ const generateHTMLReport = (
       analysisResults.push({
         name: 'Ressources CDN',
         status: '○',
-        detail: `${cdnCount} ressource(s) externe(s)`
+        detail: `${cdnCount} ${cdnCount <= 1 ? 'ressource externe' : 'ressources externes'}`
       });
     }
     
@@ -305,7 +306,7 @@ const generateHTMLReport = (
       analysisResults.push({
         name: 'Technologies détectées',
         status: '○',
-        detail: `${technologies} technologie(s)`
+        detail: `${technologies} ${technologies <= 1 ? 'technologie' : 'technologies'}`
       });
     }
   }
@@ -793,8 +794,8 @@ const generateHTMLReport = (
           <span class="cover-info-value">${currentDate}</span>
         </div>
       <div class="cover-info-row">
-        <span class="cover-info-label">Points analysés</span>
-        <span class="cover-info-value">${data.criticalIssues + data.warnings + data.improvements + data.compliantItems} contrôles effectués</span>
+        <span class="cover-info-label">${(data.criticalIssues + data.warnings) <= 1 ? 'Problème détecté' : 'Problèmes détectés'}</span>
+        <span class="cover-info-value">${data.criticalIssues + data.warnings} ${(data.criticalIssues + data.warnings) <= 1 ? 'problème' : 'problèmes'}</span>
       </div>
       <div class="cover-info-row">
         <span class="cover-info-label">Résultat</span>
@@ -826,23 +827,23 @@ const generateHTMLReport = (
       <div class="summary-grid">
         <div class="summary-item">
           <div class="summary-item-number">${data.criticalIssues}</div>
-          <div class="summary-item-label">Points Critiques</div>
+          <div class="summary-item-label">${data.criticalIssues <= 1 ? 'Point Critique' : 'Points Critiques'}</div>
           <div class="summary-item-sublabel">Action requise</div>
         </div>
         <div class="summary-item">
           <div class="summary-item-number">${data.warnings}</div>
-          <div class="summary-item-label">Avertissements</div>
+          <div class="summary-item-label">${data.warnings <= 1 ? 'Avertissement' : 'Avertissements'}</div>
           <div class="summary-item-sublabel">À surveiller</div>
         </div>
         <div class="summary-item">
           <div class="summary-item-number">${data.improvements}</div>
-          <div class="summary-item-label">Améliorations</div>
-          <div class="summary-item-sublabel">Recommandé</div>
+          <div class="summary-item-label">${data.improvements <= 1 ? 'Amélioration' : 'Améliorations'}</div>
+          <div class="summary-item-sublabel">${data.improvements <= 1 ? 'Recommandée' : 'Recommandées'}</div>
         </div>
         <div class="summary-item">
           <div class="summary-item-number">${data.compliantItems}</div>
-          <div class="summary-item-label">Conformes</div>
-          <div class="summary-item-sublabel">Validés</div>
+          <div class="summary-item-label">${data.compliantItems <= 1 ? 'Conforme' : 'Conformes'}</div>
+          <div class="summary-item-sublabel">${data.compliantItems <= 1 ? 'Validé' : 'Validés'}</div>
         </div>
       </div>
     </div>
@@ -872,12 +873,12 @@ const generateHTMLReport = (
             <td>${new Date(data.timestamp).toLocaleString('fr-FR')}</td>
           </tr>
           <tr>
-            <td style="font-weight: 600;">Points analysés</td>
-            <td>${analysisResults.length} vérifications automatiques</td>
+            <td style="font-weight: 600;">${(data.criticalIssues + data.warnings) <= 1 ? 'Problème détecté' : 'Problèmes détectés'}</td>
+            <td>${data.criticalIssues + data.warnings} ${(data.criticalIssues + data.warnings) <= 1 ? 'problème' : 'problèmes'}</td>
           </tr>
           <tr>
             <td style="font-weight: 600;">Résumé</td>
-            <td>${data.criticalIssues} critique(s) • ${data.warnings} avertissement(s) • ${data.improvements} amélioration(s) • ${data.compliantItems} conforme(s)</td>
+            <td>${data.criticalIssues} ${data.criticalIssues <= 1 ? 'critique' : 'critiques'} • ${data.warnings} ${data.warnings <= 1 ? 'avertissement' : 'avertissements'} • ${data.improvements} ${data.improvements <= 1 ? 'amélioration' : 'améliorations'} • ${data.compliantItems} ${data.compliantItems <= 1 ? 'conforme' : 'conformes'}</td>
           </tr>
         </tbody>
       </table>
@@ -888,7 +889,7 @@ const generateHTMLReport = (
     <div class="section">
       <div class="section-title">
         <div class="section-number" style="background: #DC2626;">1</div>
-        <span>Points critiques (${data.criticalIssues})</span>
+        <span>${data.criticalIssues <= 1 ? 'Point critique' : 'Points critiques'} (${data.criticalIssues})</span>
           </div>
       <div class="issues-container">
         <div class="issue-category">
@@ -907,7 +908,7 @@ const generateHTMLReport = (
     <div class="section">
       <div class="section-title">
         <div class="section-number" style="background: #d97706;">2</div>
-        <span>Avertissements (${data.warnings})</span>
+        <span>${data.warnings <= 1 ? 'Avertissement' : 'Avertissements'} (${data.warnings})</span>
           </div>
       <div class="issues-container">
         <div class="issue-category">
@@ -926,7 +927,7 @@ const generateHTMLReport = (
     <div class="section">
       <div class="section-title">
         <div class="section-number" style="background: #6b7280;">3</div>
-        <span>Optimisations possibles (${data.improvements})</span>
+        <span>${data.improvements <= 1 ? 'Optimisation possible' : 'Optimisations possibles'} (${data.improvements})</span>
           </div>
       <div class="issues-container">
         <div class="issue-category">
@@ -945,7 +946,7 @@ const generateHTMLReport = (
     <div class="section">
       <div class="section-title">
         <div class="section-number" style="background: #059669;">4</div>
-        <span>Points positifs (${data.compliantItems})</span>
+        <span>${data.compliantItems <= 1 ? 'Point positif' : 'Points positifs'} (${data.compliantItems})</span>
         </div>
       <div class="issues-container">
         <div class="issue-category">
@@ -1005,7 +1006,7 @@ const generateHTMLReport = (
       
       ${data.criticalIssues > 0 ? `
       <div class="info-box" style="border-left: 4px solid #DC2626; margin-bottom: 20px;">
-        <p style="margin-bottom: 10px;"><strong style="font-size: 11pt; color: #DC2626;">PRIORITÉ 1 — Actions urgentes (${data.criticalIssues} point(s))</strong></p>
+        <p style="margin-bottom: 10px;"><strong style="font-size: 11pt; color: #DC2626;">PRIORITÉ 1 — ${data.criticalIssues <= 1 ? 'Action urgente' : 'Actions urgentes'} (${data.criticalIssues} ${data.criticalIssues <= 1 ? 'point' : 'points'})</strong></p>
         <p style="margin-bottom: 10px; line-height: 1.7;">Ces problèmes méritent une attention immédiate car ils peuvent impacter directement la sécurité de vos utilisateurs ou exposer des données sensibles :</p>
         <ul style="margin-left: 20px; line-height: 1.8;">
           <li><strong>Certificat SSL invalide :</strong> Installez un certificat SSL valide via Let's Encrypt (gratuit) ou votre hébergeur</li>
@@ -1019,7 +1020,7 @@ const generateHTMLReport = (
       
       ${data.warnings > 0 ? `
       <div class="info-box" style="border-left: 3px solid #d97706; margin-bottom: 20px;">
-        <p style="margin-bottom: 10px;"><strong style="font-size: 11pt; color: #d97706;">PRIORITÉ 2 — Points d'attention (${data.warnings} point(s))</strong></p>
+        <p style="margin-bottom: 10px;"><strong style="font-size: 11pt; color: #d97706;">PRIORITÉ 2 — ${data.warnings <= 1 ? 'Point d\'attention' : 'Points d\'attention'} (${data.warnings} ${data.warnings <= 1 ? 'point' : 'points'})</strong></p>
         <p style="margin-bottom: 10px; line-height: 1.7;">Ces améliorations renforceront la confiance de vos visiteurs et optimiseront votre conformité :</p>
         <ul style="margin-left: 20px; line-height: 1.8;">
           <li><strong>Mentions légales incomplètes :</strong> Ajoutez éditeur, hébergeur, directeur de publication</li>
@@ -1033,7 +1034,7 @@ const generateHTMLReport = (
       
       ${data.improvements > 0 ? `
       <div class="info-box" style="border-left: 2px solid #6b7280; margin-bottom: 20px;">
-        <p style="margin-bottom: 10px;"><strong style="font-size: 11pt; color: #6b7280;">PRIORITÉ 3 — Optimisations (${data.improvements} point(s))</strong></p>
+        <p style="margin-bottom: 10px;"><strong style="font-size: 11pt; color: #6b7280;">PRIORITÉ 3 — ${data.improvements <= 1 ? 'Optimisation' : 'Optimisations'} (${data.improvements} ${data.improvements <= 1 ? 'point' : 'points'})</strong></p>
         <p style="margin-bottom: 10px; line-height: 1.7;">Ces améliorations valoriseront votre site et amélioreront l'expérience utilisateur :</p>
         <ul style="margin-left: 20px; line-height: 1.8;">
           <li><strong>Accessibilité :</strong> Ajoutez des attributs alt aux images, améliorez le contraste des couleurs</li>
@@ -1047,7 +1048,7 @@ const generateHTMLReport = (
       
       ${data.compliantItems > 0 ? `
       <div class="info-box" style="border-left: 3px solid #059669;">
-        <p style="margin-bottom: 10px;"><strong style="font-size: 11pt; color: #059669;">Points positifs (${data.compliantItems} élément(s))</strong></p>
+        <p style="margin-bottom: 10px;"><strong style="font-size: 11pt; color: #059669;">${data.compliantItems <= 1 ? 'Point positif' : 'Points positifs'} (${data.compliantItems} ${data.compliantItems <= 1 ? 'élément' : 'éléments'})</strong></p>
         <p style="line-height: 1.7;">Félicitations ! Plusieurs éléments de votre site sont déjà bien configurés. Continuez à maintenir ces bonnes pratiques lors de vos futures mises à jour.</p>
       </div>
       ` : ''}

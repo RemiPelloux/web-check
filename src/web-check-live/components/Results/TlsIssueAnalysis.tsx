@@ -41,29 +41,29 @@ const makeResults = (results: any) => {
     return rows;
   }
   const caaWorker = results.analysis.find((a: any) => a.analyzer === 'caaWorker');
-  if (caaWorker.result.host) rows.push({ lbl: 'Host', val: caaWorker.result.host });
-  if (typeof caaWorker.result.has_caa === 'boolean') rows.push({ lbl: 'CA Authorization', val: caaWorker.result.has_caa });
-  if (caaWorker.result.issue) rows.push({ lbl: 'CAAs allowed to Issue Certs', plaintext: caaWorker.result.issue.join('\n') });
+  if (caaWorker.result.host) rows.push({ lbl: 'Hôte', val: caaWorker.result.host });
+  if (typeof caaWorker.result.has_caa === 'boolean') rows.push({ lbl: 'Autorisation CA', val: caaWorker.result.has_caa });
+  if (caaWorker.result.issue) rows.push({ lbl: 'CAs autorisés à émettre', plaintext: caaWorker.result.issue.join('\n') });
 
   const mozillaGradingWorker = (results.analysis.find((a: any) => a.analyzer === 'mozillaGradingWorker')).result;
-  if (mozillaGradingWorker.grade) rows.push({ lbl: 'Mozilla Grading', val: mozillaGradingWorker.grade });
-  if (mozillaGradingWorker.gradeTrust) rows.push({ lbl: 'Mozilla Trust', val: mozillaGradingWorker.gradeTrust });
+  if (mozillaGradingWorker.grade) rows.push({ lbl: 'Note Mozilla', val: mozillaGradingWorker.grade });
+  if (mozillaGradingWorker.gradeTrust) rows.push({ lbl: 'Confiance Mozilla', val: mozillaGradingWorker.gradeTrust });
 
   const symantecDistrust = (results.analysis.find((a: any) => a.analyzer === 'symantecDistrust')).result;
-  if (typeof symantecDistrust.isDistrusted === 'boolean') rows.push({ lbl: 'No distrusted symantec SSL?', val: !symantecDistrust.isDistrusted });
-  if (symantecDistrust.reasons) rows.push({ lbl: 'Symantec Distrust', plaintext: symantecDistrust.reasons.join('\n') });
+  if (typeof symantecDistrust.isDistrusted === 'boolean') rows.push({ lbl: 'SSL Symantec valide ?', val: !symantecDistrust.isDistrusted });
+  if (symantecDistrust.reasons) rows.push({ lbl: 'Raison de défiance', plaintext: symantecDistrust.reasons.join('\n') });
 
   const top1m = (results.analysis.find((a: any) => a.analyzer === 'top1m')).result;
-  if (top1m.certificate.rank) rows.push({ lbl: 'Certificate Rank', val: top1m.certificate.rank.toLocaleString() });
+  if (top1m.certificate.rank) rows.push({ lbl: 'Rang du certificat', val: top1m.certificate.rank.toLocaleString() });
 
   const mozillaEvaluationWorker = (results.analysis.find((a: any) => a.analyzer === 'mozillaEvaluationWorker')).result;
-  if (mozillaEvaluationWorker.level) rows.push({ lbl: 'Mozilla Evaluation Level', val: mozillaEvaluationWorker.level });
+  if (mozillaEvaluationWorker.level) rows.push({ lbl: 'Niveau évaluation Mozilla', val: mozillaEvaluationWorker.level });
   if (mozillaEvaluationWorker.failures) {
     const { bad, old, intermediate, modern } = mozillaEvaluationWorker.failures;
-    if (bad) rows.push({ lbl: `Critical Security Issues (${bad.length})`, list: bad });
-    if (old) rows.push({ lbl: `Compatibility Config Issues (${old.length})`, list: old });
-    if (intermediate) rows.push({ lbl: `Intermediate Issues (${intermediate.length})`, list: intermediate });
-    if (modern) rows.push({ lbl: `Modern Issues (${modern.length})`, list: modern });
+    if (bad) rows.push({ lbl: `Problèmes critiques (${bad.length})`, list: bad });
+    if (old) rows.push({ lbl: `Problèmes compatibilité (${old.length})`, list: old });
+    if (intermediate) rows.push({ lbl: `Problèmes intermédiaires (${intermediate.length})`, list: intermediate });
+    if (modern) rows.push({ lbl: `Problèmes modernes (${modern.length})`, list: modern });
   }
   return rows;
 };
@@ -109,7 +109,7 @@ const TlsCard = (props: {data: any, title: string, actionButtons: any, refCode?:
         );
       })}
       <Expandable>
-        <summary>Full Analysis Results</summary>
+        <summary>Résultats d'analyse complets</summary>
         { tlsRowData.length > 0 && tlsRowData.map((cipherSuite: any, index: number) => {
           return (
             <ExpandableRow 
@@ -123,10 +123,10 @@ const TlsCard = (props: {data: any, title: string, actionButtons: any, refCode?:
       </Expandable>
       { !tlsRowData.length && (
         <div>
-          <p>No entries available to analyze.<br />
-            This sometimes happens when the report didn't finish generating in-time, you can try re-requesting it.
+          <p>Aucune entrée disponible pour l'analyse.<br />
+            Cela arrive parfois lorsque le rapport n'a pas fini de se générer à temps, vous pouvez essayer de le redemander.
           </p>
-          <Button loadState={loadState} onClick={() => updateData(scanId)}>Refetch Report</Button>
+          <Button loadState={loadState} onClick={() => updateData(scanId)}>Relancer le rapport</Button>
         </div>
       )}
     </Card>

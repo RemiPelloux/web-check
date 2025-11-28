@@ -1527,17 +1527,17 @@ const Results = (props: { address?: string }): JSX.Element => {
               .map(({ id, title, result, tags, refresh, Component, allResults, siteName }, index: number) => {
                 const refCode = getPluginRefCode(id);
                 return (
-                  <ErrorBoundary title={title} key={`eb-${index}`}>
-                    <Component
-                      key={`${title}-${index}`}
-                      data={{ ...result }}
-                      title={title}
+                <ErrorBoundary title={title} key={`eb-${index}`}>
+                  <Component
+                    key={`${title}-${index}`}
+                    data={{ ...result }}
+                    title={title}
                       refCode={refCode}
-                      actionButtons={refresh ? makeActionButtons(title, refresh, () => showInfo(id)) : undefined}
-                      {...(allResults && { allResults })}
-                      {...(siteName && { siteName })}
-                    />
-                  </ErrorBoundary>
+                    actionButtons={refresh ? makeActionButtons(title, refresh, () => showInfo(id)) : undefined}
+                    {...(allResults && { allResults })}
+                    {...(siteName && { siteName })}
+                  />
+                </ErrorBoundary>
                 );
               })
           }

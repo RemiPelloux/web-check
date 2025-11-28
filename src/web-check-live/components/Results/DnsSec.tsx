@@ -151,25 +151,25 @@ const getDigestTypeName = (code: number) => {
 const makeResponseList = (response: any): RowProps[] => {
   const result = [] as RowProps[];
   if (!response) return result;
-  if (typeof response.RD === 'boolean') result.push({ lbl: 'Recursion Desired (RD)', val: response.RD });
-  if (typeof response.RA === 'boolean') result.push({ lbl: 'Recursion Available (RA)', val: response.RA });
-  if (typeof response.TC === 'boolean') result.push({ lbl: 'TrunCation (TC)', val: response.TC });
-  if (typeof response.AD === 'boolean') result.push({ lbl: 'Authentic Data (AD)', val: response.AD });
-  if (typeof response.CD === 'boolean') result.push({ lbl: 'Checking Disabled (CD)', val: response.CD });
+  if (typeof response.RD === 'boolean') result.push({ lbl: 'Récursion demandée (RD)', val: response.RD });
+  if (typeof response.RA === 'boolean') result.push({ lbl: 'Récursion disponible (RA)', val: response.RA });
+  if (typeof response.TC === 'boolean') result.push({ lbl: 'Troncature (TC)', val: response.TC });
+  if (typeof response.AD === 'boolean') result.push({ lbl: 'Données authentiques (AD)', val: response.AD });
+  if (typeof response.CD === 'boolean') result.push({ lbl: 'Vérification désactivée (CD)', val: response.CD });
   return result;
 };
 
 const makeAnswerList = (recordData: any): RowProps[] => {
   return [
-    { lbl: 'Domain', val: recordData.name },
+    { lbl: 'Domaine', val: recordData.name },
     { lbl: 'Type', val: `${getRecordTypeName(recordData.type)} (${recordData.type})` },
     { lbl: 'TTL', val: recordData.TTL },
-    { lbl: 'Algorithm', val: recordData.algorithm },
-    { lbl: 'Flags', val: recordData.flags },
-    { lbl: 'Protocol', val: recordData.protocol },
-    { lbl: 'Public Key', val: recordData.publicKey },
-    { lbl: 'Key Tag', val: recordData.keyTag },
-    { lbl: 'Digest Type', val: recordData.digestType },
+    { lbl: 'Algorithme', val: recordData.algorithm },
+    { lbl: 'Drapeaux', val: recordData.flags },
+    { lbl: 'Protocole', val: recordData.protocol },
+    { lbl: 'Clé publique', val: recordData.publicKey },
+    { lbl: 'Tag de clé', val: recordData.keyTag },
+    { lbl: 'Type de digest', val: recordData.digestType },
     { lbl: 'Digest', val: recordData.digest },
   ].filter((rowData) => rowData.val && rowData.val !== 'Unknown');
 };
@@ -184,21 +184,21 @@ const DnsSecCard = (props: { data: any, title: string, actionButtons: any, refCo
           return (<div key={`${key}-${index}`}>
           <Heading as="h3" size="small" color={colors.primary}>{key}</Heading>
           {(record.isFound && record.answer) && (<>
-              <Row lbl={`${key} - Present?`} val="✅ Yes" />
+              <Row lbl={`${key} - Présent ?`} val="✅ Oui" />
               {
                 record.answer.map((answer: any, index: number) => {
                   const keyData = parseDNSKeyData(answer.data);
                   const dsData = parseDSData(answer.data);
                   const label = (keyData.flags && keyData.flags !== 'Unknown') ? keyData.flags : key;
                   return (
-                  <ExpandableRow lbl={`Record #${index+1}`} val={label} rowList={makeAnswerList({ ...answer, ...keyData, ...dsData })} open />
+                  <ExpandableRow lbl={`Enregistrement #${index+1}`} val={label} rowList={makeAnswerList({ ...answer, ...keyData, ...dsData })} open />
                 );
                 })
               }
           </>)}
 
             {(!record.isFound && record.response) && (
-              <ExpandableRow lbl={`${key} - Present?`} val={record.isFound ? '✅ Yes' : '❌ No'} rowList={makeResponseList(record.response)} />
+              <ExpandableRow lbl={`${key} - Présent ?`} val={record.isFound ? '✅ Oui' : '❌ Non'} rowList={makeResponseList(record.response)} />
             )}
           </div>)
         })

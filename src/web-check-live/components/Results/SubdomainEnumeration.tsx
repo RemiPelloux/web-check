@@ -181,13 +181,25 @@ const getCategoryIcon = (category: string): string => {
   return icons[category] || '📄';
 };
 
+const getCategoryLabel = (category: string): string => {
+  const labels: Record<string, string> = {
+    development: 'Développement',
+    production: 'Production',
+    mail: 'Messagerie',
+    infrastructure: 'Infrastructure',
+    application: 'Application',
+    other: 'Autres'
+  };
+  return labels[category] || category;
+};
+
 const SubdomainEnumerationCard = (props: { data: SubdomainData, title: string, actionButtons: any, refCode?: string }): JSX.Element => {
   const { data } = props;
   
   if (!data || !data.subdomains) {
     return (
       <Card heading={props.title} actionButtons={props.actionButtons} refCode={props.refCode}>
-        <EmptyState>No subdomain data available</EmptyState>
+        <EmptyState>Aucune donnée de sous-domaine disponible</EmptyState>
       </Card>
     );
   }
@@ -220,7 +232,7 @@ const SubdomainEnumerationCard = (props: { data: SubdomainData, title: string, a
       <CategorySection key={categoryName}>
         <h4>
           <span>{getCategoryIcon(categoryName)}</span>
-          <span style={{ textTransform: 'capitalize' }}>{categoryName}</span>
+          <span>{getCategoryLabel(categoryName)}</span>
           <span className="count-badge">{category.length}</span>
         </h4>
         <SubdomainList>
@@ -237,14 +249,14 @@ const SubdomainEnumerationCard = (props: { data: SubdomainData, title: string, a
         {data.subdomains.length > 0 ? (
           <>
             <Heading as="h3" size="small" color={colors.primary}>
-              Discovered Subdomains by Category
+              Sous-domaines Découverts par Catégorie
             </Heading>
             {Object.keys(data.analysis.categories).map(cat => 
               renderCategory(cat as keyof SubdomainAnalysis['categories'])
             )}
           </>
         ) : (
-          <EmptyState>No subdomains discovered for {data.domain}</EmptyState>
+          <EmptyState>Aucun sous-domaine découvert pour {data.domain}</EmptyState>
         )}
       </ScrollableContent>
     </Card>

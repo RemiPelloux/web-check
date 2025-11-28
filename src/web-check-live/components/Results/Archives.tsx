@@ -16,19 +16,19 @@ const ArchivesCard = (props: { data: any, title: string, actionButtons: any, ref
   const data = props.data;
   return (
     <Card heading={props.title} actionButtons={props.actionButtons} refCode={props.refCode}>
-      <Row lbl="First Scan" val={data.firstScan} />
-      <Row lbl="Last Scan" val={data.lastScan} />
-      <Row lbl="Total Scans" val={data.totalScans} />
-      <Row lbl="Change Count" val={data.changeCount} />
-      <Row lbl="Avg Size" val={`${data.averagePageSize} bytes`} />
+      <Row lbl="Premier scan" val={data.firstScan} />
+      <Row lbl="Dernier scan" val={data.lastScan} />
+      <Row lbl="Total des scans" val={data.totalScans} />
+      <Row lbl="Nombre de changements" val={data.changeCount} />
+      <Row lbl="Taille moyenne" val={`${data.averagePageSize} octets`} />
       { data.scanFrequency?.scansPerDay > 1 ?
-        <Row lbl="Avg Scans Per Day" val={data.scanFrequency.scansPerDay} /> :
-        <Row lbl="Avg Days between Scans" val={data.scanFrequency.daysBetweenScans} />
+        <Row lbl="Scans par jour (moy.)" val={data.scanFrequency.scansPerDay} /> :
+        <Row lbl="Jours entre scans (moy.)" val={data.scanFrequency.daysBetweenScans} />
       }
 
       <Note>
-        View historical versions of this page <a rel="noreferrer" target="_blank" href={`https://web.archive.org/web/*/${data.scanUrl}`}>here</a>,
-        via the Internet Archive's Wayback Machine.
+        Consulter les versions historiques de cette page <a rel="noreferrer" target="_blank" href={`https://web.archive.org/web/*/${data.scanUrl}`}>ici</a>,
+        via la Wayback Machine d'Internet Archive.
       </Note>
     </Card>
   );

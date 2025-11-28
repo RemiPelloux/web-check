@@ -36,20 +36,20 @@ const ServerLocationCard = (props: { data: ServerLocation, title: string, action
 
   return (
     <Card heading={props.title} actionButtons={props.actionButtons} styles={cardStyles} refCode={props.refCode}>
-      <Row lbl="City" val={`${postCode}, ${city}, ${region}`} />
+      <Row lbl="Ville" val={`${postCode}, ${city}, ${region}`} />
       <Row lbl="" val="">
-        <b>Country</b>
+        <b>Pays</b>
         <CountryValue>
           {country}
           { countryCode && <Flag countryCode={countryCode} width={28} /> }
         </CountryValue>
       </Row>
-      <Row lbl="Timezone" val={timezone} />
-      <Row lbl="Languages" val={languages} />
-      <Row lbl="Currency" val={`${currency} (${currencyCode})`} />
+      <Row lbl="Fuseau horaire" val={timezone} />
+      <Row lbl="Langues" val={languages} />
+      <Row lbl="Devise" val={`${currency} (${currencyCode})`} />
       <MapRow>
-        <LocationMap lat={coords.latitude} lon={coords.longitude} label={`Server (${isp})`} />
-        <SmallText>Latitude: {coords.latitude}, Longitude: {coords.longitude} </SmallText>
+        <LocationMap lat={coords.latitude} lon={coords.longitude} label={`Serveur (${isp})`} />
+        <SmallText>Latitude : {coords.latitude}, Longitude : {coords.longitude} </SmallText>
       </MapRow>
     </Card>
   );

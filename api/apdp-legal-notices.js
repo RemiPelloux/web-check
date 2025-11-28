@@ -46,9 +46,9 @@ const LEGAL_PATTERNS = {
   ],
   
   requiredInfo: [
-    { name: 'Raison sociale', patterns: [/raison.*sociale/i, /dénomination/i, /société/i, /company.*name/i] },
+    { name: 'Raison sociale', patterns: [/raison.*sociale/i, /dénomination/i, /société/i, /company.*name/i], optional: true },
     { name: 'Adresse du siège', patterns: [/siège.*social/i, /adresse/i, /address/i] },
-    { name: 'Numéro SIRET/RCS', patterns: [/siret|siren|rcs/i, /registre.*commerce/i] },
+    { name: 'Numéro SIRET/RCS', patterns: [/siret|siren|rcs/i, /registre.*commerce/i], optional: true },
     { name: 'Responsable publication', patterns: [/responsable.*publication/i, /directeur.*publication/i] },
     { name: 'Hébergeur', patterns: [/hébergeur|hébergé|hosting/i, /serveur/i] },
     { name: 'Contact', patterns: [/contact|e-mail|téléphone|phone/i] }
@@ -171,13 +171,24 @@ const handler = async (url) => {
         const noticeText = $notice('body').text().toLowerCase();
         
         // Check for required information
+        // Count only required (non-optional) items for scoring
+        const requiredItems = LEGAL_PATTERNS.requiredInfo.filter(i => !i.optional);
+        const scorePerItem = 100 / requiredItems.length; // Score based on required items only
+        
         for (const info of LEGAL_PATTERNS.requiredInfo) {
           const found = info.patterns.some(pattern => pattern.test(noticeText));
           if (found) {
-            result.foundInfo.push(info.name);
-            result.compliance.score += 16.67; // Each item worth ~17%
+            result.foundInfo.push(info.optional ? `${info.name} (facultatif)` : info.name);
+            if (!info.optional) {
+              result.compliance.score += scorePerItem;
+            }
           } else {
-            result.missingInfo.push(info.name);
+            if (info.optional) {
+              // Optional items not found - just note them, don't penalize
+              result.missingInfo.push(`${info.name} (facultatif)`);
+            } else {
+              result.missingInfo.push(info.name);
+            }
           }
         }
         
@@ -191,7 +202,7 @@ const handler = async (url) => {
       result.compliance.level = 'Critique';
       result.compliance.issues.push('Aucune page de mentions légales détectée');
       result.compliance.recommendations.push('Créer une page mentions légales obligatoire en France et Monaco');
-      result.compliance.recommendations.push('Inclure: raison sociale, siège, SIRET, responsable, hébergeur');
+      result.compliance.recommendations.push('Inclure: adresse siège, responsable publication, hébergeur, contact');
     } else {
       const score = Math.round(result.compliance.score);
       result.compliance.score = score;

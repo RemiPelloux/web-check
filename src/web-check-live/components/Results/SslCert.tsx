@@ -82,15 +82,15 @@ const SslCertCard = (props: { data: any, title: string, actionButtons: any, refC
   const { subject, issuer, fingerprint, serialNumber, asn1Curve, nistCurve, valid_to, valid_from, ext_key_usage } = sslCert;
   return (
     <Card heading={props.title} actionButtons={props.actionButtons} refCode={props.refCode}>
-      { subject && <DataRow lbl="Subject" val={subject?.CN} /> }
-      { issuer?.O && <DataRow lbl="Issuer" val={issuer.O} /> }
-      { asn1Curve && <DataRow lbl="ASN1 Curve" val={asn1Curve} /> }
-      { nistCurve && <DataRow lbl="NIST Curve" val={nistCurve} /> }
-      { valid_to && <DataRow lbl="Expires" val={formatDate(valid_to)} /> }
-      { valid_from && <DataRow lbl="Renewed" val={formatDate(valid_from)} /> }
-      { serialNumber && <DataRow lbl="Serial Num" val={serialNumber} /> }
-      { fingerprint && <DataRow lbl="Fingerprint" val={fingerprint} /> }
-      { ext_key_usage && <ListRow title="Extended Key Usage" list={getExtendedKeyUsage(ext_key_usage)} /> }
+      { subject && <DataRow lbl="Sujet" val={subject?.CN} /> }
+      { issuer?.O && <DataRow lbl="Émetteur" val={issuer.O} /> }
+      { asn1Curve && <DataRow lbl="Courbe ASN1" val={asn1Curve} /> }
+      { nistCurve && <DataRow lbl="Courbe NIST" val={nistCurve} /> }
+      { valid_to && <DataRow lbl="Expire le" val={formatDate(valid_to)} /> }
+      { valid_from && <DataRow lbl="Renouvelé le" val={formatDate(valid_from)} /> }
+      { serialNumber && <DataRow lbl="Numéro de série" val={serialNumber} /> }
+      { fingerprint && <DataRow lbl="Empreinte" val={fingerprint} /> }
+      { ext_key_usage && <ListRow title="Usages de clé étendus" list={getExtendedKeyUsage(ext_key_usage)} /> }
       
     </Card>
   );

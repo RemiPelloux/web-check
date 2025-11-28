@@ -12,10 +12,10 @@ const FirewallCard = (props: { data: any, title: string, actionButtons: any, ref
   const data = props.data;
   return (
     <Card heading={props.title} actionButtons={props.actionButtons} refCode={props.refCode}>
-      <Row lbl="Firewall" val={data.hasWaf ? '✅ Yes' : '❌ No*' } />
+      <Row lbl="Pare-feu" val={data.hasWaf ? '✅ Oui' : '❌ Non*' } />
       { data.waf && <Row lbl="WAF" val={data.waf} /> }
       { !data.hasWaf && (<Note>
-        *The domain may be protected with a proprietary or custom WAF which we were unable to identify automatically
+        *Le domaine peut être protégé par un WAF propriétaire ou personnalisé que nous n'avons pas pu identifier automatiquement
       </Note>) }
     </Card>
   );

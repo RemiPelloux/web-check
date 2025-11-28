@@ -117,7 +117,7 @@ interface LinkAuditData {
 const LinkAuditCard = (props: { data: LinkAuditData, title?: string, actionButtons?: any, refCode?: string }): JSX.Element => {
   const { data } = props;
 
-  if (!data) return <Card heading={props.title || "Link & Content Auditor"} refCode={props.refCode}>Chargement...</Card>;
+  if (!data) return <Card heading={props.title || "Audit des Liens"} refCode={props.refCode}>Chargement...</Card>;
 
   const getScoreColor = (score: number) => {
     if (score >= 90) return '#22c55e';
@@ -126,37 +126,37 @@ const LinkAuditCard = (props: { data: LinkAuditData, title?: string, actionButto
   };
 
   return (
-    <Card heading={props.title || "Link & Content Audit (SEO & Quality)"} actionButtons={props.actionButtons} refCode={props.refCode}>
+    <Card heading={props.title || "Audit des Liens & Contenu (SEO & Qualité)"} actionButtons={props.actionButtons} refCode={props.refCode}>
       <Container>
         <StatsGrid>
           <StatCard color={getScoreColor(data.score)}>
             <div className="value">{data.score}/100</div>
-            <div className="label">Health Score</div>
+            <div className="label">Score Santé</div>
           </StatCard>
           <StatCard>
             <div className="value">{data.totalLinks}</div>
-            <div className="label">Total Links</div>
+            <div className="label">Total Liens</div>
           </StatCard>
           <StatCard color={data.brokenLinks.length > 0 ? '#ef4444' : '#22c55e'}>
             <div className="value">{data.brokenLinks.length}</div>
-            <div className="label">Broken Links</div>
+            <div className="label">Liens Cassés</div>
           </StatCard>
           <StatCard color={data.mixedContent.length > 0 ? '#eab308' : '#22c55e'}>
             <div className="value">{data.mixedContent.length}</div>
-            <div className="label">Mixed Content</div>
+            <div className="label">Contenu Mixte</div>
           </StatCard>
         </StatsGrid>
 
         <Section>
-          <h3>🔗 Broken Links (404/Errors)</h3>
+          <h3>🔗 Liens Cassés (404/Erreurs)</h3>
           {data.brokenLinks.length === 0 ? (
-            <EmptyState>✅ No broken links found on homepage.</EmptyState>
+            <EmptyState>✅ Aucun lien cassé trouvé sur la page d'accueil.</EmptyState>
           ) : (
             <IssueList>
               {data.brokenLinks.map((link, idx) => (
                 <IssueItem key={idx} type="broken">
                   <span className="url">{link.url}</span>
-                  <span className="badge">{link.status === 0 ? 'Network Error' : `${link.status} ${link.reason}`}</span>
+                  <span className="badge">{link.status === 0 ? 'Erreur Réseau' : `${link.status} ${link.reason}`}</span>
                 </IssueItem>
               ))}
             </IssueList>
@@ -164,9 +164,9 @@ const LinkAuditCard = (props: { data: LinkAuditData, title?: string, actionButto
         </Section>
 
         <Section>
-          <h3>🔒 Mixed Content (HTTP on HTTPS)</h3>
+          <h3>🔒 Contenu Mixte (HTTP sur HTTPS)</h3>
           {data.mixedContent.length === 0 ? (
-            <EmptyState>✅ All resources are loaded securely (HTTPS).</EmptyState>
+            <EmptyState>✅ Toutes les ressources sont chargées de manière sécurisée (HTTPS).</EmptyState>
           ) : (
             <IssueList>
               {data.mixedContent.map((item, idx) => (
