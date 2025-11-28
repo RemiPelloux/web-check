@@ -138,7 +138,8 @@ const formatDate = (dateString: string): string => {
   }).format(new Date(dateString));
 }
 const formatValue = (value: any): string => {
-  if (isValidDate(new Date(value))) return formatDate(value);
+  // Check the original value, not a Date object, so isValidDate can reject pure numbers
+  if (isValidDate(value)) return formatDate(value);
   if (typeof value === 'boolean') return value ? '✅' : '❌';
   return value;
 };

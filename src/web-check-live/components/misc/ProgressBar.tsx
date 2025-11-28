@@ -9,8 +9,20 @@ import { fetchDisabledPlugins, filterAvailablePlugins, getUserRole } from 'web-c
 const LoadCard = styled(Card)`
   margin: 0 auto 1rem auto;
   width: 95vw;
+  max-width: 1400px;
   position: relative;
   transition: all 0.2s ease-in-out;
+  
+  @media (max-width: 768px) {
+    width: calc(100% - 24px);
+    margin: 0 12px 1rem 12px;
+  }
+  
+  @media (max-width: 599px) {
+    width: calc(100% - 16px);
+    margin: 0 8px 0.75rem 8px;
+  }
+  
   &.hidden {
     height: 0;
     overflow: hidden;
@@ -25,6 +37,10 @@ const ProgressBarContainer = styled.div`
   background: ${colors.bgShadowColor};
   border-radius: 4px;
   overflow: hidden;
+  
+  @media (max-width: 599px) {
+    height: 0.375rem;
+  }
 `;
 
 const ProgressBarSegment = styled.div<{ color: string, color2: string, width: number }>`
@@ -40,11 +56,19 @@ const ProgressBarSegment = styled.div<{ color: string, color2: string, width: nu
 
 const Details = styled.details`
   transition: all 0.2s ease-in-out;
+  
   summary {
     margin: 0.5rem 0;
     font-weight: bold;
     cursor: pointer;
+    padding-left: 1rem;
+    
+    @media (max-width: 599px) {
+      font-size: 14px;
+      margin: 0.375rem 0;
+    }
   }
+  
   summary:before {
     content: "►";
     position: absolute;
@@ -52,25 +76,52 @@ const Details = styled.details`
     color: ${colors.primary};
     cursor: pointer;
   }
+  
   &[open] summary:before {
     content: "▼";
   }
+  
   ul {
     list-style: none;
     padding: 0.25rem;
     border-radius: 4px;
-    width: fit-content;
-    li b {
-      cursor: pointer;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: auto;
+    
+    @media (max-width: 599px) {
+      padding: 0.25rem 0;
     }
-    i {
-      color: ${colors.textColorSecondary};
+    
+    li {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 4px;
+      padding: 4px 0;
+      
+      @media (max-width: 599px) {
+        font-size: 13px;
+      }
+      
+      b {
+        cursor: pointer;
+      }
+      
+      i {
+        color: ${colors.textColorSecondary};
+      }
     }
   }
+  
   p.error {
     margin: 0.5rem 0;
     opacity: 0.75;
     color: ${colors.danger};
+    
+    @media (max-width: 599px) {
+      font-size: 13px;
+    }
   }
 `;
 
@@ -78,9 +129,23 @@ const StatusInfoWrapper = styled.div`
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 8px;
+  
+  @media (max-width: 599px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+  
   .run-status {
     color: ${colors.textColorSecondary};
     margin: 0;
+    
+    @media (max-width: 599px) {
+      font-size: 13px;
+    }
   }
 `;
 
@@ -90,14 +155,25 @@ const AboutPageLink = styled.a`
 
 const SummaryContainer = styled.div`
   margin: 0.5rem 0;
+  
+  @media (max-width: 599px) {
+    margin: 0.375rem 0;
+  }
+  
   b {
     margin: 0;
     font-weight: bold;
+    
+    @media (max-width: 599px) {
+      font-size: 13px;
+    }
   }
+  
   p {
     margin: 0;
     opacity: 0.75;
   }
+  
   &.error-info {
     color: ${colors.danger};
   }
@@ -107,13 +183,23 @@ const SummaryContainer = styled.div`
   &.loading-info {
     color: ${colors.info};
   }
+  
   .skipped {
     margin-left: 0.75rem;
     color: ${colors.warning};
+    
+    @media (max-width: 599px) {
+      margin-left: 0.5rem;
+    }
   }
+  
   .success {
     margin-left: 0.75rem;
     color: ${colors.success};
+    
+    @media (max-width: 599px) {
+      margin-left: 0.5rem;
+    }
   }
 `;
 
@@ -140,6 +226,14 @@ const DismissButton = styled.button`
   border-radius: 4px;
   font-family: PTMono;
   cursor: pointer;
+  
+  @media (max-width: 599px) {
+    right: 0.5rem;
+    bottom: 0.5rem;
+    font-size: 12px;
+    padding: 0.2rem 0.4rem;
+  }
+  
   &:hover {
     color: ${colors.primary};
   }
@@ -156,6 +250,14 @@ const FailedJobActionButton = styled.button`
   cursor: pointer;
   border: 1px solid ${colors.textColorSecondary};
   transition: all 0.2s ease-in-out;
+  white-space: nowrap;
+  
+  @media (max-width: 599px) {
+    font-size: 11px;
+    padding: 0.2rem 0.4rem;
+    margin: 0.1rem;
+  }
+  
   &:hover {
     color: ${colors.primary};
     border: 1px solid ${colors.primary};
@@ -163,15 +265,28 @@ const FailedJobActionButton = styled.button`
 `;
 
 const ErrorModalContent = styled.div`
-p {
-  margin: 0;
-}
-pre {
-  color: ${colors.danger};
-  &.info {
-    color: ${colors.warning};
+  p {
+    margin: 0;
+    
+    @media (max-width: 599px) {
+      font-size: 14px;
+    }
   }
-}
+  
+  pre {
+    color: ${colors.danger};
+    overflow-x: auto;
+    max-width: 100%;
+    font-size: 13px;
+    
+    @media (max-width: 599px) {
+      font-size: 12px;
+    }
+    
+    &.info {
+      color: ${colors.warning};
+    }
+  }
 `;
 
 export type LoadingState = 'success' | 'loading' | 'skipped' | 'error' | 'timed-out';

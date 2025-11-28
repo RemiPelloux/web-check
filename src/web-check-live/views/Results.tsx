@@ -87,22 +87,63 @@ const ResultsOuter = styled.div`
   background: ${colors.background};
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
+  
   .masonry-grid {
     display: flex;
     width: auto;
+    margin-left: -8px;
+    
+    @media (max-width: 599px) {
+      margin-left: 0;
+    }
   }
-  .masonry-grid-col section { margin: 1rem 0.5rem; }
+  
+  .masonry-grid-col {
+    padding-left: 8px;
+    background-clip: padding-box;
+    
+    @media (max-width: 599px) {
+      padding-left: 0;
+    }
+  }
+  
+  .masonry-grid-col section { 
+    margin: 0.5rem;
+    
+    @media (max-width: 599px) {
+      margin: 0.5rem 0;
+    }
+  }
 `;
 
 const ResultsContent = styled.section`
+  width: 100%;
   max-width: 80%;
   margin: 0 auto;
   padding: 24px 16px;
   display: grid;
   grid-auto-flow: dense;
-  grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
   gap: 16px;
-  width: 100%;
+  
+  @media (max-width: 1024px) {
+    max-width: 90%;
+    padding: 20px 12px;
+    gap: 12px;
+  }
+  
+  @media (max-width: 768px) {
+    max-width: 95%;
+    padding: 16px 8px;
+  }
+  
+  @media (max-width: 599px) {
+    max-width: 100%;
+    padding: 12px;
+    grid-template-columns: 1fr;
+    gap: 12px;
+  }
 `;
 
 const FilterButtons = styled.div`
@@ -113,12 +154,30 @@ const FilterButtons = styled.div`
   flex-wrap: wrap;
   justify-content: space-between;
   gap: 1rem;
+  
+  @media (max-width: 768px) {
+    padding: 0 12px;
+    gap: 0.75rem;
+    justify-content: center;
+  }
+  
+  @media (max-width: 599px) {
+    flex-direction: column;
+    align-items: stretch;
+  }
+  
   .one-half {
     display: flex;
     flex-wrap: wrap;
     gap: 1rem;
     align-items: center;
+    
+    @media (max-width: 599px) {
+      gap: 0.5rem;
+      justify-content: center;
+    }
   }
+  
   button, input, .toggle-filters {
     background: ${colors.backgroundLighter};
     color: ${colors.textColor};
@@ -128,7 +187,13 @@ const FilterButtons = styled.div`
     font-size: 14px;
     padding: 8px 12px;
     transition: all 0.2s ease;
+    
+    @media (max-width: 599px) {
+      font-size: 13px;
+      padding: 10px 14px;
+    }
   }
+  
   button, .toggle-filters {
     cursor: pointer;
     text-transform: capitalize;
@@ -145,11 +210,13 @@ const FilterButtons = styled.div`
       background: rgba(220, 38, 38, 0.05);
     }
   }
+  
   input:focus {
     border-color: ${colors.primary};
     outline: none;
     box-shadow: 0 0 0 3px ${colors.primaryTransparent};
   }
+  
   .clear {
     color: ${colors.textColorSecondary};
     text-decoration: underline;
@@ -161,15 +228,119 @@ const FilterButtons = styled.div`
       color: ${colors.primary};
     }
   }
+  
   .toggle-filters  {
     font-size: 14px;
   }
+  
   .control-options {
     display: flex;
     flex-wrap: wrap;
     gap: 1rem;
     align-items: center;
+    
+    @media (max-width: 768px) {
+      gap: 0.5rem;
+      justify-content: center;
+      width: 100%;
+    }
+    
     a {
+      text-decoration: none;
+    }
+  }
+`;
+
+const LoadingContainer = styled.div`
+  max-width: 800px;
+  margin: 100px auto;
+  padding: 40px;
+  text-align: center;
+  
+  @media (max-width: 768px) {
+    margin: 60px auto;
+    padding: 24px;
+  }
+  
+  @media (max-width: 599px) {
+    margin: 40px 16px;
+    padding: 20px;
+  }
+`;
+
+const BlockedContainer = styled.div`
+  max-width: 800px;
+  margin: 100px auto;
+  padding: 40px;
+  background-color: ${colors.backgroundLighter};
+  border: 2px solid ${colors.danger};
+  border-radius: 12px;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  
+  @media (max-width: 768px) {
+    margin: 60px 20px;
+    padding: 32px 24px;
+  }
+  
+  @media (max-width: 599px) {
+    margin: 40px 16px;
+    padding: 24px 16px;
+    border-radius: 8px;
+  }
+  
+  .blocked-icon {
+    font-size: 64px;
+    margin-bottom: 20px;
+    
+    @media (max-width: 599px) {
+      font-size: 48px;
+      margin-bottom: 16px;
+    }
+  }
+  
+  h2 {
+    color: ${colors.danger};
+    margin-bottom: 16px;
+    font-size: 24px;
+    
+    @media (max-width: 599px) {
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
+  }
+  
+  p {
+    font-size: 16px;
+    color: ${colors.textColor};
+    margin-bottom: 24px;
+    line-height: 1.6;
+    
+    @media (max-width: 599px) {
+      font-size: 14px;
+      margin-bottom: 20px;
+    }
+  }
+  
+  .back-button {
+    display: inline-block;
+    padding: 12px 24px;
+    background-color: ${colors.primary};
+    color: white;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: 600;
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.2);
+    
+    @media (max-width: 599px) {
+      padding: 10px 20px;
+      font-size: 14px;
+    }
+    
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0,0,0,0.3);
       text-decoration: none;
     }
   }
@@ -1310,53 +1481,21 @@ const Results = (props: { address?: string }): JSX.Element => {
       <Header />
       
       {isCheckingAccess ? (
-        <div style={{
-          maxWidth: '800px',
-          margin: '100px auto',
-          padding: '40px',
-          textAlign: 'center'
-        }}>
+        <LoadingContainer>
           <Loader show={true} />
-        </div>
+        </LoadingContainer>
       ) : urlBlocked ? (
-        <div style={{
-          maxWidth: '800px',
-          margin: '100px auto',
-          padding: '40px',
-          backgroundColor: colors.backgroundLighter,
-          border: `2px solid ${colors.danger}`,
-          borderRadius: '12px',
-          textAlign: 'center',
-          boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
-        }}>
-          <div style={{ fontSize: '64px', marginBottom: '20px' }}>🚫</div>
-          <h2 style={{ color: colors.danger, marginBottom: '16px', fontSize: '24px' }}>Accès Non Autorisé</h2>
-          <p style={{ fontSize: '16px', color: colors.textColor, marginBottom: '24px', lineHeight: '1.6' }}>
+        <BlockedContainer>
+          <div className="blocked-icon">🚫</div>
+          <h2>Accès Non Autorisé</h2>
+          <p>
             Vous n'êtes pas autorisé à analyser cette URL.<br/>
             Veuillez contacter votre administrateur APDP pour obtenir l'accès.
           </p>
-          <a href="/check" style={{
-            display: 'inline-block',
-            padding: '12px 24px',
-            backgroundColor: colors.primary,
-            color: 'white',
-            textDecoration: 'none',
-            borderRadius: '8px',
-            fontWeight: '600',
-            transition: 'transform 0.2s ease, box-shadow 0.2s ease',
-            boxShadow: '0 2px 8px rgba(0,0,0,0.2)'
-          }}
-          onMouseOver={(e) => {
-            e.currentTarget.style.transform = 'translateY(-2px)';
-            e.currentTarget.style.boxShadow = '0 4px 12px rgba(0,0,0,0.3)';
-          }}
-          onMouseOut={(e) => {
-            e.currentTarget.style.transform = 'translateY(0)';
-            e.currentTarget.style.boxShadow = '0 2px 8px rgba(0,0,0,0.2)';
-          }}>
+          <a href="/check" className="back-button">
             ← Retour à l'accueil
           </a>
-        </div>
+        </BlockedContainer>
       ) : (
         <>
           <Nav>
@@ -1485,7 +1624,7 @@ const Results = (props: { address?: string }): JSX.Element => {
 
       <ResultsContent>
         <Masonry
-          breakpointCols={{ 10000: 12, 4000: 9, 3600: 8, 3200: 7, 2800: 6, 2400: 5, 2000: 4, 1600: 3, 1200: 2, 800: 1 }}
+          breakpointCols={{ 10000: 12, 4000: 9, 3600: 8, 3200: 7, 2800: 6, 2400: 5, 2000: 4, 1600: 3, 1200: 2, 900: 2, 600: 1, 0: 1 }}
           className="masonry-grid"
           columnClassName="masonry-grid-col">
           {

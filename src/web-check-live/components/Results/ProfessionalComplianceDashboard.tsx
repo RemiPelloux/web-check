@@ -15,23 +15,42 @@ const DashboardContainer = styled.div`
   margin: 0 auto;
   background: ${colors.backgroundLighter};
   min-height: 100vh;
+  
+  @media (max-width: 1440px) {
+    max-width: 100%;
+  }
 `;
 
 const Header = styled.div`
   background: ${colors.background};
   border-bottom: 1px solid ${colors.border};
   padding: 24px;
+  
+  @media (max-width: 768px) {
+    padding: 16px;
+  }
+  
+  @media (max-width: 599px) {
+    padding: 12px;
+  }
 `;
 
 const HeaderContent = styled.div`
   display: flex;
   align-items: center;
-  justify-content: between;
+  justify-content: space-between;
   gap: 24px;
+  
+  @media (max-width: 768px) {
+    flex-direction: column;
+    align-items: stretch;
+    gap: 16px;
+  }
 `;
 
 const HeaderLeft = styled.div`
   flex: 1;
+  min-width: 0;
 `;
 
 const HeaderTitle = styled.div`
@@ -39,6 +58,10 @@ const HeaderTitle = styled.div`
   align-items: center;
   gap: 12px;
   margin-bottom: 8px;
+  
+  @media (max-width: 599px) {
+    gap: 8px;
+  }
 `;
 
 const Title = styled.h1`
@@ -46,12 +69,24 @@ const Title = styled.h1`
   font-weight: 700;
   color: ${colors.textColor};
   margin: 0;
+  
+  @media (max-width: 768px) {
+    font-size: 20px;
+  }
+  
+  @media (max-width: 599px) {
+    font-size: 18px;
+  }
 `;
 
 const Subtitle = styled.p`
   font-size: 14px;
   color: ${colors.textColorSecondary};
   margin: 0;
+  
+  @media (max-width: 599px) {
+    font-size: 12px;
+  }
 `;
 
 const HeaderMeta = styled.div`
@@ -60,18 +95,40 @@ const HeaderMeta = styled.div`
   gap: 24px;
   font-size: 14px;
   color: ${colors.textColorSecondary};
+  flex-wrap: wrap;
+  
+  @media (max-width: 768px) {
+    gap: 12px;
+  }
+  
+  @media (max-width: 599px) {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 13px;
+  }
 `;
 
 const MetaItem = styled.div`
   display: flex;
   align-items: center;
   gap: 6px;
+  
+  @media (max-width: 599px) {
+    word-break: break-all;
+  }
 `;
 
 const HeaderRight = styled.div`
   display: flex;
   align-items: center;
   gap: 16px;
+  flex-shrink: 0;
+  
+  @media (max-width: 768px) {
+    width: 100%;
+    justify-content: center;
+  }
 `;
 
 const ExportButton = styled.button`
@@ -92,6 +149,18 @@ const ExportButton = styled.button`
               inset 0 1px 0 rgba(255, 255, 255, 0.1);
   position: relative;
   overflow: hidden;
+  white-space: nowrap;
+  
+  @media (max-width: 768px) {
+    width: 100%;
+    justify-content: center;
+    padding: 12px 24px;
+  }
+  
+  @media (max-width: 599px) {
+    padding: 10px 20px;
+    font-size: 13px;
+  }
   
   /* Shine effect */
   &::before {
@@ -159,12 +228,35 @@ const StatsGrid = styled.div`
   border-radius: 8px;
   overflow: hidden;
   margin: 24px;
+  
+  @media (max-width: 1024px) {
+    grid-template-columns: repeat(2, 1fr);
+    margin: 16px;
+  }
+  
+  @media (max-width: 599px) {
+    grid-template-columns: 1fr;
+    margin: 12px;
+    border-radius: 8px;
+  }
 `;
 
 const StatCard = styled.div<{ color: string }>`
   background: ${colors.background};
   padding: 24px;
   text-align: center;
+  
+  @media (max-width: 768px) {
+    padding: 20px 16px;
+  }
+  
+  @media (max-width: 599px) {
+    padding: 16px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    text-align: left;
+  }
 `;
 
 const StatNumber = styled.div<{ color: string }>`
@@ -177,12 +269,27 @@ const StatNumber = styled.div<{ color: string }>`
     '#10b981'
   };
   margin-bottom: 8px;
+  
+  @media (max-width: 768px) {
+    font-size: 28px;
+  }
+  
+  @media (max-width: 599px) {
+    font-size: 24px;
+    margin-bottom: 0;
+    order: 2;
+  }
 `;
 
 const StatLabel = styled.div`
   font-size: 14px;
   color: ${colors.textColorSecondary};
   font-weight: 500;
+  
+  @media (max-width: 599px) {
+    font-size: 13px;
+    order: 1;
+  }
 `;
 
 const ContentSection = styled.div`
@@ -191,12 +298,25 @@ const ContentSection = styled.div`
   border-radius: 8px;
   border: 1px solid ${colors.border};
   overflow: hidden;
+  
+  @media (max-width: 768px) {
+    margin: 0 16px 16px 16px;
+  }
+  
+  @media (max-width: 599px) {
+    margin: 0 12px 12px 12px;
+    border-radius: 8px;
+  }
 `;
 
 const SectionHeader = styled.div`
   background: ${colors.backgroundLighter};
   padding: 16px 24px;
   border-bottom: 1px solid ${colors.border};
+  
+  @media (max-width: 599px) {
+    padding: 12px 16px;
+  }
 `;
 
 const SectionTitle = styled.h2`
@@ -204,11 +324,25 @@ const SectionTitle = styled.h2`
   font-weight: 600;
   color: ${colors.textColor};
   margin: 0;
+  
+  @media (max-width: 599px) {
+    font-size: 14px;
+  }
+`;
+
+const TableWrapper = styled.div`
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
 `;
 
 const Table = styled.table`
   width: 100%;
   border-collapse: collapse;
+  min-width: 700px;
+  
+  @media (max-width: 768px) {
+    min-width: 600px;
+  }
 `;
 
 const TableHeader = styled.thead`
@@ -231,6 +365,12 @@ const TableHeaderCell = styled.th`
   color: ${colors.textColorSecondary};
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  white-space: nowrap;
+  
+  @media (max-width: 768px) {
+    padding: 10px 12px;
+    font-size: 11px;
+  }
 `;
 
 const TableCell = styled.td`
@@ -238,6 +378,11 @@ const TableCell = styled.td`
   font-size: 14px;
   color: ${colors.textColor};
   vertical-align: top;
+  
+  @media (max-width: 768px) {
+    padding: 12px;
+    font-size: 13px;
+  }
 `;
 
 const SeverityIcon = styled.div<{ severity: string }>`
@@ -323,6 +468,10 @@ const Modal = styled.div`
   justify-content: center;
   z-index: 1000;
   padding: 24px;
+  
+  @media (max-width: 599px) {
+    padding: 16px;
+  }
 `;
 
 const ModalContent = styled.div`
@@ -334,6 +483,11 @@ const ModalContent = styled.div`
   overflow: hidden;
   display: flex;
   flex-direction: column;
+  
+  @media (max-width: 599px) {
+    max-height: 90vh;
+    border-radius: 12px;
+  }
 `;
 
 const ModalHeader = styled.div`
@@ -341,7 +495,11 @@ const ModalHeader = styled.div`
   border-bottom: 1px solid ${colors.border};
   display: flex;
   align-items: center;
-  justify-content: between;
+  justify-content: space-between;
+  
+  @media (max-width: 599px) {
+    padding: 16px;
+  }
 `;
 
 const ModalTitle = styled.h3`
@@ -350,12 +508,20 @@ const ModalTitle = styled.h3`
   color: ${colors.textColor};
   margin: 0;
   flex: 1;
+  
+  @media (max-width: 599px) {
+    font-size: 16px;
+  }
 `;
 
 const ModalBody = styled.div`
   padding: 24px;
   overflow-y: auto;
   flex: 1;
+  
+  @media (max-width: 599px) {
+    padding: 16px;
+  }
 `;
 
 const CloseButton = styled.button`
@@ -396,6 +562,45 @@ const RecommendationText = styled.p`
   color: #1e40af;
   margin: 0;
   line-height: 1.5;
+`;
+
+const ErrorState = styled.div`
+  padding: 60px 24px;
+  text-align: center;
+  
+  @media (max-width: 599px) {
+    padding: 40px 16px;
+  }
+  
+  .error-icon {
+    font-size: 48px;
+    margin-bottom: 16px;
+    
+    @media (max-width: 599px) {
+      font-size: 40px;
+      margin-bottom: 12px;
+    }
+  }
+  
+  h2 {
+    color: #dc2626;
+    margin: 0 0 8px 0;
+    font-size: 20px;
+    
+    @media (max-width: 599px) {
+      font-size: 18px;
+    }
+  }
+  
+  p {
+    color: #6b7280;
+    margin: 0;
+    font-size: 14px;
+    
+    @media (max-width: 599px) {
+      font-size: 13px;
+    }
+  }
 `;
 
 const ProfessionalComplianceDashboard: React.FC<ProfessionalComplianceDashboardProps> = ({ 
@@ -556,13 +761,11 @@ const ProfessionalComplianceDashboard: React.FC<ProfessionalComplianceDashboardP
   if (!analysis) {
     return (
       <DashboardContainer>
-        <div style={{ padding: '60px 24px', textAlign: 'center' }}>
-          <div style={{ fontSize: '48px', marginBottom: '16px' }}>⚠️</div>
-          <h2 style={{ color: '#dc2626', margin: '0 0 8px 0' }}>Erreur d'analyse</h2>
-          <p style={{ color: '#6b7280', margin: '0' }}>
-            Une erreur s'est produite lors de l'analyse de conformité.
-          </p>
-        </div>
+        <ErrorState>
+          <div className="error-icon">⚠️</div>
+          <h2>Erreur d'analyse</h2>
+          <p>Une erreur s'est produite lors de l'analyse de conformité.</p>
+        </ErrorState>
       </DashboardContainer>
     );
   }
@@ -635,45 +838,47 @@ const ProfessionalComplianceDashboard: React.FC<ProfessionalComplianceDashboardP
           </SectionTitle>
         </SectionHeader>
         
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHeaderCell style={{ width: '40px' }}></TableHeaderCell>
-              <TableHeaderCell>Problème</TableHeaderCell>
-              <TableHeaderCell style={{ width: '120px' }}>Catégorie</TableHeaderCell>
-              <TableHeaderCell style={{ width: '140px' }}>Criticité</TableHeaderCell>
-              <TableHeaderCell>Recommandation</TableHeaderCell>
-            </TableRow>
-          </TableHeader>
-          <tbody>
-            {allIssues.map((issue, index) => (
-              <TableRow key={issue.id || index}>
-                <TableCell style={{ textAlign: 'center' }}>
-                  <SeverityIcon severity={issue.severity}>
-                    {getSeverityIcon(issue.severity)}
-                  </SeverityIcon>
-                </TableCell>
-                <TableCell>
-                  <ProblemTitle>{issue.title}</ProblemTitle>
-                  <ProblemDescription>{issue.description}</ProblemDescription>
-                </TableCell>
-                <TableCell>
-                  <CategoryBadge>{issue.category}</CategoryBadge>
-                </TableCell>
-                <TableCell>
-                  <SeverityBadge severity={issue.severity}>
-                    {getSeverityText(issue.severity)}
-                  </SeverityBadge>
-                </TableCell>
-                <TableCell>
-                  <div style={{ fontSize: '13px', color: colors.textColorSecondary, lineHeight: '1.4' }}>
-                    {issue.recommendation}
-                  </div>
-                </TableCell>
+        <TableWrapper>
+          <Table>
+            <TableHeader>
+              <TableRow>
+                <TableHeaderCell style={{ width: '40px' }}></TableHeaderCell>
+                <TableHeaderCell>Problème</TableHeaderCell>
+                <TableHeaderCell style={{ width: '120px' }}>Catégorie</TableHeaderCell>
+                <TableHeaderCell style={{ width: '140px' }}>Criticité</TableHeaderCell>
+                <TableHeaderCell>Recommandation</TableHeaderCell>
               </TableRow>
-            ))}
-          </tbody>
-        </Table>
+            </TableHeader>
+            <tbody>
+              {allIssues.map((issue, index) => (
+                <TableRow key={issue.id || index}>
+                  <TableCell style={{ textAlign: 'center' }}>
+                    <SeverityIcon severity={issue.severity}>
+                      {getSeverityIcon(issue.severity)}
+                    </SeverityIcon>
+                  </TableCell>
+                  <TableCell>
+                    <ProblemTitle>{issue.title}</ProblemTitle>
+                    <ProblemDescription>{issue.description}</ProblemDescription>
+                  </TableCell>
+                  <TableCell>
+                    <CategoryBadge>{issue.category}</CategoryBadge>
+                  </TableCell>
+                  <TableCell>
+                    <SeverityBadge severity={issue.severity}>
+                      {getSeverityText(issue.severity)}
+                    </SeverityBadge>
+                  </TableCell>
+                  <TableCell>
+                    <div style={{ fontSize: '13px', color: colors.textColorSecondary, lineHeight: '1.4' }}>
+                      {issue.recommendation}
+                    </div>
+                  </TableCell>
+                </TableRow>
+              ))}
+            </tbody>
+          </Table>
+        </TableWrapper>
       </ContentSection>
     </DashboardContainer>
   );

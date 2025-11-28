@@ -10,9 +10,6 @@ p.doc-desc, p.doc-uses, ul {
 ul {
   padding: 0 0.5rem 0 1rem;
 }
-ul li a {
-  color: ${colors.primary};
-}
 summary { color: ${colors.primary};}
 h4 {
   border-top: 1px solid ${colors.primary};
@@ -22,8 +19,71 @@ h4 {
 }
 `;
 
+const ReferenceItem = styled.li`
+  margin-bottom: 0.75rem;
+  list-style: decimal;
+  
+  .ref-title {
+    font-weight: 600;
+    color: ${colors.textColor};
+    display: block;
+    margin-bottom: 0.25rem;
+  }
+  
+  .ref-url-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: ${colors.backgroundDarker};
+    padding: 0.35rem 0.5rem;
+    border-radius: 4px;
+    font-family: monospace;
+    font-size: 0.85rem;
+  }
+  
+  .ref-url {
+    color: ${colors.textColorSecondary};
+    word-break: break-all;
+    flex: 1;
+    user-select: all;
+  }
+  
+  .copy-btn {
+    background: ${colors.primary};
+    color: white;
+    border: none;
+    padding: 0.25rem 0.5rem;
+    border-radius: 3px;
+    cursor: pointer;
+    font-size: 0.75rem;
+    white-space: nowrap;
+    transition: opacity 0.2s;
+    
+    &:hover {
+      opacity: 0.8;
+    }
+    
+    &:active {
+      opacity: 0.6;
+    }
+  }
+`;
+
+const copyToClipboard = (text: string, btn: HTMLButtonElement) => {
+  navigator.clipboard.writeText(text).then(() => {
+    const originalText = btn.textContent;
+    btn.textContent = '✓ Copié';
+    setTimeout(() => {
+      btn.textContent = originalText;
+    }, 1500);
+  });
+};
+
 const DocContent = (id: string) => {
+  console.log('[DocContent] Looking for id:', id);
+  console.log('[DocContent] Available IDs:', docs.map(d => d.id));
   const doc = docs.filter((doc: Doc) => doc.id === id)[0] || null;
+  console.log('[DocContent] Found doc:', doc ? doc.title : 'NULL');
   return (
     doc? (<JobDocsContainer>
       <Heading as="h3" size="medium" color={colors.primary}>{doc.title}</Heading>
@@ -32,15 +92,26 @@ const DocContent = (id: string) => {
       <Heading as="h4" size="small">Cas d'usage</Heading>
       <p className="doc-uses">{doc.use}</p>
       <Heading as="h4" size="small">Liens de référence</Heading>
-      <ul>
-        {doc.resources.map((resource: string | { title: string, link: string } , index: number) => (
-          typeof resource === 'string' ? (
-            <li id={`link-${index}`}><a target="_blank" rel="noreferrer" href={resource}>{resource}</a></li>
-          ) : (
-            <li id={`link-${index}`}><a target="_blank" rel="noreferrer" href={resource.link}>{resource.title}</a></li>
-          )
-        ))}
-      </ul>
+      <ol>
+        {doc.resources.map((resource: string | { title: string, link: string } , index: number) => {
+          const url = typeof resource === 'string' ? resource : resource.link;
+          const title = typeof resource === 'string' ? resource : resource.title;
+          return (
+            <ReferenceItem key={`ref-${index}`}>
+              <span className="ref-title">{title}</span>
+              <div className="ref-url-container">
+                <span className="ref-url">{url}</span>
+                <button 
+                  className="copy-btn"
+                  onClick={(e) => copyToClipboard(url, e.currentTarget)}
+                >
+                  Copier
+                </button>
+              </div>
+            </ReferenceItem>
+          );
+        })}
+      </ol>
       {doc.screenshot && (
         <details>
           <summary><Heading as="h4" size="small">Exemple</Heading></summary>

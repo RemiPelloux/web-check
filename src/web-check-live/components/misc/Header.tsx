@@ -16,6 +16,10 @@ const HeaderContent = styled.div`
   max-width: 1280px;
   margin: 0 auto;
   padding: 12px 16px;
+  
+  @media (max-width: 768px) {
+    padding: 10px 12px;
+  }
 `;
 
 const HeaderInner = styled.div`
@@ -28,6 +32,10 @@ const LogoSection = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
+  
+  @media (max-width: 768px) {
+    gap: 8px;
+  }
 `;
 
 const LogoImage = styled.img`
@@ -43,11 +51,23 @@ const LogoImage = styled.img`
   &:active {
     transform: scale(0.95);
   }
+  
+  @media (max-width: 480px) {
+    height: 24px;
+  }
 `;
 
 const LogoDivider = styled.div`
   border-left: 1px solid ${colors.borderColor};
   padding-left: 12px;
+  
+  @media (max-width: 768px) {
+    padding-left: 8px;
+  }
+  
+  @media (max-width: 480px) {
+    display: none;
+  }
 `;
 
 const LogoText = styled.div`
@@ -67,12 +87,81 @@ const LogoText = styled.div`
     font-weight: 600;
     color: ${colors.textColor};
     margin: 0;
+    
+    @media (max-width: 1024px) {
+      font-size: 14px;
+    }
+    
+    @media (max-width: 768px) {
+      font-size: 13px;
+    }
   }
   p {
     font-size: 12px;
     color: ${colors.primary};
     font-weight: 500;
     margin: 0;
+    
+    @media (max-width: 768px) {
+      display: none;
+    }
+  }
+`;
+
+const MobileLogoText = styled.span`
+  display: none;
+  font-size: 14px;
+  font-weight: 600;
+  color: ${colors.textColor};
+  cursor: pointer;
+  
+  @media (max-width: 480px) {
+    display: block;
+  }
+`;
+
+const HamburgerButton = styled.button`
+  display: none;
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  width: 40px;
+  height: 40px;
+  background: ${colors.backgroundDarker};
+  border: 1px solid ${colors.borderColor};
+  border-radius: 8px;
+  cursor: pointer;
+  padding: 8px;
+  gap: 4px;
+  transition: all 0.2s;
+  
+  &:hover {
+    border-color: ${colors.primary};
+  }
+  
+  @media (max-width: 768px) {
+    display: flex;
+  }
+  
+  span {
+    display: block;
+    width: 18px;
+    height: 2px;
+    background: ${colors.textColor};
+    border-radius: 1px;
+    transition: all 0.3s ease;
+  }
+  
+  &.open {
+    span:nth-of-type(1) {
+      transform: rotate(45deg) translate(4px, 4px);
+    }
+    span:nth-of-type(2) {
+      opacity: 0;
+    }
+    span:nth-of-type(3) {
+      transform: rotate(-45deg) translate(4px, -4px);
+    }
   }
 `;
 
@@ -95,10 +184,17 @@ const HomeButton = styled.a`
     background: #b91c1c;
     transform: translateY(-1px);
     box-shadow: 0 2px 8px rgba(220, 38, 38, 0.3);
+    text-decoration: none;
   }
 
   &:active {
     transform: scale(0.98);
+  }
+  
+  @media (max-width: 768px) {
+    padding: 10px 16px;
+    width: 100%;
+    justify-content: center;
   }
 `;
 
@@ -106,6 +202,77 @@ const RightSection = styled.div`
   display: flex;
   align-items: center;
   gap: 12px;
+  
+  @media (max-width: 768px) {
+    gap: 8px;
+  }
+`;
+
+const DesktopNav = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  
+  @media (max-width: 768px) {
+    display: none;
+  }
+`;
+
+const MobileMenu = styled.div<{ isOpen: boolean }>`
+  display: none;
+  
+  @media (max-width: 768px) {
+    display: block;
+    position: fixed;
+    top: 53px;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: ${colors.background};
+    z-index: 49;
+    transform: ${props => props.isOpen ? 'translateX(0)' : 'translateX(100%)'};
+    opacity: ${props => props.isOpen ? '1' : '0'};
+    transition: all 0.3s ease;
+    overflow-y: auto;
+    padding: 16px;
+  }
+`;
+
+const MobileMenuContent = styled.div`
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+`;
+
+const MobileMenuItem = styled.a`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 14px 16px;
+  background: ${colors.backgroundLighter};
+  border: 1px solid ${colors.borderColor};
+  border-radius: 12px;
+  color: ${colors.textColor};
+  text-decoration: none;
+  font-size: 15px;
+  font-weight: 500;
+  transition: all 0.2s;
+  
+  &:hover {
+    border-color: ${colors.primary};
+    background: ${colors.background};
+    text-decoration: none;
+  }
+  
+  span.icon {
+    font-size: 18px;
+  }
+`;
+
+const MobileMenuDivider = styled.div`
+  height: 1px;
+  background: ${colors.borderColor};
+  margin: 8px 0;
 `;
 
 const VersionBadge = styled.div`
@@ -114,6 +281,11 @@ const VersionBadge = styled.div`
   padding: 4px 12px;
   border-radius: 9999px;
   font-size: 12px;
+  
+  @media (max-width: 768px) {
+    padding: 6px 12px;
+    text-align: center;
+  }
 `;
 
 const WikiLink = styled.a`
@@ -135,6 +307,7 @@ const WikiLink = styled.a`
     border-color: ${colors.primary};
     background: ${colors.backgroundLighter};
     color: ${colors.primary};
+    text-decoration: none;
   }
 
   &:active {
@@ -168,6 +341,14 @@ const UserButton = styled.button`
   &:active {
     transform: scale(0.98);
   }
+  
+  @media (max-width: 480px) {
+    padding: 8px;
+    
+    .username-text {
+      display: none;
+    }
+  }
 `;
 
 const UserIcon = styled.div`
@@ -187,6 +368,10 @@ const ChevronIcon = styled.span<{ isOpen: boolean }>`
   display: inline-block;
   transition: transform 0.2s;
   transform: ${props => props.isOpen ? 'rotate(180deg)' : 'rotate(0)'};
+  
+  @media (max-width: 480px) {
+    display: none;
+  }
 `;
 
 const DropdownMenu = styled.div<{ isOpen: boolean }>`
@@ -226,6 +411,7 @@ const MenuItem = styled.a`
   &:hover {
     background: ${colors.backgroundDarker};
     color: ${colors.primary};
+    text-decoration: none;
   }
 
   &:active {
@@ -250,6 +436,7 @@ const LogoutMenuItem = styled(MenuItem)`
 
 const Header = (): JSX.Element => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const [username, setUsername] = useState('');
   const [userRole, setUserRole] = useState('');
   const menuRef = useRef<HTMLDivElement>(null);
@@ -269,9 +456,33 @@ const Header = (): JSX.Element => {
       }
     };
 
+    // Close mobile menu on resize
+    const handleResize = () => {
+      if (window.innerWidth > 768) {
+        setIsMobileMenuOpen(false);
+      }
+    };
+
     document.addEventListener('mousedown', handleClickOutside);
-    return () => document.removeEventListener('mousedown', handleClickOutside);
+    window.addEventListener('resize', handleResize);
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+      window.removeEventListener('resize', handleResize);
+    };
   }, []);
+
+  // Prevent body scroll when mobile menu is open
+  useEffect(() => {
+    if (isMobileMenuOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => {
+      document.body.style.overflow = '';
+    };
+  }, [isMobileMenuOpen]);
 
   const handleLogout = () => {
     if (window.checkitLogout) {
@@ -292,76 +503,135 @@ const Header = (): JSX.Element => {
     window.location.href = '/';
   };
 
+  const toggleMobileMenu = () => {
+    setIsMobileMenuOpen(!isMobileMenuOpen);
+  };
+
+  const closeMobileMenu = () => {
+    setIsMobileMenuOpen(false);
+  };
+
   return (
-    <HeaderContainer>
-      <HeaderContent>
-        <HeaderInner>
-          <LogoSection>
-            <LogoImage 
-              src="https://i.postimg.cc/W4Lfm5Zs/image.png" 
-              alt="APDP Logo" 
-              onClick={handleGoHome}
-              title="Retour à l'accueil"
-            />
-            <LogoDivider>
-              <LogoText onClick={handleGoHome} title="Retour à l'accueil">
-                <h1>Outil d'analyse de la sécurité</h1>
-                <p>Usage interne - Contrôleurs APDP Monaco</p>
-              </LogoText>
-            </LogoDivider>
-          </LogoSection>
-          <RightSection>
-            <HomeButton href="/" title="Retour à l'accueil">
-              <span>🏠</span>
-              <span>Accueil</span>
-            </HomeButton>
-            <VersionBadge>
-              Version 2.1.0
-            </VersionBadge>
-            <WikiLink href="/wiki" target="_blank" rel="noopener noreferrer" title="Consulter le Wiki">
-              <span>📖</span>
-              <span>Wiki</span>
-            </WikiLink>
-            <ThemeToggle />
+    <>
+      <HeaderContainer>
+        <HeaderContent>
+          <HeaderInner>
+            <LogoSection>
+              <LogoImage 
+                src="https://i.postimg.cc/W4Lfm5Zs/image.png" 
+                alt="APDP Logo" 
+                onClick={handleGoHome}
+                title="Retour à l'accueil"
+              />
+              <LogoDivider>
+                <LogoText onClick={handleGoHome} title="Retour à l'accueil">
+                  <h1>Outil d'analyse de la sécurité</h1>
+                  <p>Usage interne - Contrôleurs APDP Monaco</p>
+                </LogoText>
+              </LogoDivider>
+              <MobileLogoText onClick={handleGoHome}>APDP</MobileLogoText>
+            </LogoSection>
             
-            {username && (
-              <UserMenuContainer ref={menuRef}>
-                <UserButton onClick={() => setIsMenuOpen(!isMenuOpen)}>
-                  <UserIcon>{getUserInitial()}</UserIcon>
-                  <span>{username.split('@')[0]}</span>
-                  <ChevronIcon isOpen={isMenuOpen}>▼</ChevronIcon>
-                </UserButton>
-                
-                <DropdownMenu isOpen={isMenuOpen}>
-                  <MenuSection>
-                    {isAdmin && (
-                      <>
-                        <MenuItem href="/admin">
-                          <span>Admin</span>
-                          <span>Administration</span>
-                        </MenuItem>
-                        <MenuDivider />
-                      </>
-                    )}
-                    <LogoutMenuItem onClick={handleLogout}>
-                      <span>🚪</span>
-                      <span>Déconnexion</span>
-                    </LogoutMenuItem>
-                  </MenuSection>
-                </DropdownMenu>
-              </UserMenuContainer>
-            )}
-          </RightSection>
-        </HeaderInner>
-      </HeaderContent>
-    </HeaderContainer>
+            <RightSection>
+              {/* Desktop Navigation */}
+              <DesktopNav>
+                <HomeButton href="/" title="Retour à l'accueil">
+                  <span>🏠</span>
+                  <span>Accueil</span>
+                </HomeButton>
+                <VersionBadge>
+                  Version 2.1.0
+                </VersionBadge>
+                <WikiLink href="/wiki" target="_blank" rel="noopener noreferrer" title="Consulter le Wiki">
+                  <span>📖</span>
+                  <span>Wiki</span>
+                </WikiLink>
+              </DesktopNav>
+              
+              <ThemeToggle />
+              
+              {username && (
+                <UserMenuContainer ref={menuRef}>
+                  <UserButton onClick={() => setIsMenuOpen(!isMenuOpen)}>
+                    <UserIcon>{getUserInitial()}</UserIcon>
+                    <span className="username-text">{username.split('@')[0]}</span>
+                    <ChevronIcon isOpen={isMenuOpen}>▼</ChevronIcon>
+                  </UserButton>
+                  
+                  <DropdownMenu isOpen={isMenuOpen}>
+                    <MenuSection>
+                      {isAdmin && (
+                        <>
+                          <MenuItem href="/admin">
+                            <span>⚙️</span>
+                            <span>Administration</span>
+                          </MenuItem>
+                          <MenuDivider />
+                        </>
+                      )}
+                      <LogoutMenuItem onClick={handleLogout}>
+                        <span>🚪</span>
+                        <span>Déconnexion</span>
+                      </LogoutMenuItem>
+                    </MenuSection>
+                  </DropdownMenu>
+                </UserMenuContainer>
+              )}
+              
+              {/* Hamburger Menu Button */}
+              <HamburgerButton 
+                className={isMobileMenuOpen ? 'open' : ''} 
+                onClick={toggleMobileMenu}
+                aria-label="Menu"
+              >
+                <span></span>
+                <span></span>
+                <span></span>
+              </HamburgerButton>
+            </RightSection>
+          </HeaderInner>
+        </HeaderContent>
+      </HeaderContainer>
+      
+      {/* Mobile Menu */}
+      <MobileMenu isOpen={isMobileMenuOpen}>
+        <MobileMenuContent>
+          <HomeButton href="/" onClick={closeMobileMenu}>
+            <span>🏠</span>
+            <span>Accueil</span>
+          </HomeButton>
+          
+          <MobileMenuItem href="/wiki" target="_blank" rel="noopener noreferrer" onClick={closeMobileMenu}>
+            <span className="icon">📖</span>
+            <span>Wiki & Documentation</span>
+          </MobileMenuItem>
+          
+          {isAdmin && (
+            <MobileMenuItem href="/admin" onClick={closeMobileMenu}>
+              <span className="icon">⚙️</span>
+              <span>Administration</span>
+            </MobileMenuItem>
+          )}
+          
+          <MobileMenuDivider />
+          
+          <VersionBadge style={{ textAlign: 'center' }}>
+            Version 2.1.0
+          </VersionBadge>
+          
+          {username && (
+            <>
+              <MobileMenuDivider />
+              <MobileMenuItem as="button" onClick={() => { handleLogout(); closeMobileMenu(); }} style={{ cursor: 'pointer', width: '100%', border: `1px solid ${colors.primary}`, color: colors.primary }}>
+                <span className="icon">🚪</span>
+                <span>Déconnexion</span>
+              </MobileMenuItem>
+            </>
+          )}
+        </MobileMenuContent>
+      </MobileMenu>
+    </>
   );
 };
 
 export default Header;
-
-
-
-
-
-

@@ -588,6 +588,99 @@ const docs: Doc[] = [
       { title: 'Cloudflare - Mixed Content', link: 'https://developers.cloudflare.com/ssl/troubleshooting/mixed-content-errors/' },
     ],
   },
+  {
+    id: 'enhanced-compliance-summary',
+    title: 'Tableau de Bord Conformité Loi 1.565',
+    description: 'Ce tableau de bord offre une vue synthétique complète de la conformité du site aux exigences de la Loi 1.565 (RGPD Monaco) et des réglementations APDP. Il agrège les résultats de toutes les analyses (cookies, politique de confidentialité, mentions légales, SSL, services tiers) pour calculer un score de conformité global. Le dashboard identifie les problèmes critiques, avertissements et points d\'amélioration avec des recommandations actionnables.',
+    use: 'Essentiel pour les DPO, responsables conformité et auditeurs. Ce tableau de bord centralise toutes les informations de conformité, permet de visualiser rapidement l\'état de conformité global du site, et fournit un rapport exportable en PDF pour les audits. Il priorise les actions correctives par niveau de criticité et fournit des références aux articles de loi concernés.',
+    resources: [
+      { title: 'APDP Monaco', link: 'https://apdp.mc/' },
+      { title: 'Loi 1.565 Monaco', link: 'https://apdp.mc/la-loi-n-1-565/' },
+      { title: 'RGPD - Texte officiel', link: 'https://eur-lex.europa.eu/legal-content/FR/TXT/?uri=CELEX%3A32016R0679' },
+    ],
+  },
+  {
+    id: 'rgpd-compliance',
+    title: 'Conformité RGPD',
+    description: 'Cette analyse effectue une évaluation complète de la conformité au Règlement Général sur la Protection des Données (RGPD). Elle vérifie la présence des éléments obligatoires: politique de confidentialité, mentions légales, bannière de consentement aux cookies, droits des utilisateurs (accès, rectification, suppression, portabilité), base légale du traitement, et contact du DPO. Un score de conformité global est calculé selon la criticité de chaque élément.',
+    use: 'Essentiel pour toute organisation traitant des données personnelles de résidents européens. Le non-respect du RGPD peut entraîner des sanctions allant jusqu\'à 4% du chiffre d\'affaires mondial ou 20 millions d\'euros. Cette analyse permet d\'identifier rapidement les lacunes de conformité, de prioriser les actions correctives, et de documenter l\'état de conformité pour les audits internes et réglementaires.',
+    resources: [
+      { title: 'CNIL - RGPD', link: 'https://www.cnil.fr/fr/rgpd-de-quoi-parle-t-on' },
+      { title: 'Texte officiel RGPD', link: 'https://eur-lex.europa.eu/legal-content/FR/TXT/?uri=CELEX%3A32016R0679' },
+      { title: 'APDP Monaco', link: 'https://apdp.mc/' },
+      { title: 'Checklist RGPD', link: 'https://www.cnil.fr/fr/conformite-rgpd-ou-en-etes-vous' },
+    ],
+  },
+  {
+    id: 'tls',
+    title: 'Analyse TLS Détaillée',
+    description: 'Cette vérification effectue une analyse approfondie de la configuration TLS du serveur. Elle identifie les versions de protocole supportées (TLS 1.0, 1.1, 1.2, 1.3), vérifie la présence de vulnérabilités connues (POODLE, BEAST, CRIME, DROWN, Heartbleed), et évalue la robustesse globale du chiffrement. L\'analyse inclut la vérification du Perfect Forward Secrecy (PFS) et la détection des mauvaises configurations.',
+    use: 'Critique pour assurer la sécurité des communications. TLS 1.0 et 1.1 sont obsolètes et vulnérables. Cette analyse permet d\'identifier les risques liés aux protocoles de chiffrement, de s\'assurer que les connexions utilisent des versions modernes et sécurisées, et de détecter les configurations qui pourraient permettre des attaques de type man-in-the-middle ou de rétrogradation de protocole.',
+    resources: [
+      { title: 'SSL Labs - TLS Best Practices', link: 'https://github.com/ssllabs/research/wiki/SSL-and-TLS-Deployment-Best-Practices' },
+      { title: 'Mozilla SSL Configuration Generator', link: 'https://ssl-config.mozilla.org/' },
+      { title: 'TLS 1.3 - RFC 8446', link: 'https://datatracker.ietf.org/doc/html/rfc8446' },
+      { title: 'Cloudflare - TLS', link: 'https://www.cloudflare.com/fr-fr/learning/ssl/transport-layer-security-tls/' },
+    ],
+  },
+  {
+    id: 'exposed-files',
+    title: 'Fichiers Sensibles Exposés',
+    description: 'Cette analyse scanne le serveur web à la recherche de fichiers sensibles potentiellement exposés publiquement. Elle teste l\'accès aux fichiers de configuration (.env, .htaccess, web.config), fichiers de sauvegarde (.sql, .bak, .old), fichiers de développement (.git, .svn, .DS_Store), fichiers de logs, et autres ressources qui ne devraient pas être accessibles. Chaque fichier détecté est analysé pour évaluer sa criticité.',
+    use: 'Critique pour la sécurité. Les fichiers exposés peuvent révéler des credentials de base de données, clés API, configurations serveur, et autres informations sensibles permettant à un attaquant de compromettre le système. Cette vérification est essentielle lors d\'audits de sécurité, avant la mise en production, et pour les contrôles de conformité. Elle aide à identifier les erreurs de configuration courantes comme les répertoires .git exposés ou les fichiers .env accessibles.',
+    resources: [
+      { title: 'OWASP - Sensitive Data Exposure', link: 'https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/02-Configuration_and_Deployment_Management_Testing/04-Review_Old_Backup_and_Unreferenced_Files_for_Sensitive_Information' },
+      { title: 'HackerOne - Git Exposure', link: 'https://www.hackerone.com/knowledge-center/git-security' },
+      { title: 'ANSSI - Recommandations', link: 'https://www.ssi.gouv.fr/guide/recommandations-de-securite-relatives-a-un-systeme-gnulinux/' },
+    ],
+  },
+  {
+    id: 'subdomain-takeover',
+    title: 'Prise de Contrôle de Sous-domaine',
+    description: 'Cette vérification détecte les vulnérabilités de prise de contrôle de sous-domaine (subdomain takeover). Elle analyse les enregistrements DNS CNAME pointant vers des services tiers (AWS S3, GitHub Pages, Heroku, Azure, etc.) qui ne sont plus actifs ou non réclamés. Un attaquant peut enregistrer ces services abandonnés et prendre le contrôle du sous-domaine légitime.',
+    use: 'Vulnérabilité critique permettant à un attaquant de contrôler un sous-domaine légitime de votre organisation. Cela peut être utilisé pour le phishing, la distribution de malware, le vol de cookies, et l\'atteinte à la réputation. Cette analyse est essentielle pour les entreprises utilisant des services cloud, après des migrations d\'infrastructure, ou lors de la désactivation de services. La détection précoce permet d\'éviter des incidents de sécurité majeurs.',
+    resources: [
+      { title: 'HackerOne - Subdomain Takeover', link: 'https://www.hackerone.com/application-security/guide-subdomain-takeovers' },
+      { title: 'can-i-take-over-xyz', link: 'https://github.com/EdOverflow/can-i-take-over-xyz' },
+      { title: 'OWASP - Subdomain Takeover', link: 'https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/02-Configuration_and_Deployment_Management_Testing/10-Test_for_Subdomain_Takeover' },
+    ],
+  },
+  {
+    id: 'subdomain-enumeration',
+    title: 'Énumération des Sous-domaines',
+    description: 'Cette analyse découvre tous les sous-domaines associés au domaine cible en utilisant plusieurs techniques: logs de Certificate Transparency (CT), recherche DNS passive via HackerTarget et URLScan.io, brute force intelligent avec dictionnaire de noms courants, et tentative de transfert de zone DNS. Les sous-domaines découverts sont catégorisés (développement, production, mail, infrastructure, application) et vérifiés.',
+    use: 'Essentiel pour cartographier l\'infrastructure complète d\'une organisation. Permet de découvrir des serveurs de développement exposés, des applications oubliées, des services non sécurisés, et d\'évaluer la surface d\'attaque globale. Cette analyse est cruciale pour les audits de sécurité, l\'inventaire d\'actifs, et la conformité. Elle révèle souvent des ressources dont l\'organisation n\'était pas consciente.',
+    resources: [
+      { title: 'crt.sh - Certificate Transparency', link: 'https://crt.sh/' },
+      { title: 'HackerTarget - DNS Tools', link: 'https://hackertarget.com/find-dns-host-records/' },
+      { title: 'Certificate Transparency', link: 'https://certificate.transparency.dev/' },
+      { title: 'OWASP - Enumerate Subdomains', link: 'https://owasp.org/www-project-web-security-testing-guide/latest/4-Web_Application_Security_Testing/01-Information_Gathering/03-Review_Webserver_Metafiles_for_Information_Leakage' },
+    ],
+  },
+  {
+    id: 'lighthouse',
+    title: 'Audit Lighthouse Complet',
+    description: 'Lighthouse est un outil automatisé développé par Google pour auditer la qualité des pages web. Cette analyse exécute des audits dans 4 catégories principales: Performance (temps de chargement, métriques Core Web Vitals), Accessibilité (conformité WCAG), Meilleures Pratiques (sécurité, standards modernes), et SEO (référencement). Chaque catégorie reçoit un score de 0 à 100 avec des recommandations détaillées.',
+    use: 'Essentiel pour optimiser l\'expérience utilisateur et le référencement. Les Core Web Vitals sont désormais un facteur de classement Google. L\'accessibilité est une obligation légale dans de nombreux pays (WCAG 2.1 AA). Cette analyse aide à identifier les problèmes de performance, améliorer l\'accessibilité pour tous les utilisateurs, et assurer la conformité aux standards web modernes.',
+    resources: [
+      { title: 'Documentation Lighthouse', link: 'https://developer.chrome.com/docs/lighthouse/?hl=fr' },
+      { title: 'Core Web Vitals', link: 'https://web.dev/vitals/' },
+      { title: 'WCAG 2.1', link: 'https://www.w3.org/WAI/WCAG21/quickref/' },
+      { title: 'PageSpeed Insights', link: 'https://pagespeed.web.dev/' },
+    ],
+  },
+  {
+    id: 'cdn-resources',
+    title: 'Ressources CDN & Services Tiers',
+    description: 'Cette analyse identifie toutes les ressources chargées depuis des serveurs tiers (CDN, analytics, fonts, widgets). Elle détecte les services utilisés (Google Analytics, Font APIs, jQuery CDN, etc.), leur localisation géographique, et évalue les risques de conformité associés. Une attention particulière est portée aux services hébergés aux États-Unis qui peuvent poser problème pour la conformité RGPD (Cloud Act).',
+    use: 'Critique pour la conformité RGPD/APDP. Les services tiers américains (Google Fonts, Analytics, AWS CloudFront) peuvent transférer des données personnelles hors UE sans garanties adéquates. Cette analyse permet d\'inventorier toutes les dépendances tierces, d\'évaluer les risques juridiques liés aux transferts de données, et d\'identifier les alternatives européennes disponibles. Elle révèle également les risques de performance et de sécurité liés aux dépendances externes.',
+    resources: [
+      { title: 'CNIL - Transferts hors UE', link: 'https://www.cnil.fr/fr/transferer-des-donnees-hors-de-lue' },
+      { title: 'CJUE - Schrems II', link: 'https://www.cnil.fr/fr/invalidation-du-privacy-shield-les-suites-de-larret-de-la-cour-de-justice-de-lunion-europeenne' },
+      { title: 'Alternative européenne à Google Fonts', link: 'https://fonts.bunny.net/' },
+      { title: 'Matomo Analytics', link: 'https://matomo.org/' },
+    ],
+  },
 ];
 
 

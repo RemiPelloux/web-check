@@ -3,7 +3,97 @@
 @use './media-queries.scss' as mq;
 @use './typography.scss';
 
-/* CSS Reset - Normalize dimensions and spacing across browsers */
+/* ====================================
+   CSS Custom Properties for Responsive Design
+   ==================================== */
+:root {
+  /* Spacing Scale - Desktop first */
+  --spacing-xs: 4px;
+  --spacing-sm: 8px;
+  --spacing-md: 16px;
+  --spacing-lg: 24px;
+  --spacing-xl: 32px;
+  --spacing-2xl: 48px;
+  --spacing-3xl: 64px;
+  
+  /* Container widths */
+  --container-max: 1400px;
+  --container-lg: 1280px;
+  --container-md: 960px;
+  --container-sm: 720px;
+  
+  /* Container padding */
+  --container-padding: 24px;
+  
+  /* Border radius */
+  --radius-sm: 4px;
+  --radius-md: 8px;
+  --radius-lg: 12px;
+  --radius-xl: 16px;
+  
+  /* Font sizes */
+  --font-xs: 12px;
+  --font-sm: 13px;
+  --font-base: 14px;
+  --font-md: 16px;
+  --font-lg: 18px;
+  --font-xl: 20px;
+  --font-2xl: 24px;
+  --font-3xl: 32px;
+  --font-4xl: 42px;
+  
+  /* Breakpoint values for reference */
+  --bp-mobile: 599px;
+  --bp-tablet: 768px;
+  --bp-desktop: 1024px;
+  --bp-wide: 1440px;
+}
+
+/* Tablet adjustments */
+@media (max-width: 1024px) {
+  :root {
+    --container-padding: 20px;
+    --spacing-xl: 28px;
+    --spacing-2xl: 40px;
+    --spacing-3xl: 56px;
+    --font-4xl: 36px;
+    --font-3xl: 28px;
+  }
+}
+
+/* Mobile adjustments */
+@media (max-width: 768px) {
+  :root {
+    --container-padding: 16px;
+    --spacing-lg: 20px;
+    --spacing-xl: 24px;
+    --spacing-2xl: 32px;
+    --spacing-3xl: 48px;
+    --font-4xl: 32px;
+    --font-3xl: 26px;
+    --font-2xl: 22px;
+  }
+}
+
+/* Small mobile adjustments */
+@media (max-width: 599px) {
+  :root {
+    --container-padding: 12px;
+    --spacing-md: 12px;
+    --spacing-lg: 16px;
+    --spacing-xl: 20px;
+    --spacing-2xl: 28px;
+    --spacing-3xl: 40px;
+    --font-4xl: 26px;
+    --font-3xl: 22px;
+    --font-2xl: 20px;
+    --font-xl: 18px;
+  }
+}
+
+/* ====================================
+   CSS Reset - Normalize dimensions and spacing across browsers
+   ==================================== */
 *,
 *::before,
 *::after {
@@ -18,11 +108,14 @@
   color: var(--background);
 }
 
-/* HTML and body basic setup */
+/* ====================================
+   HTML and body basic setup
+   ==================================== */
 html {
   font-size: 16px;
   scroll-behavior: smooth;
   transition: background-color 0.3s ease, color 0.3s ease;
+  -webkit-text-size-adjust: 100%; /* Prevent font size adjustment on iOS */
 }
 
 body {
@@ -37,6 +130,8 @@ body {
   position: relative;
   letter-spacing: -0.01em;
   transition: background-color 0.3s ease, color 0.3s ease;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
 }
 
 /* Smooth transitions for theme switching */
@@ -46,95 +141,251 @@ body {
   transition: background-color 0.3s ease, color 0.3s ease, border-color 0.3s ease;
 }
 
-/* Links */
+/* ====================================
+   Links
+   ==================================== */
 a {
   color: inherit;
   text-decoration: none;
+  
   &:hover,
   &:focus {
     text-decoration: underline;
   }
+  
+  /* Touch-friendly link targets on mobile */
+  @media (max-width: 768px) {
+    &:not([class]) {
+      padding: 2px 0;
+    }
+  }
 }
 
-/* Images */
-img {
+/* ====================================
+   Images and Media
+   ==================================== */
+img, video, iframe, embed, object {
   max-width: 100%;
   height: auto;
+  display: block;
 }
 
-/* Typography */
-h1, h2, h3, h4, h5, h6 {
-  color: inherit;
-  margin-top: 0;
-  margin-bottom: 0.5em;
-  font-weight: normal;
-}
-
-p {
-  margin-top: 0;
-  margin-bottom: 1em;
-}
-
-ul, ol {
-  margin-top: 0;
-  margin-bottom: 1em;
-  padding-left: 20px;
-}
-
-/* Forms */
-input, button, textarea, select {
-  font: inherit;
-  &:focus {
-    outline: 1px solid var(--primary);
-  }
-}
-
-/* Utility Classes */
-.text-center { text-align: center; }
-.hidden { display: none; }
-.bold { font-weight: 600; }
-.italic { font-style: italic; }
-.underline { text-decoration: underline; }
-.uppercase { text-transform: uppercase; }
-
-@media (max-width: 768px) {
-  html {
-    font-size: 14px;
-  }
-}
-
+/* ====================================
+   Typography
+   ==================================== */
 h1, h2, h3, h4, h5, h6 {
   margin-top: 0;
   margin-bottom: 0.5em;
   font-weight: 600;
   color: var(--text-color);
+  line-height: 1.2;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
 }
 
-h1 { font-size: 2.25rem; }
-h2 { font-size: 1.8rem; }
-h3 { font-size: 1.5rem; }
-h4 { font-size: 1.2rem; }
-h5 { font-size: 1rem; }
-h6 { font-size: 0.85rem; }
-
-// Responsive font sizes
-@media (max-width: 768px) {
-  h1 { font-size: 2rem; }
-  h2 { font-size: 1.6rem; }
-  h3 { font-size: 1.4rem; }
-}
+h1 { font-size: var(--font-4xl); }
+h2 { font-size: var(--font-3xl); }
+h3 { font-size: var(--font-2xl); }
+h4 { font-size: var(--font-xl); }
+h5 { font-size: var(--font-md); }
+h6 { font-size: var(--font-base); }
 
 p {
   margin-top: 0;
   margin-bottom: 1em;
 }
 
-a {
-  color: var(--primary);
-  text-decoration: none;
-  &:hover {
-    text-decoration: underline;
+/* ====================================
+   Lists
+   ==================================== */
+ul, ol {
+  margin-top: 0;
+  margin-bottom: 1em;
+  padding-left: 20px;
+  
+  @media (max-width: 599px) {
+    padding-left: 16px;
   }
 }
 
+/* ====================================
+   Forms
+   ==================================== */
+input, button, textarea, select {
+  font: inherit;
+  
+  &:focus {
+    outline: 2px solid var(--primary);
+    outline-offset: 2px;
+  }
+  
+  /* Larger touch targets on mobile */
+  @media (max-width: 768px) {
+    min-height: 44px;
+    font-size: 16px; /* Prevents zoom on iOS */
+  }
+}
 
+button {
+  cursor: pointer;
+  touch-action: manipulation; /* Prevents double-tap delay on mobile */
+}
+
+/* ====================================
+   Tables
+   ==================================== */
+table {
+  border-collapse: collapse;
+  width: 100%;
+}
+
+/* Responsive tables wrapper */
+.table-responsive {
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+
+/* ====================================
+   Code
+   ==================================== */
+pre, code {
+  font-family: 'PTMono', 'SF Mono', Monaco, 'Cascadia Code', 'Roboto Mono', Consolas, 'Courier New', monospace;
+  font-size: var(--font-sm);
+  overflow-x: auto;
+  max-width: 100%;
+}
+
+pre {
+  padding: var(--spacing-md);
+  border-radius: var(--radius-md);
+  background: var(--background-darker, #1a1a1a);
+  
+  @media (max-width: 599px) {
+    padding: var(--spacing-sm);
+    font-size: var(--font-xs);
+  }
+}
+
+/* ====================================
+   Utility Classes
+   ==================================== */
+.text-center { text-align: center; }
+.text-left { text-align: left; }
+.text-right { text-align: right; }
+.hidden { display: none !important; }
+.bold { font-weight: 600; }
+.italic { font-style: italic; }
+.underline { text-decoration: underline; }
+.uppercase { text-transform: uppercase; }
+
+/* Responsive visibility utilities */
+.hide-mobile {
+  @media (max-width: 599px) {
+    display: none !important;
+  }
+}
+
+.hide-tablet {
+  @media (max-width: 768px) {
+    display: none !important;
+  }
+}
+
+.show-mobile-only {
+  display: none !important;
+  
+  @media (max-width: 599px) {
+    display: block !important;
+  }
+}
+
+.show-tablet-only {
+  display: none !important;
+  
+  @media (max-width: 768px) and (min-width: 600px) {
+    display: block !important;
+  }
+}
+
+/* Flexbox utilities */
+.flex { display: flex; }
+.flex-col { flex-direction: column; }
+.flex-wrap { flex-wrap: wrap; }
+.items-center { align-items: center; }
+.justify-center { justify-content: center; }
+.justify-between { justify-content: space-between; }
+.gap-sm { gap: var(--spacing-sm); }
+.gap-md { gap: var(--spacing-md); }
+.gap-lg { gap: var(--spacing-lg); }
+
+/* Spacing utilities */
+.p-md { padding: var(--spacing-md); }
+.p-lg { padding: var(--spacing-lg); }
+.m-auto { margin: 0 auto; }
+.mt-md { margin-top: var(--spacing-md); }
+.mt-lg { margin-top: var(--spacing-lg); }
+.mb-md { margin-bottom: var(--spacing-md); }
+.mb-lg { margin-bottom: var(--spacing-lg); }
+
+/* Container utility */
+.container {
+  width: 100%;
+  max-width: var(--container-max);
+  margin: 0 auto;
+  padding-left: var(--container-padding);
+  padding-right: var(--container-padding);
+}
+
+/* ====================================
+   Accessibility
+   ==================================== */
+/* Skip link for keyboard navigation */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--primary);
+  color: white;
+  padding: 8px 16px;
+  z-index: 9999;
+  
+  &:focus {
+    top: 0;
+  }
+}
+
+/* Focus visible for keyboard users */
+:focus-visible {
+  outline: 2px solid var(--primary);
+  outline-offset: 2px;
+}
+
+/* Reduced motion for users who prefer it */
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+/* ====================================
+   Print styles
+   ==================================== */
+@media print {
+  body {
+    background: white;
+    color: black;
+  }
+  
+  .no-print {
+    display: none !important;
+  }
+  
+  a {
+    text-decoration: underline;
+  }
+}

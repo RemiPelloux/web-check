@@ -33,12 +33,28 @@ const MainContent = styled.div`
   padding: 48px 16px;
   position: relative;
   z-index: 1;
+  
+  @media (max-width: 768px) {
+    padding: 32px 16px;
+  }
+  
+  @media (max-width: 599px) {
+    padding: 24px 12px;
+  }
 `;
 
 const HeroSection = styled.div`
   text-align: center;
   margin-bottom: 48px;
   animation: fadeIn 0.8s ease-out;
+  
+  @media (max-width: 768px) {
+    margin-bottom: 32px;
+  }
+  
+  @media (max-width: 599px) {
+    margin-bottom: 24px;
+  }
   
   @keyframes fadeIn {
     from {
@@ -66,10 +82,21 @@ const Logo = styled.div`
   animation: pulse 2s ease-in-out infinite;
   overflow: hidden;
   
+  @media (max-width: 599px) {
+    width: 64px;
+    height: 64px;
+    margin-bottom: 16px;
+  }
+  
   img {
     width: 60px;
     height: 60px;
     object-fit: contain;
+    
+    @media (max-width: 599px) {
+      width: 48px;
+      height: 48px;
+    }
   }
   
   @keyframes pulse {
@@ -92,6 +119,11 @@ const Title = styled.h1`
   @media (max-width: 768px) {
     font-size: 32px;
   }
+  
+  @media (max-width: 599px) {
+    font-size: 26px;
+    margin-bottom: 12px;
+  }
 `;
 
 const Subtitle = styled.p`
@@ -100,9 +132,15 @@ const Subtitle = styled.p`
   max-width: 600px;
   margin: 0 auto;
   line-height: 1.6;
+  padding: 0 16px;
   
   @media (max-width: 768px) {
     font-size: 16px;
+  }
+  
+  @media (max-width: 599px) {
+    font-size: 14px;
+    padding: 0;
   }
 `;
 
@@ -124,6 +162,16 @@ const UserInputMain = styled.form`
   
   @media (max-width: 768px) {
     padding: 24px;
+    border-radius: 12px;
+  }
+  
+  @media (max-width: 599px) {
+    padding: 16px;
+    border-radius: 12px;
+    
+    &:hover {
+      transform: none;
+    }
   }
 `;
 
@@ -150,6 +198,11 @@ const ErrorMessage = styled.p`
   align-items: center;
   gap: 8px;
   
+  @media (max-width: 599px) {
+    padding: 10px 12px;
+    font-size: 13px;
+  }
+  
   &::before {
     content: '⚠️';
     font-size: 16px;
@@ -167,6 +220,20 @@ const InfoNotice = styled.div`
   align-items: flex-start;
   gap: 16px;
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  
+  @media (max-width: 768px) {
+    margin: 24px auto 0;
+    padding: 20px;
+  }
+  
+  @media (max-width: 599px) {
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 16px;
+    gap: 12px;
+    margin: 20px 0 0;
+  }
   
   .icon {
     width: 40px;
@@ -188,6 +255,10 @@ const InfoNotice = styled.div`
       font-weight: 600;
       color: ${colors.textColor};
       margin: 0 0 8px 0;
+      
+      @media (max-width: 599px) {
+        font-size: 15px;
+      }
     }
     
     p {
@@ -195,6 +266,10 @@ const InfoNotice = styled.div`
       color: ${colors.textColorSecondary};
       margin: 0;
       line-height: 1.6;
+      
+      @media (max-width: 599px) {
+        font-size: 13px;
+      }
     }
   }
 `;
@@ -204,6 +279,12 @@ const URLCardsGrid = styled.div`
   grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
   gap: 16px;
   margin: 24px 0;
+  
+  @media (max-width: 599px) {
+    grid-template-columns: 1fr;
+    gap: 12px;
+    margin: 16px 0;
+  }
 `;
 
 const URLCard = styled.div`
@@ -219,11 +300,28 @@ const URLCard = styled.div`
   text-align: center;
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
   
+  @media (max-width: 599px) {
+    padding: 16px;
+    flex-direction: row;
+    text-align: left;
+    gap: 12px;
+  }
+  
   &:hover {
     border-color: ${colors.primary};
     box-shadow: 0 8px 20px rgba(220, 38, 38, 0.2);
     transform: translateY(-4px);
     background: ${colors.background};
+    
+    @media (max-width: 599px) {
+      transform: none;
+    }
+  }
+  
+  &:active {
+    @media (max-width: 599px) {
+      transform: scale(0.98);
+    }
   }
   
   .url-icon {
@@ -236,6 +334,13 @@ const URLCard = styled.div`
     background: ${colors.background};
     border-radius: 8px;
     padding: 8px;
+    flex-shrink: 0;
+    
+    @media (max-width: 599px) {
+      margin-bottom: 0;
+      width: 40px;
+      height: 40px;
+    }
     
     &.loaded {
       display: flex; /* Show only when favicon is loaded */
@@ -244,6 +349,11 @@ const URLCard = styled.div`
     img {
       width: 32px;
       height: 32px;
+      
+      @media (max-width: 599px) {
+        width: 24px;
+        height: 24px;
+      }
     }
   }
   
@@ -254,6 +364,12 @@ const URLCard = styled.div`
     word-break: break-word;
     margin-bottom: 12px;
     line-height: 1.4;
+    
+    @media (max-width: 599px) {
+      flex: 1;
+      margin-bottom: 0;
+      font-size: 14px;
+    }
   }
   
   .url-action {
@@ -262,6 +378,11 @@ const URLCard = styled.div`
     font-weight: 700;
     text-transform: uppercase;
     letter-spacing: 0.5px;
+    
+    @media (max-width: 599px) {
+      font-size: 12px;
+      flex-shrink: 0;
+    }
   }
 `;
 

@@ -16,6 +16,48 @@ export const StyledCard = styled.section<{ styles?: string}>`
   margin: 0.5rem;
   max-height: 64rem;
   overflow: auto;
+  word-wrap: break-word;
+  overflow-wrap: break-word;
+  
+  @media (max-width: 768px) {
+    padding: 0.875rem;
+    margin: 0.375rem;
+    border-radius: 8px;
+  }
+  
+  @media (max-width: 599px) {
+    padding: 0.75rem;
+    margin: 0.25rem 0;
+    border-radius: 8px;
+    max-height: none;
+  }
+  
+  /* Ensure content doesn't overflow */
+  img, video, iframe, embed, object {
+    max-width: 100%;
+    height: auto;
+  }
+  
+  pre, code {
+    overflow-x: auto;
+    max-width: 100%;
+    word-break: break-all;
+    
+    @media (max-width: 599px) {
+      font-size: 12px;
+    }
+  }
+  
+  table {
+    width: 100%;
+    overflow-x: auto;
+    display: block;
+    
+    @media (max-width: 599px) {
+      font-size: 13px;
+    }
+  }
+  
   ${props => props.styles}
 `;
 
@@ -25,11 +67,23 @@ const CardHeader = styled.div`
   justify-content: space-between;
   gap: 12px;
   margin-bottom: 0.5rem;
+  flex-wrap: wrap;
+  
+  @media (max-width: 599px) {
+    gap: 8px;
+    margin-bottom: 0.375rem;
+  }
 `;
 
 const HeadingWrapper = styled.div`
   flex: 1;
   min-width: 0;
+  
+  .inner-heading {
+    @media (max-width: 599px) {
+      font-size: 14px !important;
+    }
+  }
 `;
 
 const RefCodeBadge = styled.span`
@@ -43,6 +97,11 @@ const RefCodeBadge = styled.span`
   letter-spacing: 0.5px;
   font-weight: 600;
   flex-shrink: 0;
+  
+  @media (max-width: 599px) {
+    font-size: 9px;
+    padding: 2px 6px;
+  }
 `;
 
 interface CardProps {
