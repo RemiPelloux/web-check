@@ -339,7 +339,7 @@ const ComplianceHelp = ({ section = 'overview' }: ComplianceHelpProps): JSX.Elem
         {sections[section as keyof typeof sections] || renderOverview()}
         
         <div style={{ marginTop: '2rem', padding: '1rem', background: colors.backgroundDarker, borderRadius: '8px', fontSize: '0.9rem', color: colors.textColorSecondary }}>
-          <p><strong>Support Technique :</strong> OpenPro - <a href="https://openpro.ai" style={{ color: colors.primary }}>https://openpro.ai</a></p>
+          <p><strong>Support Technique :</strong> L'APDP - <a href="https://apdp.mc" style={{ color: colors.primary }}>https://apdp.mc</a></p>
           <p><strong>Usage Officiel :</strong> Réservé aux contrôleurs APDP Monaco agréés</p>
           <p><strong>Version :</strong> 2024.1 Professional Edition</p>
         </div>

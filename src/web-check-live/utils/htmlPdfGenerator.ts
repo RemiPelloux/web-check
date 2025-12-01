@@ -317,7 +317,7 @@ const generateHTMLReport = (
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Rapport de Conformité APDP - ${data.url}</title>
+  <title>Rapport de Conformité avec la Loi n° 1.565 - ${data.url}</title>
   <style>
     @page {
       margin: 20mm;
@@ -852,7 +852,7 @@ const generateHTMLReport = (
     <div class="info-box">
       <strong>À propos de ce rapport :</strong><br><br>
       Ce document est généré automatiquement par notre outil d'analyse qui évolue continuellement pour vous accompagner dans l'amélioration de votre présence en ligne. Les vérifications portent sur différents aspects : sécurité, confidentialité, bonnes pratiques web et accessibilité.<br><br>
-      <em style="font-size: 9pt; color: #666;">Note : Cet outil est fourni à titre informatif. Les résultats sont basés sur des analyses automatiques et ne constituent pas un audit de conformité juridique officiel. Nous vous recommandons de consulter des experts pour toute question spécifique.</em>
+      <em style="font-size: 9pt; color: #666;">Note : Cet outil est fourni à titre informatif. Les résultats sont basés sur des analyses automatiques et ne constituent pas une analyse de conformité avec la Loi juridique officielle. Nous vous recommandons de consulter des experts pour toute question spécifique.</em>
       </div>
     
     <!-- Site Information -->

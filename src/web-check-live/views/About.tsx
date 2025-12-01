@@ -10,7 +10,9 @@ import Button from 'web-check-live/components/Form/Button';
 import CopyableLink from 'web-check-live/components/misc/CopyableLink';
 
 import { StyledCard } from 'web-check-live/components/Form/Card';
-import docs from 'web-check-live/utils/docs';
+import { WikiTableOfContents, WikiChapterList } from 'web-check-live/components/Wiki';
+import useFilteredDocs from 'web-check-live/hooks/useFilteredDocs';
+import useWikiContent from 'web-check-live/hooks/useWikiContent';
 
 const AboutContainer = styled.div`
 width: 95vw;
@@ -138,24 +140,20 @@ const Section = styled(StyledCard)`
   }
 `;
 
-const makeAnchor = (title: string): string => {
-  return title.toLowerCase().replace(/[^\w\s]|_/g, "").replace(/\s+/g, "-");
-};
-
 const about = [
-  "Outil d'analyse de la sécurité est une plateforme professionnelle d'analyse de sécurité développée par OpenPro. Elle offre une analyse complète et automatisée de la sécurité et des meilleures pratiques pour les sites web et applications.",
+  "Outil d'analyse de la sécurité est une plateforme professionnelle d'analyse de sécurité développée pour L'APDP. Elle offre une analyse complète et automatisée de la sécurité et des meilleures pratiques pour les sites web et applications.",
   "Notre outil effectue plus de 30 vérifications différentes couvrant la conformité APDP, la sécurité des données, l'analyse SEO, les performances, l'accessibilité et bien plus encore. Chaque analyse fournit des résultats détaillés avec des recommandations actionnables.",
   "Notre outil d'analyse de la sécurité des sites Internet, « Je teste mon site », permet de détecter, en quelques minutes à peine et de manière anonyme, certaines vulnérabilités des sites Internet et applications.",
   "Les tests réalisés ne sont pas exhaustifs et ne prétendent pas à une garantie absolue de conformité et/ou d'absence de failles. Néanmoins, ils offrent une couverture représentative de certaines menaces, permettant ainsi aux utilisateurs de renforcer la protection de leur(s) environnement(s) web grâce à des recommandations adaptées aux risques rencontrés.",
-  "Outil d'analyse de la sécurité est développé et maintenu par OpenPro. Cette plateforme d'analyse de sécurité professionnelle fournit une analyse complète de la sécurité pour les responsables et les gestionnaires de risques.",
-  "Cet outil d'analyse de la sécurité est développé et maintenu par notre prestataire, la société OpenPro (France).",
+  "Outil d'analyse de la sécurité est mis à disposition par L'APDP. Cette plateforme d'analyse de sécurité professionnelle fournit une analyse complète de la sécurité pour les responsables et les gestionnaires de risques.",
+  "Cet outil d'analyse de la sécurité est mis à disposition par L'APDP.",
 ];
 
 const howToUse = [
   "Entrez l'URL complète du site web que vous souhaitez analyser (exemple: https://monsite.com)",
-  "Cliquez sur le bouton 'Analyser' pour lancer l'audit de conformité",
+  "Cliquez sur le bouton 'Analyser' pour lancer l'analyse",
   "Patientez pendant que notre système effectue l'ensemble des vérifications (généralement 15-30 secondes)",
-  "Consultez les résultats organisés par catégories : Conformité Loi 1.565, Sécurité, Performance, SEO, etc.",
+  "Consultez les résultats organisés par catégories : Information des personnes concernées, Sécurité, etc.",
   "Cliquez sur chaque section pour voir les détails complets de l'analyse",
   "Utilisez les recommandations pour améliorer la conformité de votre site",
   "Exportez ou partagez les résultats avec votre équipe",
@@ -176,7 +174,7 @@ const understandingResults = {
     {
       title: "Types d'Analyses",
       items: [
-        "Conformité Loi 1.565 : Cookies, bannières, politiques de confidentialité, droits des utilisateurs",
+        "Information des personnes concernées : Mentions légales, Politique de Confidentialité",
         "Sécurité : SSL/TLS, en-têtes HTTP, certificats, pare-feu, ports ouverts",
         "Performance : Vitesse de chargement, métriques Core Web Vitals, optimisation",
         "SEO : Balises meta, sitemap, robots.txt, structure du contenu",
@@ -266,8 +264,16 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.`;
 
+// Helper to get section content by ID
+const getSectionContent = (sections: any[], id: string) => {
+  const section = sections.find(s => s.id === id);
+  return section?.content || '';
+};
+
 const About = (): JSX.Element => {
   const location = useLocation();
+  const { docs: filteredDocs, loading } = useFilteredDocs();
+  const { sections: wikiSections, loading: wikiLoading } = useWikiContent();
 
   useEffect(() => {
     if (location.hash) {
@@ -291,186 +297,82 @@ const About = (): JSX.Element => {
 
       <Heading as="h2" size="medium" color={colors.primary}>Introduction</Heading>
       <Section>
-        {about.map((para, index: number) => (
-          <p key={index}>{para}</p>
-        ))}
+        {wikiLoading ? (
+          <p style={{ textAlign: 'center', padding: '24px', color: colors.textColorSecondary }}>
+            Chargement...
+          </p>
+        ) : (
+          <div dangerouslySetInnerHTML={{ __html: getSectionContent(wikiSections, 'introduction') }} />
+        )}
       </Section>
 
       <Heading as="h2" size="medium" color={colors.primary}>Comment Utiliser l'Outil d'analyse de la sécurité</Heading>
       <Section>
-        <p>
-          L'Outil d'analyse de la sécurité est conçu pour être simple d'utilisation tout en fournissant des résultats 
-          professionnels et détaillés. Suivez ces étapes pour effectuer votre première analyse :
-        </p>
-        <ol>
-          {howToUse.map((step, index) => (
-            <li key={index}>{step}</li>
-          ))}
-        </ol>
-        <div className="info-box">
-          <strong>💡 Conseil :</strong> Pour de meilleurs résultats, analysez votre site en production 
-          plutôt qu'en développement, car certaines vérifications nécessitent un environnement réel 
-          (certificats SSL, DNS, etc.).
-        </div>
+        {wikiLoading ? (
+          <p style={{ textAlign: 'center', padding: '24px', color: colors.textColorSecondary }}>
+            Chargement...
+          </p>
+        ) : (
+          <div dangerouslySetInnerHTML={{ __html: getSectionContent(wikiSections, 'how-to-use') }} />
+        )}
       </Section>
 
       <Heading as="h2" size="medium" color={colors.primary}>Comprendre les Résultats</Heading>
       <Section>
-        <p>{understandingResults.intro}</p>
-        
-        {understandingResults.sections.map((section, idx) => (
-          <div key={idx}>
-            <Heading as="h4" size="small">{section.title}</Heading>
-            <ul>
-              {section.items.map((item, itemIdx) => (
-                <li key={itemIdx}>{item}</li>
-              ))}
-            </ul>
-          </div>
-        ))}
-
-        <div className="info-box">
-          <strong>📊 Note importante :</strong> Les scores sont calculés automatiquement en fonction 
-          des meilleures pratiques et standards internationaux. Un score élevé indique une bonne 
-          conformité, mais ne remplace pas un audit juridique ou de sécurité professionnel pour 
-          des cas critiques.
-        </div>
+        {wikiLoading ? (
+          <p style={{ textAlign: 'center', padding: '24px', color: colors.textColorSecondary }}>
+            Chargement...
+          </p>
+        ) : (
+          <div dangerouslySetInnerHTML={{ __html: getSectionContent(wikiSections, 'understanding-results') }} />
+        )}
       </Section>
       
       <Heading as="h2" size="medium" color={colors.primary}>Analyses Disponibles</Heading>
       <Section>
-        <div className="contents">
-          <ul>
-            {docs.map((section, index: number) => (
-              <li key={`content-${index}-${section.title}`}>
-                <b>{index + 1}</b>
-                <a href={`#${makeAnchor(section.title)}`}>{section.title}</a>
-              </li>
-            ))}
-          </ul>
-          <hr />
-        </div>
-        {docs.map((section, sectionIndex: number) => (
-          <section key={section.title}>
-            { sectionIndex > 0 && <hr /> }
-            <Heading as="h3" size="small" id={makeAnchor(section.title)} color={colors.primary}>
-              {section.title}
-            </Heading>
-            {section.screenshot &&
-              <figure className="example-screenshot">
-                <img className="screenshot" src={section.screenshot} alt={`Exemple ${section.title}`} />
-                <figcaption>Fig.{sectionIndex + 1} - Exemple de {section.title}</figcaption>
-              </figure> 
-            }
-            {section.description && <>
-              <Heading as="h4" size="small">Description</Heading>
-              <p>{section.description}</p>
-            </>}
-            { section.use && <>
-              <Heading as="h4" size="small">Cas d'Usage</Heading>
-              <p>{section.use}</p>
-            </>}
-            {section.resources && section.resources.length > 0 && <>
-              <Heading as="h4" size="small">Ressources Utiles</Heading>
-              <ul>
-                {section.resources.map((link: string | { title: string, link: string}, linkIndx: number) => (
-                  typeof link === 'string' ? (
-                    <li key={`link-${linkIndx}`}>
-                      <CopyableLink url={link} />
-                    </li>
-                  ) : (
-                    <li key={`link-${linkIndx}`}>
-                      <CopyableLink url={link.link} label={link.title} />
-                    </li>
-                  )
-                ))}
-              </ul>
-            </>}
-          </section>
-        ))}
+        {loading ? (
+          <p style={{ textAlign: 'center', padding: '24px', color: colors.textColorSecondary }}>
+            Chargement des analyses...
+          </p>
+        ) : (
+          <>
+            <WikiTableOfContents docs={filteredDocs} />
+            <WikiChapterList docs={filteredDocs} />
+          </>
+        )}
       </Section>
 
       <Heading as="h2" size="medium" color={colors.primary}>Meilleures Pratiques</Heading>
       <Section>
-        <p>
-          Pour tirer le meilleur parti de l'Outil d'analyse de la sécurité et maintenir une sécurité optimale, 
-          suivez ces recommandations :
-        </p>
-        {bestPractices.map((practice, index) => (
-          <div key={index}>
-            <Heading as="h4" size="small">{practice.title}</Heading>
-            <p>{practice.description}</p>
-          </div>
-        ))}
+        {wikiLoading ? (
+          <p style={{ textAlign: 'center', padding: '24px', color: colors.textColorSecondary }}>
+            Chargement...
+          </p>
+        ) : (
+          <div dangerouslySetInnerHTML={{ __html: getSectionContent(wikiSections, 'best-practices') }} />
+        )}
       </Section>
 
       <Heading as="h2" size="medium" color={colors.primary}>Questions Fréquentes</Heading>
       <Section>
-        {faq.map((item, index) => (
-          <div key={index}>
-            <Heading as="h4" size="small">{item.question}</Heading>
-            <p>{item.answer}</p>
-          </div>
-        ))}
+        {wikiLoading ? (
+          <p style={{ textAlign: 'center', padding: '24px', color: colors.textColorSecondary }}>
+            Chargement...
+          </p>
+        ) : (
+          <div dangerouslySetInnerHTML={{ __html: getSectionContent(wikiSections, 'faq') }} />
+        )}
       </Section>
 
       <Heading as="h2" size="medium" color={colors.primary}>Conditions d'Utilisation</Heading>
       <Section>
-        <Heading as="h3" size="small" color={colors.primary}>Licence</Heading>
-        <b>
-          Outil d'analyse de la sécurité est distribué sous licence MIT,
-          © <strong>OpenPro</strong> { new Date().getFullYear()}
-        </b>
-        <br />
-        <small>
-          Pour plus d'informations, consultez{' '}
-          <CopyableLink 
-            url="https://tldrlegal.com/license/mit-license" 
-            label="TLDR Legal → MIT"
-          />
-        </small>
-        <pre>{license}</pre>
-        <hr />
-        
-        <Heading as="h3" size="small" color={colors.primary}>Usage Équitable</Heading>
-        <ul>
-          {fairUse.map((para, index: number) => (<li key={`fairuse-${index}`}>{para}</li>))}
-        </ul>
-        <hr />
-        
-        <Heading as="h3" size="small" color={colors.primary}>Confidentialité</Heading>
-        <p>
-          La mise en place de cet outil par l'APDP est justifiée par l'existence d'un motif d'intérêt 
-          public puisqu'il permet à l'APDP d'accompagner les responsables du traitement dans leurs 
-          démarches de mise en conformité avec la Loi et en particulier de promouvoir, dans le cadre 
-          de ses missions, l'utilisation de technologies protectrices de la vie privée.
-        </p>
-        <p>
-          Les seules données collectées sont le nom de l'entité concernée, l'URL ou les URL(s) du ou 
-          des sites Internet à tester et l'Adresse IP publique utilisée par le DPD.
-        </p>
-        <p>
-          Ces données sont conservées 1 an renouvelable, avec le consentement de l'utilisateur, à la 
-          fin de chaque année suivant son inscription.
-        </p>
-        <p>
-          L'exercice des droits d'accès, de rectification, d'effacement, de limitation du traitement 
-          et d'opposition s'exerce par e-mail à l'adresse <a href="mailto:dpd@apdp.mc">dpd@apdp.mc</a> ou 
-          par courrier postal à APDP – 11 rue du Gabian – 98000 MONACO.
-        </p>
-        <p>
-          De plus amples informations sont disponibles sur le site Internet de l'APDP dans la rubrique{' '}
-          <a href="https://apdp.mc" target="_blank" rel="noopener noreferrer">
-            Politique de protection des données personnelles
-          </a>.
-        </p>
-        <hr />
-        
-        <Heading as="h3" size="small" color={colors.primary}>Support</Heading>
-        <p>
-          <strong><a href="https://apdp.mc/" target="_blank" rel="noopener noreferrer" style={{ color: colors.primary }}>L'APDP</a></strong> s'engage à maintenir et améliorer continuellement l'Outil d'analyse de la sécurité 
-          pour offrir la meilleure expérience d'audit de conformité possible.
-        </p>
+        {wikiLoading ? (
+          <p style={{ textAlign: 'center', padding: '24px', color: colors.textColorSecondary }}>
+            Chargement...
+          </p>
+        ) : (
+          <div dangerouslySetInnerHTML={{ __html: getSectionContent(wikiSections, 'terms') }} />
+        )}
       </Section>
     </AboutContainer>
     <Footer />

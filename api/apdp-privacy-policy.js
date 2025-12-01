@@ -40,7 +40,7 @@ const PRIVACY_PATTERNS = {
     { name: 'Droits des utilisateurs', patterns: [/droits|rights/i, /accès|access/i, /rectification/i] },
     { name: 'Durée de conservation', patterns: [/conservation|retention/i, /durée|duration/i] },
     { name: 'Sécurité des données', patterns: [/sécurité|security/i, /protection/i] },
-    { name: 'Contact DPO/Responsable', patterns: [/dpo|délégué/i, /responsable|contact/i, /protection.*données/i] }
+    { name: 'Contact DPD/Responsable', patterns: [/dpd|dpo|délégué/i, /responsable|contact/i, /protection.*données/i] }
   ]
 };
 

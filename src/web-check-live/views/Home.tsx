@@ -521,8 +521,8 @@ const Home = (): JSX.Element => {
           </Logo>
           <Title>Analyse de Conformité Loi 1.565</Title>
           <Subtitle>
-            Outil professionnel d'audit de conformité APDP Monaco. 
-            Analysez la conformité réglementaire et la posture de sécurité en quelques secondes.
+            Outil professionnel d'analyse de la sécurité. 
+            Analysez la conformité avec la Loi et la posture de sécurité en quelques secondes.
           </Subtitle>
         </HeroSection>
 

@@ -7,6 +7,7 @@ import UserManagement from 'web-check-live/components/Admin/UserManagement';
 import PluginConfig from 'web-check-live/components/Admin/PluginConfig';
 import Statistics from 'web-check-live/components/Admin/Statistics';
 import Logs from 'web-check-live/components/Admin/Logs';
+import { WikiEditorTab } from 'web-check-live/components/Admin/WikiEditor';
 
 const AdminContainer = styled.div`
   min-height: 100vh;
@@ -153,6 +154,7 @@ const NavIcon = styled.span<{ variant: string; active?: boolean }>`
       case 'statistics': return 'linear-gradient(135deg, #059669 0%, #047857 100%)';
       case 'logs': return 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)';
       case 'plugins': return 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
+      case 'wiki': return 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)';
       case 'admin': return 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)';
       default: return 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)';
     }
@@ -178,6 +180,7 @@ const ContentIcon = styled.div<{ variant: string }>`
       case 'statistics': return 'linear-gradient(135deg, #059669 0%, #047857 100%)';
       case 'logs': return 'linear-gradient(135deg, #7c3aed 0%, #6d28d9 100%)';
       case 'plugins': return 'linear-gradient(135deg, #f59e0b 0%, #d97706 100%)';
+      case 'wiki': return 'linear-gradient(135deg, #06b6d4 0%, #0891b2 100%)';
       default: return 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)';
     }
   }};
@@ -287,7 +290,7 @@ const LoadingMessage = styled.div`
 `;
 
 const Admin = (): JSX.Element => {
-  const [activeTab, setActiveTab] = useState<'users' | 'plugins' | 'statistics'>('users');
+  const [activeTab, setActiveTab] = useState<'users' | 'plugins' | 'statistics' | 'logs' | 'wiki'>('users');
   const [isAuthorized, setIsAuthorized] = useState(false);
   const [loading, setLoading] = useState(true);
 
@@ -318,36 +321,44 @@ const Admin = (): JSX.Element => {
   }
 
   const getContentTitle = () => {
-    if (activeTab === 'users') {
-      return {
-        abbr: 'USR',
-        variant: 'users',
-        title: 'Gestion des Utilisateurs',
-        description: 'Créez et gérez les comptes DPD, configurez les restrictions IP et les autorisations.'
-      };
+    switch (activeTab) {
+      case 'users':
+        return {
+          abbr: 'USR',
+          variant: 'users',
+          title: 'Gestion des Utilisateurs',
+          description: 'Créez et gérez les comptes DPD, configurez les restrictions IP et les autorisations.'
+        };
+      case 'statistics':
+        return {
+          abbr: 'STAT',
+          variant: 'statistics',
+          title: 'Statistiques',
+          description: 'Visualisez les statistiques anonymes des analyses et des problèmes détectés.'
+        };
+      case 'logs':
+        return {
+          abbr: 'LOG',
+          variant: 'logs',
+          title: 'Journal d\'Audit',
+          description: 'Consultez l\'historique complet des connexions, analyses et actions administratives.'
+        };
+      case 'wiki':
+        return {
+          abbr: 'WIKI',
+          variant: 'wiki',
+          title: 'Éditeur Wiki',
+          description: 'Modifiez le contenu des sections et la documentation des plugins affichés dans le Wiki.'
+        };
+      case 'plugins':
+      default:
+        return {
+          abbr: 'PLG',
+          variant: 'plugins',
+          title: 'Configuration des Plugins',
+          description: 'Activez ou désactivez les plugins disponibles pour tous les utilisateurs DPD.'
+        };
     }
-    if (activeTab === 'statistics') {
-      return {
-        abbr: 'STAT',
-        variant: 'statistics',
-        title: 'Statistiques',
-        description: 'Visualisez les statistiques anonymes des analyses et des problèmes détectés.'
-      };
-    }
-    if (activeTab === 'logs') {
-      return {
-        abbr: 'LOG',
-        variant: 'logs',
-        title: 'Journal d\'Audit',
-        description: 'Consultez l\'historique complet des connexions, analyses et actions administratives.'
-      };
-    }
-    return {
-      abbr: 'PLG',
-      variant: 'plugins',
-      title: 'Configuration des Plugins',
-      description: 'Activez ou désactivez les plugins disponibles pour tous les utilisateurs DPD.'
-    };
   };
 
   const content = getContentTitle();
@@ -392,6 +403,13 @@ const Admin = (): JSX.Element => {
             <NavIcon variant="plugins" active={activeTab === 'plugins'}>PLG</NavIcon>
             <span>Configuration des Plugins</span>
           </NavItem>
+          <NavItem
+            active={activeTab === 'wiki'}
+            onClick={() => setActiveTab('wiki')}
+          >
+            <NavIcon variant="wiki" active={activeTab === 'wiki'}>WIKI</NavIcon>
+            <span>Éditeur Wiki</span>
+          </NavItem>
         </SidebarNav>
 
         <SidebarFooter>
@@ -415,6 +433,7 @@ const Admin = (): JSX.Element => {
         {activeTab === 'statistics' && <Statistics />}
         {activeTab === 'logs' && <Logs />}
         {activeTab === 'plugins' && <PluginConfig />}
+        {activeTab === 'wiki' && <WikiEditorTab />}
       </MainContent>
       
       <ToastContainer 

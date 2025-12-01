@@ -45,6 +45,18 @@ import {
   updateScanStatistics,
   getAuditLogs,
   cleanAuditLogs,
+  // Wiki functions
+  getWikiSections,
+  getVisibleWikiSections,
+  getWikiSectionById,
+  upsertWikiSection,
+  updateWikiSection,
+  deleteWikiSection,
+  getWikiPluginDocs,
+  getWikiPluginDocById,
+  upsertWikiPluginDoc,
+  updateWikiPluginDoc,
+  isWikiSeeded,
   db
 } from './database/db.js';
 
@@ -74,7 +86,7 @@ const limits = [
 // Construct a message to be returned if the user has been rate-limited
 const makeLimiterResponseMsg = (retryAfter) => {
   const why = 'This keeps the service running smoothly for everyone. '
-  + 'You can get around these limits by running your own instance of Outil d\'Audit de Conformité.';
+  + 'You can get around these limits by running your own instance of Outil d\'Analyse de la Sécurité.';
   return `You've been rate-limited, please try again in ${retryAfter} seconds.\n${why}`;
 };
 
@@ -597,65 +609,443 @@ app.put(`${API_DIR}/admin/plugins`, authMiddleware, adminOnlyMiddleware, (req, r
   }
 });
 
+// ==================== Wiki Content Routes ====================
+
 /**
- * GET /api/admin/statistics
- * Get anonymous aggregate statistics (APDP only)
+ * GET /api/wiki/sections
+ * Get all wiki sections (admin sees all, DPD sees visible only)
  */
-app.get(`${API_DIR}/admin/statistics`, authMiddleware, adminOnlyMiddleware, (req, res) => {
+app.get(`${API_DIR}/wiki/sections`, authMiddleware, (req, res) => {
   try {
-    const days = parseInt(req.query.days) || 30;
-    const rawStats = getAggregateStatistics({ days });
+    const isAdmin = req.user?.role === 'APDP';
+    const sections = isAdmin ? getWikiSections() : getVisibleWikiSections();
     
-    // Get DPD user count
-    const allUsers = getAllUsers();
-    const dpdUsers = allUsers.filter(user => user.role === 'DPD').length;
+    return res.json({
+      success: true,
+      sections: sections.map(s => ({
+        ...s,
+        is_visible: Boolean(s.is_visible)
+      }))
+    });
+  } catch (error) {
+    console.error('Get wiki sections error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Erreur serveur',
+      message: 'Impossible de récupérer les sections wiki'
+    });
+  }
+});
+
+/**
+ * GET /api/wiki/sections/:id
+ * Get single wiki section
+ */
+app.get(`${API_DIR}/wiki/sections/:id`, authMiddleware, (req, res) => {
+  try {
+    const section = getWikiSectionById(req.params.id);
     
-    // Get scan history for chart (last 30 days)
-    const scanHistoryStmt = db.prepare(`
-      SELECT date, SUM(total_scans) as scans
-      FROM scan_statistics
-      WHERE date >= date('now', '-30 days')
-      GROUP BY date
-      ORDER BY date ASC
-    `);
-    const scanHistory = scanHistoryStmt.all();
+    if (!section) {
+      return res.status(404).json({
+        success: false,
+        error: 'Section introuvable',
+        message: 'Section wiki non trouvée'
+      });
+    }
     
-    // If no scan history, generate empty data for last 7 days
-    let formattedScanHistory = scanHistory;
-    if (scanHistory.length === 0) {
-      formattedScanHistory = [];
-      for (let i = 6; i >= 0; i--) {
-        const date = new Date();
-        date.setDate(date.getDate() - i);
-        formattedScanHistory.push({
-          date: date.toISOString().split('T')[0],
-          scans: 0
+    return res.json({
+      success: true,
+      section: {
+        ...section,
+        is_visible: Boolean(section.is_visible)
+      }
+    });
+  } catch (error) {
+    console.error('Get wiki section error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Erreur serveur',
+      message: 'Impossible de récupérer la section wiki'
+    });
+  }
+});
+
+/**
+ * PUT /api/admin/wiki/sections/:id
+ * Update wiki section (APDP only)
+ */
+app.put(`${API_DIR}/admin/wiki/sections/:id`, authMiddleware, adminOnlyMiddleware, (req, res) => {
+  try {
+    const { title, content, order_index, is_visible } = req.body;
+    
+    const success = updateWikiSection(req.params.id, {
+      title,
+      content,
+      order_index,
+      is_visible
+    });
+    
+    if (!success) {
+      return res.status(404).json({
+        success: false,
+        error: 'Section introuvable',
+        message: 'Section wiki non trouvée'
+      });
+    }
+    
+    addAuditLog(
+      req.user.id,
+      'UPDATE_WIKI_SECTION',
+      `Updated wiki section: ${req.params.id}`,
+      getClientIp(req)
+    );
+    
+    return res.json({
+      success: true,
+      message: 'Section wiki mise à jour avec succès'
+    });
+  } catch (error) {
+    console.error('Update wiki section error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Erreur serveur',
+      message: 'Impossible de mettre à jour la section wiki'
+    });
+  }
+});
+
+/**
+ * POST /api/admin/wiki/sections
+ * Create new wiki section (APDP only)
+ */
+app.post(`${API_DIR}/admin/wiki/sections`, authMiddleware, adminOnlyMiddleware, (req, res) => {
+  try {
+    const { id, title, content, order_index, is_visible } = req.body;
+    
+    if (!id || !title) {
+      return res.status(400).json({
+        success: false,
+        error: 'Données invalides',
+        message: 'ID et titre requis'
+      });
+    }
+    
+    const success = upsertWikiSection({
+      id,
+      title,
+      content: content || '',
+      order_index: order_index || 0,
+      is_visible: is_visible !== false
+    });
+    
+    addAuditLog(
+      req.user.id,
+      'CREATE_WIKI_SECTION',
+      `Created wiki section: ${id}`,
+      getClientIp(req)
+    );
+    
+    return res.json({
+      success: true,
+      message: 'Section wiki créée avec succès'
+    });
+  } catch (error) {
+    console.error('Create wiki section error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Erreur serveur',
+      message: 'Impossible de créer la section wiki'
+    });
+  }
+});
+
+/**
+ * DELETE /api/admin/wiki/sections/:id
+ * Delete wiki section (APDP only)
+ */
+app.delete(`${API_DIR}/admin/wiki/sections/:id`, authMiddleware, adminOnlyMiddleware, (req, res) => {
+  try {
+    const success = deleteWikiSection(req.params.id);
+    
+    if (!success) {
+      return res.status(404).json({
+        success: false,
+        error: 'Section introuvable',
+        message: 'Section wiki non trouvée'
+      });
+    }
+    
+    addAuditLog(
+      req.user.id,
+      'DELETE_WIKI_SECTION',
+      `Deleted wiki section: ${req.params.id}`,
+      getClientIp(req)
+    );
+    
+    return res.json({
+      success: true,
+      message: 'Section wiki supprimée avec succès'
+    });
+  } catch (error) {
+    console.error('Delete wiki section error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Erreur serveur',
+      message: 'Impossible de supprimer la section wiki'
+    });
+  }
+});
+
+/**
+ * GET /api/wiki/plugins
+ * Get all plugin documentation (filtered by disabled plugins for DPD users)
+ */
+app.get(`${API_DIR}/wiki/plugins`, authMiddleware, (req, res) => {
+  try {
+    const isAdmin = req.user?.role === 'APDP';
+    let pluginDocs = getWikiPluginDocs();
+    
+    // Filter out disabled plugins for DPD users
+    if (!isAdmin) {
+      const disabledPlugins = getDisabledPlugins();
+      pluginDocs = pluginDocs.filter(doc => !disabledPlugins.includes(doc.plugin_id));
+    }
+    
+    return res.json({
+      success: true,
+      plugins: pluginDocs
+    });
+  } catch (error) {
+    console.error('Get wiki plugins error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Erreur serveur',
+      message: 'Impossible de récupérer la documentation des plugins'
+    });
+  }
+});
+
+/**
+ * GET /api/wiki/plugins/:id
+ * Get single plugin documentation
+ */
+app.get(`${API_DIR}/wiki/plugins/:id`, authMiddleware, (req, res) => {
+  try {
+    const pluginDoc = getWikiPluginDocById(req.params.id);
+    
+    if (!pluginDoc) {
+      return res.status(404).json({
+        success: false,
+        error: 'Plugin introuvable',
+        message: 'Documentation du plugin non trouvée'
+      });
+    }
+    
+    return res.json({
+      success: true,
+      plugin: pluginDoc
+    });
+  } catch (error) {
+    console.error('Get wiki plugin error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Erreur serveur',
+      message: 'Impossible de récupérer la documentation du plugin'
+    });
+  }
+});
+
+/**
+ * PUT /api/admin/wiki/plugins/:id
+ * Update plugin documentation (APDP only)
+ */
+app.put(`${API_DIR}/admin/wiki/plugins/:id`, authMiddleware, adminOnlyMiddleware, (req, res) => {
+  try {
+    const { title, description, use_case, resources, screenshot_url } = req.body;
+    
+    const success = updateWikiPluginDoc(req.params.id, {
+      title,
+      description,
+      use_case,
+      resources,
+      screenshot_url
+    });
+    
+    if (!success) {
+      // Try to create if doesn't exist
+      const created = upsertWikiPluginDoc({
+        plugin_id: req.params.id,
+        title: title || req.params.id,
+        description: description || '',
+        use_case: use_case || '',
+        resources: resources || [],
+        screenshot_url: screenshot_url || ''
+      });
+      
+      if (!created) {
+        return res.status(500).json({
+          success: false,
+          error: 'Erreur création',
+          message: 'Impossible de créer la documentation du plugin'
         });
       }
     }
     
+    addAuditLog(
+      req.user.id,
+      'UPDATE_WIKI_PLUGIN',
+      `Updated plugin doc: ${req.params.id}`,
+      getClientIp(req)
+    );
+    
+    return res.json({
+      success: true,
+      message: 'Documentation du plugin mise à jour avec succès'
+    });
+  } catch (error) {
+    console.error('Update wiki plugin error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Erreur serveur',
+      message: 'Impossible de mettre à jour la documentation du plugin'
+    });
+  }
+});
+
+/**
+ * GET /api/wiki/content
+ * Get full wiki content (public endpoint for wiki page, respects plugin filtering)
+ */
+app.get(`${API_DIR}/wiki/content`, authMiddleware, (req, res) => {
+  try {
+    const isAdmin = req.user?.role === 'APDP';
+    
+    // Get sections
+    const sections = isAdmin ? getWikiSections() : getVisibleWikiSections();
+    
+    // Get plugin docs
+    let pluginDocs = getWikiPluginDocs();
+    
+    // Filter out disabled plugins for DPD users
+    if (!isAdmin) {
+      const disabledPlugins = getDisabledPlugins();
+      pluginDocs = pluginDocs.filter(doc => !disabledPlugins.includes(doc.plugin_id));
+    }
+    
+    return res.json({
+      success: true,
+      sections: sections.map(s => ({
+        ...s,
+        is_visible: Boolean(s.is_visible)
+      })),
+      plugins: pluginDocs,
+      isSeeded: isWikiSeeded()
+    });
+  } catch (error) {
+    console.error('Get wiki content error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Erreur serveur',
+      message: 'Impossible de récupérer le contenu wiki'
+    });
+  }
+});
+
+/**
+ * POST /api/admin/wiki/seed
+ * Seed wiki content from defaults (APDP only)
+ */
+app.post(`${API_DIR}/admin/wiki/seed`, authMiddleware, adminOnlyMiddleware, async (req, res) => {
+  try {
+    const { force } = req.body;
+    
+    // Dynamic import the seed function
+    const { seedWikiContent } = await import('./database/seed-wiki.js');
+    const success = seedWikiContent(force);
+    
+    addAuditLog(
+      req.user.id,
+      'SEED_WIKI',
+      `Seeded wiki content${force ? ' (forced)' : ''}`,
+      getClientIp(req)
+    );
+    
+    return res.json({
+      success: true,
+      message: success ? 'Contenu wiki initialisé avec succès' : 'Le contenu wiki existe déjà'
+    });
+  } catch (error) {
+    console.error('Seed wiki error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Erreur serveur',
+      message: 'Impossible d\'initialiser le contenu wiki'
+    });
+  }
+});
+
+/**
+ * GET /api/admin/statistics
+ * Get anonymous aggregate statistics (APDP only)
+ * Query params:
+ *   - range: '7days' | '30days' | 'all' (default: '30days')
+ */
+app.get(`${API_DIR}/admin/statistics`, authMiddleware, adminOnlyMiddleware, (req, res) => {
+  try {
+    const range = req.query.range || '30days';
+    
+    // Calculate date filter based on range
+    let dateFilter = '';
+    let days = 30;
+    switch (range) {
+      case '7days':
+        dateFilter = "AND timestamp >= datetime('now', '-7 days')";
+        days = 7;
+        break;
+      case '30days':
+        dateFilter = "AND timestamp >= datetime('now', '-30 days')";
+        days = 30;
+        break;
+      case 'all':
+        dateFilter = ''; // No filter
+        days = null;
+        break;
+      default:
+        dateFilter = "AND timestamp >= datetime('now', '-30 days')";
+        days = 30;
+    }
+    
+    // Get total scans for the period
+    const scanCountStmt = db.prepare(`
+      SELECT COUNT(*) as total FROM scan_history
+      WHERE 1=1 ${dateFilter}
+    `);
+    const scanCount = scanCountStmt.get();
+    const totalScans = scanCount?.total || 0;
+    
+    // Get unique users who performed scans in the period
+    const uniqueUsersStmt = db.prepare(`
+      SELECT COUNT(DISTINCT user_id) as count FROM scan_history
+      WHERE 1=1 ${dateFilter}
+    `);
+    const uniqueUsersResult = uniqueUsersStmt.get();
+    const uniqueUsers = uniqueUsersResult?.count || 0;
+    
+    // Get total DPD users (all time)
+    const allUsers = getAllUsers();
+    const dpdUsers = allUsers.filter(user => user.role === 'DPD').length;
+    
     // Format data for frontend
     const stats = {
-      totalScans: rawStats?.totalScans || 0,
-      criticalIssues: rawStats?.totalCritical || 0,
-      warningIssues: rawStats?.totalWarnings || 0,
-      dpdUsers: dpdUsers,
-      scansPerUser: dpdUsers > 0 ? (rawStats?.totalScans || 0) / dpdUsers : 0,
-      scanHistory: formattedScanHistory.map(row => ({
-        date: row.date,
-        scans: row.scans || 0
-      })),
-      issuesByType: {
-        critical: rawStats?.totalCritical || 0,
-        warnings: rawStats?.totalWarnings || 0,
-        improvements: rawStats?.totalImprovements || 0
-      }
+      totalScans: totalScans,
+      uniqueUsers: uniqueUsers,
+      dpdUsers: dpdUsers
     };
     
     return res.json({
       success: true,
       data: stats,
-      period: `${days} days`
+      range: range
     });
   } catch (error) {
     console.error('Get statistics error:', error);

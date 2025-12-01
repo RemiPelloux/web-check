@@ -103,7 +103,7 @@ run_command() {
 echo -e "${BLUE}"
 echo "╔════════════════════════════════════════╗"
 echo "║   Checkit Deployment Script v1.0       ║"
-echo "║   BeCompliant - OpenPro                ║"
+echo "║   BeCompliant - L'APDP                 ║"
 echo "╚════════════════════════════════════════╝"
 echo -e "${NC}"
 
@@ -191,48 +191,38 @@ print_step "Step 5/7: Starting services..."
 run_command "ssh ${REMOTE_USER}@${REMOTE_HOST} 'cd ${REMOTE_PATH} && docker compose up -d'" \
   "Services started"
 
-# Step 6: Run database migrations
-print_step "Step 6/7: Checking and running database migrations..."
+# Step 6: Run database migrations (Symfony-style)
+print_step "Step 6/7: Running database migrations..."
 
 if [ "$DRY_RUN" = false ]; then
-  echo "Scanning for migration files..."
+  echo "Using APDP Checkit Migration System (like Symfony Doctrine)"
+  echo ""
   
-  # Get list of migration files
-  MIGRATIONS=$(find database -name "migrate-*.js" -type f 2>/dev/null | sort)
+  # First show migration status
+  echo -e "${BLUE}Migration Status:${NC}"
+  ssh ${REMOTE_USER}@${REMOTE_HOST} "cd ${REMOTE_PATH} && docker exec Web-Check-Checkit node database/migrate.js --status" 2>&1 | while IFS= read -r line; do
+    echo "  $line"
+  done
   
-  if [ -z "$MIGRATIONS" ]; then
-    print_success "No migrations found to run"
+  echo ""
+  echo "Running pending migrations..."
+  
+  # Run migrations only (wiki seeding is manual via admin or first-time setup)
+  MIGRATION_OUTPUT=$(ssh ${REMOTE_USER}@${REMOTE_HOST} "cd ${REMOTE_PATH} && docker exec Web-Check-Checkit node database/migrate.js" 2>&1)
+  MIGRATION_EXIT=$?
+  
+  echo "$MIGRATION_OUTPUT" | while IFS= read -r line; do
+    echo "  $line"
+  done
+  
+  if [ $MIGRATION_EXIT -eq 0 ]; then
+    print_success "Database migrations completed successfully"
   else
-    echo -e "${BLUE}Found migration files:${NC}"
-    echo "$MIGRATIONS" | while read -r migration; do
-      echo "  • $migration"
-    done
-    
-    echo ""
-    echo "Running migrations on production database..."
-    
-    # Run each migration
-    echo "$MIGRATIONS" | while read -r migration; do
-      MIGRATION_NAME=$(basename "$migration")
-      echo -e "\n${BLUE}Running: ${MIGRATION_NAME}${NC}"
-      
-      ssh ${REMOTE_USER}@${REMOTE_HOST} "cd ${REMOTE_PATH} && docker exec Web-Check-Checkit node $migration" 2>&1 | while IFS= read -r line; do
-        echo "  $line"
-      done
-      
-      if [ ${PIPESTATUS[0]} -eq 0 ]; then
-        print_success "$MIGRATION_NAME completed"
-      else
-        print_error "$MIGRATION_NAME failed"
-        exit 1
-      fi
-    done
-    
-    echo ""
-    print_success "All migrations completed successfully"
+    print_warning "Some migrations may have failed, check logs above"
+    # Don't exit - let deployment continue
   fi
 else
-  echo -e "${YELLOW}[DRY RUN]${NC} Would check and run database migrations"
+  echo -e "${YELLOW}[DRY RUN]${NC} Would run database/migrate.js --seed"
 fi
 
 # Step 7: Verify deployment

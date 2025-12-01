@@ -483,6 +483,234 @@ export const findDPDUserByIP = (ipAddress) => {
   return null;
 };
 
+// ============================================
+// Wiki Sections Functions
+// ============================================
+
+/**
+ * Get all wiki sections
+ * @returns {Array} List of wiki sections ordered by order_index
+ */
+export const getWikiSections = () => {
+  const stmt = db.prepare('SELECT * FROM wiki_sections ORDER BY order_index ASC');
+  return stmt.all();
+};
+
+/**
+ * Get visible wiki sections only
+ * @returns {Array} List of visible wiki sections
+ */
+export const getVisibleWikiSections = () => {
+  const stmt = db.prepare('SELECT * FROM wiki_sections WHERE is_visible = 1 ORDER BY order_index ASC');
+  return stmt.all();
+};
+
+/**
+ * Get wiki section by ID
+ * @param {string} id - Section ID
+ * @returns {object|null} Section object or null
+ */
+export const getWikiSectionById = (id) => {
+  const stmt = db.prepare('SELECT * FROM wiki_sections WHERE id = ?');
+  return stmt.get(id);
+};
+
+/**
+ * Create or update wiki section
+ * @param {object} section - Section data
+ * @returns {boolean} Success status
+ */
+export const upsertWikiSection = (section) => {
+  const stmt = db.prepare(`
+    INSERT INTO wiki_sections (id, title, content, order_index, is_visible, updated_at)
+    VALUES (?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+    ON CONFLICT(id) DO UPDATE SET
+      title = excluded.title,
+      content = excluded.content,
+      order_index = excluded.order_index,
+      is_visible = excluded.is_visible,
+      updated_at = CURRENT_TIMESTAMP
+  `);
+  
+  const result = stmt.run(
+    section.id,
+    section.title,
+    section.content || '',
+    section.order_index || 0,
+    section.is_visible !== undefined ? (section.is_visible ? 1 : 0) : 1
+  );
+  
+  return result.changes > 0;
+};
+
+/**
+ * Update wiki section
+ * @param {string} id - Section ID
+ * @param {object} updates - Fields to update
+ * @returns {boolean} Success status
+ */
+export const updateWikiSection = (id, updates) => {
+  const fields = [];
+  const values = [];
+  
+  if (updates.title !== undefined) {
+    fields.push('title = ?');
+    values.push(updates.title);
+  }
+  if (updates.content !== undefined) {
+    fields.push('content = ?');
+    values.push(updates.content);
+  }
+  if (updates.order_index !== undefined) {
+    fields.push('order_index = ?');
+    values.push(updates.order_index);
+  }
+  if (updates.is_visible !== undefined) {
+    fields.push('is_visible = ?');
+    values.push(updates.is_visible ? 1 : 0);
+  }
+  
+  if (fields.length === 0) return false;
+  
+  fields.push('updated_at = CURRENT_TIMESTAMP');
+  values.push(id);
+  
+  const stmt = db.prepare(`UPDATE wiki_sections SET ${fields.join(', ')} WHERE id = ?`);
+  const result = stmt.run(...values);
+  return result.changes > 0;
+};
+
+/**
+ * Delete wiki section
+ * @param {string} id - Section ID
+ * @returns {boolean} Success status
+ */
+export const deleteWikiSection = (id) => {
+  const stmt = db.prepare('DELETE FROM wiki_sections WHERE id = ?');
+  const result = stmt.run(id);
+  return result.changes > 0;
+};
+
+// ============================================
+// Wiki Plugin Docs Functions
+// ============================================
+
+/**
+ * Get all plugin docs
+ * @returns {Array} List of plugin documentation
+ */
+export const getWikiPluginDocs = () => {
+  const stmt = db.prepare('SELECT * FROM wiki_plugin_docs ORDER BY plugin_id ASC');
+  const rows = stmt.all();
+  return rows.map(row => ({
+    ...row,
+    resources: JSON.parse(row.resources || '[]')
+  }));
+};
+
+/**
+ * Get plugin doc by ID
+ * @param {string} pluginId - Plugin ID
+ * @returns {object|null} Plugin doc or null
+ */
+export const getWikiPluginDocById = (pluginId) => {
+  const stmt = db.prepare('SELECT * FROM wiki_plugin_docs WHERE plugin_id = ?');
+  const row = stmt.get(pluginId);
+  if (!row) return null;
+  return {
+    ...row,
+    resources: JSON.parse(row.resources || '[]')
+  };
+};
+
+/**
+ * Create or update plugin doc
+ * @param {object} doc - Plugin doc data
+ * @returns {boolean} Success status
+ */
+export const upsertWikiPluginDoc = (doc) => {
+  const stmt = db.prepare(`
+    INSERT INTO wiki_plugin_docs (plugin_id, title, description, use_case, resources, screenshot_url, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+    ON CONFLICT(plugin_id) DO UPDATE SET
+      title = excluded.title,
+      description = excluded.description,
+      use_case = excluded.use_case,
+      resources = excluded.resources,
+      screenshot_url = excluded.screenshot_url,
+      updated_at = CURRENT_TIMESTAMP
+  `);
+  
+  const resources = typeof doc.resources === 'string' 
+    ? doc.resources 
+    : JSON.stringify(doc.resources || []);
+  
+  const result = stmt.run(
+    doc.plugin_id,
+    doc.title,
+    doc.description || '',
+    doc.use_case || '',
+    resources,
+    doc.screenshot_url || ''
+  );
+  
+  return result.changes > 0;
+};
+
+/**
+ * Update plugin doc
+ * @param {string} pluginId - Plugin ID
+ * @param {object} updates - Fields to update
+ * @returns {boolean} Success status
+ */
+export const updateWikiPluginDoc = (pluginId, updates) => {
+  const fields = [];
+  const values = [];
+  
+  if (updates.title !== undefined) {
+    fields.push('title = ?');
+    values.push(updates.title);
+  }
+  if (updates.description !== undefined) {
+    fields.push('description = ?');
+    values.push(updates.description);
+  }
+  if (updates.use_case !== undefined) {
+    fields.push('use_case = ?');
+    values.push(updates.use_case);
+  }
+  if (updates.resources !== undefined) {
+    fields.push('resources = ?');
+    const resources = typeof updates.resources === 'string'
+      ? updates.resources
+      : JSON.stringify(updates.resources);
+    values.push(resources);
+  }
+  if (updates.screenshot_url !== undefined) {
+    fields.push('screenshot_url = ?');
+    values.push(updates.screenshot_url);
+  }
+  
+  if (fields.length === 0) return false;
+  
+  fields.push('updated_at = CURRENT_TIMESTAMP');
+  values.push(pluginId);
+  
+  const stmt = db.prepare(`UPDATE wiki_plugin_docs SET ${fields.join(', ')} WHERE plugin_id = ?`);
+  const result = stmt.run(...values);
+  return result.changes > 0;
+};
+
+/**
+ * Check if wiki has been seeded
+ * @returns {boolean} True if wiki content exists
+ */
+export const isWikiSeeded = () => {
+  const stmt = db.prepare('SELECT COUNT(*) as count FROM wiki_plugin_docs');
+  const result = stmt.get();
+  return result.count > 0;
+};
+
 // Export database instance for direct queries if needed
 export { db, initDatabase };
 
@@ -498,6 +726,7 @@ export default {
   setDisabledPlugins,
   addAuditLog,
   getAuditLogs,
+  cleanAuditLogs,
   recordLoginAttempt,
   getFailedLoginAttempts,
   clearOldLoginAttempts,
@@ -506,6 +735,18 @@ export default {
   updateScanStatistics,
   getAggregateStatistics,
   findDPDUserByIP,
+  // Wiki functions
+  getWikiSections,
+  getVisibleWikiSections,
+  getWikiSectionById,
+  upsertWikiSection,
+  updateWikiSection,
+  deleteWikiSection,
+  getWikiPluginDocs,
+  getWikiPluginDocById,
+  upsertWikiPluginDoc,
+  updateWikiPluginDoc,
+  isWikiSeeded,
   initDatabase,
   db
 };

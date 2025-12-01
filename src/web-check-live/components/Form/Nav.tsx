@@ -21,7 +21,7 @@ const Nav = (props: { children?: ReactNode}) => {
   return (
     <Header as="header">
     <Heading color={colors.primary} size="large">
-      <img width="64" src="/web-check.png" alt="Outil d'analyse de la sécurité Icon" />
+      <img width="64" src="/assets/images/Logo-APDP.svg" alt="APDP Logo" />
       <a href="/" target="_self">Outil d'analyse de la sécurité</a>
     </Heading>
       {props.children && props.children}

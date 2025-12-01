@@ -1,5 +1,17 @@
 -- APDP Checkit User Management Database Schema
 
+-- Migrations tracking table: tracks which migrations have been executed (like Symfony Doctrine)
+CREATE TABLE IF NOT EXISTS migrations (
+    id INTEGER PRIMARY KEY AUTOINCREMENT,
+    version TEXT NOT NULL UNIQUE,        -- Migration filename/version (e.g., '20241201_001_add_wiki_tables')
+    description TEXT,                     -- Human-readable description
+    executed_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    execution_time_ms INTEGER DEFAULT 0   -- How long the migration took
+);
+
+-- Create index for faster lookups
+CREATE INDEX IF NOT EXISTS idx_migrations_version ON migrations(version);
+
 -- Users table: stores authentication and profile information
 CREATE TABLE IF NOT EXISTS users (
     id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -69,6 +81,29 @@ CREATE TABLE IF NOT EXISTS scan_statistics (
     UNIQUE(date, user_role) -- One row per date per role
 );
 
+-- Wiki sections table: stores static sections (Introduction, FAQ, Best Practices, etc.)
+CREATE TABLE IF NOT EXISTS wiki_sections (
+    id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    content TEXT NOT NULL DEFAULT '',
+    order_index INTEGER DEFAULT 0,
+    is_visible INTEGER DEFAULT 1,
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
+-- Wiki plugin documentation table: stores documentation for each plugin
+CREATE TABLE IF NOT EXISTS wiki_plugin_docs (
+    plugin_id TEXT PRIMARY KEY,
+    title TEXT NOT NULL,
+    description TEXT DEFAULT '',
+    use_case TEXT DEFAULT '',
+    resources TEXT DEFAULT '[]',
+    screenshot_url TEXT DEFAULT '',
+    created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+    updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+);
+
 -- Create indexes for better performance
 CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
 CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
@@ -80,4 +115,7 @@ CREATE INDEX IF NOT EXISTS idx_scan_history_user_id ON scan_history(user_id);
 CREATE INDEX IF NOT EXISTS idx_scan_history_timestamp ON scan_history(timestamp);
 CREATE INDEX IF NOT EXISTS idx_scan_statistics_date ON scan_statistics(date);
 CREATE INDEX IF NOT EXISTS idx_scan_statistics_role ON scan_statistics(user_role);
+CREATE INDEX IF NOT EXISTS idx_wiki_sections_order ON wiki_sections(order_index);
+CREATE INDEX IF NOT EXISTS idx_wiki_sections_visible ON wiki_sections(is_visible);
+CREATE INDEX IF NOT EXISTS idx_wiki_plugin_docs_plugin ON wiki_plugin_docs(plugin_id);
 

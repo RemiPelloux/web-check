@@ -1,8 +1,8 @@
-import React, { useState, useMemo } from 'react';
+import React, { useState, useMemo, useCallback } from 'react';
 import styled from '@emotion/styled';
 import colors from 'web-check-live/styles/colors';
 import { EnhancedComplianceAnalyzer } from 'web-check-live/utils/enhancedComplianceAnalyzer';
-import { openComplianceReportHTML, generateComplianceReportHTML } from 'web-check-live/utils/htmlPdfGenerator';
+import { openFullResultsReport } from 'web-check-live/utils/fullResultsPdfGenerator';
 import SiteFavicon from 'web-check-live/components/misc/SiteFavicon';
 
 interface ProfessionalComplianceDashboardProps {
@@ -621,114 +621,20 @@ const ProfessionalComplianceDashboard: React.FC<ProfessionalComplianceDashboardP
     }
   }, [allResults]);
 
-  const handleViewReport = () => {
-    if (!analysis || !allResults) {
-      alert('Aucune donnée d\'analyse disponible pour l\'affichage du rapport.');
+  // Save full results as printable HTML report (all plugins)
+  const handleSaveResults = useCallback(() => {
+    if (!allResults) {
+      alert('Aucune donnée d\'analyse disponible.');
       return;
     }
 
     try {
-      console.log('Opening modern compliance report with data:', { 
-        analysis: !!analysis, 
-        allResults: !!allResults, 
-        siteName,
-        score: analysis.score 
-      });
-
-      openComplianceReportHTML(
-        {
-          url: siteName || 'Site Web',
-          overallScore: getScoreGrade(analysis.score),
-          complianceLevel: analysis.level,
-          numericScore: analysis.score,
-          criticalIssues: analysis.criticalIssues.length,
-          warnings: analysis.warnings.length,
-          improvements: analysis.improvements.length,
-          compliantItems: analysis.compliantItems.length,
-          timestamp: new Date().toISOString(),
-          issues: {
-            critical: analysis.criticalIssues || [],
-            warnings: analysis.warnings || [],
-            improvements: analysis.improvements || [],
-            compliant: analysis.compliantItems || []
-          },
-          categories: analysis.categories || {}
-        },
-        allResults.vulnerabilities,
-        undefined,
-        allResults['cdn-resources'],
-        allResults
-      );
+      openFullResultsReport(allResults, siteName || 'Site Web');
     } catch (error) {
-      console.error('Erreur lors de l\'ouverture du rapport:', error);
-      alert('Erreur lors de l\'ouverture du rapport. Vérifiez que votre navigateur autorise les popups pour ce site et réessayez.');
+      console.error('Erreur lors de la génération du rapport:', error);
+      alert('Erreur lors de la génération du rapport. Vérifiez que votre navigateur autorise les popups.');
     }
-  };
-
-  const handleDownloadPDF = async () => {
-    if (!analysis || !allResults) {
-      alert('Aucune donnée d\'analyse disponible pour générer le PDF.');
-      return;
-    }
-
-    try {
-      console.log('Generating PDF report with data:', { 
-        analysis: !!analysis, 
-        allResults: !!allResults, 
-        siteName,
-        score: analysis.score 
-      });
-
-      // Utiliser la fonction déjà importée
-
-      await generateComplianceReportHTML(
-        {
-          url: siteName || 'Site Web',
-          overallScore: getScoreGrade(analysis.score),
-          complianceLevel: analysis.level,
-          numericScore: analysis.score,
-          criticalIssues: analysis.criticalIssues.length,
-          warnings: analysis.warnings.length,
-          improvements: analysis.improvements.length,
-          compliantItems: analysis.compliantItems.length,
-          timestamp: new Date().toISOString(),
-          detailedAnalysis: {
-            cookieCompliance: {
-              status: allResults.cookies ? 'Analysé' : 'Non analysé',
-              cookieCount: allResults.cookies?.clientCookies?.length || allResults.cookies?.cookies?.length || 0
-            },
-            sslSecurity: {
-              isValid: allResults.ssl?.valid || allResults.ssl?.validCertificate || false,
-              protocol: allResults.ssl?.protocol || 'TLS'
-            }
-          },
-          issues: {
-            critical: analysis.criticalIssues || [],
-            warnings: analysis.warnings || [],
-            improvements: analysis.improvements || [],
-            compliant: analysis.compliantItems || []
-          },
-          categories: analysis.categories || {}
-        },
-        allResults.vulnerabilities,
-        undefined, // legal-pages removed
-        allResults['cdn-resources'],
-        allResults // Pass all results for comprehensive report
-      );
-    } catch (error) {
-      console.error('Erreur lors de la génération du PDF:', error);
-      alert('Erreur lors de la génération du PDF. Veuillez réessayer.');
-    }
-  };
-
-  const getScoreGrade = (score: number): string => {
-    if (score >= 90) return 'A';
-    if (score >= 80) return 'B';
-    if (score >= 70) return 'C';
-    if (score >= 60) return 'D';
-    if (score >= 50) return 'E';
-    return 'F';
-  };
+  }, [allResults, siteName]);
 
   const formatDate = (timestamp: string) => {
     return new Date(timestamp).toLocaleDateString('fr-FR', {
@@ -786,7 +692,7 @@ const ProfessionalComplianceDashboard: React.FC<ProfessionalComplianceDashboardP
             <HeaderTitle>
               <SiteFavicon domain={siteName} size={32} />
               <div>
-                <Title>Rapport d'Audit de Conformité</Title>
+                <Title>Rapport d'Analyse de Sécurité</Title>
                 <Subtitle>Analyse automatisée APDP Monaco</Subtitle>
               </div>
             </HeaderTitle>
@@ -802,9 +708,9 @@ const ProfessionalComplianceDashboard: React.FC<ProfessionalComplianceDashboardP
             </HeaderMeta>
           </HeaderLeft>
           <HeaderRight>
-            <ExportButton onClick={handleViewReport}>
-              <span style={{ fontSize: '18px' }}>📄</span>
-              Voir le Rapport
+            <ExportButton onClick={handleSaveResults}>
+              <span style={{ fontSize: '18px' }}>💾</span>
+              Sauvegarder le résultat
             </ExportButton>
           </HeaderRight>
         </HeaderContent>
