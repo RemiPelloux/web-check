@@ -1,5 +1,5 @@
 import styled from '@emotion/styled';
-import { useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 
 import colors from 'web-check-live/styles/colors';
@@ -274,6 +274,17 @@ const About = (): JSX.Element => {
   const location = useLocation();
   const { docs: filteredDocs, loading } = useFilteredDocs();
   const { sections: wikiSections, loading: wikiLoading } = useWikiContent();
+  const [hideDocs, setHideDocs] = useState(false);
+  const [isDPD, setIsDPD] = useState(false);
+  
+  // Check if user is DPD (client-side only)
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const userProfileData = localStorage.getItem('checkitUser');
+      const userProfile = userProfileData ? JSON.parse(userProfileData) : null;
+      setIsDPD(userProfile?.role === 'DPD');
+    }
+  }, []);
 
   useEffect(() => {
     if (location.hash) {
@@ -328,11 +339,39 @@ const About = (): JSX.Element => {
         )}
       </Section>
       
-      <Heading as="h2" size="medium" color={colors.primary}>Analyses Disponibles</Heading>
+      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
+        <span style={{ margin: 0 }}><Heading as="h2" size="medium" color={colors.primary}>Analyses Disponibles</Heading></span>
+        {isDPD && (
+          <button
+            onClick={() => setHideDocs(!hideDocs)}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '8px',
+              padding: '8px 16px',
+              backgroundColor: hideDocs ? colors.warning : 'transparent',
+              color: hideDocs ? 'white' : colors.textColor,
+              border: `2px solid ${hideDocs ? colors.warning : colors.primary}`,
+              borderRadius: '8px',
+              cursor: 'pointer',
+              fontSize: '14px',
+              fontWeight: '500',
+              transition: 'all 0.2s ease',
+            }}
+            title={hideDocs ? 'Afficher la documentation' : 'Masquer la documentation'}
+          >
+            <span>{hideDocs ? '📖 Afficher Docs' : '📕 Masquer Docs'}</span>
+          </button>
+        )}
+      </div>
       <Section>
         {loading ? (
           <p style={{ textAlign: 'center', padding: '24px', color: colors.textColorSecondary }}>
             Chargement des analyses...
+          </p>
+        ) : hideDocs ? (
+          <p style={{ textAlign: 'center', padding: '24px', color: colors.textColorSecondary, fontStyle: 'italic' }}>
+            Documentation masquée. Cliquez sur "Afficher Docs" pour voir les analyses disponibles.
           </p>
         ) : (
           <>

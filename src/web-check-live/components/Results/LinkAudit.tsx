@@ -111,7 +111,6 @@ interface LinkAuditData {
   mixedContent: MixedContent[];
   internalLinks: number;
   externalLinks: number;
-  score: number;
 }
 
 const LinkAuditCard = (props: { data: LinkAuditData, title?: string, actionButtons?: any, refCode?: string }): JSX.Element => {
@@ -119,20 +118,10 @@ const LinkAuditCard = (props: { data: LinkAuditData, title?: string, actionButto
 
   if (!data) return <Card heading={props.title || "Audit des Liens"} refCode={props.refCode}>Chargement...</Card>;
 
-  const getScoreColor = (score: number) => {
-    if (score >= 90) return '#22c55e';
-    if (score >= 70) return '#eab308';
-    return '#ef4444';
-  };
-
   return (
     <Card heading={props.title || "Audit des Liens & Contenu (SEO & Qualité)"} actionButtons={props.actionButtons} refCode={props.refCode}>
       <Container>
         <StatsGrid>
-          <StatCard color={getScoreColor(data.score)}>
-            <div className="value">{data.score}/100</div>
-            <div className="label">Score Santé</div>
-          </StatCard>
           <StatCard>
             <div className="value">{data.totalLinks}</div>
             <div className="label">Total Liens</div>

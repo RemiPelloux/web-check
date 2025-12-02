@@ -52,31 +52,6 @@ const StatLabel = styled.div`
   font-weight: 600;
 `;
 
-const RiskGauge = styled.div<{ score: number }>`
-  width: 100%;
-  height: 8px;
-  background: ${colors.backgroundDarker};
-  border-radius: 4px;
-  margin-top: 1rem;
-  overflow: hidden;
-  position: relative;
-
-  &::after {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    height: 100%;
-    width: ${props => (props.score / 6) * 100}%;
-    background: ${props => {
-    if (props.score <= 2) return colors.danger;
-    if (props.score <= 4) return colors.warning;
-    return colors.success;
-  }};
-    transition: width 0.5s ease-in-out;
-  }
-`;
-
 const CategoryGrid = styled.div`
   display: flex;
   flex-wrap: wrap;
@@ -145,12 +120,6 @@ const FilterButton = styled.button<{ active: boolean }>`
 
 // --- Helper Functions ---
 
-const getSecurityLevel = (score: number) => {
-  if (score <= 2) return { label: 'Risque Critique', color: colors.danger };
-  if (score <= 4) return { label: 'Risque Moyen', color: colors.warning };
-  return { label: 'Sécurisé', color: colors.success };
-};
-
 const formatCookieValue = (value: string): string => {
   if (!value) return 'N/A';
   if (value.length > 60) return value.substring(0, 60) + '...';
@@ -188,8 +157,6 @@ const CookiesCard = (props: { data: any, title: string, actionButtons: any, refC
     return true;
   });
 
-  const securityStatus = getSecurityLevel(summary.securityScore);
-
   return (
     <Card heading={props.title} actionButtons={props.actionButtons} refCode={props.refCode}>
       <DashboardContainer>
@@ -203,15 +170,6 @@ const CookiesCard = (props: { data: any, title: string, actionButtons: any, refC
               <CategoryTag category="header">Server: {summary.bySource.header}</CategoryTag>
               <CategoryTag category="client">Client: {summary.bySource.client}</CategoryTag>
             </CategoryGrid>
-          </StatCard>
-
-          <StatCard>
-            <StatValue color={securityStatus.color}>{summary.securityScore}/6</StatValue>
-            <StatLabel>Security Score</StatLabel>
-            <RiskGauge score={summary.securityScore} />
-            <div style={{ marginTop: '0.5rem', fontSize: '0.8rem', color: securityStatus.color, fontWeight: 'bold' }}>
-              {securityStatus.label}
-            </div>
           </StatCard>
 
           <StatCard>

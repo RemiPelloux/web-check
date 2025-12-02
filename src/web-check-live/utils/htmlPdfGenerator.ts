@@ -794,7 +794,7 @@ const generateHTMLReport = (
           <span class="cover-info-value">${currentDate}</span>
         </div>
       <div class="cover-info-row">
-        <span class="cover-info-label">${(data.criticalIssues + data.warnings) <= 1 ? 'Problème détecté' : 'Problèmes détectés'}</span>
+        <span class="cover-info-label">${(data.criticalIssues + data.warnings) <= 1 ? 'Analyse détectée' : 'Analyses détectées'}</span>
         <span class="cover-info-value">${data.criticalIssues + data.warnings} ${(data.criticalIssues + data.warnings) <= 1 ? 'problème' : 'problèmes'}</span>
       </div>
       <div class="cover-info-row">
@@ -873,7 +873,7 @@ const generateHTMLReport = (
             <td>${new Date(data.timestamp).toLocaleString('fr-FR')}</td>
           </tr>
           <tr>
-            <td style="font-weight: 600;">${(data.criticalIssues + data.warnings) <= 1 ? 'Problème détecté' : 'Problèmes détectés'}</td>
+            <td style="font-weight: 600;">${(data.criticalIssues + data.warnings) <= 1 ? 'Analyse détectée' : 'Analyses détectées'}</td>
             <td>${data.criticalIssues + data.warnings} ${(data.criticalIssues + data.warnings) <= 1 ? 'problème' : 'problèmes'}</td>
           </tr>
           <tr>

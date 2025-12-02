@@ -749,7 +749,7 @@ const ProfessionalComplianceDashboard: React.FC<ProfessionalComplianceDashboardP
             <TableHeader>
               <TableRow>
                 <TableHeaderCell style={{ width: '40px' }}></TableHeaderCell>
-                <TableHeaderCell>Problème</TableHeaderCell>
+                <TableHeaderCell>Analyse</TableHeaderCell>
                 <TableHeaderCell style={{ width: '120px' }}>Catégorie</TableHeaderCell>
                 <TableHeaderCell style={{ width: '140px' }}>Criticité</TableHeaderCell>
                 <TableHeaderCell>Recommandation</TableHeaderCell>

@@ -297,11 +297,11 @@ const EnhancedComplianceSummaryCard: React.FC<EnhancedComplianceSummaryProps> = 
           <h2>🚨 Analyses Critiques (${complianceAnalysis.criticalIssues.length})</h2>
           ${complianceAnalysis.criticalIssues.map((issue, index) => `
             <div class="issue">
-              <h3>${index + 1}. ${issue.title || 'Problème critique'}</h3>
-              <p><strong>Criticité:</strong> ${issue.severity || 'Critique'}</p>
+              <h3>${index + 1}. ${issue.title || 'Analyse critique'}</h3>
+              <p><strong>Criticité :</strong> ${issue.severity || 'Critique'}</p>
               <p><strong>Description:</strong> ${issue.description || 'Description non disponible'}</p>
               ${issue.recommendation ? `<p><strong>Recommandation:</strong> ${issue.recommendation}</p>` : ''}
-              ${issue.article ? `<p><strong>Article Loi 1.565:</strong> ${issue.article}</p>` : ''}
+              ${issue.article ? `<p><strong>Article Loi 1.565 :</strong> ${issue.article}</p>` : ''}
             </div>
           `).join('')}
         </div>
@@ -671,7 +671,7 @@ const EnhancedComplianceSummaryCard: React.FC<EnhancedComplianceSummaryProps> = 
                 borderRadius: '4px'
               }}>
                 <div style={{ fontWeight: '600', color: colors.error, marginBottom: '4px' }}>
-                  {typeof issue === 'string' ? issue : issue.title || 'Problème critique'}
+                  {typeof issue === 'string' ? issue : issue.title || 'Analyse critique'}
                 </div>
                 {typeof issue === 'object' && issue.description && (
                   <div style={{ fontSize: '14px', color: colors.textColorSecondary }}>
