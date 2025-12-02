@@ -54,6 +54,44 @@ const RiskTitle = styled.h3<{ riskLevel: string }>`
   }};
 `;
 
+const ScoreBarContainer = styled.div`
+  margin-top: 12px;
+  width: 100%;
+  max-width: 300px;
+`;
+
+const ScoreLabel = styled.div`
+  display: flex;
+  justify-content: space-between;
+  font-size: 14px;
+  color: ${colors.textColorSecondary};
+  margin-bottom: 6px;
+  font-weight: 600;
+`;
+
+const ProgressBar = styled.div<{ score: number }>`
+  height: 10px;
+  background: #e5e7eb;
+  border-radius: 5px;
+  overflow: hidden;
+  position: relative;
+
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    width: ${props => props.score}%;
+    background: ${props => 
+      props.score >= 90 ? '#22c55e' : 
+      props.score >= 70 ? '#eab308' : 
+      props.score >= 50 ? '#f97316' : '#ef4444'};
+    border-radius: 5px;
+    transition: width 1s ease-in-out;
+  }
+`;
+
 const StatsGroup = styled.div`
   display: flex;
   gap: 16px;
@@ -282,10 +320,9 @@ interface VulnerabilitiesCardProps {
   };
   title: string;
   actionButtons?: any;
-  refCode?: string;
 }
 
-const VulnerabilitiesCard: React.FC<VulnerabilitiesCardProps> = ({ data, title, actionButtons, refCode }) => {
+const VulnerabilitiesCard: React.FC<VulnerabilitiesCardProps> = ({ data, title, actionButtons }) => {
   const [activeTab, setActiveTab] = useState('all');
   const [expandedItems, setExpandedItems] = useState<Set<number>>(new Set());
 
@@ -301,7 +338,7 @@ const VulnerabilitiesCard: React.FC<VulnerabilitiesCardProps> = ({ data, title, 
 
   if (data?.error) {
     return (
-      <Card heading={title} actionButtons={actionButtons} refCode={refCode}>
+      <Card heading={title} actionButtons={actionButtons}>
         <div style={{ textAlign: 'center', padding: '40px', color: colors.textColorSecondary }}>
           <h3>Analyse indisponible</h3>
           <p>{data.error}</p>
@@ -312,6 +349,7 @@ const VulnerabilitiesCard: React.FC<VulnerabilitiesCardProps> = ({ data, title, 
 
   const vulnerabilities = data?.vulnerabilities || [];
   const summary = data?.summary || { totalVulnerabilities: 0, critical: 0, high: 0, medium: 0, low: 0, info: 0 };
+  const score = data?.securityScore || 100;
   const technologies = data?.technologies || [];
   
   // Determine display risk level if not provided
@@ -344,7 +382,7 @@ const VulnerabilitiesCard: React.FC<VulnerabilitiesCardProps> = ({ data, title, 
   };
 
   return (
-    <Card heading={title} actionButtons={actionButtons} refCode={refCode}>
+    <Card heading={title} actionButtons={actionButtons}>
       <Container>
         <SummaryBanner riskLevel={displayRisk || 'Minimal'}>
           <ScoreInfo>
@@ -354,6 +392,13 @@ const VulnerabilitiesCard: React.FC<VulnerabilitiesCardProps> = ({ data, title, 
             <RiskTitle riskLevel={displayRisk || 'Minimal'}>
               {getRiskTranslation(displayRisk || 'Minimal')}
             </RiskTitle>
+            <ScoreBarContainer>
+              <ScoreLabel>
+                <span>Score de Sécurité</span>
+                <span>{score}/100</span>
+              </ScoreLabel>
+              <ProgressBar score={score} />
+            </ScoreBarContainer>
           </ScoreInfo>
           
           <StatsGroup>

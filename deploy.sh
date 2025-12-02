@@ -140,8 +140,11 @@ fi
 
 # Step 1: Clean local macOS hidden files
 print_step "Step 1/7: Cleaning macOS hidden files..."
-run_command "find . -name '._*' -delete 2>/dev/null || true" \
+run_command "find . -name '._*' -delete 2>/dev/null; find . -name '.DS_Store' -delete 2>/dev/null || true" \
   "Removed macOS hidden files"
+# Also clean on server before transfer
+run_command "ssh ${REMOTE_USER}@${REMOTE_HOST} 'cd ${REMOTE_PATH} && find . -name \"._*\" -delete 2>/dev/null || true'" \
+  "Cleaned server-side hidden files (pre-transfer)"
 
 # Step 2: Transfer files to server
 print_step "Step 2/7: Transferring files to server..."
@@ -150,7 +153,8 @@ if [ "$DRY_RUN" = true ]; then
   echo -e "${YELLOW}[DRY RUN]${NC} Would transfer files to ${REMOTE_USER}@${REMOTE_HOST}:${REMOTE_PATH}"
 else
   echo "Creating archive and transferring..."
-  tar czf - \
+  # Use COPYFILE_DISABLE to prevent macOS resource forks
+  COPYFILE_DISABLE=1 tar czf - \
     --exclude='node_modules' \
     --exclude='.git' \
     --exclude='.vite' \
@@ -159,6 +163,7 @@ else
     --exclude='._*' \
     --exclude='.DS_Store' \
     --exclude='*.log' \
+    --exclude='checkit.db' \
     . | ssh ${REMOTE_USER}@${REMOTE_HOST} "cd ${REMOTE_PATH} && tar xzf -"
   
   if [ $? -eq 0 ]; then
@@ -190,6 +195,14 @@ run_command "ssh ${REMOTE_USER}@${REMOTE_HOST} '${BUILD_CMD}'" \
 print_step "Step 5/7: Starting services..."
 run_command "ssh ${REMOTE_USER}@${REMOTE_HOST} 'cd ${REMOTE_PATH} && docker compose up -d'" \
   "Services started"
+
+# Clean hidden files in mounted volumes (they get picked up by nodemon)
+run_command "ssh ${REMOTE_USER}@${REMOTE_HOST} 'cd ${REMOTE_PATH} && find ./src ./server ./api ./public -name \"._*\" -delete 2>/dev/null || true'" \
+  "Cleaned hidden files in mounted volumes"
+
+# Wait for nodemon to restart after volume changes
+echo "Waiting for services to stabilize..."
+sleep 5
 
 # Step 6: Run database migrations (Symfony-style)
 print_step "Step 6/7: Running database migrations..."

@@ -13,6 +13,11 @@ services:
       - PORT=3001
       # PUBLIC_API_ENDPOINT removed - use relative /api paths
     volumes:
+      # Mount source code for live updates without rebuild
+      - ./src:/app/src:ro
+      - ./server:/app/server:ro
+      - ./api:/app/api:ro
+      - ./public:/app/public:ro
       # Persist SQLite database between container restarts
       - checkit-database:/app/database
 
