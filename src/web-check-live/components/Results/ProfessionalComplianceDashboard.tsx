@@ -710,7 +710,7 @@ const ProfessionalComplianceDashboard: React.FC<ProfessionalComplianceDashboardP
           <HeaderRight>
             <ExportButton onClick={handleSaveResults}>
               <span style={{ fontSize: '18px' }}>💾</span>
-              Sauvegarder le résultat
+              Télécharger le résultat d’analyse
             </ExportButton>
           </HeaderRight>
         </HeaderContent>
