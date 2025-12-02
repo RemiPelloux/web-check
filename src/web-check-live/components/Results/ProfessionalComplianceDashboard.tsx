@@ -720,7 +720,7 @@ const ProfessionalComplianceDashboard: React.FC<ProfessionalComplianceDashboardP
       <StatsGrid>
         <StatCard color="red">
           <StatNumber color="red">{analysis.criticalIssues.length}</StatNumber>
-          <StatLabel>Problèmes Critiques</StatLabel>
+          <StatLabel>Analyses Critiques</StatLabel>
         </StatCard>
         <StatCard color="orange">
           <StatNumber color="orange">{analysis.warnings.length}</StatNumber>

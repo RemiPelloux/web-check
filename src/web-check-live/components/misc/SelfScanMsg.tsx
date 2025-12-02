@@ -37,11 +37,11 @@ const SelfScanMsg = () => {
       <b>{messages[Math.floor(Math.random() * messages.length)]}</b>
       <br />
       <span>
-        But if you want to learn more about our professional platform,
-        check out the <a href='/about'>documentation</a>!
+        Pour en savoir plus sur notre plateforme professionnelle,
+        consultez la <a href='/wiki'>documentation</a> !
       </span>
       <br />
-      <i>Explore our comprehensive analysis capabilities</i> 🔍
+      <i>Découvrez nos capacités d'analyse complètes</i> 🔍
     </StyledSelfScanMsg>
   );
 };

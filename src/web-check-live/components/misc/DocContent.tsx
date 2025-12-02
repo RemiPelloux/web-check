@@ -91,7 +91,10 @@ const DocContent = (id: string) => {
       <p className="doc-desc">{doc.description}</p>
       <Heading as="h4" size="small">Cas d'usage</Heading>
       <p className="doc-uses">{doc.use}</p>
-      <Heading as="h4" size="small">Liens de référence</Heading>
+      <Heading as="h4" size="small">Ressources Utiles</Heading>
+      <p style={{ fontSize: '12px', color: '#666', fontStyle: 'italic', marginBottom: '1rem' }}>
+        (Les liens ne sont pas cliquables mais uniquement copiable car l'APDP n'est pas en mesure de confirmer la conformité du site et de son contenu)
+      </p>
       <ol>
         {doc.resources.map((resource: string | { title: string, link: string } , index: number) => {
           const url = typeof resource === 'string' ? resource : resource.link;

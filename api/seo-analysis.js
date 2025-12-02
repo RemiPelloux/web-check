@@ -605,7 +605,7 @@ function generateSEORecommendations(results) {
   if (criticalIssues.length > 0) {
     recommendations.push({
       priority: 'Critique',
-      title: 'Problèmes SEO critiques',
+      title: 'Analyses SEO critiques',
       description: `${criticalIssues.length} problème(s) critique(s) à corriger immédiatement`,
       actions: criticalIssues.map(issue => issue.recommendation).filter(Boolean)
     });

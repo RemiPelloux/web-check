@@ -190,7 +190,7 @@ const ComplianceHelp = ({ section = 'overview' }: ComplianceHelpProps): JSX.Elem
 
       <h4>Pondération des Issues</h4>
       <ul>
-        <li><strong>Problèmes Critiques</strong> - 15 points (vulnérabilités de sécurité majeures)</li>
+        <li><strong>Analyses Critiques</strong> - 15 points (vulnérabilités de sécurité majeures)</li>
         <li><strong>Alertes Importantes</strong> - 8 points (problèmes de conformité significatifs)</li>
         <li><strong>Améliorations</strong> - 3 points (optimisations recommandées)</li>
         <li><strong>Éléments Conformes</strong> - +2.5 points (bonnes pratiques détectées)</li>

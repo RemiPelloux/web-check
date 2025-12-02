@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo } from 'react';
 import styled from '@emotion/styled';
 import colors from 'web-check-live/styles/colors';
 
@@ -188,7 +188,7 @@ const MetaItem = styled.span`
   gap: 4px;
 `;
 
-const IssueCard: React.FC<IssueCardProps> = ({ issue, onActionClick }) => {
+const IssueCard: React.FC<IssueCardProps> = memo(({ issue, onActionClick }) => {
   const getSeverityIcon = (severity: string) => {
     switch (severity) {
       case 'Critique': return '⚠';
@@ -231,7 +231,10 @@ const IssueCard: React.FC<IssueCardProps> = ({ issue, onActionClick }) => {
       )}
     </CardContainer>
   );
-};
+});
+
+// Display name for debugging
+IssueCard.displayName = 'IssueCard';
 
 export default IssueCard;
 

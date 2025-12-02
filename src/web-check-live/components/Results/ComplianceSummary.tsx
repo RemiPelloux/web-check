@@ -401,7 +401,7 @@ const ComplianceSummaryCard = ({ data, title, actionButtons }: ComplianceSummary
       {(criticalIssues.length > 0 || warnings.length > 0) && (
         <DetailSection>
           <h4 style={{ fontSize: '14px', fontWeight: '600', marginBottom: '8px', color: colors.textColor }}>
-            Problèmes Identifiés
+            Analyses Identifiées
           </h4>
           <IssueList>
             {criticalIssues.slice(0, 3).map((issue, index) => (

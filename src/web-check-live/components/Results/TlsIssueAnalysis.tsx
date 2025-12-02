@@ -60,10 +60,10 @@ const makeResults = (results: any) => {
   if (mozillaEvaluationWorker.level) rows.push({ lbl: 'Niveau évaluation Mozilla', val: mozillaEvaluationWorker.level });
   if (mozillaEvaluationWorker.failures) {
     const { bad, old, intermediate, modern } = mozillaEvaluationWorker.failures;
-    if (bad) rows.push({ lbl: `Problèmes critiques (${bad.length})`, list: bad });
-    if (old) rows.push({ lbl: `Problèmes compatibilité (${old.length})`, list: old });
-    if (intermediate) rows.push({ lbl: `Problèmes intermédiaires (${intermediate.length})`, list: intermediate });
-    if (modern) rows.push({ lbl: `Problèmes modernes (${modern.length})`, list: modern });
+    if (bad) rows.push({ lbl: `Analyses critiques (${bad.length})`, list: bad });
+    if (old) rows.push({ lbl: `Analyses compatibilité (${old.length})`, list: old });
+    if (intermediate) rows.push({ lbl: `Analyses intermédiaires (${intermediate.length})`, list: intermediate });
+    if (modern) rows.push({ lbl: `Analyses modernes (${modern.length})`, list: modern });
   }
   return rows;
 };

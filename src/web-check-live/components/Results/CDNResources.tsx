@@ -16,24 +16,6 @@ const CDNHeader = styled.div`
   margin-bottom: 16px;
 `;
 
-const PerformanceScore = styled.div<{ score: number }>`
-  width: 60px;
-  height: 60px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 16px;
-  font-weight: 700;
-  color: white;
-  background: ${props => {
-    if (props.score >= 90) return '#22c55e';
-    if (props.score >= 70) return '#eab308';
-    if (props.score >= 50) return '#f59e0b';
-    return '#ef4444';
-  }};
-`;
-
 const StatsGrid = styled.div`
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
@@ -265,19 +247,6 @@ const CDNResourcesCard: React.FC<CDNResourcesCardProps> = ({ data, title, action
               {summary.totalResources} ressource{summary.totalResources > 1 ? 's' : ''} • {summary.externalDomains} domaine{summary.externalDomains > 1 ? 's' : ''}
             </p>
           </div>
-          <div style={{ display: 'flex', alignItems: 'center', gap: '12px' }}>
-            <PerformanceScore score={summary.performanceScore}>
-              {summary.performanceScore}
-            </PerformanceScore>
-            <div>
-              <div style={{ fontSize: '12px', color: colors.textColorSecondary }}>Score Performance</div>
-              <div style={{ fontSize: '14px', fontWeight: '600', color: colors.textColor }}>
-                {summary.performanceScore >= 90 ? 'Excellent' : 
-                 summary.performanceScore >= 70 ? 'Bon' : 
-                 summary.performanceScore >= 50 ? 'Moyen' : 'Faible'}
-              </div>
-            </div>
-          </div>
         </CDNHeader>
 
         <StatsGrid>
@@ -295,7 +264,7 @@ const CDNResourcesCard: React.FC<CDNResourcesCardProps> = ({ data, title, action
           </StatCard>
           <StatCard type="security">
             <StatNumber>{summary.securityIssues}</StatNumber>
-            <StatLabel>Problèmes</StatLabel>
+            <StatLabel>Analyses</StatLabel>
           </StatCard>
         </StatsGrid>
 

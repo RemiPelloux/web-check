@@ -415,7 +415,7 @@ const ComplianceResume: React.FC<ComplianceResumeProps> = ({ data, allResults })
       <ResumeBody>
         <SummaryGrid>
           <SummaryCard status="critical">
-            <SummaryTitle>🚨 Problèmes Critiques</SummaryTitle>
+            <SummaryTitle>🚨 Analyses Critiques</SummaryTitle>
             <SummaryValue>{data.criticalIssues}</SummaryValue>
             <SummarySubtext>
               Nécessitent une action immédiate pour assurer la conformité APDP

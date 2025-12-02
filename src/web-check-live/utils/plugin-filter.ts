@@ -1,8 +1,14 @@
 const API_BASE_URL = import.meta.env.PUBLIC_API_ENDPOINT || '/api';
 
+// Cache state
 let cachedDisabledPlugins: string[] | null = null;
 let cacheTimestamp = 0;
 const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes
+
+// Singleton promise to prevent N+1 API calls
+// When multiple hooks call fetchDisabledPlugins() simultaneously,
+// they all await the same in-flight request instead of making 40+ separate calls
+let pendingFetchPromise: Promise<string[]> | null = null;
 
 /**
  * Check if we're in a browser environment
@@ -13,6 +19,7 @@ const isBrowser = (): boolean => {
 
 /**
  * Fetch disabled plugins from the server
+ * Uses singleton promise pattern - all concurrent calls share the same request
  * @returns Promise<string[]> List of disabled plugin names
  */
 export const fetchDisabledPlugins = async (): Promise<string[]> => {
@@ -21,38 +28,51 @@ export const fetchDisabledPlugins = async (): Promise<string[]> => {
     return [];
   }
 
-  // Check cache first
+  // Check cache first (synchronous - fastest path)
   const now = Date.now();
   if (cachedDisabledPlugins !== null && (now - cacheTimestamp) < CACHE_DURATION) {
     return cachedDisabledPlugins;
   }
 
-  try {
-    const token = localStorage.getItem('checkitAuthToken');
-    if (!token) {
-      return [];
-    }
-
-    const response = await fetch(`${API_BASE_URL}/plugins/available`, {
-      headers: {
-        'Authorization': `Bearer ${token}`
-      }
-    });
-
-    if (!response.ok) {
-      console.error('Failed to fetch disabled plugins');
-      return [];
-    }
-
-    const data = await response.json();
-    cachedDisabledPlugins = data.disabledPlugins || [];
-    cacheTimestamp = now;
-    
-    return cachedDisabledPlugins;
-  } catch (error) {
-    console.error('Error fetching disabled plugins:', error);
-    return [];
+  // If there's already a fetch in progress, reuse it (prevents N+1 calls)
+  if (pendingFetchPromise !== null) {
+    return pendingFetchPromise;
   }
+
+  // Start the actual fetch and store the promise
+  pendingFetchPromise = (async (): Promise<string[]> => {
+    try {
+      const token = localStorage.getItem('checkitAuthToken');
+      if (!token) {
+        return [];
+      }
+
+      const response = await fetch(`${API_BASE_URL}/plugins/available`, {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        console.error('Failed to fetch disabled plugins');
+        return [];
+      }
+
+      const data = await response.json();
+      cachedDisabledPlugins = data.disabledPlugins || [];
+      cacheTimestamp = Date.now();
+      
+      return cachedDisabledPlugins;
+    } catch (error) {
+      console.error('Error fetching disabled plugins:', error);
+      return [];
+    } finally {
+      // Clear the pending promise after completion
+      pendingFetchPromise = null;
+    }
+  })();
+
+  return pendingFetchPromise;
 };
 
 /**
@@ -104,6 +124,7 @@ export const isAPDPUser = (): boolean => {
 export const clearPluginCache = (): void => {
   cachedDisabledPlugins = null;
   cacheTimestamp = 0;
+  pendingFetchPromise = null;
 };
 
 export default {

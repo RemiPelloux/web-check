@@ -200,7 +200,7 @@ const EnhancedComplianceDashboard: React.FC<EnhancedComplianceDashboardProps> = 
       <StatsBar>
         <StatItem>
           <StatValue type="critical">{analysis.criticalIssues.length}</StatValue>
-          <StatLabel>Problèmes Critiques</StatLabel>
+          <StatLabel>Analyses Critiques</StatLabel>
         </StatItem>
         <StatItem>
           <StatValue type="warning">{analysis.warnings.length}</StatValue>
@@ -226,7 +226,7 @@ const EnhancedComplianceDashboard: React.FC<EnhancedComplianceDashboardProps> = 
           {analysis.criticalIssues.length > 0 && (
             <IssuesList
               issues={analysis.criticalIssues}
-              title="Problèmes Critiques"
+              title="Analyses Critiques"
               totalCount={analysis.criticalIssues.length}
               type="critical"
             />

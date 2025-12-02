@@ -105,6 +105,7 @@ CREATE TABLE IF NOT EXISTS wiki_plugin_docs (
 );
 
 -- Create indexes for better performance
+-- Note: Composite indexes are created via migration 004_add_composite_indexes.js
 CREATE INDEX IF NOT EXISTS idx_users_username ON users(username);
 CREATE INDEX IF NOT EXISTS idx_users_role ON users(role);
 CREATE INDEX IF NOT EXISTS idx_audit_user_id ON audit_log(user_id);

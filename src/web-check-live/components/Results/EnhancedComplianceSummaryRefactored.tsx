@@ -277,7 +277,7 @@ const EnhancedComplianceSummaryCard: React.FC<EnhancedComplianceSummaryProps> = 
             <StatNumber severity="critical">
               {complianceAnalysis.criticalIssues}
             </StatNumber>
-            <StatLabel>Problèmes Critiques</StatLabel>
+            <StatLabel>Analyses Critiques</StatLabel>
             <StatHint>↓ Cliquez pour voir</StatHint>
           </StatCard>
 
@@ -414,7 +414,7 @@ const EnhancedComplianceSummaryCard: React.FC<EnhancedComplianceSummaryProps> = 
           color: colors.error, 
           marginBottom: '12px' 
         }}>
-          🚨 Problèmes Critiques ({complianceAnalysis.criticalIssues})
+          🚨 Analyses Critiques ({complianceAnalysis.criticalIssues})
         </h4>
         {/* Critical issues content would go here */}
       </div>

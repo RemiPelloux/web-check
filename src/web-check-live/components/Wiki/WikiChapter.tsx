@@ -208,6 +208,9 @@ const WikiChapter = ({
       {doc.resources && doc.resources.length > 0 && (
         <>
           <Heading as="h4" size="small">Ressources Utiles</Heading>
+          <Description style={{ fontSize: '12px', color: '#666', fontStyle: 'italic', marginBottom: '0.5rem', marginTop: '-0.5rem' }}>
+            (Les liens ne sont pas cliquables mais uniquement copiable car l'APDP n'est pas en mesure de confirmer la conformité du site et de son contenu)
+          </Description>
           <ResourceList>
             {doc.resources.map((link, linkIdx) => (
               typeof link === 'string' ? (

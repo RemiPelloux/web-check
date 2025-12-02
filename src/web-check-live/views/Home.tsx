@@ -394,6 +394,7 @@ const Home = (): JSX.Element => {
   const [inputDisabled] = useState(false);
   const [userProfile, setUserProfile] = useState<any>(null);
   const [allowedUrls, setAllowedUrls] = useState<string[]>([]);
+  const [isProfileLoading, setIsProfileLoading] = useState(true);
   const navigate = useNavigate();
 
   const location = useLocation();
@@ -415,6 +416,7 @@ const Home = (): JSX.Element => {
         console.error('Error loading user profile:', e);
       }
     }
+    setIsProfileLoading(false);
   }, []);
 
   /* Redirect strait to results, if somehow we land on /check?url=[] */
@@ -528,7 +530,44 @@ const Home = (): JSX.Element => {
 
         {/* Main Input Form */}
         <UserInputMain onSubmit={formSubmitEvent}>
-          {userProfile?.role === 'DPD' && allowedUrls.length > 0 ? (
+          {isProfileLoading ? (
+            // Loading state - show spinner while profile loads
+            <div style={{ 
+              display: 'flex', 
+              flexDirection: 'column',
+              alignItems: 'center', 
+              justifyContent: 'center',
+              padding: '48px 24px',
+              gap: '16px'
+            }}>
+              <svg 
+                width="48" 
+                height="48" 
+                viewBox="0 0 24 24" 
+                xmlns="http://www.w3.org/2000/svg"
+                style={{ animation: 'spin 1s linear infinite' }}
+              >
+                <style>{`@keyframes spin { 100% { transform: rotate(360deg); } }`}</style>
+                <circle 
+                  cx="12" 
+                  cy="12" 
+                  r="10" 
+                  stroke={colors.primary} 
+                  strokeWidth="3" 
+                  fill="none" 
+                  strokeLinecap="round"
+                  strokeDasharray="31.4 31.4"
+                />
+              </svg>
+              <p style={{ 
+                color: colors.textColorSecondary, 
+                fontSize: 14,
+                margin: 0
+              }}>
+                Chargement...
+              </p>
+            </div>
+          ) : userProfile?.role === 'DPD' && allowedUrls.length > 0 ? (
             // Show URL cards for DPD users
             <div>
               <p style={{ 

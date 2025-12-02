@@ -42,7 +42,7 @@ const LighthouseCard = (props: { data: any, title: string, actionButtons: any, r
         {/* Failed Audits */}
         {audits.length > 0 && (
           <ExpandableRow
-            lbl="Problèmes Détectés"
+            lbl="Analyses Détectées"
             val={`${audits.length} issues`}
             rowList={audits.map((audit: any) => ({
               lbl: audit.title,

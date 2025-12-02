@@ -423,7 +423,7 @@ const PluginDocEditor = ({
         </FormGroup>
         
         <FormGroup>
-          <Label>Ressources utiles</Label>
+          <Label>Ressources Utiles</Label>
           <ResourcesContainer>
             {formData.resources.map((resource, index) => (
               <ResourceItem key={index}>

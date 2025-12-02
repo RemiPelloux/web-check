@@ -526,7 +526,6 @@ const Header = (): JSX.Element => {
               <LogoDivider>
                 <LogoText onClick={handleGoHome} title="Retour à l'accueil">
                   <h1>Outil d'analyse de la sécurité</h1>
-                  <p>Usage interne - Contrôleurs APDP Monaco</p>
                 </LogoText>
               </LogoDivider>
               <MobileLogoText onClick={handleGoHome}>APDP</MobileLogoText>

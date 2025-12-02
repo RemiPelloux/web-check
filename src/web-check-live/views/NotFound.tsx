@@ -53,11 +53,11 @@ const NotFound = (): JSX.Element => {
     <NotFoundInner>
       <Heading as="h2" size="large" color={colors.primary}>404</Heading>
       <span className="im-drink">🥴</span>
-      <Heading as="h3" size="large" color={colors.primary}>Not Found</Heading>
+      <Heading as="h3" size="large" color={colors.primary}>Page introuvable</Heading>
       <HeaderLinkContainer>
-        <a href="/"><Button>Back to Homepage</Button></a>
+        <a href="/"><Button>Retour à l'accueil</Button></a>
       </HeaderLinkContainer>
-      <a href="/about">Contact Support</a>
+      <a href="/wiki">Consulter la documentation</a>
     </NotFoundInner>
     </AboutContainer>
     <Footer isFixed={true} />

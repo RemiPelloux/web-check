@@ -270,7 +270,7 @@ const EnhancedComplianceSummaryCard: React.FC<EnhancedComplianceSummaryProps> = 
         
         <div class="stats">
           <div class="stat">
-            <h3>Problèmes Critiques</h3>
+            <h3>Analyses Critiques</h3>
             <div style="font-size: 24px; color: #ef4444;">${Array.isArray(complianceAnalysis.criticalIssues) ? complianceAnalysis.criticalIssues.length : 0}</div>
           </div>
           <div class="stat">
@@ -294,7 +294,7 @@ const EnhancedComplianceSummaryCard: React.FC<EnhancedComplianceSummaryProps> = 
 
         ${complianceAnalysis.criticalIssues && Array.isArray(complianceAnalysis.criticalIssues) && complianceAnalysis.criticalIssues.length > 0 ? `
         <div class="section">
-          <h2>🚨 Problèmes Critiques (${complianceAnalysis.criticalIssues.length})</h2>
+          <h2>🚨 Analyses Critiques (${complianceAnalysis.criticalIssues.length})</h2>
           ${complianceAnalysis.criticalIssues.map((issue, index) => `
             <div class="issue">
               <h3>${index + 1}. ${issue.title || 'Problème critique'}</h3>
@@ -450,7 +450,6 @@ const EnhancedComplianceSummaryCard: React.FC<EnhancedComplianceSummaryProps> = 
 
         <div class="footer">
           <p>Rapport généré par l'Outil d'analyse de la sécurité</p>
-          <p>Usage interne - Contrôleurs APDP Monaco</p>
           <p>Confidentiel - Ne pas diffuser sans autorisation</p>
         </div>
       </body>
@@ -540,7 +539,7 @@ const EnhancedComplianceSummaryCard: React.FC<EnhancedComplianceSummaryProps> = 
             <StatNumber severity="critical">
               {Array.isArray(complianceAnalysis.criticalIssues) ? complianceAnalysis.criticalIssues.length : complianceAnalysis.criticalIssues || 0}
             </StatNumber>
-            <StatLabel>Problèmes Critiques</StatLabel>
+            <StatLabel>Analyses Critiques</StatLabel>
             <StatHint>↓ Cliquez pour voir</StatHint>
           </StatCard>
 
@@ -659,7 +658,7 @@ const EnhancedComplianceSummaryCard: React.FC<EnhancedComplianceSummaryProps> = 
           color: colors.error, 
           marginBottom: '12px' 
         }}>
-          🚨 Problèmes Critiques ({Array.isArray(complianceAnalysis.criticalIssues) ? complianceAnalysis.criticalIssues.length : 0})
+          🚨 Analyses Critiques ({Array.isArray(complianceAnalysis.criticalIssues) ? complianceAnalysis.criticalIssues.length : 0})
         </h4>
         {complianceAnalysis.criticalIssues && Array.isArray(complianceAnalysis.criticalIssues) && complianceAnalysis.criticalIssues.length > 0 ? (
           <div style={{ marginLeft: '16px' }}>

@@ -79,6 +79,181 @@ const formatValue = (value: any): string => {
  * Plugin renderer configurations
  */
 const pluginRenderers: Record<string, (data: any, key: string) => string> = {
+  // RGPD Compliance - Comprehensive Analysis
+  'rgpd-compliance': (data) => {
+    if (!data || data.error) return '';
+    
+    const criticalCount = data.criticalIssues?.length || 0;
+    const warningsCount = data.warnings?.length || 0;
+    const improvementsCount = data.improvements?.length || 0;
+    const compliantCount = data.compliantItems?.length || 0;
+    const score = data.numericScore ?? data.overallScore ?? 'N/A';
+    
+    // Determine overall status
+    let statusClass = 'success';
+    let statusText = 'Conforme';
+    if (criticalCount > 0) {
+      statusClass = 'error';
+      statusText = 'Non conforme';
+    } else if (warningsCount > 0) {
+      statusClass = 'warning';
+      statusText = 'Partiellement conforme';
+    }
+    
+    // Render issues
+    const renderIssues = (issues: any[], title: string, cssClass: string) => {
+      if (!issues || issues.length === 0) return '';
+      return `
+        <div class="issue-section ${cssClass}">
+          <h4>${title} (${issues.length})</h4>
+          <ul class="issue-list">
+            ${issues.slice(0, 5).map((issue: any) => `
+              <li>
+                <strong>${escapeHtml(issue.title)}</strong>
+                <p>${escapeHtml(issue.description)}</p>
+                ${issue.recommendation ? `<p class="recommendation">→ ${escapeHtml(issue.recommendation)}</p>` : ''}
+                ${issue.article ? `<span class="article">${escapeHtml(issue.article)}</span>` : ''}
+              </li>
+            `).join('')}
+          </ul>
+          ${issues.length > 5 ? `<p class="more">+ ${issues.length - 5} autres...</p>` : ''}
+        </div>
+      `;
+    };
+    
+    return `
+      <div class="plugin-card wide rgpd-card">
+        <div class="plugin-header">
+          <span class="plugin-icon">⚖️</span>
+          <h3>Analyse RGPD/APDP Complète</h3>
+          <span class="status-badge ${statusClass}">${statusText}</span>
+        </div>
+        <div class="plugin-content">
+          <div class="score-summary">
+            <div class="score-box">
+              <span class="score-value">${score}</span>
+              <span class="score-label">Score</span>
+            </div>
+            <div class="counts-grid">
+              <div class="count-item critical"><span>${criticalCount}</span>Critiques</div>
+              <div class="count-item warning"><span>${warningsCount}</span>Avertissements</div>
+              <div class="count-item improvement"><span>${improvementsCount}</span>Améliorations</div>
+              <div class="count-item compliant"><span>${compliantCount}</span>Conformes</div>
+            </div>
+          </div>
+          
+          ${renderIssues(data.criticalIssues, '🚨 Analyses Critiques', 'critical')}
+          ${renderIssues(data.warnings, '⚠️ Avertissements', 'warning')}
+          ${renderIssues(data.improvements, '💡 Améliorations', 'improvement')}
+          ${renderIssues(data.compliantItems, '✅ Points Conformes', 'compliant')}
+          
+          ${data.recommendations?.length > 0 ? `
+            <div class="recommendations-section">
+              <h4>📋 Recommandations Prioritaires</h4>
+              ${data.recommendations.slice(0, 3).map((rec: any) => `
+                <div class="recommendation-item">
+                  <strong>${escapeHtml(rec.priority || rec.title || '')}</strong>
+                  <p>${escapeHtml(rec.description || '')}</p>
+                  ${rec.actions ? `<ul>${rec.actions.slice(0, 3).map((a: string) => `<li>${escapeHtml(a)}</li>`).join('')}</ul>` : ''}
+                </div>
+              `).join('')}
+            </div>
+          ` : ''}
+          
+          ${data.detailedAnalysis ? `
+            <div class="detailed-analysis">
+              <h4>📊 Analyse Détaillée</h4>
+              <table class="info-table">
+                ${data.detailedAnalysis.cookies ? `
+                  <tr><td class="label">Cookies analysés</td><td>${data.detailedAnalysis.cookies.total || 0} (${data.detailedAnalysis.cookies.secure || 0} sécurisés)</td></tr>
+                ` : ''}
+                ${data.detailedAnalysis.securityHeaders ? `
+                  <tr><td class="label">En-têtes de sécurité</td><td>${data.detailedAnalysis.securityHeaders.present || 0}/${data.detailedAnalysis.securityHeaders.total || 0}</td></tr>
+                ` : ''}
+                ${data.detailedAnalysis.thirdPartyServices ? `
+                  <tr><td class="label">Services tiers</td><td>${data.detailedAnalysis.thirdPartyServices.count || 0}</td></tr>
+                ` : ''}
+              </table>
+            </div>
+          ` : ''}
+        </div>
+      </div>
+    `;
+  },
+
+  // IP Address
+  'get-ip': (data) => {
+    if (!data || data.error) return '';
+    return `
+      <div class="plugin-card">
+        <div class="plugin-header">
+          <span class="plugin-icon">🌐</span>
+          <h3>Adresse IP</h3>
+        </div>
+        <div class="plugin-content">
+          <table class="info-table">
+            ${data.ip ? `<tr><td class="label">IP</td><td><code>${escapeHtml(data.ip)}</code></td></tr>` : ''}
+            ${data.family ? `<tr><td class="label">Version</td><td>IPv${data.family}</td></tr>` : ''}
+            ${data.hostname ? `<tr><td class="label">Hostname</td><td>${escapeHtml(data.hostname)}</td></tr>` : ''}
+          </table>
+        </div>
+      </div>
+    `;
+  },
+
+  // Quality Analysis (separate from Lighthouse)
+  'quality': (data) => {
+    if (!data || data.error) return '';
+    const score = data.score || 0;
+    const categories = data.categories || {};
+    
+    return `
+      <div class="plugin-card wide">
+        <div class="plugin-header">
+          <span class="plugin-icon">📈</span>
+          <h3>Qualité du Site</h3>
+          <span class="status-badge ${score >= 80 ? 'success' : score >= 50 ? 'warning' : 'error'}">${score}/100</span>
+        </div>
+        <div class="plugin-content">
+          <table class="info-table">
+            ${categories.performance ? `
+              <tr>
+                <td class="label">Performance</td>
+                <td>${categories.performance.score}/100 ${categories.performance.issues?.length > 0 ? `<br><small>${categories.performance.issues.slice(0, 2).join(', ')}</small>` : ''}</td>
+              </tr>
+            ` : ''}
+            ${categories.accessibility ? `
+              <tr>
+                <td class="label">Accessibilité</td>
+                <td>${categories.accessibility.score}/100 ${categories.accessibility.issues?.length > 0 ? `<br><small>${categories.accessibility.issues.slice(0, 2).join(', ')}</small>` : ''}</td>
+              </tr>
+            ` : ''}
+            ${categories.bestPractices ? `
+              <tr>
+                <td class="label">Bonnes Pratiques</td>
+                <td>${categories.bestPractices.score}/100 ${categories.bestPractices.issues?.length > 0 ? `<br><small>${categories.bestPractices.issues.slice(0, 2).join(', ')}</small>` : ''}</td>
+              </tr>
+            ` : ''}
+            ${categories.seo ? `
+              <tr>
+                <td class="label">SEO</td>
+                <td>${categories.seo.score}/100 ${categories.seo.issues?.length > 0 ? `<br><small>${categories.seo.issues.slice(0, 2).join(', ')}</small>` : ''}</td>
+              </tr>
+            ` : ''}
+          </table>
+          ${data.suggestions?.length > 0 ? `
+            <div style="margin-top: 10px;">
+              <strong>Suggestions:</strong>
+              <ul style="font-size: 8pt; margin: 5px 0; padding-left: 15px;">
+                ${data.suggestions.slice(0, 4).map((s: string) => `<li>${escapeHtml(s)}</li>`).join('')}
+              </ul>
+            </div>
+          ` : ''}
+        </div>
+      </div>
+    `;
+  },
+
   // SSL Certificate
   'ssl': (data) => {
     if (!data || data.error) return '';
@@ -1023,21 +1198,115 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
     `;
   },
 
-  // TLS
+  // TLS General
   'tls': (data) => {
     if (!data || data.error) return '';
+    
+    // Handle different TLS data structures
+    const version = data.tlsVersion || data.version || data.protocol || '';
+    const cipher = data.cipherSuite || data.cipher || '';
+    const grade = data.grade || data.rating || '';
+    const supported = data.protocols || data.supportedProtocols || [];
+    
     return `
       <div class="plugin-card">
         <div class="plugin-header">
           <span class="plugin-icon">🔐</span>
           <h3>Configuration TLS</h3>
+          ${grade ? `<span class="status-badge ${grade === 'A' || grade === 'A+' ? 'success' : 'warning'}">${grade}</span>` : ''}
         </div>
         <div class="plugin-content">
           <table class="info-table">
-            ${data.tlsVersion || data.version ? `<tr><td class="label">Version</td><td>${escapeHtml(data.tlsVersion || data.version)}</td></tr>` : ''}
-            ${data.cipherSuite ? `<tr><td class="label">Cipher</td><td>${escapeHtml(data.cipherSuite)}</td></tr>` : ''}
-            ${data.grade ? `<tr><td class="label">Grade</td><td>${escapeHtml(data.grade)}</td></tr>` : ''}
+            ${version ? `<tr><td class="label">Version</td><td>${escapeHtml(version)}</td></tr>` : ''}
+            ${cipher ? `<tr><td class="label">Cipher Suite</td><td><code>${escapeHtml(cipher)}</code></td></tr>` : ''}
+            ${supported.length > 0 ? `<tr><td class="label">Protocoles</td><td>${supported.slice(0, 4).map((p: any) => escapeHtml(p.protocol || p)).join(', ')}</td></tr>` : ''}
           </table>
+        </div>
+      </div>
+    `;
+  },
+
+  // TLS Cipher Suites
+  'tls-cipher-suites': (data) => {
+    if (!data || data.error) return '';
+    
+    const ciphers = data.ciphers || data.cipherSuites || [];
+    const weak = ciphers.filter((c: any) => c.weak || c.insecure);
+    const strong = ciphers.filter((c: any) => !c.weak && !c.insecure);
+    
+    return `
+      <div class="plugin-card">
+        <div class="plugin-header">
+          <span class="plugin-icon">🔒</span>
+          <h3>Suites de Chiffrement TLS</h3>
+          <span class="status-badge ${weak.length === 0 ? 'success' : 'warning'}">
+            ${weak.length === 0 ? '✓ Sécurisé' : `⚠ ${weak.length} faible(s)`}
+          </span>
+        </div>
+        <div class="plugin-content">
+          ${ciphers.length > 0 ? `
+            <table class="info-table">
+              <tr><td class="label">Total</td><td>${ciphers.length} suites</td></tr>
+              <tr><td class="label">Fortes</td><td>${strong.length}</td></tr>
+              <tr><td class="label">Faibles</td><td>${weak.length}</td></tr>
+            </table>
+            ${weak.length > 0 ? `
+              <p style="color: #991b1b; font-size: 8pt; margin-top: 8px;">
+                ⚠ Suites faibles: ${weak.slice(0, 3).map((c: any) => escapeHtml(c.name || c.cipher || c)).join(', ')}
+              </p>
+            ` : ''}
+          ` : '<p class="empty">Aucune suite de chiffrement analysée</p>'}
+        </div>
+      </div>
+    `;
+  },
+
+  // TLS Security Config
+  'tls-security-config': (data) => {
+    if (!data || data.error) return '';
+    
+    return `
+      <div class="plugin-card">
+        <div class="plugin-header">
+          <span class="plugin-icon">🛡️</span>
+          <h3>Configuration Sécurité TLS</h3>
+        </div>
+        <div class="plugin-content">
+          <table class="info-table">
+            ${data.grade ? `<tr><td class="label">Grade</td><td><strong>${escapeHtml(data.grade)}</strong></td></tr>` : ''}
+            ${data.forwardSecrecy !== undefined ? `<tr><td class="label">Forward Secrecy</td><td>${data.forwardSecrecy ? '✓ Activé' : '✗ Non'}</td></tr>` : ''}
+            ${data.heartbleed !== undefined ? `<tr><td class="label">Heartbleed</td><td>${!data.heartbleed ? '✓ Protégé' : '⚠ Vulnérable'}</td></tr>` : ''}
+            ${data.poodle !== undefined ? `<tr><td class="label">POODLE</td><td>${!data.poodle ? '✓ Protégé' : '⚠ Vulnérable'}</td></tr>` : ''}
+            ${data.beast !== undefined ? `<tr><td class="label">BEAST</td><td>${!data.beast ? '✓ Protégé' : '⚠ Vulnérable'}</td></tr>` : ''}
+          </table>
+        </div>
+      </div>
+    `;
+  },
+
+  // TLS Client Support
+  'tls-client-support': (data) => {
+    if (!data || data.error) return '';
+    
+    const clients = data.clients || data.supportedClients || data.compatibility || [];
+    
+    return `
+      <div class="plugin-card">
+        <div class="plugin-header">
+          <span class="plugin-icon">💻</span>
+          <h3>Compatibilité TLS Clients</h3>
+        </div>
+        <div class="plugin-content">
+          ${clients.length > 0 ? `
+            <table class="info-table">
+              ${clients.slice(0, 6).map((c: any) => `
+                <tr>
+                  <td class="label">${escapeHtml(c.name || c.client || c)}</td>
+                  <td>${c.supported !== false ? '✓ Compatible' : '✗ Non compatible'}</td>
+                </tr>
+              `).join('')}
+            </table>
+          ` : '<p class="empty">Données de compatibilité non disponibles</p>'}
         </div>
       </div>
     `;
@@ -1161,11 +1430,7 @@ const keyAliases: Record<string, string> = {
   'traceroute': 'trace-route',
   'host-names': 'hosts',
   'hostNames': 'hosts',
-  'tls-cipher-suites': 'tls',
-  'tls-security-config': 'tls',
-  'tls-client-support': 'tls',
   'tls-handshake': 'tls',
-  'quality': 'lighthouse',
   'server-info': 'server-info',
   'serverInfo': 'server-info',
   'subdomainTakeover': 'subdomain-takeover',
@@ -1178,6 +1443,82 @@ const keyAliases: Record<string, string> = {
   'cdnResources': 'cdn-resources',
   'httpSecurity': 'http-security',
   'techStack': 'tech-stack',
+  'rgpdCompliance': 'rgpd-compliance',
+  'getIp': 'get-ip',
+  'ip': 'get-ip',
+  'robotsTxt': 'robots',
+};
+
+/**
+ * Generic fallback renderer for plugins without specific renderers
+ * Shows all data in a readable format
+ */
+const genericPluginRenderer = (data: any, key: string): string => {
+  if (!data || data.error) return '';
+  
+  // Skip if data is just a primitive
+  if (typeof data !== 'object') return '';
+  
+  // Get plugin display name
+  const displayName = key.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+  
+  // Function to render value
+  const renderValue = (value: any, depth = 0): string => {
+    if (value === null || value === undefined) return 'N/A';
+    if (typeof value === 'boolean') return value ? '✓ Oui' : '✗ Non';
+    if (typeof value === 'number') return value.toString();
+    if (typeof value === 'string') {
+      if (value.length > 100) return escapeHtml(value.substring(0, 100)) + '...';
+      return escapeHtml(value);
+    }
+    if (Array.isArray(value)) {
+      if (value.length === 0) return 'Aucun';
+      return value.slice(0, 5).map(v => {
+        if (typeof v === 'object' && v !== null) {
+          return escapeHtml(v.name || v.value || v.url || JSON.stringify(v).substring(0, 50));
+        }
+        return escapeHtml(String(v));
+      }).join(', ') + (value.length > 5 ? ` (+${value.length - 5})` : '');
+    }
+    if (typeof value === 'object' && depth < 1) {
+      const entries = Object.entries(value).slice(0, 5);
+      return entries.map(([k, v]) => `${k}: ${renderValue(v, depth + 1)}`).join(', ');
+    }
+    return '';
+  };
+  
+  // Get important fields to display
+  const importantFields = Object.entries(data)
+    .filter(([k, v]) => 
+      v !== null && 
+      v !== undefined && 
+      k !== 'error' && 
+      k !== 'statusCode' &&
+      k !== 'timestamp' &&
+      typeof v !== 'function'
+    )
+    .slice(0, 10);
+  
+  if (importantFields.length === 0) return '';
+  
+  return `
+    <div class="plugin-card">
+      <div class="plugin-header">
+        <span class="plugin-icon">📋</span>
+        <h3>${displayName}</h3>
+      </div>
+      <div class="plugin-content">
+        <table class="info-table">
+          ${importantFields.map(([k, v]) => `
+            <tr>
+              <td class="label">${escapeHtml(k.replace(/([A-Z])/g, ' $1').trim())}</td>
+              <td>${renderValue(v)}</td>
+            </tr>
+          `).join('')}
+        </table>
+      </div>
+    </div>
+  `;
 };
 
 /**
@@ -1191,9 +1532,79 @@ export const generateFullResultsHTML = (allResults: PluginResult, siteName: stri
 
   // Generate plugin cards dynamically
   const pluginCards: string[] = [];
+  const processedPlugins: string[] = [];
   
+  // Priority order - RGPD compliance first, then other important plugins
+  const priorityOrder = [
+    'rgpd-compliance',
+    'ssl',
+    'tls',
+    'tls-cipher-suites',
+    'tls-security-config',
+    'tls-client-support',
+    'http-security',
+    'cookies',
+    'apdp-cookie-banner',
+    'apdp-privacy-policy',
+    'apdp-legal-notices',
+    'quality',
+    'lighthouse',
+    'tech-stack',
+    'dns',
+    'dnssec',
+    'hsts',
+    'threats',
+    'vulnerabilities',
+    'secrets',
+    'exposed-files',
+    'get-ip',
+    'location',
+    'domain',
+    'firewall',
+    'headers',
+    'security-txt',
+    'mail-config',
+    'cdn-resources',
+    'carbon',
+    'link-audit',
+    'sitemap',
+    'robots-txt',
+    'redirects',
+    'status',
+    'block-lists',
+    'subdomain-enumeration',
+    'subdomain-takeover',
+    'trace-route',
+    'ports',
+    'archives',
+    'rank',
+    'social-tags',
+    'linked-pages',
+    'txt-records',
+    'dns-server',
+    'hosts',
+    'server-info'
+  ];
+  
+  // Process plugins in priority order first
+  for (const key of priorityOrder) {
+    if (!allResults[key] || allResults[key].error) continue;
+    
+    const rendererKey = keyAliases[key] || key;
+    const renderer = pluginRenderers[rendererKey];
+    
+    if (renderer) {
+      const html = renderer(allResults[key], key);
+      if (html) {
+        pluginCards.push(html);
+        processedPlugins.push(key);
+      }
+    }
+  }
+  
+  // Process remaining plugins
   for (const [key, data] of Object.entries(allResults)) {
-    if (!data || data.error || key === 'url') continue;
+    if (!data || data.error || key === 'url' || processedPlugins.includes(key)) continue;
     
     // Check for custom renderer
     const rendererKey = keyAliases[key] || key;
@@ -1201,7 +1612,17 @@ export const generateFullResultsHTML = (allResults: PluginResult, siteName: stri
     
     if (renderer) {
       const html = renderer(data, key);
-      if (html) pluginCards.push(html);
+      if (html) {
+        pluginCards.push(html);
+        processedPlugins.push(key);
+      }
+    } else {
+      // Use generic fallback renderer for unknown plugins
+      const html = genericPluginRenderer(data, key);
+      if (html) {
+        pluginCards.push(html);
+        processedPlugins.push(key);
+      }
     }
   }
 
@@ -1257,6 +1678,50 @@ export const generateFullResultsHTML = (allResults: PluginResult, siteName: stri
       overflow: hidden; break-inside: avoid;
     }
     .plugin-card.wide { grid-column: span 2; }
+    
+    /* RGPD Compliance Card Styles */
+    .rgpd-card { border: 2px solid #dc2626; }
+    .rgpd-card .plugin-header { background: linear-gradient(135deg, #fef2f2 0%, #fee2e2 100%); }
+    
+    .score-summary { display: flex; align-items: center; gap: 20px; margin-bottom: 15px; padding-bottom: 15px; border-bottom: 1px solid #e0e0e0; }
+    .score-box { 
+      text-align: center; padding: 15px 25px; 
+      background: linear-gradient(135deg, #dc2626 0%, #991b1b 100%); 
+      border-radius: 8px; color: white; 
+    }
+    .score-value { font-size: 24pt; font-weight: 700; display: block; }
+    .score-label { font-size: 9pt; opacity: 0.9; }
+    
+    .counts-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; flex: 1; }
+    .count-item { text-align: center; padding: 10px; border-radius: 6px; font-size: 8pt; }
+    .count-item span { display: block; font-size: 16pt; font-weight: 700; }
+    .count-item.critical { background: #fee2e2; color: #991b1b; }
+    .count-item.warning { background: #fef3c7; color: #92400e; }
+    .count-item.improvement { background: #e0f2fe; color: #0369a1; }
+    .count-item.compliant { background: #dcfce7; color: #166534; }
+    
+    .issue-section { margin-top: 15px; padding: 12px; border-radius: 6px; }
+    .issue-section.critical { background: #fef2f2; border-left: 4px solid #dc2626; }
+    .issue-section.warning { background: #fffbeb; border-left: 4px solid #f59e0b; }
+    .issue-section.improvement { background: #f0f9ff; border-left: 4px solid #0284c7; }
+    .issue-section.compliant { background: #f0fdf4; border-left: 4px solid #16a34a; }
+    .issue-section h4 { font-size: 10pt; margin-bottom: 8px; }
+    .issue-list { list-style: none; font-size: 9pt; }
+    .issue-list li { margin-bottom: 10px; padding-bottom: 10px; border-bottom: 1px solid rgba(0,0,0,0.05); }
+    .issue-list li:last-child { border-bottom: none; margin-bottom: 0; padding-bottom: 0; }
+    .issue-list strong { display: block; margin-bottom: 3px; }
+    .issue-list p { margin: 0; color: #666; line-height: 1.4; }
+    .issue-list .recommendation { color: #0369a1; font-style: italic; margin-top: 4px; }
+    .issue-list .article { display: inline-block; margin-top: 4px; font-size: 8pt; background: #f1f5f9; padding: 2px 6px; border-radius: 3px; }
+    
+    .recommendations-section { margin-top: 15px; padding: 12px; background: #f8fafc; border-radius: 6px; }
+    .recommendations-section h4 { font-size: 10pt; margin-bottom: 10px; }
+    .recommendation-item { margin-bottom: 10px; padding: 8px; background: white; border-radius: 4px; border: 1px solid #e2e8f0; }
+    .recommendation-item strong { color: #1e40af; }
+    .recommendation-item ul { margin: 5px 0 0 0; padding-left: 15px; font-size: 8pt; }
+    
+    .detailed-analysis { margin-top: 15px; padding: 12px; background: #f8fafc; border-radius: 6px; }
+    .detailed-analysis h4 { font-size: 10pt; margin-bottom: 8px; }
     
     .plugin-header {
       display: flex; align-items: center; gap: 10px;
@@ -1334,7 +1799,7 @@ export const generateFullResultsHTML = (allResults: PluginResult, siteName: stri
       <div class="site-meta">
         <span>📅 ${currentDate}</span>
         <span>🛡️ Outil d'analyse de la sécurité APDP</span>
-        <span>📊 ${pluginCards.length} modules analysés</span>
+        <span>📊 ${processedPlugins.length} modules analysés</span>
       </div>
     </div>
     

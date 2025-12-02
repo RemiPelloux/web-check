@@ -505,7 +505,7 @@ function generateAccessibilityRecommendations(results) {
   if (results.summary.critical > 0) {
     recommendations.push({
       priority: 'Critique',
-      title: 'Problèmes critiques d\'accessibilité',
+      title: 'Analyses critiques d\'accessibilité',
       description: `${results.summary.critical} problème(s) critique(s) bloquant l'accessibilité`,
       actions: results.issues
         .filter(issue => issue.severity === 'critical')
@@ -517,7 +517,7 @@ function generateAccessibilityRecommendations(results) {
   if (results.summary.serious > 0) {
     recommendations.push({
       priority: 'Élevée',
-      title: 'Problèmes sérieux d\'accessibilité',
+      title: 'Analyses sérieuses d\'accessibilité',
       description: `${results.summary.serious} problème(s) sérieux affectant l'accessibilité`,
       actions: results.issues
         .filter(issue => issue.severity === 'serious')
