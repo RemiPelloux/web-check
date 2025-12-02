@@ -173,12 +173,14 @@ router.get('/content', authMiddleware, (req, res) => {
 });
 
 // ==================== Admin Wiki Routes ====================
+// These routes are mounted at both /api/wiki and /api/admin/wiki
+// When mounted at /api/admin/wiki, the /sections/:id path becomes /api/admin/wiki/sections/:id
 
 /**
  * PUT /api/admin/wiki/sections/:id
  * Update wiki section (APDP only)
  */
-router.put('/admin/sections/:id', authMiddleware, adminOnlyMiddleware, (req, res) => {
+router.put('/sections/:id', authMiddleware, adminOnlyMiddleware, (req, res) => {
   try {
     const { title, content, order_index, is_visible } = req.body;
     
@@ -208,7 +210,7 @@ router.put('/admin/sections/:id', authMiddleware, adminOnlyMiddleware, (req, res
  * POST /api/admin/wiki/sections
  * Create new wiki section (APDP only)
  */
-router.post('/admin/sections', authMiddleware, adminOnlyMiddleware, (req, res) => {
+router.post('/sections', authMiddleware, adminOnlyMiddleware, (req, res) => {
   try {
     const { id, title, content, order_index, is_visible } = req.body;
     
@@ -243,7 +245,7 @@ router.post('/admin/sections', authMiddleware, adminOnlyMiddleware, (req, res) =
  * DELETE /api/admin/wiki/sections/:id
  * Delete wiki section (APDP only)
  */
-router.delete('/admin/sections/:id', authMiddleware, adminOnlyMiddleware, (req, res) => {
+router.delete('/sections/:id', authMiddleware, adminOnlyMiddleware, (req, res) => {
   try {
     const success = deleteWikiSection(req.params.id);
     
@@ -271,7 +273,7 @@ router.delete('/admin/sections/:id', authMiddleware, adminOnlyMiddleware, (req, 
  * PUT /api/admin/wiki/plugins/:id
  * Update plugin documentation (APDP only)
  */
-router.put('/admin/plugins/:id', authMiddleware, adminOnlyMiddleware, (req, res) => {
+router.put('/plugins/:id', authMiddleware, adminOnlyMiddleware, (req, res) => {
   try {
     const { title, description, use_case, resources, screenshot_url, is_visible } = req.body;
     
@@ -315,7 +317,7 @@ router.put('/admin/plugins/:id', authMiddleware, adminOnlyMiddleware, (req, res)
  * POST /api/admin/wiki/seed
  * Seed wiki content from defaults (APDP only)
  */
-router.post('/admin/seed', authMiddleware, adminOnlyMiddleware, async (req, res) => {
+router.post('/seed', authMiddleware, adminOnlyMiddleware, async (req, res) => {
   try {
     const { force } = req.body;
     const { seedWikiContent } = await import('../../database/seed-wiki.js');

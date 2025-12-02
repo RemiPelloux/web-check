@@ -18,9 +18,6 @@ services:
       - ./server:/app/server:ro
       - ./api:/app/api:ro
       - ./public:/app/public:ro
-      # Persist SQLite database between container restarts
-      - checkit-database:/app/database
-
-volumes:
-  checkit-database:
-    driver: local
+      # Mount database folder (code files update, checkit.db persists on host)
+      # The deploy script excludes checkit.db from transfer, so host db persists
+      - ./database:/app/database

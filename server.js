@@ -86,8 +86,11 @@ app.use(`${API_DIR}/auth`, authRoutes);
 // Admin routes (users, plugins, statistics, audit-log, scan-history)
 app.use(`${API_DIR}/admin`, adminRoutes);
 
-// Wiki routes (sections, plugins, content, admin wiki management)
+// Wiki routes (sections, plugins, content)
 app.use(`${API_DIR}/wiki`, wikiRoutes);
+
+// Admin wiki routes (also available at /api/admin/wiki for frontend compatibility)
+app.use(`${API_DIR}/admin/wiki`, wikiRoutes);
 
 // ==================== Remaining Inline Routes ====================
 

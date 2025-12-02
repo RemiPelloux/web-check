@@ -298,9 +298,14 @@ const seedWikiContent = (force = false) => {
   return true;
 };
 
-// Run if called directly
-const args = process.argv.slice(2);
-const force = args.includes('--force');
-seedWikiContent(force);
+// Only run if called directly (not when imported as a module)
+const isMainModule = import.meta.url === `file://${process.argv[1]}` || 
+                     process.argv[1]?.endsWith('seed-wiki.js');
+
+if (isMainModule) {
+  const args = process.argv.slice(2);
+  const force = args.includes('--force');
+  seedWikiContent(force);
+}
 
 export { seedWikiContent, DEFAULT_SECTIONS };
