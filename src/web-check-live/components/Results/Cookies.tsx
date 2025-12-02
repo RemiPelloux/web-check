@@ -167,14 +167,14 @@ const CookiesCard = (props: { data: any, title: string, actionButtons: any, refC
             <StatValue color={colors.primary}>{summary.total}</StatValue>
             <StatLabel>Total Cookies</StatLabel>
             <CategoryGrid>
-              <CategoryTag category="header">Server: {summary.bySource.header}</CategoryTag>
+              <CategoryTag category="header">Serveur: {summary.bySource.header}</CategoryTag>
               <CategoryTag category="client">Client: {summary.bySource.client}</CategoryTag>
             </CategoryGrid>
           </StatCard>
 
           <StatCard>
             <StatValue>{Object.keys(summary.byCategory).length}</StatValue>
-            <StatLabel>Categories</StatLabel>
+            <StatLabel>Catégories</StatLabel>
             <CategoryGrid>
               {Object.entries(summary.byCategory).map(([cat, count]) => (
                 <CategoryTag key={cat} category={cat}>{cat}: {count as number}</CategoryTag>
@@ -186,11 +186,11 @@ const CookiesCard = (props: { data: any, title: string, actionButtons: any, refC
         {/* Analysis & Compliance */}
         {(analysis?.securityIssues?.length > 0 || analysis?.recommendations?.length > 0) && (
           <div>
-            <Heading as="h3" size="small" color={colors.textColor}>Assessment Summary</Heading>
+            <Heading as="h3" size="small" color={colors.textColor}>Résumé de l'Évaluation</Heading>
 
             {analysis?.securityIssues?.length > 0 && (
               <IssueBlock>
-                <div style={{ fontWeight: 'bold', color: colors.danger, marginBottom: '0.5rem' }}>⚠️ Security Issues Detected</div>
+                <div style={{ fontWeight: 'bold', color: colors.danger, marginBottom: '0.5rem' }}>⚠️ Analyses de Sécurité Détectées</div>
                 <ul style={{ margin: 0, paddingLeft: '1.5rem', color: colors.textColorSecondary }}>
                   {analysis.securityIssues.map((issue: string, i: number) => (
                     <li key={i}>{issue}</li>
@@ -201,7 +201,7 @@ const CookiesCard = (props: { data: any, title: string, actionButtons: any, refC
 
             {analysis?.recommendations?.length > 0 && (
               <ComplianceBlock>
-                <div style={{ fontWeight: 'bold', color: colors.info, marginBottom: '0.5rem' }}>💡 Recommendations</div>
+                <div style={{ fontWeight: 'bold', color: colors.info, marginBottom: '0.5rem' }}>💡 Recommandations</div>
                 <ul style={{ margin: 0, paddingLeft: '1.5rem', color: colors.textColorSecondary }}>
                   {analysis.recommendations.map((rec: string, i: number) => (
                     <li key={i}>{rec}</li>
@@ -222,11 +222,11 @@ const CookiesCard = (props: { data: any, title: string, actionButtons: any, refC
           </div>
 
           <FilterBar>
-            <FilterButton active={filter === 'all'} onClick={() => setFilter('all')}>All</FilterButton>
-            <FilterButton active={filter === 'header'} onClick={() => setFilter('header')}>Server-Side</FilterButton>
-            <FilterButton active={filter === 'client'} onClick={() => setFilter('client')}>Client-Side</FilterButton>
-            <FilterButton active={filter === 'secure'} onClick={() => setFilter('secure')}>Secure</FilterButton>
-            <FilterButton active={filter === 'insecure'} onClick={() => setFilter('insecure')}>Insecure</FilterButton>
+            <FilterButton active={filter === 'all'} onClick={() => setFilter('all')}>Tous</FilterButton>
+            <FilterButton active={filter === 'header'} onClick={() => setFilter('header')}>Côté Serveur</FilterButton>
+            <FilterButton active={filter === 'client'} onClick={() => setFilter('client')}>Côté Client</FilterButton>
+            <FilterButton active={filter === 'secure'} onClick={() => setFilter('secure')}>Sécurisé</FilterButton>
+            <FilterButton active={filter === 'insecure'} onClick={() => setFilter('insecure')}>Non Sécurisé</FilterButton>
           </FilterBar>
 
           {filteredCookies.map((cookie: any, index: number) => {
@@ -235,8 +235,8 @@ const CookiesCard = (props: { data: any, title: string, actionButtons: any, refC
             // Security Attributes
             if (cookie.security) {
               attributes.push({
-                lbl: 'Security',
-                val: `${cookie.security.httpOnly ? '🔒 HttpOnly' : '🔓 No HttpOnly'} | ${cookie.security.secure ? '🔒 Secure' : '🔓 Not Secure'} | SameSite: ${cookie.security.sameSite || 'None'}`
+                lbl: 'Sécurité',
+                val: `${cookie.security.httpOnly ? '🔒 HttpOnly' : '🔓 Pas HttpOnly'} | ${cookie.security.secure ? '🔒 Sécurisé' : '🔓 Non Sécurisé'} | SameSite: ${cookie.security.sameSite || 'Aucun'}`
               });
             }
 
@@ -262,7 +262,7 @@ const CookiesCard = (props: { data: any, title: string, actionButtons: any, refC
               <div key={`${cookie.source}-${index}`} style={{ marginBottom: '1rem' }}>
                 <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '0.25rem', alignItems: 'center' }}>
                   <CategoryTag category={cookie.source === 'header' ? 'security' : 'functional'}>
-                    {cookie.source === 'header' ? 'Server' : 'Client'}
+                    {cookie.source === 'header' ? 'Serveur' : 'Client'}
                   </CategoryTag>
                   {cookie.categories?.map((cat: string) => (
                     <CategoryTag key={cat} category={cat}>{cat}</CategoryTag>

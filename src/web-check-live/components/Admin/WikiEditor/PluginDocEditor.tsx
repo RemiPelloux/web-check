@@ -26,6 +26,7 @@ export interface PluginDoc {
   use_case: string;
   resources: Resource[];
   screenshot_url: string;
+  is_visible?: boolean;
   updated_at?: string;
 }
 
@@ -259,6 +260,56 @@ const UpdatedAt = styled.span`
   color: ${colors.textColorSecondary};
 `;
 
+const VisibilityToggle = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 16px;
+  background: ${colors.backgroundDarker};
+  border: 1px solid ${colors.borderColor};
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.2s;
+  
+  &:hover {
+    border-color: ${colors.primary};
+  }
+`;
+
+const Checkbox = styled.input`
+  width: 20px;
+  height: 20px;
+  accent-color: ${colors.primary};
+  cursor: pointer;
+`;
+
+const VisibilityLabel = styled.div`
+  flex: 1;
+  
+  .title {
+    font-size: 14px;
+    font-weight: 600;
+    color: ${colors.textColor};
+    margin-bottom: 2px;
+  }
+  
+  .description {
+    font-size: 12px;
+    color: ${colors.textColorSecondary};
+  }
+`;
+
+const VisibilityBadge = styled.span<{ visible: boolean }>`
+  font-size: 11px;
+  font-weight: 600;
+  padding: 4px 10px;
+  border-radius: 12px;
+  background: ${props => props.visible 
+    ? 'rgba(5, 150, 105, 0.15)' 
+    : 'rgba(220, 38, 38, 0.15)'};
+  color: ${props => props.visible ? '#059669' : '#dc2626'};
+`;
+
 // ============================================
 // Component
 // ============================================
@@ -367,6 +418,27 @@ const PluginDocEditor = ({
             placeholder="Entrez le titre du plugin"
             disabled={saving}
           />
+        </FormGroup>
+        
+        <FormGroup>
+          <Label>Visibilité dans le Wiki</Label>
+          <VisibilityToggle>
+            <Checkbox
+              type="checkbox"
+              checked={formData.is_visible !== false}
+              onChange={e => updateField('is_visible', e.target.checked)}
+              disabled={saving}
+            />
+            <VisibilityLabel>
+              <div className="title">Afficher dans la documentation</div>
+              <div className="description">
+                Si désactivé, ce plugin n'apparaîtra pas dans le wiki pour les utilisateurs DPD
+              </div>
+            </VisibilityLabel>
+            <VisibilityBadge visible={formData.is_visible !== false}>
+              {formData.is_visible !== false ? 'Visible' : 'Masqué'}
+            </VisibilityBadge>
+          </VisibilityToggle>
         </FormGroup>
         
         <TwoColumn>

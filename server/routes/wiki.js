@@ -16,6 +16,7 @@ import {
   updateWikiSection,
   deleteWikiSection,
   getWikiPluginDocs,
+  getVisibleWikiPluginDocs,
   getWikiPluginDocById,
   upsertWikiPluginDoc,
   updateWikiPluginDoc,
@@ -83,19 +84,24 @@ router.get('/sections/:id', authMiddleware, (req, res) => {
 
 /**
  * GET /api/wiki/plugins
- * Get all plugin documentation (filtered by disabled plugins for DPD users)
+ * Get all plugin documentation (filtered by disabled plugins AND visibility for DPD users)
  */
 router.get('/plugins', authMiddleware, (req, res) => {
   try {
     const isAdmin = req.user?.role === 'APDP';
-    let pluginDocs = getWikiPluginDocs();
+    // Admin sees all plugins, DPD sees only visible ones
+    let pluginDocs = isAdmin ? getWikiPluginDocs() : getVisibleWikiPluginDocs();
     
+    // Also filter out disabled plugins for DPD
     if (!isAdmin) {
       const disabledPlugins = getDisabledPlugins();
       pluginDocs = pluginDocs.filter(doc => !disabledPlugins.includes(doc.plugin_id));
     }
     
-    return res.json({ success: true, plugins: pluginDocs });
+    return res.json({ 
+      success: true, 
+      plugins: pluginDocs.map(p => ({ ...p, is_visible: p.is_visible !== false }))
+    });
   } catch (error) {
     console.error('Get wiki plugins error:', error);
     return res.status(500).json({
@@ -135,14 +141,16 @@ router.get('/plugins/:id', authMiddleware, (req, res) => {
 
 /**
  * GET /api/wiki/content
- * Get full wiki content (public endpoint for wiki page, respects plugin filtering)
+ * Get full wiki content (public endpoint for wiki page, respects plugin filtering and visibility)
  */
 router.get('/content', authMiddleware, (req, res) => {
   try {
     const isAdmin = req.user?.role === 'APDP';
     const sections = isAdmin ? getWikiSections() : getVisibleWikiSections();
-    let pluginDocs = getWikiPluginDocs();
+    // Admin sees all plugins, DPD sees only visible ones
+    let pluginDocs = isAdmin ? getWikiPluginDocs() : getVisibleWikiPluginDocs();
     
+    // Also filter out disabled plugins for DPD
     if (!isAdmin) {
       const disabledPlugins = getDisabledPlugins();
       pluginDocs = pluginDocs.filter(doc => !disabledPlugins.includes(doc.plugin_id));
@@ -151,7 +159,7 @@ router.get('/content', authMiddleware, (req, res) => {
     return res.json({
       success: true,
       sections: sections.map(s => ({ ...s, is_visible: Boolean(s.is_visible) })),
-      plugins: pluginDocs,
+      plugins: pluginDocs.map(p => ({ ...p, is_visible: p.is_visible !== false })),
       isSeeded: isWikiSeeded()
     });
   } catch (error) {
@@ -265,10 +273,10 @@ router.delete('/admin/sections/:id', authMiddleware, adminOnlyMiddleware, (req, 
  */
 router.put('/admin/plugins/:id', authMiddleware, adminOnlyMiddleware, (req, res) => {
   try {
-    const { title, description, use_case, resources, screenshot_url } = req.body;
+    const { title, description, use_case, resources, screenshot_url, is_visible } = req.body;
     
     const success = updateWikiPluginDoc(req.params.id, {
-      title, description, use_case, resources, screenshot_url
+      title, description, use_case, resources, screenshot_url, is_visible
     });
     
     if (!success) {
@@ -278,7 +286,8 @@ router.put('/admin/plugins/:id', authMiddleware, adminOnlyMiddleware, (req, res)
         description: description || '',
         use_case: use_case || '',
         resources: resources || [],
-        screenshot_url: screenshot_url || ''
+        screenshot_url: screenshot_url || '',
+        is_visible: is_visible !== false
       });
       
       if (!created) {

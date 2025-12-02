@@ -604,7 +604,22 @@ export const getWikiPluginDocs = () => {
   const rows = stmt.all();
   return rows.map(row => ({
     ...row,
-    resources: JSON.parse(row.resources || '[]')
+    resources: JSON.parse(row.resources || '[]'),
+    is_visible: row.is_visible !== undefined ? Boolean(row.is_visible) : true
+  }));
+};
+
+/**
+ * Get visible plugin docs only
+ * @returns {Array} List of visible plugin documentation
+ */
+export const getVisibleWikiPluginDocs = () => {
+  const stmt = db.prepare('SELECT * FROM wiki_plugin_docs WHERE is_visible = 1 ORDER BY plugin_id ASC');
+  const rows = stmt.all();
+  return rows.map(row => ({
+    ...row,
+    resources: JSON.parse(row.resources || '[]'),
+    is_visible: true
   }));
 };
 
@@ -630,14 +645,15 @@ export const getWikiPluginDocById = (pluginId) => {
  */
 export const upsertWikiPluginDoc = (doc) => {
   const stmt = db.prepare(`
-    INSERT INTO wiki_plugin_docs (plugin_id, title, description, use_case, resources, screenshot_url, updated_at)
-    VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
+    INSERT INTO wiki_plugin_docs (plugin_id, title, description, use_case, resources, screenshot_url, is_visible, updated_at)
+    VALUES (?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
     ON CONFLICT(plugin_id) DO UPDATE SET
       title = excluded.title,
       description = excluded.description,
       use_case = excluded.use_case,
       resources = excluded.resources,
       screenshot_url = excluded.screenshot_url,
+      is_visible = excluded.is_visible,
       updated_at = CURRENT_TIMESTAMP
   `);
   
@@ -651,7 +667,8 @@ export const upsertWikiPluginDoc = (doc) => {
     doc.description || '',
     doc.use_case || '',
     resources,
-    doc.screenshot_url || ''
+    doc.screenshot_url || '',
+    doc.is_visible !== undefined ? (doc.is_visible ? 1 : 0) : 1
   );
   
   return result.changes > 0;
@@ -689,6 +706,10 @@ export const updateWikiPluginDoc = (pluginId, updates) => {
   if (updates.screenshot_url !== undefined) {
     fields.push('screenshot_url = ?');
     values.push(updates.screenshot_url);
+  }
+  if (updates.is_visible !== undefined) {
+    fields.push('is_visible = ?');
+    values.push(updates.is_visible ? 1 : 0);
   }
   
   if (fields.length === 0) return false;
@@ -743,6 +764,7 @@ export default {
   updateWikiSection,
   deleteWikiSection,
   getWikiPluginDocs,
+  getVisibleWikiPluginDocs,
   getWikiPluginDocById,
   upsertWikiPluginDoc,
   updateWikiPluginDoc,

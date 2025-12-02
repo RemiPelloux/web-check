@@ -522,6 +522,7 @@ const WikiEditorTab = (): JSX.Element => {
                     P
                   </ItemIcon>
                   <ItemText>{plugin.title}</ItemText>
+                  <StatusDot visible={plugin.is_visible !== false} title={plugin.is_visible !== false ? 'Visible' : 'Masqué'} />
                 </SidebarItem>
               ))}
             </SidebarSection>
