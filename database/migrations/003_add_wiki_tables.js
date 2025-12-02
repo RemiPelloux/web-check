@@ -47,3 +47,5 @@ export async function down(db) {
   db.exec(`DROP TABLE IF EXISTS wiki_sections`);
 }
 
+
+

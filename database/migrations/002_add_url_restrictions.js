@@ -38,3 +38,5 @@ export async function down(db) {
   console.log('Rollback not supported for this migration');
 }
 
+
+

@@ -86,16 +86,24 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
                    (typeof data.subject === 'string' ? data.subject : '');
     const issuer = data.issuer?.O || data.issuer?.CN || 
                   (typeof data.issuer === 'string' ? data.issuer : '');
-    const validTo = data.validTo || data.expiresAt || data.notAfter;
-    const validFrom = data.validFrom || data.issuedAt || data.notBefore;
+    const validTo = data.valid_to || data.validTo || data.expiresAt || data.notAfter;
+    const validFrom = data.valid_from || data.validFrom || data.issuedAt || data.notBefore;
+    
+    // Check if certificate is valid by checking expiry date
+    let isValid = data.valid || data.validCertificate;
+    if (isValid === undefined && validTo) {
+      try {
+        isValid = new Date(validTo) > new Date();
+      } catch { isValid = false; }
+    }
     
     return `
       <div class="plugin-card">
         <div class="plugin-header">
           <span class="plugin-icon">🔒</span>
           <h3>Certificat SSL</h3>
-          <span class="status-badge ${data.valid || data.validCertificate ? 'success' : 'error'}">
-            ${data.valid || data.validCertificate ? '✓ Valide' : '✗ Invalide'}
+          <span class="status-badge ${isValid ? 'success' : 'error'}">
+            ${isValid ? '✓ Valide' : '✗ Invalide'}
           </span>
         </div>
         <div class="plugin-content">
@@ -139,9 +147,11 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
   // Cookies
   'cookies': (data) => {
     if (!data) return '';
-    const cookies = data.cookies || data.clientCookies || [];
-    const serverCookies = data.serverCookies || [];
-    const total = cookies.length + serverCookies.length;
+    // Handle various cookie data structures
+    const clientCookies = data.clientCookies || data.cookies || [];
+    const headerCookies = data.headerCookies || data.serverCookies || [];
+    const total = data.analysis?.totalCount || data.summary?.total || (clientCookies.length + headerCookies.length);
+    const allCookies = [...clientCookies, ...headerCookies];
     
     return `
       <div class="plugin-card">
@@ -151,14 +161,14 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
           <span class="status-badge info">${total} cookie${total !== 1 ? 's' : ''}</span>
         </div>
         <div class="plugin-content">
-          ${total > 0 ? `
+          ${allCookies.length > 0 ? `
             <table class="data-table">
               <thead><tr><th>Nom</th><th>Type</th><th>Sécurisé</th></tr></thead>
               <tbody>
-                ${[...cookies, ...serverCookies].slice(0, 10).map((c: any) => `
+                ${allCookies.slice(0, 10).map((c: any) => `
                   <tr>
                     <td>${escapeHtml(c.name)}</td>
-                    <td>${escapeHtml(c.category || c.type || 'autre')}</td>
+                    <td>${escapeHtml(c.categories?.[0] || c.category || c.type || 'autre')}</td>
                     <td>${c.secure ? '✓' : '✗'}</td>
                   </tr>
                 `).join('')}
@@ -242,7 +252,12 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
   // DNSSEC
   'dnssec': (data) => {
     if (!data) return '';
-    const enabled = data.enabled || data.isValid || data.secure;
+    // Check if records are actually found (handle object structure with isFound property)
+    const dnskeyFound = data.DNSKEY?.isFound === true || data.dnskey === true;
+    const dsFound = data.DS?.isFound === true || data.ds === true;
+    const rrsigFound = data.RRSIG?.isFound === true || data.rrsig === true;
+    const enabled = data.enabled || data.isValid || data.secure || (dnskeyFound && dsFound && rrsigFound);
+    
     return `
       <div class="plugin-card">
         <div class="plugin-header">
@@ -252,9 +267,9 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
         </div>
         <div class="plugin-content">
           <table class="info-table">
-            <tr><td class="label">DNSKEY</td><td>${data.dnskey || data.DNSKEY ? '✓ Présent' : '✗ Absent'}</td></tr>
-            <tr><td class="label">DS</td><td>${data.ds || data.DS ? '✓ Présent' : '✗ Absent'}</td></tr>
-            <tr><td class="label">RRSIG</td><td>${data.rrsig || data.RRSIG ? '✓ Présent' : '✗ Absent'}</td></tr>
+            <tr><td class="label">DNSKEY</td><td>${dnskeyFound ? '✓ Présent' : '✗ Absent'}</td></tr>
+            <tr><td class="label">DS</td><td>${dsFound ? '✓ Présent' : '✗ Absent'}</td></tr>
+            <tr><td class="label">RRSIG</td><td>${rrsigFound ? '✓ Présent' : '✗ Absent'}</td></tr>
           </table>
         </div>
       </div>
@@ -359,7 +374,13 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
   // Sitemap
   'sitemap': (data) => {
     if (!data || data.error) return '';
-    const urls = data.urls || data.pages || data.entries || [];
+    // Handle various sitemap structures
+    let urls = data.urls || data.pages || data.entries || [];
+    // Handle urlset.url structure (from XML sitemap parsing)
+    if (!urls.length && data.urlset?.url) {
+      urls = data.urlset.url;
+    }
+    
     return `
       <div class="plugin-card">
         <div class="plugin-header">
@@ -371,8 +392,13 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
           ${urls.length > 0 ? `
             <ul class="url-list">
               ${urls.slice(0, 12).map((u: any) => {
-                const url = typeof u === 'string' ? u : u.url || u.loc || '';
-                return `<li>${escapeHtml(url.replace(/^https?:\/\/[^/]+/, ''))}</li>`;
+                // Handle various URL structures: string, {url}, {loc: ['url']}, etc
+                let url = '';
+                if (typeof u === 'string') url = u;
+                else if (u.url) url = u.url;
+                else if (u.loc && Array.isArray(u.loc)) url = u.loc[0];
+                else if (u.loc) url = u.loc;
+                return `<li>${escapeHtml(url.replace(/^https?:\/\/[^/]+/, '') || '/')}</li>`;
               }).join('')}
             </ul>
             ${urls.length > 12 ? `<p class="more">+ ${urls.length - 12} autres...</p>` : ''}
@@ -458,13 +484,20 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
   // Robots.txt
   'robots': (data) => {
     if (!data) return '';
-    const rules = data.robots || data.rules || [];
+    // Handle various robots.txt data structures
+    let rules = data.robots || data.rules || [];
+    // If data itself is an array of rules
+    if (Array.isArray(data) && data.length > 0 && (data[0].lbl || data[0].val)) {
+      rules = data;
+    }
+    const hasRobots = rules.length > 0 || (data.found === true);
+    
     return `
       <div class="plugin-card">
         <div class="plugin-header">
           <span class="plugin-icon">🤖</span>
           <h3>Robots.txt</h3>
-          <span class="status-badge ${data.error ? 'warning' : 'success'}">${data.error ? '○ Absent' : '✓ Présent'}</span>
+          <span class="status-badge ${hasRobots ? 'success' : 'warning'}">${hasRobots ? '✓ Présent' : '○ Absent'}</span>
         </div>
         <div class="plugin-content">
           ${rules.length > 0 ? `
@@ -724,17 +757,23 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
   'trace-route': (data) => {
     if (!data || data.error) return '';
     const hops = data.hops || data.result || [];
+    const totalHops = data.totalHops || hops.length;
+    
     return `
       <div class="plugin-card">
         <div class="plugin-header">
           <span class="plugin-icon">🛤️</span>
           <h3>Traçage Route</h3>
-          <span class="status-badge info">${hops.length} saut${hops.length !== 1 ? 's' : ''}</span>
+          <span class="status-badge info">${totalHops} saut${totalHops !== 1 ? 's' : ''}</span>
         </div>
         <div class="plugin-content">
           ${hops.length > 0 ? `
             <ul class="url-list">
-              ${hops.slice(0, 6).map((h: any, i: number) => `<li>${i + 1}. ${escapeHtml(h.ip || h.host || h.address || h)} ${h.time ? `(${h.time}ms)` : ''}</li>`).join('')}
+              ${hops.slice(0, 6).map((h: any) => {
+                const hopNum = h.hop || '';
+                const ip = h.ip || h.host || h.hostname || h.address || '';
+                return `<li>${hopNum}. ${escapeHtml(ip)}</li>`;
+              }).join('')}
             </ul>
             ${hops.length > 6 ? `<p class="more">+ ${hops.length - 6} autres sauts...</p>` : ''}
           ` : '<p class="empty">Aucun résultat</p>'}
@@ -767,18 +806,21 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
   // Site Features
   'features': (data) => {
     if (!data || data.error) return '';
-    const features = data.features || data.Technologies || [];
+    // Handle various feature structures
+    const features = data.technologies || data.features || data.Technologies || [];
+    const count = data.summary?.totalDetected || features.length;
+    
     return `
       <div class="plugin-card">
         <div class="plugin-header">
           <span class="plugin-icon">✨</span>
           <h3>Fonctionnalités</h3>
-          <span class="status-badge info">${features.length} détectée${features.length !== 1 ? 's' : ''}</span>
+          <span class="status-badge info">${count} détectée${count !== 1 ? 's' : ''}</span>
         </div>
         <div class="plugin-content">
           ${features.length > 0 ? `
             <ul class="url-list">
-              ${features.slice(0, 8).map((f: any) => `<li>${escapeHtml(f.Name || f.name || f)}</li>`).join('')}
+              ${features.slice(0, 8).map((f: any) => `<li>${escapeHtml(f.name || f.Name || f)}</li>`).join('')}
             </ul>
           ` : '<p class="empty">Aucune fonctionnalité détectée</p>'}
         </div>
@@ -1115,13 +1157,27 @@ const keyAliases: Record<string, string> = {
   'dns-sec': 'dnssec',
   'carbon-footprint': 'carbon',
   'robots-txt': 'robots',
+  'robots': 'robots',
   'traceroute': 'trace-route',
   'host-names': 'hosts',
+  'hostNames': 'hosts',
   'tls-cipher-suites': 'tls',
   'tls-security-config': 'tls',
   'tls-client-support': 'tls',
   'tls-handshake': 'tls',
   'quality': 'lighthouse',
+  'server-info': 'server-info',
+  'serverInfo': 'server-info',
+  'subdomainTakeover': 'subdomain-takeover',
+  'subdomainEnumeration': 'subdomain-enumeration',
+  'linkedPages': 'linked-pages',
+  'linkAudit': 'link-audit',
+  'socialTags': 'social-tags',
+  'blockLists': 'block-lists',
+  'carbonFootprint': 'carbon',
+  'cdnResources': 'cdn-resources',
+  'httpSecurity': 'http-security',
+  'techStack': 'tech-stack',
 };
 
 /**

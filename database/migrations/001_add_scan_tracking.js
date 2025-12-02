@@ -66,3 +66,5 @@ export async function down(db) {
   // Cannot easily remove company column from users in SQLite
 }
 
+
+

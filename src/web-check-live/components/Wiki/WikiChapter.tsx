@@ -229,3 +229,5 @@ const WikiChapter = ({
 
 export default WikiChapter;
 
+
+
