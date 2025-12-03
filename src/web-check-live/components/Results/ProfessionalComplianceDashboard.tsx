@@ -14,7 +14,7 @@ const DashboardContainer = styled.div`
   max-width: 1400px;
   margin: 0 auto;
   background: ${colors.backgroundLighter};
-  min-height: 100vh;
+  min-height: 80vh;
   
   @media (max-width: 1440px) {
     max-width: 100%;

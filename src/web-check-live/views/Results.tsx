@@ -15,7 +15,7 @@ import type { RowProps } from 'web-check-live/components/Form/Row';
 import Loader from 'web-check-live/components/misc/Loader';
 import ErrorBoundary from 'web-check-live/components/misc/ErrorBoundary';
 import SelfScanMsg from 'web-check-live/components/misc/SelfScanMsg';
-import DocContent from 'web-check-live/components/misc/DocContent';
+import PluginDocModal from 'web-check-live/components/misc/PluginDocModal';
 import ProgressBar, { type LoadingJob, type LoadingState, initialJobs, createFilteredInitialJobs } from 'web-check-live/components/misc/ProgressBar';
 import ActionButtons from 'web-check-live/components/misc/ActionButtons';
 import { fetchDisabledPlugins } from 'web-check-live/utils/plugin-filter';
@@ -1461,7 +1461,7 @@ const Results = (props: { address?: string }): JSX.Element => {
   };
 
   const showInfo = (id: string) => {
-    setModalContent(DocContent(id));
+    setModalContent(<PluginDocModal pluginId={id} />);
     setModalOpen(true);
   };
 

@@ -1,13 +1,13 @@
 /**
  * WikiChapter - Single wiki chapter display
  * 
- * Renders a chapter with title, screenshot, description, use case, and resources
+ * Renders a chapter with title, screenshot, description, use case, and resources.
+ * Uses PluginDocRenderer for consistent documentation rendering across the app.
  */
 
 import styled from '@emotion/styled';
 import colors from 'web-check-live/styles/colors';
-import Heading from 'web-check-live/components/Form/Heading';
-import CopyableLink from 'web-check-live/components/misc/CopyableLink';
+import PluginDocRenderer from 'web-check-live/components/misc/PluginDocRenderer';
 
 // ============================================
 // Types
@@ -47,134 +47,17 @@ const Divider = styled.hr`
   margin: 24px auto;
 `;
 
-const Screenshot = styled.figure`
-  float: right;
-  display: inline-flex;
-  flex-direction: column;
-  clear: both;
-  max-width: 300px;
-  margin-left: 24px;
-  margin-bottom: 16px;
-  margin-top: 0;
-  
-  @media (max-width: 768px) {
-    float: none;
-    max-width: 100%;
-    margin-left: 0;
-    margin-bottom: 20px;
-  }
-  
-  img {
-    max-width: 300px;
-    width: 100%;
-    border-radius: 8px;
-    border: 1px solid ${colors.borderColor};
-    
-    @media (max-width: 768px) {
-      max-width: 100%;
-    }
-  }
-`;
-
-const Caption = styled.figcaption`
-  font-size: 12px;
-  text-align: center;
-  opacity: 0.7;
-  margin-top: 8px;
-  color: ${colors.textColorSecondary};
-`;
-
-const Description = styled.div`
-  line-height: 1.7;
-  margin-bottom: 16px;
-  color: ${colors.textColor};
-  
-  p {
-    margin: 0 0 12px;
-    
-    &:last-child {
-      margin-bottom: 0;
-    }
-  }
-  
-  ul, ol {
-    padding-left: 20px;
-    margin: 8px 0;
-  }
-  
-  li {
-    margin-bottom: 6px;
-  }
-  
-  h4 {
-    color: ${colors.primary};
-    margin: 16px 0 8px;
-    font-size: 14px;
-    font-weight: 600;
-  }
-  
-  code {
-    background: ${colors.backgroundDarker};
-    padding: 2px 6px;
-    border-radius: 4px;
-    font-family: monospace;
-    font-size: 0.9em;
-  }
-  
-  .info-box {
-    background: rgba(220, 38, 38, 0.05);
-    border: 1px solid rgba(220, 38, 38, 0.2);
-    border-radius: 8px;
-    padding: 12px 16px;
-    margin: 16px 0;
-  }
-`;
-
-const ResourceList = styled.ul`
-  padding: 0 0 0 16px;
-  list-style: circle;
-  
-  li {
-    margin-bottom: 8px;
-  }
-`;
-
-const ClickableLink = styled.a`
-  color: ${colors.primary};
-  text-decoration: none;
-  font-weight: 500;
-  
-  &:hover {
-    text-decoration: underline;
-  }
-`;
-
 // ============================================
 // Helpers
 // ============================================
 
-const isApdpDomain = (url: string): boolean => {
-  try {
-    const hostname = new URL(url).hostname;
-    return hostname.endsWith('apdp.mc') || hostname === 'apdp.mc';
-  } catch {
-    return false;
-  }
-};
-
-const makeAnchor = (title: string): string => {
-  return title.toLowerCase()
-    .replace(/[^\w\s]|_/g, "")
-    .replace(/\s+/g, "-");
-};
-
-const renderContent = (content: string): JSX.Element => {
-  // If content contains HTML tags, render as HTML
-  if (/<[a-z][\s\S]*>/i.test(content)) {
-    return <Description dangerouslySetInnerHTML={{ __html: content }} />;
-  }
-  // Otherwise render as plain text
-  return <Description><p>{content}</p></Description>;
+const normalizeResources = (resources: (string | Resource)[]): Resource[] => {
+  return resources.map(r => {
+    if (typeof r === 'string') {
+      return { title: r, link: r };
+    }
+    return r;
+  });
 };
 
 // ============================================
@@ -190,74 +73,20 @@ const WikiChapter = ({
     <ChapterSection>
       {showDivider && index > 0 && <Divider />}
       
-      <Heading 
-        as="h3" 
-        size="small" 
-        id={makeAnchor(doc.title)} 
-        color={colors.primary}
-      >
-        {doc.title}
-      </Heading>
-      
-      {doc.screenshot && (
-        <Screenshot>
-          <img 
-            src={doc.screenshot} 
-            alt={`Exemple ${doc.title}`}
-            loading="lazy"
-          />
-          <Caption>Fig.{index + 1} - Exemple de {doc.title}</Caption>
-        </Screenshot>
-      )}
-      
-      {doc.description && (
-        <>
-          <Heading as="h4" size="small">Description</Heading>
-          {renderContent(doc.description)}
-        </>
-      )}
-      
-      {doc.use && (
-        <>
-          <Heading as="h4" size="small">Cas d'Usage</Heading>
-          {renderContent(doc.use)}
-        </>
-      )}
-      
-      {doc.resources && doc.resources.length > 0 && (
-        <>
-          <Heading as="h4" size="small">Ressources Utiles</Heading>
-          {doc.id !== 'apdp-privacy-policy' && (
-            <Description style={{ fontSize: '12px', color: '#666', fontStyle: 'italic', marginBottom: '0.5rem', marginTop: '-0.5rem', fontWeight: 'bold' }}>
-              (Les liens ne sont pas cliquables mais uniquement copiables car l'APDP n'est pas en mesure de confirmer la conformité du site et de son contenu)
-            </Description>
-          )}
-          <ResourceList>
-            {doc.resources.map((link, linkIdx) => {
-              const url = typeof link === 'string' ? link : link.link;
-              const label = typeof link === 'string' ? link : link.title;
-              const isClickable = isApdpDomain(url);
-              
-              return (
-                <li key={`link-${linkIdx}`}>
-                  {isClickable ? (
-                    <ClickableLink href={url} target="_blank" rel="noopener noreferrer">
-                      {label}
-                    </ClickableLink>
-                  ) : (
-                    <CopyableLink url={url} label={label !== url ? label : undefined} />
-                  )}
-                </li>
-              );
-            })}
-          </ResourceList>
-        </>
-      )}
+      <PluginDocRenderer
+        doc={{
+          id: doc.id,
+          title: doc.title,
+          description: doc.description,
+          use_case: doc.use,
+          resources: normalizeResources(doc.resources),
+          screenshot_url: doc.screenshot
+        }}
+        showScreenshot={true}
+        screenshotIndex={index}
+      />
     </ChapterSection>
   );
 };
 
 export default WikiChapter;
-
-
-
