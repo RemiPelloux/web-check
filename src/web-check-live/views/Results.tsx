@@ -378,44 +378,62 @@ const Results = (props: { address?: string }): JSX.Element => {
   const [allowedUrls, setAllowedUrls] = useState<string[]>([]);
   const [isCheckingAccess, setIsCheckingAccess] = useState(true);
 
-  // Check URL restrictions for DPD users
+  // Check URL restrictions for DPD users - ONLY from API (never trust localStorage)
   useEffect(() => {
     const checkUrlAccess = async () => {
       const token = localStorage.getItem('checkitAuthToken');
-      const userProfileData = localStorage.getItem('checkitUser');
       
-      if (userProfileData) {
-        try {
-          const profile = JSON.parse(userProfileData);
-          setUserProfile(profile);
-          
-          // Load allowed URLs for DPD users
-          if (profile.role === 'DPD' && profile.allowedUrls) {
-            const urls = profile.allowedUrls.split(',').map((url: string) => url.trim()).filter((url: string) => url);
-            setAllowedUrls(urls);
-          }
-          
-          // Only check for DPD users with an address
-          if (profile.role === 'DPD' && token && address) {
-            const checkResponse = await fetch('/api/check-url', {
-              method: 'POST',
-              headers: {
-                'Authorization': `Bearer ${token}`,
-                'Content-Type': 'application/json'
-              },
-              body: JSON.stringify({ url: decodeURIComponent(address) })
-            });
+      if (!token) {
+        setIsCheckingAccess(false);
+        return;
+      }
+      
+      try {
+        // Fetch fresh profile from API - never trust localStorage for security
+        const profileResponse = await fetch('/api/auth/profile', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (profileResponse.ok) {
+          const profileData = await profileResponse.json();
+          if (profileData.success && profileData.user) {
+            const profile = profileData.user;
+            setUserProfile(profile);
+            
+            // Set allowed URLs ONLY from API (database source of truth)
+            if (profile.role === 'DPD' && profile.allowedUrls) {
+              const urls = profile.allowedUrls.split(',').map((url: string) => url.trim()).filter((url: string) => url);
+              setAllowedUrls(urls);
+            } else {
+              setAllowedUrls([]);
+            }
+            
+            // Check if current URL is allowed for DPD users
+            if (profile.role === 'DPD' && address) {
+              const checkResponse = await fetch('/api/check-url', {
+                method: 'POST',
+                headers: {
+                  'Authorization': `Bearer ${token}`,
+                  'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({ url: decodeURIComponent(address) })
+              });
 
-            if (checkResponse.ok) {
-              const checkData = await checkResponse.json();
-              if (!checkData.allowed) {
-                setUrlBlocked(true);
+              if (checkResponse.ok) {
+                const checkData = await checkResponse.json();
+                if (!checkData.allowed) {
+                  setUrlBlocked(true);
+                }
               }
             }
           }
-        } catch (error) {
-          console.error('Error checking URL restrictions:', error);
+        } else if (profileResponse.status === 401) {
+          // Token invalid
+          localStorage.removeItem('checkitAuthToken');
+          localStorage.removeItem('checkitUser');
         }
+      } catch (error) {
+        console.error('Error checking URL restrictions:', error);
       }
       
       setIsCheckingAccess(false);

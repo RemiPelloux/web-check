@@ -98,7 +98,7 @@ export const verifyUser = (username, password) => {
  * @returns {Array} List of users (without passwords)
  */
 export const getAllUsers = () => {
-  const stmt = db.prepare('SELECT id, username, role, company, ip_restrictions, url_restriction_mode, allowed_urls, created_at, updated_at FROM users');
+  const stmt = db.prepare('SELECT id, username, role, company, ip_restrictions, url_restriction_mode, allowed_urls, created_at, updated_at, is_test_account FROM users');
   return stmt.all();
 };
 
@@ -224,7 +224,7 @@ export const addAuditLog = (userId, action, details = '', ipAddress = '') => {
  */
 export const getAuditLogs = (limit = 100) => {
   const stmt = db.prepare(`
-    SELECT a.*, u.username 
+    SELECT a.*, u.username, u.role as user_role
     FROM audit_log a
     JOIN users u ON a.user_id = u.id
     ORDER BY a.timestamp DESC
@@ -455,6 +455,37 @@ export const getAggregateStatistics = (options = {}) => {
       return acc;
     }, {})
   };
+};
+
+/**
+ * Reset all statistics (scan_statistics and scan_history tables)
+ * @returns {object} Number of deleted records
+ */
+export const resetStatistics = () => {
+  const statsResult = db.prepare('DELETE FROM scan_statistics').run();
+  const historyResult = db.prepare('DELETE FROM scan_history').run();
+  
+  return {
+    statsDeleted: statsResult.changes,
+    historyDeleted: historyResult.changes
+  };
+};
+
+/**
+ * Check if a user is a test/certified account
+ * Test accounts are excluded from statistics
+ * @param {number} userId - User ID
+ * @returns {boolean} True if test account
+ */
+export const isTestAccount = (userId) => {
+  try {
+    const stmt = db.prepare('SELECT is_test_account FROM users WHERE id = ?');
+    const result = stmt.get(userId);
+    return result?.is_test_account === 1;
+  } catch (e) {
+    // Column might not exist yet (pre-migration)
+    return false;
+  }
 };
 
 /**
@@ -755,6 +786,8 @@ export default {
   getScanHistory,
   updateScanStatistics,
   getAggregateStatistics,
+  resetStatistics,
+  isTestAccount,
   findDPDUserByIP,
   // Wiki functions
   getWikiSections,

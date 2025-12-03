@@ -148,6 +148,26 @@ router.get('/verify', authMiddleware, (req, res) => {
 });
 
 /**
+ * GET /api/auth/profile
+ * Get fresh user profile from database (for refreshing cached data)
+ * Returns full profile including allowedUrls, company, etc.
+ */
+router.get('/profile', authMiddleware, (req, res) => {
+  return res.json({
+    success: true,
+    user: {
+      id: req.user.id,
+      username: req.user.username,
+      role: req.user.role,
+      company: req.user.company,
+      allowedUrls: req.user.allowed_urls,
+      urlRestrictionMode: req.user.url_restriction_mode,
+      ipRestrictions: req.user.ip_restrictions
+    }
+  });
+});
+
+/**
  * POST /api/auth/logout
  * Logout user (client-side token removal)
  */

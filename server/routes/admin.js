@@ -20,6 +20,7 @@ import {
   getAuditLogs,
   cleanAuditLogs,
   getScanHistory,
+  resetStatistics,
   db
 } from '../../database/db.js';
 
@@ -264,26 +265,38 @@ router.get('/statistics', authMiddleware, adminOnlyMiddleware, (req, res) => {
     let dateFilter = '';
     switch (range) {
       case '7days':
-        dateFilter = "AND timestamp >= datetime('now', '-7 days')";
+        dateFilter = "AND sh.timestamp >= datetime('now', '-7 days')";
         break;
       case '30days':
-        dateFilter = "AND timestamp >= datetime('now', '-30 days')";
+        dateFilter = "AND sh.timestamp >= datetime('now', '-30 days')";
         break;
       case 'all':
         dateFilter = '';
         break;
       default:
-        dateFilter = "AND timestamp >= datetime('now', '-30 days')";
+        dateFilter = "AND sh.timestamp >= datetime('now', '-30 days')";
     }
     
-    const scanCountStmt = db.prepare(`SELECT COUNT(*) as total FROM scan_history WHERE 1=1 ${dateFilter}`);
+    // Exclude test accounts from statistics
+    const scanCountStmt = db.prepare(`
+      SELECT COUNT(*) as total 
+      FROM scan_history sh
+      JOIN users u ON sh.user_id = u.id
+      WHERE (u.is_test_account = 0 OR u.is_test_account IS NULL) ${dateFilter}
+    `);
     const totalScans = scanCountStmt.get()?.total || 0;
     
-    const uniqueUsersStmt = db.prepare(`SELECT COUNT(DISTINCT user_id) as count FROM scan_history WHERE 1=1 ${dateFilter}`);
+    const uniqueUsersStmt = db.prepare(`
+      SELECT COUNT(DISTINCT sh.user_id) as count 
+      FROM scan_history sh
+      JOIN users u ON sh.user_id = u.id
+      WHERE (u.is_test_account = 0 OR u.is_test_account IS NULL) ${dateFilter}
+    `);
     const uniqueUsers = uniqueUsersStmt.get()?.count || 0;
     
+    // Only count non-test DPD accounts
     const allUsers = getAllUsers();
-    const dpdUsers = allUsers.filter(user => user.role === 'DPD').length;
+    const dpdUsers = allUsers.filter(user => user.role === 'DPD' && !user.is_test_account).length;
     
     return res.json({
       success: true,
@@ -297,6 +310,34 @@ router.get('/statistics', authMiddleware, adminOnlyMiddleware, (req, res) => {
       error: 'Erreur serveur',
       message: 'Impossible de récupérer les statistiques',
       details: error.message
+    });
+  }
+});
+
+/**
+ * DELETE /api/admin/statistics/reset
+ * Reset all scan statistics (APDP only)
+ */
+router.delete('/statistics/reset', authMiddleware, adminOnlyMiddleware, (req, res) => {
+  try {
+    const result = resetStatistics();
+    addAuditLog(
+      req.user.id,
+      'RESET_STATISTICS',
+      `Reset statistics: ${result.statsDeleted} stats, ${result.historyDeleted} history records deleted`,
+      getClientIp(req)
+    );
+    return res.json({
+      success: true,
+      message: 'Statistiques réinitialisées avec succès',
+      deleted: result
+    });
+  } catch (error) {
+    console.error('Reset statistics error:', error);
+    return res.status(500).json({
+      success: false,
+      error: 'Erreur serveur',
+      message: 'Impossible de réinitialiser les statistiques'
     });
   }
 });
@@ -366,6 +407,7 @@ router.get('/scan-history', authMiddleware, adminOnlyMiddleware, (req, res) => {
 });
 
 export default router;
+
 
 
 

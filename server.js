@@ -32,7 +32,8 @@ import {
   getDisabledPlugins,
   addAuditLog,
   recordScan,
-  updateScanStatistics
+  updateScanStatistics,
+  isTestAccount
 } from './database/db.js';
 
 const __filename = fileURLToPath(import.meta.url);
@@ -117,19 +118,21 @@ app.post(`${API_DIR}/audit/scan`, authMiddleware, (req, res) => {
       results
     );
     
-    // Update anonymous statistics
-    updateScanStatistics(
-      req.user.role,
-      results.criticalCount || 0,
-      results.warningCount || 0,
-      results.improvementCount || 0
-    );
+    // Update anonymous statistics (exclude test accounts)
+    if (!isTestAccount(req.user.id)) {
+      updateScanStatistics(
+        req.user.role,
+        results.criticalCount || 0,
+        results.warningCount || 0,
+        results.improvementCount || 0
+      );
+    }
     
     // Add to audit log
     addAuditLog(
       req.user.id,
       'SCAN_COMPLETED',
-      `Scanned URL (score: ${results.numericScore || 'N/A'})`,
+      `Scanned URL${isTestAccount(req.user.id) ? ' [TEST ACCOUNT - not counted in stats]' : ''}`,
       getClientIp(req)
     );
     

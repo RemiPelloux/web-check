@@ -9,6 +9,7 @@ interface AuditLog {
   id: number;
   user_id: number;
   username: string;
+  user_role: string;
   action: string;
   details: string | null;
   ip_address: string;
@@ -548,8 +549,12 @@ const Logs = (): JSX.Element => {
   };
 
   const formatTimestamp = (timestamp: string): string => {
-    const date = new Date(timestamp);
+    // SQLite stores timestamps in UTC without timezone suffix
+    // Append 'Z' to ensure JavaScript parses it as UTC
+    const utcTimestamp = timestamp.includes('Z') || timestamp.includes('+') ? timestamp : timestamp + 'Z';
+    const date = new Date(utcTimestamp);
     return new Intl.DateTimeFormat('fr-FR', {
+      timeZone: 'Europe/Paris',
       day: '2-digit',
       month: '2-digit',
       year: 'numeric',
@@ -573,6 +578,18 @@ const Logs = (): JSX.Element => {
       'settings_changed': 'Paramètres modifiés',
     };
     return translations[action] || action;
+  };
+
+  // Mask IP addresses in details for DPD users
+  const maskIpInDetails = (details: string | null, userRole: string): string | null => {
+    if (!details || userRole !== 'DPD') return details;
+    // Replace IPv4 and IPv6 addresses with masked text
+    return details
+      .replace(/\b\d{1,3}\.\d{1,3}\.\d{1,3}\.\d{1,3}\b/g, '***masquée***')
+      .replace(/\b([0-9a-fA-F]{1,4}:){7}[0-9a-fA-F]{1,4}\b/g, '***masquée***')
+      .replace(/\b([0-9a-fA-F]{1,4}:){1,7}:\b/g, '***masquée***')
+      .replace(/\b:([0-9a-fA-F]{1,4}:){1,7}\b/g, '***masquée***')
+      .replace(/\b([0-9a-fA-F]{1,4}:){1,6}:[0-9a-fA-F]{1,4}\b/g, '***masquée***');
   };
 
   // Pagination calculations
@@ -709,18 +726,18 @@ const Logs = (): JSX.Element => {
                       <div style={{ fontWeight: 500 }}>{translateAction(log.action)}</div>
                       {log.details && (
                         <div style={{ fontSize: '12px', color: colors.textColorSecondary, marginTop: '4px' }}>
-                          {log.details}
+                          {maskIpInDetails(log.details, log.user_role)}
                         </div>
                       )}
                     </div>
                   </Cell>
                   <Cell data-label="Utilisateur:">
                     <UserInfo>
-                      <span className="username">{log.username}</span>
-                      <span className="user-id">ID: {log.user_id}</span>
+                      <span className="username">{log.user_role === 'DPD' ? '— masqué —' : log.username}</span>
+                      <span className="user-id">{log.user_role === 'DPD' ? '' : `ID: ${log.user_id}`}</span>
                     </UserInfo>
                   </Cell>
-                  <Cell data-label="IP:">{log.ip_address}</Cell>
+                  <Cell data-label="IP:">{log.user_role === 'DPD' ? '— masquée —' : log.ip_address}</Cell>
                 </TableRow>
               );
             })}

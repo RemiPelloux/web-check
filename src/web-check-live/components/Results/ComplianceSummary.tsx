@@ -1,4 +1,5 @@
 import styled from '@emotion/styled';
+import { toast } from 'react-toastify';
 import colors from 'web-check-live/styles/colors';
 import { Card } from 'web-check-live/components/Form/Card';
 import Row from 'web-check-live/components/Form/Row';
@@ -260,7 +261,7 @@ const ComplianceSummaryCard = ({ data, title, actionButtons }: ComplianceSummary
       await openComplianceReportHTML(data, vulnerabilities, legalPages, cdnResources, allResults);
     } catch (error) {
       console.error('Error opening PDF report:', error);
-      alert('Erreur lors de l\'ouverture du rapport. Veuillez autoriser les pop-ups et réessayer.');
+      toast.error('Erreur lors de l\'ouverture du rapport. Veuillez autoriser les pop-ups et réessayer.');
     }
   };
 
@@ -278,7 +279,7 @@ const ComplianceSummaryCard = ({ data, title, actionButtons }: ComplianceSummary
       await generateComplianceReportHTML(data, vulnerabilities, legalPages, cdnResources, allResults);
     } catch (error) {
       console.error('Error generating PDF report:', error);
-      alert('Erreur lors de la génération du rapport PDF. Veuillez réessayer.');
+      toast.error('Erreur lors de la génération du rapport PDF. Veuillez réessayer.');
     }
   };
 

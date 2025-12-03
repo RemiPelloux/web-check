@@ -1,5 +1,6 @@
 import React, { useState, useMemo, useCallback } from 'react';
 import styled from '@emotion/styled';
+import { toast } from 'react-toastify';
 import colors from 'web-check-live/styles/colors';
 import { EnhancedComplianceAnalyzer } from 'web-check-live/utils/enhancedComplianceAnalyzer';
 import { openFullResultsReport } from 'web-check-live/utils/fullResultsPdfGenerator';
@@ -614,7 +615,7 @@ const ProfessionalComplianceDashboard: React.FC<ProfessionalComplianceDashboardP
   // Save full results as printable HTML report (all plugins)
   const handleSaveResults = useCallback(() => {
     if (!allResults) {
-      alert('Aucune donnée d\'analyse disponible.');
+      toast.error('Aucune donnée d\'analyse disponible.');
       return;
     }
 
@@ -622,7 +623,7 @@ const ProfessionalComplianceDashboard: React.FC<ProfessionalComplianceDashboardP
       openFullResultsReport(allResults, siteName || 'Site Web');
     } catch (error) {
       console.error('Erreur lors de la génération du rapport:', error);
-      alert('Erreur lors de la génération du rapport. Vérifiez que votre navigateur autorise les popups.');
+      toast.error('Erreur lors de la génération du rapport. Vérifiez que votre navigateur autorise les popups.');
     }
   }, [allResults, siteName]);
 

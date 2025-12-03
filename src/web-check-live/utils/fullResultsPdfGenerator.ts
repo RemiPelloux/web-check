@@ -8,10 +8,11 @@ interface PluginResult {
 }
 
 /**
- * Format a date to French locale
+ * Format a date to French locale (Paris timezone)
  */
 const formatDate = (date: Date): string => {
   return date.toLocaleDateString('fr-FR', {
+    timeZone: 'Europe/Paris',
     day: '2-digit',
     month: 'long',
     year: 'numeric',
@@ -228,7 +229,7 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
           
           <table class="info-table">
             ${data.url ? `<tr><td class="label">URL analysée</td><td>${escapeHtml(data.url)}</td></tr>` : ''}
-            ${data.timestamp ? `<tr><td class="label">Date d'analyse</td><td>${new Date(data.timestamp).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</td></tr>` : ''}
+            ${data.timestamp ? `<tr><td class="label">Date d'analyse</td><td>${new Date(data.timestamp).toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris', day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</td></tr>` : ''}
           </table>
           
           ${data.error ? `
@@ -1115,7 +1116,7 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
     const formatDateStr = (dateStr: string) => {
       if (!dateStr) return '';
       try {
-        return new Date(dateStr).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+        return new Date(dateStr).toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris', day: 'numeric', month: 'long', year: 'numeric' });
       } catch {
         return dateStr;
       }
@@ -1610,7 +1611,7 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
                   else if (diff < 0) change = `<span class="cross">↓ ${Math.abs(diff)}</span>`;
                   else change = '→';
                 }
-                return `<tr><td>${new Date(r.date).toLocaleDateString('fr-FR')}</td><td>#${r.rank.toLocaleString()}</td><td>${change}</td></tr>`;
+                return `<tr><td>${new Date(r.date).toLocaleDateString('fr-FR', { timeZone: 'Europe/Paris' })}</td><td>#${r.rank.toLocaleString()}</td><td>${change}</td></tr>`;
               }).join('')}
               </tbody>
             </table>

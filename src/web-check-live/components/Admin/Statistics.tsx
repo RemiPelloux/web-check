@@ -1,6 +1,7 @@
 import { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import colors from 'web-check-live/styles/colors';
+import { toast } from 'react-toastify';
 
 const API_BASE_URL = import.meta.env.PUBLIC_API_ENDPOINT || '/api';
 
@@ -29,11 +30,46 @@ const Container = styled.div`
 const FilterSection = styled.div`
   display: flex;
   align-items: center;
+  justify-content: space-between;
   gap: 12px;
   padding: 16px 20px;
   background: ${colors.background};
   border: 1px solid ${colors.borderColor};
   border-radius: 12px;
+  flex-wrap: wrap;
+`;
+
+const FilterLeft = styled.div`
+  display: flex;
+  align-items: center;
+  gap: 12px;
+`;
+
+const ResetButton = styled.button`
+  padding: 10px 20px;
+  background: ${colors.backgroundDarker};
+  color: #dc2626;
+  border: 1px solid #dc2626;
+  border-radius: 8px;
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+
+  &:hover:not(:disabled) {
+    background: #dc2626;
+    color: white;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 12px rgba(220, 38, 38, 0.3);
+  }
+  
+  &:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
 `;
 
 const FilterLabel = styled.span`
@@ -253,6 +289,55 @@ const Statistics = (): JSX.Element => {
   const [error, setError] = useState<string | null>(null);
   const [stats, setStats] = useState<StatisticsData | null>(null);
   const [dateRange, setDateRange] = useState<DateRange>('30days');
+  const [resetting, setResetting] = useState(false);
+
+  const handleResetStats = async () => {
+    if (!confirm('⚠️ Êtes-vous sûr de vouloir réinitialiser TOUTES les statistiques ?\n\nCette action est irréversible et supprimera:\n• Toutes les statistiques agrégées\n• Tout l\'historique des scans')) {
+      return;
+    }
+
+    setResetting(true);
+    const toastId = toast.loading('Réinitialisation des statistiques...', {
+      position: 'bottom-right',
+      theme: 'dark',
+    });
+
+    try {
+      const token = localStorage.getItem('checkitAuthToken');
+      const response = await fetch(`${API_BASE_URL}/admin/statistics/reset`, {
+        method: 'DELETE',
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (!response.ok) {
+        throw new Error('Échec de la réinitialisation');
+      }
+
+      const data = await response.json();
+      toast.update(toastId, {
+        render: `✓ Statistiques réinitialisées: ${data.deleted.statsDeleted} stats, ${data.deleted.historyDeleted} historiques supprimés`,
+        type: 'success',
+        isLoading: false,
+        autoClose: 5000,
+        closeButton: true,
+      });
+      
+      // Refresh statistics
+      fetchStatistics(dateRange);
+    } catch (error: any) {
+      toast.update(toastId, {
+        render: 'Impossible de réinitialiser les statistiques',
+        type: 'error',
+        isLoading: false,
+        autoClose: 4000,
+        closeButton: true,
+      });
+    } finally {
+      setResetting(false);
+    }
+  };
 
   const fetchStatistics = async (range: DateRange) => {
     try {
@@ -334,27 +419,33 @@ const Statistics = (): JSX.Element => {
     <Container>
       {/* Date Range Filter */}
       <FilterSection>
-        <FilterLabel>📅 Période :</FilterLabel>
-        <FilterButtons>
-          <FilterButton 
-            active={dateRange === '7days'} 
-            onClick={() => handleDateRangeChange('7days')}
-          >
-            7 derniers jours
-          </FilterButton>
-          <FilterButton 
-            active={dateRange === '30days'} 
-            onClick={() => handleDateRangeChange('30days')}
-          >
-            30 derniers jours
-          </FilterButton>
-          <FilterButton 
-            active={dateRange === 'all'} 
-            onClick={() => handleDateRangeChange('all')}
-          >
-            Depuis le début
-          </FilterButton>
-        </FilterButtons>
+        <FilterLeft>
+          <FilterLabel>📅 Période :</FilterLabel>
+          <FilterButtons>
+            <FilterButton 
+              active={dateRange === '7days'} 
+              onClick={() => handleDateRangeChange('7days')}
+            >
+              7 derniers jours
+            </FilterButton>
+            <FilterButton 
+              active={dateRange === '30days'} 
+              onClick={() => handleDateRangeChange('30days')}
+            >
+              30 derniers jours
+            </FilterButton>
+            <FilterButton 
+              active={dateRange === 'all'} 
+              onClick={() => handleDateRangeChange('all')}
+            >
+              Depuis le début
+            </FilterButton>
+          </FilterButtons>
+        </FilterLeft>
+        <ResetButton onClick={handleResetStats} disabled={resetting}>
+          <span>🗑️</span>
+          <span>{resetting ? 'Réinitialisation...' : 'Réinitialiser les stats'}</span>
+        </ResetButton>
       </FilterSection>
 
       {/* Stats Cards */}

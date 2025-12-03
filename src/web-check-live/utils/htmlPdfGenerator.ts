@@ -55,6 +55,7 @@ const generateHTMLReport = (
 ): string => {
   
   const currentDate = new Date(data.timestamp).toLocaleDateString('fr-FR', {
+    timeZone: 'Europe/Paris',
     day: '2-digit',
     month: '2-digit',
     year: 'numeric'
@@ -870,7 +871,7 @@ const generateHTMLReport = (
           </tr>
           <tr>
             <td style="font-weight: 600;">Date de l'analyse</td>
-            <td>${new Date(data.timestamp).toLocaleString('fr-FR')}</td>
+            <td>${new Date(data.timestamp).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })}</td>
           </tr>
           <tr>
             <td style="font-weight: 600;">${(data.criticalIssues + data.warnings) <= 1 ? 'Analyse détectée' : 'Analyses détectées'}</td>
@@ -1073,7 +1074,7 @@ const generateHTMLReport = (
       <p>Les résultats sont fournis à titre informatif pour vous aider à améliorer votre site web.</p>
       <p>Pour plus d'informations : <strong>jetestemonsite.apdp.mc</strong></p>
       <p style="margin-top: 15px; font-size: 7pt; font-style: italic;">Autorité de Protection des Données Personnelles de Monaco</p>
-      <p style="font-size: 7pt;">Document généré le ${new Date(data.timestamp).toLocaleString('fr-FR')} • Version ${new Date().getFullYear()}</p>
+      <p style="font-size: 7pt;">Document généré le ${new Date(data.timestamp).toLocaleString('fr-FR', { timeZone: 'Europe/Paris' })} • Version ${new Date().getFullYear()}</p>
       </div>
     </div>
   </div>

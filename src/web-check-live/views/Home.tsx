@@ -399,24 +399,48 @@ const Home = (): JSX.Element => {
 
   const location = useLocation();
 
-  // Load user profile and allowed URLs
+  // Load user profile and allowed URLs - ONLY from API (never trust localStorage for URLs)
   useEffect(() => {
-    const profileData = localStorage.getItem('checkitUser');
-    if (profileData) {
+    const loadProfile = async () => {
+      const token = localStorage.getItem('checkitAuthToken');
+      
+      if (!token) {
+        setIsProfileLoading(false);
+        return;
+      }
+      
       try {
-        const profile = JSON.parse(profileData);
-        setUserProfile(profile);
+        // ALWAYS fetch from API - never trust localStorage for security-sensitive data
+        const response = await fetch('/api/auth/profile', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
         
-        // Load allowed URLs for DPD users
-        if (profile.role === 'DPD' && profile.allowedUrls) {
-          const urls = profile.allowedUrls.split(',').map((url: string) => url.trim()).filter((url: string) => url);
-          setAllowedUrls(urls);
+        if (response.ok) {
+          const data = await response.json();
+          if (data.success && data.user) {
+            setUserProfile(data.user);
+            
+            // Set allowed URLs ONLY from API response (database source of truth)
+            if (data.user.role === 'DPD' && data.user.allowedUrls) {
+              const urls = data.user.allowedUrls.split(',').map((url: string) => url.trim()).filter((url: string) => url);
+              setAllowedUrls(urls);
+            } else {
+              setAllowedUrls([]);
+            }
+          }
+        } else if (response.status === 401) {
+          // Token invalid, clear auth
+          localStorage.removeItem('checkitAuthToken');
+          localStorage.removeItem('checkitUser');
         }
       } catch (e) {
-        console.error('Error loading user profile:', e);
+        console.error('Error fetching profile:', e);
       }
-    }
-    setIsProfileLoading(false);
+      
+      setIsProfileLoading(false);
+    };
+    
+    loadProfile();
   }, []);
 
   /* Redirect strait to results, if somehow we land on /check?url=[] */
