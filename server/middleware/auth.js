@@ -206,6 +206,51 @@ export const authMiddleware = async (req, res, next) => {
 };
 
 /**
+ * Optional authentication middleware - Doesn't block if not authenticated
+ * Adds user object to req.user if token is valid, otherwise continues without user
+ * Useful for public pages that show different content for authenticated users
+ */
+export const optionalAuthMiddleware = async (req, res, next) => {
+  try {
+    const token = extractToken(req);
+    
+    if (!token) {
+      // No token, continue without user
+      req.user = null;
+      return next();
+    }
+    
+    const decoded = verifyToken(token);
+    
+    if (!decoded) {
+      // Invalid token, continue without user
+      req.user = null;
+      return next();
+    }
+    
+    // Fetch full user from database
+    const user = findUserById(decoded.id);
+    
+    if (!user) {
+      // User not found, continue without user
+      req.user = null;
+      return next();
+    }
+    
+    // Attach user to request (without password)
+    const { password_hash, ...userWithoutPassword } = user;
+    req.user = userWithoutPassword;
+    
+    next();
+  } catch (error) {
+    console.error('Optional auth middleware error:', error);
+    // On error, continue without user
+    req.user = null;
+    next();
+  }
+};
+
+/**
  * Admin-only middleware - Requires APDP role
  * Must be used after authMiddleware
  */
@@ -293,6 +338,7 @@ export const pluginAccessMiddleware = (disabledPluginsList) => {
 
 export default {
   authMiddleware,
+  optionalAuthMiddleware,
   adminOnlyMiddleware,
   ipAutoAuthMiddleware,
   generateToken,

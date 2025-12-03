@@ -4,9 +4,30 @@ import { Card } from 'web-check-live/components/Form/Card';
 import Button from 'web-check-live/components/Form/Button';
 import { ExpandableRow } from 'web-check-live/components/Form/Row';
 
+// Check if data is from direct TLS fallback
+const isDirectTlsData = (results: any) => {
+  return results && (results.protocol || results.cipher) && !results.connection_info && !results.supportedCiphers;
+};
+
 const makeCipherSuites = (results: any) => {
+  if (!results) return [];
+
+  // Handle direct TLS fallback format (single cipher from connection)
+  if (isDirectTlsData(results)) {
+    if (!results.cipher || results.cipher === 'Unknown') return [];
+    return [{
+      title: results.cipher,
+      fields: [
+        { lbl: 'Version TLS', val: results.protocol || 'N/A' },
+        { lbl: 'Force de chiffrement', val: results.bits ? `${results.bits} bits` : 'N/A' },
+        { lbl: 'Version cipher', val: results.version || 'N/A' },
+        { lbl: 'Niveau de sécurité', val: results.securityLevel || 'inconnu' },
+      ].filter(f => f.val !== 'N/A' && f.val !== 'Unknown')
+    }];
+  }
+
   // Backend sends supportedCiphers array
-  if (!results || (!results.supportedCiphers && !results.connection_info)) {
+  if (!results.supportedCiphers && !results.connection_info) {
     return [];
   }
   

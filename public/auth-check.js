@@ -1,7 +1,17 @@
 // Authentication check script for APDP Checkit
 (function() {
-    // Don't check auth on login page
-    if (window.location.pathname === '/login' || window.location.pathname === '/login.html') {
+    // Public pages that don't require authentication
+    const publicPaths = ['/login', '/login.html', '/wiki', '/about'];
+    const currentPath = window.location.pathname;
+    
+    // Check if current path is public
+    const isPublicPath = publicPaths.some(path => currentPath === path || currentPath === path + '/');
+    
+    if (isPublicPath) {
+        // Clear the redirect prevention flag on public pages
+        if (currentPath === '/login' || currentPath === '/login.html') {
+            sessionStorage.removeItem('authCheckDone');
+        }
         return;
     }
 
@@ -41,11 +51,10 @@
         sessionStorage.removeItem('authCheckDone');
     };
 
-    // Check authentication on page load
-    if (!checkSessionValidity() && !sessionStorage.getItem('authCheckDone')) {
+    // Check authentication on page load - ALWAYS check, no bypass
+    if (!checkSessionValidity()) {
         // Not authenticated or session expired, redirect to login
         clearSessionData();
-        sessionStorage.setItem('authCheckDone', 'true');
         window.location.href = '/login';
         return;
     }

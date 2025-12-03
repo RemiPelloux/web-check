@@ -100,14 +100,14 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
       statusText = 'Partiellement conforme';
     }
     
-    // Render issues
+    // Render issues - show up to 10 items
     const renderIssues = (issues: any[], title: string, cssClass: string) => {
       if (!issues || issues.length === 0) return '';
       return `
         <div class="issue-section ${cssClass}">
           <h4>${title} (${issues.length})</h4>
           <ul class="issue-list">
-            ${issues.slice(0, 5).map((issue: any) => `
+            ${issues.slice(0, 10).map((issue: any) => `
               <li>
                 <strong>${escapeHtml(issue.title)}</strong>
                 <p>${escapeHtml(issue.description)}</p>
@@ -116,7 +116,7 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
               </li>
             `).join('')}
           </ul>
-          ${issues.length > 5 ? `<p class="more">+ ${issues.length - 5} autres...</p>` : ''}
+          ${issues.length > 10 ? `<p class="more">+ ${issues.length - 10} autres...</p>` : ''}
         </div>
       `;
     };
@@ -175,6 +175,66 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
                 ` : ''}
               </table>
             </div>
+          ` : ''}
+        </div>
+      </div>
+    `;
+  },
+
+  // Enhanced Compliance Summary - Main dashboard summary
+  'enhanced-compliance-summary': (data) => {
+    if (!data) return '';
+    
+    const score = data.overallScore || data.score || 'N/A';
+    const criticalCount = data.criticalIssues || 0;
+    const warningsCount = data.warnings || 0;
+    const improvementsCount = data.improvements || 0;
+    const compliantCount = data.compliantItems || 0;
+    
+    // Determine status class based on score
+    let statusClass = 'success';
+    let statusText = 'Excellent';
+    if (score === 'F' || score === 'D' || criticalCount > 0) {
+      statusClass = 'error';
+      statusText = 'Critique';
+    } else if (score === 'C' || warningsCount > 2) {
+      statusClass = 'warning';
+      statusText = 'À améliorer';
+    } else if (score === 'B') {
+      statusClass = 'info';
+      statusText = 'Bon';
+    }
+    
+    return `
+      <div class="plugin-card wide rgpd-card">
+        <div class="plugin-header">
+          <span class="plugin-icon">📊</span>
+          <h3>Résumé de Conformité</h3>
+          <span class="status-badge ${statusClass}">${score} - ${statusText}</span>
+        </div>
+        <div class="plugin-content">
+          <div class="score-summary">
+            <div class="score-box">
+              <span class="score-value">${score}</span>
+              <span class="score-label">Score Global</span>
+            </div>
+            <div class="counts-grid">
+              <div class="count-item critical"><span>${criticalCount}</span>Critiques</div>
+              <div class="count-item warning"><span>${warningsCount}</span>Avertissements</div>
+              <div class="count-item improvement"><span>${improvementsCount}</span>Améliorations</div>
+              <div class="count-item compliant"><span>${compliantCount}</span>Conformes</div>
+            </div>
+          </div>
+          
+          <table class="info-table">
+            ${data.url ? `<tr><td class="label">URL analysée</td><td>${escapeHtml(data.url)}</td></tr>` : ''}
+            ${data.timestamp ? `<tr><td class="label">Date d'analyse</td><td>${new Date(data.timestamp).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' })}</td></tr>` : ''}
+          </table>
+          
+          ${data.error ? `
+            <p style="margin-top: 10px; color: #b45309; font-size: 9pt; padding: 8px; background: #fef3c7; border-radius: 4px;">
+              ⚠️ ${escapeHtml(data.error)}
+            </p>
           ` : ''}
         </div>
       </div>
@@ -257,38 +317,59 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
   // SSL Certificate
   'ssl': (data) => {
     if (!data || data.error) return '';
+    
     const subject = data.subject?.CN || data.subject?.O || data.commonName || data.subjectCN || 
                    (typeof data.subject === 'string' ? data.subject : '');
-    const issuer = data.issuer?.O || data.issuer?.CN || 
-                  (typeof data.issuer === 'string' ? data.issuer : '');
+    const issuerOrg = data.issuer?.O || '';
+    const issuerCN = data.issuer?.CN || '';
+    const issuerCountry = data.issuer?.C || '';
     const validTo = data.valid_to || data.validTo || data.expiresAt || data.notAfter;
     const validFrom = data.valid_from || data.validFrom || data.issuedAt || data.notBefore;
     
+    // Parse Subject Alternative Names
+    const sanString = data.subjectaltname || '';
+    const sans = sanString.split(',').map((s: string) => s.trim().replace('DNS:', '')).filter(Boolean);
+    
     // Check if certificate is valid by checking expiry date
     let isValid = data.valid || data.validCertificate;
-    if (isValid === undefined && validTo) {
+    let daysRemaining = 0;
+    if (validTo) {
       try {
-        isValid = new Date(validTo) > new Date();
+        const expiryDate = new Date(validTo);
+        isValid = expiryDate > new Date();
+        daysRemaining = Math.ceil((expiryDate.getTime() - Date.now()) / (1000 * 60 * 60 * 24));
       } catch { isValid = false; }
     }
     
     return `
-      <div class="plugin-card">
+      <div class="plugin-card wide">
         <div class="plugin-header">
           <span class="plugin-icon">🔒</span>
-          <h3>Certificat SSL</h3>
-          <span class="status-badge ${isValid ? 'success' : 'error'}">
-            ${isValid ? '✓ Valide' : '✗ Invalide'}
+          <h3>Certificat SSL/TLS</h3>
+          <span class="status-badge ${isValid ? (daysRemaining < 30 ? 'warning' : 'success') : 'error'}">
+            ${isValid ? (daysRemaining < 30 ? `⚠ Expire dans ${daysRemaining}j` : '✓ Valide') : '✗ Invalide'}
           </span>
         </div>
         <div class="plugin-content">
           <table class="info-table">
-            ${subject ? `<tr><td class="label">Sujet</td><td>${escapeHtml(subject)}</td></tr>` : ''}
-            ${issuer ? `<tr><td class="label">Émetteur</td><td>${escapeHtml(issuer)}</td></tr>` : ''}
-            ${validTo ? `<tr><td class="label">Expire le</td><td>${new Date(validTo).toLocaleDateString('fr-FR')}</td></tr>` : ''}
-            ${validFrom ? `<tr><td class="label">Renouvelé le</td><td>${new Date(validFrom).toLocaleDateString('fr-FR')}</td></tr>` : ''}
-            ${data.protocol ? `<tr><td class="label">Protocole</td><td>${escapeHtml(data.protocol)}</td></tr>` : ''}
+            ${subject ? `<tr><td class="label">Sujet (CN)</td><td><strong>${escapeHtml(subject)}</strong></td></tr>` : ''}
+            ${issuerOrg || issuerCN ? `<tr><td class="label">Émetteur</td><td>${escapeHtml(issuerOrg || issuerCN)} ${issuerCountry ? `(${issuerCountry})` : ''}</td></tr>` : ''}
+            ${validFrom ? `<tr><td class="label">Émis le</td><td>${escapeHtml(validFrom)}</td></tr>` : ''}
+            ${validTo ? `<tr><td class="label">Expire le</td><td>${escapeHtml(validTo)} ${daysRemaining > 0 ? `(${daysRemaining} jours)` : ''}</td></tr>` : ''}
+            ${data.bits ? `<tr><td class="label">Taille de clé</td><td>${data.bits} bits</td></tr>` : ''}
+            ${data.ca !== undefined ? `<tr><td class="label">Autorité de cert.</td><td>${data.ca ? '✓ Oui' : '✗ Non'}</td></tr>` : ''}
+            ${data.fingerprint ? `<tr><td class="label">Empreinte SHA1</td><td><code style="font-size: 7pt;">${escapeHtml(data.fingerprint)}</code></td></tr>` : ''}
+            ${data.fingerprint256 ? `<tr><td class="label">Empreinte SHA256</td><td><code style="font-size: 7pt;">${escapeHtml(data.fingerprint256.substring(0, 40))}...</code></td></tr>` : ''}
+            ${data.serialNumber ? `<tr><td class="label">N° de série</td><td><code style="font-size: 7pt;">${escapeHtml(data.serialNumber)}</code></td></tr>` : ''}
           </table>
+          
+          ${sans.length > 0 ? `
+            <p style="font-size: 9pt; font-weight: 600; margin: 10px 0 5px 0;">Noms alternatifs (SAN): ${sans.length}</p>
+            <p style="font-size: 8pt;">
+              ${sans.slice(0, 10).map((s: string) => `<code>${escapeHtml(s)}</code>`).join(', ')}
+              ${sans.length > 10 ? ` +${sans.length - 10} autres` : ''}
+            </p>
+          ` : ''}
         </div>
       </div>
     `;
@@ -329,7 +410,7 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
     const allCookies = [...clientCookies, ...headerCookies];
     
     return `
-      <div class="plugin-card">
+      <div class="plugin-card wide">
         <div class="plugin-header">
           <span class="plugin-icon">🍪</span>
           <h3>Cookies</h3>
@@ -338,18 +419,20 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
         <div class="plugin-content">
           ${allCookies.length > 0 ? `
             <table class="data-table">
-              <thead><tr><th>Nom</th><th>Type</th><th>Sécurisé</th></tr></thead>
+              <thead><tr><th>Nom</th><th>Type</th><th>Sécurisé</th><th>HttpOnly</th><th>SameSite</th></tr></thead>
               <tbody>
-                ${allCookies.slice(0, 10).map((c: any) => `
+                ${allCookies.slice(0, 20).map((c: any) => `
                   <tr>
                     <td>${escapeHtml(c.name)}</td>
                     <td>${escapeHtml(c.categories?.[0] || c.category || c.type || 'autre')}</td>
                     <td>${c.secure ? '✓' : '✗'}</td>
+                    <td>${c.httpOnly ? '✓' : '✗'}</td>
+                    <td>${escapeHtml(c.sameSite || '-')}</td>
                   </tr>
                 `).join('')}
               </tbody>
             </table>
-            ${total > 10 ? `<p class="more">+ ${total - 10} autres...</p>` : ''}
+            ${total > 20 ? `<p class="more">+ ${total - 20} autres...</p>` : ''}
           ` : '<p class="empty">Aucun cookie détecté</p>'}
         </div>
       </div>
@@ -392,13 +475,15 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
   'dns': (data) => {
     if (!data || data.error) return '';
     
-    const extractRecords = (records: any): string => {
+    const extractRecords = (records: any, limit = 10): string => {
       if (!records) return '';
       if (Array.isArray(records)) {
-        return records.slice(0, 4).map(r => {
+        const items = records.slice(0, limit).map(r => {
           if (typeof r === 'string') return r;
           return r?.address || r?.value || r?.exchange || r?.data || r?.target || '';
-        }).filter(Boolean).join(', ');
+        }).filter(Boolean);
+        const result = items.join(', ');
+        return records.length > limit ? result + ` (+${records.length - limit})` : result;
       }
       if (typeof records === 'string') return records;
       return records?.address || records?.value || '';
@@ -416,8 +501,9 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
             ${data.AAAA ? `<tr><td class="label">AAAA</td><td>${extractRecords(data.AAAA)}</td></tr>` : ''}
             ${data.MX ? `<tr><td class="label">MX</td><td>${extractRecords(data.MX)}</td></tr>` : ''}
             ${data.NS ? `<tr><td class="label">NS</td><td>${extractRecords(data.NS)}</td></tr>` : ''}
-            ${data.TXT ? `<tr><td class="label">TXT</td><td>${extractRecords(data.TXT)}</td></tr>` : ''}
+            ${data.TXT ? `<tr><td class="label">TXT</td><td>${extractRecords(data.TXT, 5)}</td></tr>` : ''}
             ${data.CNAME ? `<tr><td class="label">CNAME</td><td>${extractRecords(data.CNAME)}</td></tr>` : ''}
+            ${data.SRV ? `<tr><td class="label">SOA</td><td>${data.SRV.nsname || ''} (${data.SRV.hostmaster || ''})</td></tr>` : ''}
           </table>
         </div>
       </div>
@@ -454,6 +540,7 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
   // Server Location
   'location': (data) => {
     if (!data || data.error) return '';
+    const coords = data.coords || {};
     return `
       <div class="plugin-card">
         <div class="plugin-header">
@@ -462,11 +549,16 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
         </div>
         <div class="plugin-content">
           <table class="info-table">
-            ${data.city ? `<tr><td class="label">Ville</td><td>${escapeHtml(data.city)}</td></tr>` : ''}
-            ${data.region ? `<tr><td class="label">Région</td><td>${escapeHtml(data.region)}</td></tr>` : ''}
-            ${data.country ? `<tr><td class="label">Pays</td><td>${escapeHtml(data.country)} ${data.countryCode || ''}</td></tr>` : ''}
-            ${data.isp || data.org ? `<tr><td class="label">Hébergeur</td><td>${escapeHtml(data.isp || data.org)}</td></tr>` : ''}
-            ${data.timezone ? `<tr><td class="label">Fuseau</td><td>${escapeHtml(data.timezone)}</td></tr>` : ''}
+            ${data.city ? `<tr><td class="label">Ville</td><td><strong>${escapeHtml(data.city)}</strong></td></tr>` : ''}
+            ${data.region ? `<tr><td class="label">Région</td><td>${escapeHtml(data.region)} ${data.regionCode ? `(${data.regionCode})` : ''}</td></tr>` : ''}
+            ${data.country ? `<tr><td class="label">Pays</td><td>${escapeHtml(data.country)} ${data.countryCode ? `(${data.countryCode})` : ''}</td></tr>` : ''}
+            ${data.postCode ? `<tr><td class="label">Code postal</td><td>${escapeHtml(data.postCode)}</td></tr>` : ''}
+            ${data.isp ? `<tr><td class="label">FAI/Hébergeur</td><td>${escapeHtml(data.isp)}</td></tr>` : ''}
+            ${data.timezone ? `<tr><td class="label">Fuseau horaire</td><td>${escapeHtml(data.timezone)}</td></tr>` : ''}
+            ${data.languages ? `<tr><td class="label">Langues</td><td>${escapeHtml(data.languages)}</td></tr>` : ''}
+            ${data.currency ? `<tr><td class="label">Monnaie</td><td>${escapeHtml(data.currency)} (${data.currencyCode || ''})</td></tr>` : ''}
+            ${coords.latitude && coords.longitude ? `<tr><td class="label">Coordonnées</td><td>${coords.latitude.toFixed(4)}, ${coords.longitude.toFixed(4)}</td></tr>` : ''}
+            ${data.countryDomain ? `<tr><td class="label">Domaine pays</td><td>${escapeHtml(data.countryDomain)}</td></tr>` : ''}
           </table>
         </div>
       </div>
@@ -526,20 +618,25 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
   },
 
   // Threats
+  // Threats - Only show if threats are detected
   'threats': (data) => {
     if (!data) return '';
-    const isClean = !data.urlhaus && !data.phishing && !data.malware;
+    const hasThreats = data.urlhaus || data.phishing || data.malware;
+    // Skip if no threats detected
+    if (!hasThreats) return '';
+    
     return `
       <div class="plugin-card">
         <div class="plugin-header">
           <span class="plugin-icon">🛡️</span>
-          <h3>Menaces</h3>
-          <span class="status-badge ${isClean ? 'success' : 'error'}">${isClean ? '✓ Aucune' : '⚠ Détectées'}</span>
+          <h3>Menaces Détectées</h3>
+          <span class="status-badge error">⚠ Attention</span>
         </div>
         <div class="plugin-content">
           <table class="info-table">
-            <tr><td class="label">Phishing</td><td>${data.phishing ? '⚠ Détecté' : '✓ Non détecté'}</td></tr>
-            <tr><td class="label">Malware</td><td>${data.malware || data.urlhaus ? '⚠ Listé' : '✓ Non listé'}</td></tr>
+            ${data.phishing ? `<tr><td class="label">Phishing</td><td style="color: #991b1b;">⚠ Détecté</td></tr>` : ''}
+            ${data.malware ? `<tr><td class="label">Malware</td><td style="color: #991b1b;">⚠ Détecté</td></tr>` : ''}
+            ${data.urlhaus ? `<tr><td class="label">URLHaus</td><td style="color: #991b1b;">⚠ Listé</td></tr>` : ''}
           </table>
         </div>
       </div>
@@ -557,7 +654,7 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
     }
     
     return `
-      <div class="plugin-card">
+      <div class="plugin-card wide">
         <div class="plugin-header">
           <span class="plugin-icon">🗺️</span>
           <h3>Plan du Site</h3>
@@ -566,7 +663,7 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
         <div class="plugin-content">
           ${urls.length > 0 ? `
             <ul class="url-list">
-              ${urls.slice(0, 12).map((u: any) => {
+              ${urls.slice(0, 25).map((u: any) => {
                 // Handle various URL structures: string, {url}, {loc: ['url']}, etc
                 let url = '';
                 if (typeof u === 'string') url = u;
@@ -576,7 +673,7 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
                 return `<li>${escapeHtml(url.replace(/^https?:\/\/[^/]+/, '') || '/')}</li>`;
               }).join('')}
             </ul>
-            ${urls.length > 12 ? `<p class="more">+ ${urls.length - 12} autres...</p>` : ''}
+            ${urls.length > 25 ? `<p class="more">+ ${urls.length - 25} autres...</p>` : ''}
           ` : '<p class="empty">Aucun sitemap</p>'}
         </div>
       </div>
@@ -589,22 +686,26 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
     const lists = data.lists || data.blocklists || data.servers || [];
     const blocked = lists.filter((l: any) => l.blocked || l.isBlocked);
     return `
-      <div class="plugin-card">
+      <div class="plugin-card wide">
         <div class="plugin-header">
           <span class="plugin-icon">🚫</span>
-          <h3>Listes de Blocage</h3>
+          <h3>Listes de Blocage (${lists.length} testées)</h3>
           <span class="status-badge ${blocked.length === 0 ? 'success' : 'error'}">
             ${blocked.length === 0 ? '✓ Non bloqué' : `⚠ ${blocked.length} liste(s)`}
           </span>
         </div>
         <div class="plugin-content">
-          <table class="info-table">
-            ${lists.slice(0, 10).map((l: any) => `
+          <table class="data-table">
+            <thead><tr><th>Service DNS</th><th>IP</th><th>Statut</th></tr></thead>
+            <tbody>
+            ${lists.map((l: any) => `
               <tr>
-                <td class="label">${escapeHtml(l.name || l.server || l.list)}</td>
+                <td>${escapeHtml(l.name || l.server || l.list)}</td>
+                <td><code>${escapeHtml(l.serverIp || l.ip || '-')}</code></td>
                 <td><span class="${l.blocked || l.isBlocked ? 'cross' : 'check'}">${l.blocked || l.isBlocked ? '⚠ Bloqué' : '✓ OK'}</span></td>
               </tr>
             `).join('')}
+            </tbody>
           </table>
         </div>
       </div>
@@ -614,7 +715,10 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
   // Carbon Footprint
   'carbon': (data) => {
     if (!data || data.error) return '';
-    const co2 = data.co2?.grid?.grams || data.statistics?.co2?.grid?.grams || data.co2PerVisit || 0;
+    const stats = data.statistics || {};
+    const co2Grid = stats.co2?.grid || data.co2?.grid || {};
+    const co2Renewable = stats.co2?.renewable || data.co2?.renewable || {};
+    
     return `
       <div class="plugin-card">
         <div class="plugin-header">
@@ -624,33 +728,56 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
         </div>
         <div class="plugin-content">
           <table class="info-table">
-            <tr><td class="label">CO2 par visite</td><td>${typeof co2 === 'number' ? co2.toFixed(3) : co2} g</td></tr>
-            ${data.statistics?.energy ? `<tr><td class="label">Énergie</td><td>${data.statistics.energy.toFixed(5)} KWh</td></tr>` : ''}
-            ${data.cleanerThan || data.statistics?.cleanerThan ? `<tr><td class="label">Plus propre que</td><td>${data.cleanerThan || data.statistics?.cleanerThan}% des sites</td></tr>` : ''}
+            ${data.gco2e !== undefined ? `<tr><td class="label">CO2 par visite</td><td><strong>${typeof data.gco2e === 'number' ? data.gco2e.toFixed(4) : data.gco2e} g</strong></td></tr>` : ''}
+            ${co2Grid.grams !== undefined ? `<tr><td class="label">CO2 (réseau)</td><td>${co2Grid.grams.toFixed(4)} g</td></tr>` : ''}
+            ${co2Renewable.grams !== undefined ? `<tr><td class="label">CO2 (renouvelable)</td><td>${co2Renewable.grams.toFixed(4)} g</td></tr>` : ''}
+            ${stats.energy !== undefined ? `<tr><td class="label">Énergie</td><td>${stats.energy.toFixed(6)} KWh</td></tr>` : ''}
+            ${stats.adjustedBytes !== undefined ? `<tr><td class="label">Données ajustées</td><td>${(stats.adjustedBytes / 1024).toFixed(1)} KB</td></tr>` : ''}
+            ${data.bytes !== undefined ? `<tr><td class="label">Taille page</td><td>${(data.bytes / 1024).toFixed(1)} KB</td></tr>` : ''}
+            ${data.cleanerThan !== undefined ? `<tr><td class="label">Plus propre que</td><td><strong>${Math.round(data.cleanerThan * 100)}%</strong> des sites</td></tr>` : ''}
+            ${data.green !== undefined ? `<tr><td class="label">Hébergement vert</td><td>${data.green ? '✓ Oui' : '✗ Non'}</td></tr>` : ''}
           </table>
         </div>
       </div>
     `;
   },
 
-  // CDN Resources
+  // CDN Resources - Skip if no external resources
   'cdn-resources': (data) => {
     if (!data || data.error) return '';
-    const resources = data.resources || data.externalResources || [];
+    const resources = data.externalResources || data.resources || [];
+    const cdnProviders = data.cdnProviders || [];
+    const summary = data.summary || {};
+    
+    // Skip if no external resources
+    if (resources.length === 0) return '';
+    
     return `
-      <div class="plugin-card">
+      <div class="plugin-card wide">
         <div class="plugin-header">
           <span class="plugin-icon">📦</span>
-          <h3>Ressources CDN</h3>
-          <span class="status-badge info">${resources.length} ressource${resources.length !== 1 ? 's' : ''}</span>
+          <h3>Ressources CDN & Externes</h3>
+          <span class="status-badge info">${data.totalResources || resources.length} ressource${(data.totalResources || resources.length) !== 1 ? 's' : ''}</span>
         </div>
         <div class="plugin-content">
-          ${resources.length > 0 ? `
-            <ul class="resource-list">
-              ${resources.slice(0, 8).map((r: any) => `<li>${escapeHtml(r.domain || r.url || r.host || r)}</li>`).join('')}
-            </ul>
-            ${resources.length > 8 ? `<p class="more">+ ${resources.length - 8} autres...</p>` : ''}
-          ` : '<p class="empty">Aucune ressource CDN</p>'}
+          <table class="info-table" style="margin-bottom: 10px;">
+            <tr><td class="label">Domaines externes</td><td>${summary.externalDomains || resources.length}</td></tr>
+            <tr><td class="label">CDN détectés</td><td>${summary.cdnCount || cdnProviders.length || 0}</td></tr>
+            ${summary.insecureResources ? `<tr><td class="label">Ressources non sécurisées</td><td style="color: #991b1b;">${summary.insecureResources}</td></tr>` : ''}
+          </table>
+          <table class="data-table">
+            <thead><tr><th>Domaine</th><th>Type</th><th>Sécurisé</th></tr></thead>
+            <tbody>
+            ${resources.slice(0, 15).map((r: any) => `
+              <tr>
+                <td>${escapeHtml(r.domain || r.url || r.host || r)}</td>
+                <td>${escapeHtml(r.type || '-')}</td>
+                <td>${r.isSecure !== false ? '✓' : '✗'}</td>
+              </tr>
+            `).join('')}
+            </tbody>
+          </table>
+          ${resources.length > 15 ? `<p class="more">+ ${resources.length - 15} autres...</p>` : ''}
         </div>
       </div>
     `;
@@ -668,27 +795,39 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
     const hasRobots = rules.length > 0 || (data.found === true);
     
     return `
-      <div class="plugin-card">
+      <div class="plugin-card wide">
         <div class="plugin-header">
           <span class="plugin-icon">🤖</span>
-          <h3>Robots.txt</h3>
+          <h3>Robots.txt (${rules.length} règles)</h3>
           <span class="status-badge ${hasRobots ? 'success' : 'warning'}">${hasRobots ? '✓ Présent' : '○ Absent'}</span>
         </div>
         <div class="plugin-content">
           ${rules.length > 0 ? `
-            <ul class="rules-list">
-              ${rules.slice(0, 8).map((r: any) => `<li><code>${escapeHtml(r.lbl || r.directive || r.field || '')}: ${escapeHtml(r.val || r.value || '')}</code></li>`).join('')}
-            </ul>
+            <table class="data-table">
+              <thead><tr><th>Directive</th><th>Valeur</th></tr></thead>
+              <tbody>
+              ${rules.slice(0, 30).map((r: any) => `
+                <tr>
+                  <td><code>${escapeHtml(r.lbl || r.directive || r.field || '')}</code></td>
+                  <td>${escapeHtml(r.val || r.value || '')}</td>
+                </tr>
+              `).join('')}
+              </tbody>
+            </table>
+            ${rules.length > 30 ? `<p class="more">+ ${rules.length - 30} autres règles...</p>` : ''}
           ` : '<p class="empty">Aucune règle</p>'}
         </div>
       </div>
     `;
   },
 
-  // Redirects
+  // Redirects - Skip if no redirects
   'redirects': (data) => {
     if (!data) return '';
     const chain = data.redirects || data.chain || [];
+    // Skip if no redirects or only 1 (no actual redirect happened)
+    if (chain.length <= 1) return '';
+    
     return `
       <div class="plugin-card">
         <div class="plugin-header">
@@ -697,11 +836,12 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
           <span class="status-badge ${chain.length <= 2 ? 'success' : 'warning'}">${chain.length} redirection${chain.length !== 1 ? 's' : ''}</span>
         </div>
         <div class="plugin-content">
-          ${chain.length > 0 ? `
-            <ul class="redirect-list">
-              ${chain.map((r: any) => `<li>→ ${escapeHtml(typeof r === 'string' ? r : r.url || r.to || '')}</li>`).join('')}
-            </ul>
-          ` : '<p class="empty">Aucune redirection</p>'}
+          <ul class="redirect-list">
+            ${chain.map((r: any, i: number) => {
+              const url = typeof r === 'string' ? r : (r.url || r.to || '');
+              return `<li>${i === 0 ? '🔗' : '→'} ${escapeHtml(url)}</li>`;
+            }).join('')}
+          </ul>
         </div>
       </div>
     `;
@@ -751,24 +891,25 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
   },
 
   // Firewall
+  // Firewall - Only show if WAF is detected
   'firewall': (data) => {
     if (!data) return '';
+    const hasWaf = data.detected || data.hasWaf;
+    // Skip if no WAF detected
+    if (!hasWaf) return '';
+    
     return `
       <div class="plugin-card">
         <div class="plugin-header">
           <span class="plugin-icon">🔥</span>
           <h3>Pare-feu / WAF</h3>
-          <span class="status-badge ${data.detected || data.hasWaf ? 'success' : 'info'}">
-            ${data.detected || data.hasWaf ? '✓ Détecté' : '○ Non détecté'}
-          </span>
+          <span class="status-badge success">✓ Détecté</span>
         </div>
         <div class="plugin-content">
-          ${data.detected || data.hasWaf ? `
-            <table class="info-table">
-              ${data.name || data.waf ? `<tr><td class="label">Type</td><td>${escapeHtml(data.name || data.waf)}</td></tr>` : ''}
-              ${data.confidence ? `<tr><td class="label">Confiance</td><td>${data.confidence}%</td></tr>` : ''}
-            </table>
-          ` : '<p class="empty">Aucun WAF détecté</p>'}
+          <table class="info-table">
+            ${data.name || data.waf ? `<tr><td class="label">Type</td><td>${escapeHtml(data.name || data.waf)}</td></tr>` : ''}
+            ${data.confidence ? `<tr><td class="label">Confiance</td><td>${data.confidence}%</td></tr>` : ''}
+          </table>
         </div>
       </div>
     `;
@@ -777,68 +918,113 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
   // Social Tags
   'social-tags': (data) => {
     if (!data || data.error) return '';
+    const title = data.title || data.ogTitle || '';
+    const description = data.description || data.ogDescription || '';
+    
     return `
-      <div class="plugin-card">
+      <div class="plugin-card wide">
         <div class="plugin-header">
           <span class="plugin-icon">📱</span>
-          <h3>Métadonnées Sociales</h3>
+          <h3>Métadonnées Sociales & SEO</h3>
         </div>
         <div class="plugin-content">
           <table class="info-table">
-            ${data.title || data['og:title'] ? `<tr><td class="label">Titre</td><td>${escapeHtml(data.title || data['og:title'])}</td></tr>` : ''}
-            ${data.description || data['og:description'] ? `<tr><td class="label">Description</td><td>${escapeHtml((data.description || data['og:description']).substring(0, 100))}...</td></tr>` : ''}
-            ${data['og:image'] ? `<tr><td class="label">Image</td><td>✓ Présente</td></tr>` : ''}
-            ${data['twitter:card'] ? `<tr><td class="label">Twitter Card</td><td>${escapeHtml(data['twitter:card'])}</td></tr>` : ''}
+            ${title ? `<tr><td class="label">Titre</td><td>${escapeHtml(title)}</td></tr>` : ''}
+            ${description ? `<tr><td class="label">Description</td><td>${escapeHtml(description.length > 150 ? description.substring(0, 150) + '...' : description)}</td></tr>` : ''}
+            ${data.canonicalUrl ? `<tr><td class="label">URL canonique</td><td>${escapeHtml(data.canonicalUrl)}</td></tr>` : ''}
+            ${data.ogTitle ? `<tr><td class="label">OG Title</td><td>${escapeHtml(data.ogTitle)}</td></tr>` : ''}
+            ${data.ogDescription ? `<tr><td class="label">OG Description</td><td>${escapeHtml(data.ogDescription.length > 100 ? data.ogDescription.substring(0, 100) + '...' : data.ogDescription)}</td></tr>` : ''}
+            ${data.twitterTitle ? `<tr><td class="label">Twitter Title</td><td>${escapeHtml(data.twitterTitle)}</td></tr>` : ''}
+            ${data.twitterDescription ? `<tr><td class="label">Twitter Desc.</td><td>${escapeHtml(data.twitterDescription.length > 100 ? data.twitterDescription.substring(0, 100) + '...' : data.twitterDescription)}</td></tr>` : ''}
+            ${data.themeColor ? `<tr><td class="label">Couleur thème</td><td><code>${escapeHtml(data.themeColor)}</code></td></tr>` : ''}
+            ${data.generator ? `<tr><td class="label">Générateur</td><td>${escapeHtml(data.generator)}</td></tr>` : ''}
+            ${data.author ? `<tr><td class="label">Auteur</td><td>${escapeHtml(data.author)}</td></tr>` : ''}
+            ${data.viewport ? `<tr><td class="label">Viewport</td><td>${escapeHtml(data.viewport)}</td></tr>` : ''}
+            ${data.favicon ? `<tr><td class="label">Favicon</td><td>${escapeHtml(data.favicon)}</td></tr>` : ''}
           </table>
         </div>
       </div>
     `;
   },
 
-  // Vulnerabilities
+  // Vulnerabilities - Only show if vulnerabilities found
   'vulnerabilities': (data) => {
     if (!data || data.error) return '';
     const vulns = data.vulnerabilities || data.issues || [];
+    const summary = data.summary || {};
+    
+    // Skip if no vulnerabilities
+    if (vulns.length === 0 && !summary.critical && !summary.high && !summary.medium && !summary.low) return '';
+    
+    // Translate risk level to French
+    const translateRiskLevel = (level: string) => {
+      const translations: Record<string, string> = {
+        'Minimal': 'Minimal',
+        'Low': 'Faible',
+        'Medium': 'Moyen',
+        'High': 'Élevé',
+        'Critical': 'Critique'
+      };
+      return translations[level] || level || '';
+    };
+    
     return `
-      <div class="plugin-card">
+      <div class="plugin-card wide">
         <div class="plugin-header">
           <span class="plugin-icon">⚠️</span>
-          <h3>Vulnérabilités</h3>
-          <span class="status-badge ${vulns.length === 0 ? 'success' : 'error'}">
-            ${vulns.length === 0 ? '✓ Aucune' : `${vulns.length} trouvée(s)`}
-          </span>
+          <h3>Vulnérabilités Détectées</h3>
+          <span class="status-badge error">${vulns.length} trouvée(s)</span>
         </div>
         <div class="plugin-content">
+          ${summary.critical || summary.high || summary.medium || summary.low ? `
+            <table class="info-table" style="margin-bottom: 10px;">
+              <tr>
+                <td class="label">Niveau de risque</td>
+                <td style="color: #991b1b;">${translateRiskLevel(data.riskLevel)}</td>
+              </tr>
+              ${summary.critical ? `<tr><td class="label">Critiques</td><td style="color: #991b1b;">${summary.critical}</td></tr>` : ''}
+              ${summary.high ? `<tr><td class="label">Élevées</td><td style="color: #c2410c;">${summary.high}</td></tr>` : ''}
+              ${summary.medium ? `<tr><td class="label">Moyennes</td><td style="color: #b45309;">${summary.medium}</td></tr>` : ''}
+              ${summary.low ? `<tr><td class="label">Faibles</td><td style="color: #0369a1;">${summary.low}</td></tr>` : ''}
+            </table>
+          ` : ''}
           ${vulns.length > 0 ? `
             <ul class="vuln-list">
-              ${vulns.slice(0, 5).map((v: any) => `<li>⚠ ${escapeHtml(v.title || v.name || v.id || v)}</li>`).join('')}
+              ${vulns.slice(0, 15).map((v: any) => `<li>⚠ ${escapeHtml(v.title || v.name || v.id || v)}</li>`).join('')}
             </ul>
-            ${vulns.length > 5 ? `<p class="more">+ ${vulns.length - 5} autres...</p>` : ''}
-          ` : '<p class="empty">Aucune vulnérabilité détectée</p>'}
+            ${vulns.length > 15 ? `<p class="more">+ ${vulns.length - 15} autres...</p>` : ''}
+          ` : ''}
         </div>
       </div>
     `;
   },
 
   // Link Audit
+  // Link Audit - Only show if there are issues
   'link-audit': (data) => {
     if (!data || data.error) return '';
     const broken = data.brokenLinks || data.broken || [];
     const mixed = data.mixedContent || data.mixed || [];
+    // Skip if no issues found
+    if (broken.length === 0 && mixed.length === 0) return '';
+    
     return `
       <div class="plugin-card">
         <div class="plugin-header">
           <span class="plugin-icon">🔗</span>
-          <h3>Audit des Liens</h3>
-          <span class="status-badge ${broken.length === 0 && mixed.length === 0 ? 'success' : 'warning'}">
-            ${data.score || 100}/100
-          </span>
+          <h3>Problèmes de Liens</h3>
+          <span class="status-badge warning">⚠ ${broken.length + mixed.length} problème(s)</span>
         </div>
         <div class="plugin-content">
           <table class="info-table">
-            <tr><td class="label">Liens cassés</td><td>${broken.length}</td></tr>
-            <tr><td class="label">Contenu mixte</td><td>${mixed.length}</td></tr>
+            ${broken.length > 0 ? `<tr><td class="label">Liens cassés</td><td style="color: #991b1b;">${broken.length}</td></tr>` : ''}
+            ${mixed.length > 0 ? `<tr><td class="label">Contenu mixte</td><td style="color: #b45309;">${mixed.length}</td></tr>` : ''}
           </table>
+          ${broken.length > 0 ? `
+            <p style="font-size: 8pt; margin-top: 8px;">
+              ${broken.slice(0, 5).map((b: any) => escapeHtml(b.url || b)).join(', ')}
+            </p>
+          ` : ''}
         </div>
       </div>
     `;
@@ -847,21 +1033,59 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
   // Subdomain Enumeration
   'subdomain-enumeration': (data) => {
     if (!data || data.error) return '';
+    
     const subdomains = data.subdomains || data.domains || [];
+    const analysis = data.analysis || {};
+    const summary = data.summary || {};
+    const methods = data.methods || {};
+    
     return `
-      <div class="plugin-card">
+      <div class="plugin-card wide">
         <div class="plugin-header">
           <span class="plugin-icon">🌍</span>
-          <h3>Sous-domaines</h3>
-          <span class="status-badge info">${subdomains.length} trouvé${subdomains.length !== 1 ? 's' : ''}</span>
+          <h3>Énumération des Sous-domaines</h3>
+          <span class="status-badge info">${summary.totalSubdomains || subdomains.length} trouvé${(summary.totalSubdomains || subdomains.length) !== 1 ? 's' : ''}</span>
         </div>
         <div class="plugin-content">
+          <table class="info-table" style="margin-bottom: 10px;">
+            <tr><td class="label">Domaine principal</td><td>${escapeHtml(data.domain || data.queryDomain || '')}</td></tr>
+            <tr><td class="label">Sous-domaines trouvés</td><td>${summary.totalSubdomains || subdomains.length}</td></tr>
+            <tr><td class="label">Adresses IP uniques</td><td>${summary.uniqueIPAddresses || analysis.uniqueIPs?.length || 0}</td></tr>
+            <tr><td class="label">CDN détecté</td><td>${summary.hasCDN || analysis.hasCDN ? '✓ Oui' : '✗ Non'}</td></tr>
+            <tr><td class="label">Wildcard DNS</td><td>${summary.hasWildcard || analysis.hasWildcard ? '⚠ Oui' : '✓ Non'}</td></tr>
+            <tr><td class="label">Méthodologie</td><td>${escapeHtml(summary.methodology || 'Reconnaissance passive')}</td></tr>
+            ${summary.executionTimeMs ? `<tr><td class="label">Temps d'exécution</td><td>${(summary.executionTimeMs / 1000).toFixed(1)}s</td></tr>` : ''}
+          </table>
+          
           ${subdomains.length > 0 ? `
-            <ul class="url-list">
-              ${subdomains.slice(0, 8).map((s: any) => `<li>${escapeHtml(s.domain || s.name || s)}</li>`).join('')}
-            </ul>
-            ${subdomains.length > 8 ? `<p class="more">+ ${subdomains.length - 8} autres...</p>` : ''}
+            <p style="font-size: 9pt; font-weight: 600; margin-bottom: 5px;">Sous-domaines découverts:</p>
+            <table class="data-table">
+              <thead><tr><th>Sous-domaine</th><th>IP</th><th>CNAME</th></tr></thead>
+              <tbody>
+              ${subdomains.map((s: any) => {
+                const subdomain = s.subdomain || s.domain || s.name || s;
+                const ips = Array.isArray(s.ipv4) ? s.ipv4.slice(0, 2).join(', ') : (s.ip || '-');
+                const cname = Array.isArray(s.cname) ? s.cname.slice(0, 1).join(', ') : (s.cname || '-');
+                return `<tr><td>${escapeHtml(subdomain)}</td><td><code>${escapeHtml(ips)}</code></td><td>${escapeHtml(cname)}</td></tr>`;
+              }).join('')}
+              </tbody>
+            </table>
           ` : '<p class="empty">Aucun sous-domaine trouvé</p>'}
+          
+          ${analysis.uniqueIPs?.length > 0 ? `
+            <p style="font-size: 9pt; margin-top: 10px;">
+              <strong>IPs uniques:</strong> ${analysis.uniqueIPs.slice(0, 8).map((ip: string) => `<code>${escapeHtml(ip)}</code>`).join(', ')}
+              ${analysis.uniqueIPs.length > 8 ? `... +${analysis.uniqueIPs.length - 8}` : ''}
+            </p>
+          ` : ''}
+          
+          ${methods.passiveReconnaissance ? `
+            <p style="font-size: 8pt; color: #666; margin-top: 8px;">
+              Sources: CT Logs (${methods.passiveReconnaissance.certificateTransparency?.found || 0}), 
+              HackerTarget (${methods.passiveReconnaissance.hackerTarget?.found || 0}), 
+              URLScan (${methods.passiveReconnaissance.urlScan?.found || 0})
+            </p>
+          ` : ''}
         </div>
       </div>
     `;
@@ -870,19 +1094,52 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
   // Domain/Whois
   'domain': (data) => {
     if (!data || data.error) return '';
+    
+    // Extract data from internicData if available
+    const internic = data.internicData || {};
+    const whois = data.whoisData || {};
+    
+    const domainName = internic.Domain_Name || data.domain || '';
+    const registrar = internic.Registrar || data.registrar || '';
+    const creationDate = internic.Creation_Date || data.createdDate || data.created || '';
+    const expiryDate = internic.Registry_Expiry_Date || data.expiresDate || data.expires || '';
+    const updatedDate = internic.Updated_Date || data.updatedDate || data.updated || '';
+    const status = internic.Domain_Status || data.status || '';
+    const nameServer = internic.Name_Server || '';
+    const dnssec = internic.DNSSEC || '';
+    const registrarUrl = internic.Registrar_URL || '';
+    const abuseEmail = internic.Registrar_Abuse_Contact_Email || '';
+    const abusePhone = internic.Registrar_Abuse_Contact_Phone || '';
+    
+    // Format dates
+    const formatDateStr = (dateStr: string) => {
+      if (!dateStr) return '';
+      try {
+        return new Date(dateStr).toLocaleDateString('fr-FR', { day: 'numeric', month: 'long', year: 'numeric' });
+      } catch {
+        return dateStr;
+      }
+    };
+    
     return `
-      <div class="plugin-card">
+      <div class="plugin-card wide">
         <div class="plugin-header">
           <span class="plugin-icon">📋</span>
-          <h3>Informations Domaine</h3>
+          <h3>Informations Domaine (WHOIS)</h3>
         </div>
         <div class="plugin-content">
           <table class="info-table">
-            ${data.domain ? `<tr><td class="label">Domaine</td><td>${escapeHtml(data.domain)}</td></tr>` : ''}
-            ${data.registrar ? `<tr><td class="label">Registrar</td><td>${escapeHtml(data.registrar)}</td></tr>` : ''}
-            ${data.createdDate || data.created ? `<tr><td class="label">Créé le</td><td>${escapeHtml(data.createdDate || data.created)}</td></tr>` : ''}
-            ${data.expiresDate || data.expires ? `<tr><td class="label">Expire le</td><td>${escapeHtml(data.expiresDate || data.expires)}</td></tr>` : ''}
-            ${data.updatedDate || data.updated ? `<tr><td class="label">Mis à jour</td><td>${escapeHtml(data.updatedDate || data.updated)}</td></tr>` : ''}
+            ${domainName ? `<tr><td class="label">Domaine</td><td><strong>${escapeHtml(domainName)}</strong></td></tr>` : ''}
+            ${registrar ? `<tr><td class="label">Registrar</td><td>${escapeHtml(registrar)}</td></tr>` : ''}
+            ${registrarUrl ? `<tr><td class="label">Site Registrar</td><td>${escapeHtml(registrarUrl)}</td></tr>` : ''}
+            ${creationDate ? `<tr><td class="label">Date de création</td><td>${formatDateStr(creationDate)}</td></tr>` : ''}
+            ${expiryDate ? `<tr><td class="label">Date d'expiration</td><td>${formatDateStr(expiryDate)}</td></tr>` : ''}
+            ${updatedDate ? `<tr><td class="label">Dernière mise à jour</td><td>${formatDateStr(updatedDate)}</td></tr>` : ''}
+            ${status ? `<tr><td class="label">Statut</td><td>${escapeHtml(status.split(' ')[0] || status)}</td></tr>` : ''}
+            ${nameServer ? `<tr><td class="label">Serveur de noms</td><td><code>${escapeHtml(nameServer)}</code></td></tr>` : ''}
+            ${dnssec ? `<tr><td class="label">DNSSEC</td><td>${dnssec === 'unsigned' ? '✗ Non signé' : '✓ Signé'}</td></tr>` : ''}
+            ${abuseEmail ? `<tr><td class="label">Contact Abus</td><td>${escapeHtml(abuseEmail)}</td></tr>` : ''}
+            ${abusePhone ? `<tr><td class="label">Téléphone Abus</td><td>${escapeHtml(abusePhone)}</td></tr>` : ''}
           </table>
         </div>
       </div>
@@ -911,27 +1168,45 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
   },
 
   // Subdomain Takeover
+  // Subdomain Takeover - Only show if vulnerable
   'subdomain-takeover': (data) => {
     if (!data) return '';
     const isVulnerable = data.vulnerable || data.isVulnerable;
+    // Skip if not vulnerable
+    if (!isVulnerable) return '';
+    
     return `
       <div class="plugin-card">
         <div class="plugin-header">
           <span class="plugin-icon">🎯</span>
-          <h3>Subdomain Takeover</h3>
-          <span class="status-badge ${isVulnerable ? 'error' : 'success'}">${isVulnerable ? '⚠ Vulnérable' : '✓ Sécurisé'}</span>
+          <h3>Vulnérabilité Subdomain Takeover</h3>
+          <span class="status-badge error">⚠ Vulnérable</span>
         </div>
         <div class="plugin-content">
-          <p>${data.status || data.message || (isVulnerable ? 'Risque de prise de contrôle détecté' : 'Aucun risque détecté')}</p>
+          <p style="color: #991b1b;">${data.status || data.message || 'Risque de prise de contrôle de sous-domaine détecté'}</p>
+          ${data.cname ? `<p>CNAME: <code>${escapeHtml(data.cname)}</code></p>` : ''}
+          ${data.service ? `<p>Service: ${escapeHtml(data.service)}</p>` : ''}
         </div>
       </div>
     `;
   },
 
-  // Trace Route
+  // Trace Route - Skip if no meaningful hops
   'trace-route': (data) => {
     if (!data || data.error) return '';
     const hops = data.hops || data.result || [];
+    
+    // Skip if no hops or only localhost with timeouts
+    const meaningfulHops = hops.filter((h: any) => {
+      const ip = h.ip || h.host || h.hostname || h.address || '';
+      const hasRealIp = ip && ip !== 'localhost' && ip !== '127.0.0.1';
+      const rttArray = Array.isArray(h.rtt) ? h.rtt : [];
+      const hasRealRtt = rttArray.some((r: string) => r && r !== 'timeout');
+      return hasRealIp || hasRealRtt;
+    });
+    
+    if (meaningfulHops.length === 0) return '';
+    
     const totalHops = data.totalHops || hops.length;
     
     return `
@@ -942,15 +1217,20 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
           <span class="status-badge info">${totalHops} saut${totalHops !== 1 ? 's' : ''}</span>
         </div>
         <div class="plugin-content">
+          ${data.summary ? `<p style="font-size: 9pt; margin-bottom: 10px;">${escapeHtml(data.summary)}</p>` : ''}
+          ${data.avgLatency && data.avgLatency > 0 ? `<p style="font-size: 9pt; margin-bottom: 10px;">Latence moyenne: ${data.avgLatency}ms</p>` : ''}
           ${hops.length > 0 ? `
-            <ul class="url-list">
-              ${hops.slice(0, 6).map((h: any) => {
+            <table class="data-table">
+              <thead><tr><th>#</th><th>Hôte</th><th>RTT</th></tr></thead>
+              <tbody>
+              ${hops.map((h: any) => {
                 const hopNum = h.hop || '';
                 const ip = h.ip || h.host || h.hostname || h.address || '';
-                return `<li>${hopNum}. ${escapeHtml(ip)}</li>`;
+                const rtt = Array.isArray(h.rtt) ? h.rtt.filter((r: string) => r).join(', ') || '-' : (h.rtt || '-');
+                return `<tr><td>${hopNum}</td><td>${escapeHtml(ip)}</td><td>${escapeHtml(rtt)}</td></tr>`;
               }).join('')}
-            </ul>
-            ${hops.length > 6 ? `<p class="more">+ ${hops.length - 6} autres sauts...</p>` : ''}
+              </tbody>
+            </table>
           ` : '<p class="empty">Aucun résultat</p>'}
         </div>
       </div>
@@ -962,42 +1242,87 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
     if (!data || data.error) return '';
     const internal = data.internal || data.internalLinks || [];
     const external = data.external || data.externalLinks || [];
+    const analysis = data.analysis || {};
+    const internalWithCounts = analysis.internalWithCounts || [];
+    const externalWithCounts = analysis.externalWithCounts || [];
+    
     return `
-      <div class="plugin-card">
+      <div class="plugin-card wide">
         <div class="plugin-header">
           <span class="plugin-icon">🔗</span>
           <h3>Pages Liées</h3>
+          <span class="status-badge info">${analysis.totalUniqueLinks || (internal.length + external.length)} liens</span>
         </div>
         <div class="plugin-content">
-          <table class="info-table">
-            <tr><td class="label">Liens internes</td><td>${internal.length || 0}</td></tr>
-            <tr><td class="label">Liens externes</td><td>${external.length || 0}</td></tr>
+          <table class="info-table" style="margin-bottom: 10px;">
+            <tr><td class="label">Liens internes</td><td>${analysis.internalCount || internal.length}</td></tr>
+            <tr><td class="label">Liens externes</td><td>${analysis.externalCount || external.length}</td></tr>
+            ${analysis.method ? `<tr><td class="label">Méthode</td><td>${escapeHtml(analysis.method)}</td></tr>` : ''}
           </table>
+          
+          ${internal.length > 0 || internalWithCounts.length > 0 ? `
+            <p style="font-size: 9pt; font-weight: 600; margin-bottom: 5px;">Liens internes:</p>
+            <ul class="url-list">
+              ${(internalWithCounts.length > 0 ? internalWithCounts : internal).slice(0, 10).map((l: any) => {
+                const url = l.url || l;
+                const count = l.count ? ` (${l.count}x)` : '';
+                return `<li>${escapeHtml(url)}${count}</li>`;
+              }).join('')}
+            </ul>
+            ${internal.length > 10 ? `<p class="more">+ ${internal.length - 10} autres...</p>` : ''}
+          ` : ''}
+          
+          ${external.length > 0 || externalWithCounts.length > 0 ? `
+            <p style="font-size: 9pt; font-weight: 600; margin: 10px 0 5px 0;">Liens externes:</p>
+            <ul class="url-list">
+              ${(externalWithCounts.length > 0 ? externalWithCounts : external).slice(0, 10).map((l: any) => {
+                const url = l.url || l;
+                const count = l.count ? ` (${l.count}x)` : '';
+                return `<li>${escapeHtml(url)}${count}</li>`;
+              }).join('')}
+            </ul>
+            ${external.length > 10 ? `<p class="more">+ ${external.length - 10} autres...</p>` : ''}
+          ` : ''}
         </div>
       </div>
     `;
   },
 
-  // Site Features
+  // Site Features - Skip if no technologies detected
   'features': (data) => {
     if (!data || data.error) return '';
     // Handle various feature structures
     const features = data.technologies || data.features || data.Technologies || [];
+    
+    // Skip if no features detected
+    if (features.length === 0) return '';
+    
     const count = data.summary?.totalDetected || features.length;
     
     return `
-      <div class="plugin-card">
+      <div class="plugin-card wide">
         <div class="plugin-header">
           <span class="plugin-icon">✨</span>
-          <h3>Fonctionnalités</h3>
+          <h3>Technologies Détectées</h3>
           <span class="status-badge info">${count} détectée${count !== 1 ? 's' : ''}</span>
         </div>
         <div class="plugin-content">
-          ${features.length > 0 ? `
-            <ul class="url-list">
-              ${features.slice(0, 8).map((f: any) => `<li>${escapeHtml(f.name || f.Name || f)}</li>`).join('')}
-            </ul>
-          ` : '<p class="empty">Aucune fonctionnalité détectée</p>'}
+          <div class="tech-grid">
+            ${features.map((f: any) => {
+              const name = f.name || f.Name || (typeof f === 'string' ? f : '');
+              const version = f.version && f.version !== 'detected' ? f.version : '';
+              const confidence = f.confidence || '';
+              const source = f.source || '';
+              return `
+                <div class="tech-item">
+                  <strong>${escapeHtml(name)}</strong>
+                  ${version ? `<span class="version">v${escapeHtml(version)}</span>` : ''}
+                  ${confidence ? `<span class="category">${escapeHtml(confidence)}</span>` : ''}
+                  ${source ? `<span class="category" style="font-size: 7pt;">(${escapeHtml(source)})</span>` : ''}
+                </div>
+              `;
+            }).join('')}
+          </div>
         </div>
       </div>
     `;
@@ -1027,48 +1352,55 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
   },
 
   // Secrets Scanner
+  // Secrets - Only show if secrets are found
   'secrets': (data) => {
     if (!data || data.error) return '';
     const secrets = data.secrets || data.findings || [];
+    // Skip if no secrets found
+    if (secrets.length === 0) return '';
+    
     return `
-      <div class="plugin-card">
+      <div class="plugin-card wide">
         <div class="plugin-header">
           <span class="plugin-icon">🔑</span>
-          <h3>Secrets & PII</h3>
-          <span class="status-badge ${secrets.length === 0 ? 'success' : 'error'}">
-            ${secrets.length === 0 ? '✓ Aucun' : `⚠ ${secrets.length} trouvé(s)`}
-          </span>
+          <h3>Secrets & PII Exposés</h3>
+          <span class="status-badge error">⚠ ${secrets.length} trouvé(s)</span>
         </div>
         <div class="plugin-content">
-          ${secrets.length > 0 ? `
-            <ul class="vuln-list">
-              ${secrets.slice(0, 5).map((s: any) => `<li>⚠ ${escapeHtml(s.type || s.name || s)}</li>`).join('')}
-            </ul>
-          ` : '<p class="empty">Aucun secret exposé détecté</p>'}
+          <ul class="vuln-list">
+            ${secrets.slice(0, 15).map((s: any) => `<li>⚠ ${escapeHtml(s.type || s.name || s)}</li>`).join('')}
+          </ul>
+          ${secrets.length > 15 ? `<p class="more">+ ${secrets.length - 15} autres...</p>` : ''}
         </div>
       </div>
     `;
   },
 
-  // Exposed Files
+  // Exposed Files - Skip if no files found
   'exposed-files': (data) => {
     if (!data || data.error) return '';
     const files = data.files || data.exposedFiles || [];
+    
+    // Skip if no exposed files detected
+    if (files.length === 0) return '';
+    
     return `
       <div class="plugin-card">
         <div class="plugin-header">
           <span class="plugin-icon">📂</span>
           <h3>Fichiers Exposés</h3>
-          <span class="status-badge ${files.length === 0 ? 'success' : 'warning'}">
-            ${files.length === 0 ? '✓ Aucun' : `${files.length} fichier(s)`}
+          <span class="status-badge warning">
+            ${files.length} fichier(s)
           </span>
         </div>
         <div class="plugin-content">
-          ${files.length > 0 ? `
-            <ul class="url-list">
-              ${files.slice(0, 6).map((f: any) => `<li>${escapeHtml(f.path || f.file || f)}</li>`).join('')}
-            </ul>
-          ` : '<p class="empty">Aucun fichier sensible exposé</p>'}
+          <table class="info-table" style="margin-bottom: 10px;">
+            <tr><td class="label">Fichiers scannés</td><td>${data.scannedCount || 0}</td></tr>
+          </table>
+          <ul class="url-list">
+            ${files.slice(0, 15).map((f: any) => `<li>${escapeHtml(f.path || f.file || f)}</li>`).join('')}
+          </ul>
+          ${files.length > 15 ? `<p class="more">+ ${files.length - 15} autres...</p>` : ''}
         </div>
       </div>
     `;
@@ -1077,18 +1409,34 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
   // Headers
   'headers': (data) => {
     if (!data || data.error) return '';
-    const headers = data.headers || {};
-    const headerList = Object.entries(headers).slice(0, 8);
+    // Handle both nested and flat structure
+    const headers = data.headers || data;
+    const headerList = Object.entries(headers).filter(([k]) => k !== 'error' && k !== 'statusCode');
     return `
-      <div class="plugin-card">
+      <div class="plugin-card wide">
         <div class="plugin-header">
           <span class="plugin-icon">📨</span>
-          <h3>En-têtes HTTP</h3>
+          <h3>En-têtes HTTP (${headerList.length})</h3>
         </div>
         <div class="plugin-content">
           ${headerList.length > 0 ? `
-            <table class="info-table">
-              ${headerList.map(([k, v]) => `<tr><td class="label">${escapeHtml(k)}</td><td>${escapeHtml(String(v).substring(0, 50))}${String(v).length > 50 ? '...' : ''}</td></tr>`).join('')}
+            <table class="data-table">
+              <thead><tr><th>En-tête</th><th>Valeur</th></tr></thead>
+              <tbody>
+              ${headerList.map(([k, v]) => {
+                let displayValue = '';
+                if (Array.isArray(v)) {
+                  displayValue = v.join('; ');
+                } else {
+                  displayValue = String(v);
+                }
+                // Truncate long values
+                if (displayValue.length > 100) {
+                  displayValue = displayValue.substring(0, 100) + '...';
+                }
+                return `<tr><td class="label">${escapeHtml(k)}</td><td><code>${escapeHtml(displayValue)}</code></td></tr>`;
+              }).join('')}
+              </tbody>
             </table>
           ` : '<p class="empty">Aucun en-tête</p>'}
         </div>
@@ -1099,19 +1447,29 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
   // TXT Records
   'txt-records': (data) => {
     if (!data || data.error) return '';
-    const records = data.records || data.txtRecords || [];
+    // Handle both array and object formats
+    let records: any[] = [];
+    if (Array.isArray(data.records)) {
+      records = data.records;
+    } else if (typeof data.records === 'object') {
+      records = Object.entries(data.records).map(([k, v]) => `${k}: ${v}`);
+    }
+    const count = data.count || records.length;
+    
     return `
       <div class="plugin-card">
         <div class="plugin-header">
           <span class="plugin-icon">📝</span>
           <h3>Enregistrements TXT</h3>
-          <span class="status-badge info">${records.length} enregistrement${records.length !== 1 ? 's' : ''}</span>
+          <span class="status-badge info">${count} enregistrement${count !== 1 ? 's' : ''}</span>
         </div>
         <div class="plugin-content">
+          ${data.hostname ? `<p style="font-size: 9pt; margin-bottom: 8px;">Domaine: ${escapeHtml(data.hostname)}</p>` : ''}
           ${records.length > 0 ? `
             <ul class="url-list">
-              ${records.slice(0, 5).map((r: any) => `<li><code>${escapeHtml(String(r).substring(0, 60))}${String(r).length > 60 ? '...' : ''}</code></li>`).join('')}
+              ${records.slice(0, 15).map((r: any) => `<li><code>${escapeHtml(String(r).substring(0, 80))}${String(r).length > 80 ? '...' : ''}</code></li>`).join('')}
             </ul>
+            ${records.length > 15 ? `<p class="more">+ ${records.length - 15} autres...</p>` : ''}
           ` : '<p class="empty">Aucun enregistrement TXT</p>'}
         </div>
       </div>
@@ -1121,39 +1479,78 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
   // Mail Config
   'mail-config': (data) => {
     if (!data || data.error) return '';
+    
+    const security = data.securityAnalysis || {};
+    const summary = data.summary || {};
+    const mailServices = data.mailServices || [];
+    const recommendations = security.recommendations || [];
+    
     return `
-      <div class="plugin-card">
+      <div class="plugin-card wide">
         <div class="plugin-header">
           <span class="plugin-icon">📧</span>
           <h3>Configuration Email</h3>
+          <span class="status-badge ${summary.hasBasicSecurity ? 'success' : 'warning'}">
+            ${summary.securityScore || `${security.score || 0}/${security.maxScore || 3}`}
+          </span>
         </div>
         <div class="plugin-content">
-          <table class="info-table">
-            ${data.hasMx !== undefined ? `<tr><td class="label">MX</td><td>${data.hasMx ? '✓ Présent' : '✗ Absent'}</td></tr>` : ''}
-            ${data.spf !== undefined ? `<tr><td class="label">SPF</td><td>${data.spf ? '✓ Configuré' : '✗ Absent'}</td></tr>` : ''}
-            ${data.dmarc !== undefined ? `<tr><td class="label">DMARC</td><td>${data.dmarc ? '✓ Configuré' : '✗ Absent'}</td></tr>` : ''}
-            ${data.dkim !== undefined ? `<tr><td class="label">DKIM</td><td>${data.dkim ? '✓ Configuré' : '○ Non vérifié'}</td></tr>` : ''}
+          <table class="info-table" style="margin-bottom: 10px;">
+            <tr><td class="label">Enregistrements MX</td><td>${summary.totalMxRecords || data.mxRecords?.length || 0}</td></tr>
+            <tr><td class="label">Enregistrements TXT</td><td>${summary.totalTxtRecords || data.txtRecords?.length || 0}</td></tr>
+            <tr><td class="label">Services identifiés</td><td>${summary.identifiedServices || mailServices.length}</td></tr>
           </table>
+          
+          <p style="font-size: 9pt; font-weight: 600; margin-bottom: 5px;">Analyse de sécurité:</p>
+          <table class="info-table">
+            <tr><td class="label">SPF</td><td><span class="${security.spf ? 'check' : 'cross'}">${security.spf ? '✓ Configuré' : '✗ Non configuré'}</span></td></tr>
+            <tr><td class="label">DMARC</td><td><span class="${security.dmarc ? 'check' : 'cross'}">${security.dmarc ? '✓ Configuré' : '✗ Non configuré'}</span></td></tr>
+            <tr><td class="label">DKIM</td><td><span class="${security.dkim ? 'check' : 'cross'}">${security.dkim ? '✓ Configuré' : '✗ Non configuré'}</span></td></tr>
+          </table>
+          
+          ${mailServices.length > 0 ? `
+            <p style="font-size: 9pt; font-weight: 600; margin: 10px 0 5px 0;">Services détectés:</p>
+            <ul class="url-list">
+              ${mailServices.map((s: any) => `<li>${escapeHtml(s.provider || s.name || s)} (${escapeHtml(s.type || 'service')})</li>`).join('')}
+            </ul>
+          ` : ''}
+          
+          ${recommendations.length > 0 ? `
+            <div style="margin-top: 10px; padding: 10px; background: #fef3c7; border-radius: 6px;">
+              <p style="font-size: 9pt; font-weight: 600; margin-bottom: 5px; color: #92400e;">⚠️ Recommandations:</p>
+              <ul style="font-size: 8pt; margin: 0; padding-left: 15px; color: #92400e;">
+                ${recommendations.map((r: string) => `<li>${escapeHtml(r)}</li>`).join('')}
+              </ul>
+            </div>
+          ` : ''}
         </div>
       </div>
     `;
   },
 
   // Archives
+  // Archives - Only show if there are captures
   'archives': (data) => {
     if (!data || data.error) return '';
     const archives = data.results || data.archives || [];
+    const totalCaptures = data.totalCaptures || archives.length || 0;
+    const hasData = totalCaptures > 0 || data.firstSeen || data.oldestCapture;
+    // Skip if no archive data
+    if (!hasData) return '';
+    
     return `
       <div class="plugin-card">
         <div class="plugin-header">
           <span class="plugin-icon">📚</span>
           <h3>Archives Web</h3>
-          <span class="status-badge info">${archives.length} capture${archives.length !== 1 ? 's' : ''}</span>
+          <span class="status-badge info">${totalCaptures} capture${totalCaptures !== 1 ? 's' : ''}</span>
         </div>
         <div class="plugin-content">
-          ${data.firstSeen || data.oldestCapture ? `<p>Première capture: ${escapeHtml(data.firstSeen || data.oldestCapture)}</p>` : ''}
-          ${data.lastSeen || data.newestCapture ? `<p>Dernière capture: ${escapeHtml(data.lastSeen || data.newestCapture)}</p>` : ''}
-          ${data.totalCaptures || archives.length ? `<p>Total: ${data.totalCaptures || archives.length} captures</p>` : ''}
+          <table class="info-table">
+            ${data.firstSeen || data.oldestCapture ? `<tr><td class="label">Première capture</td><td>${escapeHtml(data.firstSeen || data.oldestCapture)}</td></tr>` : ''}
+            ${data.lastSeen || data.newestCapture ? `<tr><td class="label">Dernière capture</td><td>${escapeHtml(data.lastSeen || data.newestCapture)}</td></tr>` : ''}
+            ${totalCaptures ? `<tr><td class="label">Total</td><td>${totalCaptures} captures</td></tr>` : ''}
+          </table>
         </div>
       </div>
     `;
@@ -1162,17 +1559,63 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
   // Rank
   'rank': (data) => {
     if (!data || data.error) return '';
+    
+    const ranks = data.ranks || [];
+    const domain = data.domain || '';
+    const currentRank = ranks[0]?.rank || data.rank;
+    const oldestRank = ranks[ranks.length - 1]?.rank;
+    
+    // Calculate trend
+    let trend = '';
+    let trendClass = '';
+    if (ranks.length >= 2) {
+      const diff = ranks[ranks.length - 1]?.rank - ranks[0]?.rank;
+      if (diff > 0) {
+        trend = `↑ +${diff.toLocaleString()} (amélioration)`;
+        trendClass = 'check';
+      } else if (diff < 0) {
+        trend = `↓ ${diff.toLocaleString()} (régression)`;
+        trendClass = 'cross';
+      } else {
+        trend = '→ Stable';
+        trendClass = '';
+      }
+    }
+    
     return `
-      <div class="plugin-card">
+      <div class="plugin-card wide">
         <div class="plugin-header">
           <span class="plugin-icon">📊</span>
-          <h3>Classement Global</h3>
+          <h3>Classement Global Tranco</h3>
+          ${currentRank ? `<span class="status-badge info">#${currentRank.toLocaleString()}</span>` : ''}
         </div>
         <div class="plugin-content">
-          <table class="info-table">
-            ${data.rank ? `<tr><td class="label">Rang</td><td>#${data.rank.toLocaleString()}</td></tr>` : ''}
-            ${data.isInList !== undefined ? `<tr><td class="label">Dans le top 1M</td><td>${data.isInList ? '✓ Oui' : '✗ Non'}</td></tr>` : ''}
+          <table class="info-table" style="margin-bottom: 10px;">
+            ${domain ? `<tr><td class="label">Domaine</td><td>${escapeHtml(domain)}</td></tr>` : ''}
+            ${currentRank ? `<tr><td class="label">Rang actuel</td><td><strong>#${currentRank.toLocaleString()}</strong></td></tr>` : ''}
+            ${oldestRank && ranks.length > 1 ? `<tr><td class="label">Rang il y a ${ranks.length} jours</td><td>#${oldestRank.toLocaleString()}</td></tr>` : ''}
+            ${trend ? `<tr><td class="label">Tendance (${ranks.length} jours)</td><td><span class="${trendClass}">${trend}</span></td></tr>` : ''}
           </table>
+          ${ranks.length > 0 ? `
+            <p style="font-size: 9pt; font-weight: 600; margin-bottom: 5px;">Historique des 15 derniers jours:</p>
+            <table class="data-table">
+              <thead><tr><th>Date</th><th>Rang</th><th>Variation</th></tr></thead>
+              <tbody>
+              ${ranks.slice(0, 15).map((r: any, i: number) => {
+                const prev = ranks[i + 1]?.rank;
+                let change = '';
+                if (prev) {
+                  const diff = prev - r.rank;
+                  if (diff > 0) change = `<span class="check">↑ ${diff}</span>`;
+                  else if (diff < 0) change = `<span class="cross">↓ ${Math.abs(diff)}</span>`;
+                  else change = '→';
+                }
+                return `<tr><td>${new Date(r.date).toLocaleDateString('fr-FR')}</td><td>#${r.rank.toLocaleString()}</td><td>${change}</td></tr>`;
+              }).join('')}
+              </tbody>
+            </table>
+            ${ranks.length > 15 ? `<p class="more">+ ${ranks.length - 15} jours d'historique...</p>` : ''}
+          ` : ''}
         </div>
       </div>
     `;
@@ -1181,18 +1624,20 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
   // Ports
   'ports': (data) => {
     if (!data || data.error) return '';
-    const ports = data.ports || data.openPorts || [];
+    const openPorts = data.openPorts || data.ports || [];
+    const failedPorts = data.failedPorts || [];
     return `
       <div class="plugin-card">
         <div class="plugin-header">
           <span class="plugin-icon">🚪</span>
-          <h3>Ports Ouverts</h3>
-          <span class="status-badge info">${ports.length} port${ports.length !== 1 ? 's' : ''}</span>
+          <h3>Ports</h3>
+          <span class="status-badge info">${openPorts.length} ouvert${openPorts.length !== 1 ? 's' : ''}</span>
         </div>
         <div class="plugin-content">
-          ${ports.length > 0 ? `
-            <p>${ports.slice(0, 10).map((p: any) => `<code>${p.port || p}</code>`).join(', ')}</p>
-          ` : '<p class="empty">Aucun port ouvert détecté</p>'}
+          <table class="info-table">
+            <tr><td class="label">Ports ouverts</td><td>${openPorts.length > 0 ? openPorts.map((p: any) => `<code>${p.port || p}</code>`).join(', ') : 'Aucun'}</td></tr>
+            <tr><td class="label">Ports fermés</td><td>${failedPorts.length} (${failedPorts.slice(0, 10).join(', ')}${failedPorts.length > 10 ? '...' : ''})</td></tr>
+          </table>
         </div>
       </div>
     `;
@@ -1230,32 +1675,29 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
   'tls-cipher-suites': (data) => {
     if (!data || data.error) return '';
     
-    const ciphers = data.ciphers || data.cipherSuites || [];
-    const weak = ciphers.filter((c: any) => c.weak || c.insecure);
-    const strong = ciphers.filter((c: any) => !c.weak && !c.insecure);
+    const cert = data.certificate || {};
+    const securityLevel = data.securityLevel || 'unknown';
+    const isSecure = securityLevel === 'secure' || securityLevel === 'acceptable';
     
     return `
       <div class="plugin-card">
         <div class="plugin-header">
           <span class="plugin-icon">🔒</span>
           <h3>Suites de Chiffrement TLS</h3>
-          <span class="status-badge ${weak.length === 0 ? 'success' : 'warning'}">
-            ${weak.length === 0 ? '✓ Sécurisé' : `⚠ ${weak.length} faible(s)`}
+          <span class="status-badge ${isSecure ? 'success' : 'warning'}">
+            ${escapeHtml(securityLevel)}
           </span>
         </div>
         <div class="plugin-content">
-          ${ciphers.length > 0 ? `
-            <table class="info-table">
-              <tr><td class="label">Total</td><td>${ciphers.length} suites</td></tr>
-              <tr><td class="label">Fortes</td><td>${strong.length}</td></tr>
-              <tr><td class="label">Faibles</td><td>${weak.length}</td></tr>
-            </table>
-            ${weak.length > 0 ? `
-              <p style="color: #991b1b; font-size: 8pt; margin-top: 8px;">
-                ⚠ Suites faibles: ${weak.slice(0, 3).map((c: any) => escapeHtml(c.name || c.cipher || c)).join(', ')}
-              </p>
-            ` : ''}
-          ` : '<p class="empty">Aucune suite de chiffrement analysée</p>'}
+          <table class="info-table">
+            ${data.hostname ? `<tr><td class="label">Hôte</td><td>${escapeHtml(data.hostname)}:${data.port || 443}</td></tr>` : ''}
+            ${data.protocol ? `<tr><td class="label">Protocole</td><td><strong>${escapeHtml(data.protocol)}</strong></td></tr>` : ''}
+            ${data.cipher ? `<tr><td class="label">Cipher</td><td><code>${escapeHtml(data.cipher)}</code></td></tr>` : ''}
+            ${data.version ? `<tr><td class="label">Version TLS</td><td>${escapeHtml(data.version)}</td></tr>` : ''}
+            ${cert.daysRemaining !== undefined ? `<tr><td class="label">Expire dans</td><td>${cert.daysRemaining} jours</td></tr>` : ''}
+            ${data.available !== undefined ? `<tr><td class="label">Disponible</td><td>${data.available ? '✓ Oui' : '✗ Non'}</td></tr>` : ''}
+          </table>
+          ${data.note ? `<p style="font-size: 8pt; color: #666; margin-top: 8px;">${escapeHtml(data.note)}</p>` : ''}
         </div>
       </div>
     `;
@@ -1265,20 +1707,31 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
   'tls-security-config': (data) => {
     if (!data || data.error) return '';
     
+    const cert = data.certificate || {};
+    const securityLevel = data.securityLevel || 'unknown';
+    const isSecure = securityLevel === 'secure' || securityLevel === 'acceptable';
+    
     return `
       <div class="plugin-card">
         <div class="plugin-header">
           <span class="plugin-icon">🛡️</span>
           <h3>Configuration Sécurité TLS</h3>
+          <span class="status-badge ${isSecure ? 'success' : 'warning'}">
+            ${escapeHtml(securityLevel)}
+          </span>
         </div>
         <div class="plugin-content">
           <table class="info-table">
-            ${data.grade ? `<tr><td class="label">Grade</td><td><strong>${escapeHtml(data.grade)}</strong></td></tr>` : ''}
-            ${data.forwardSecrecy !== undefined ? `<tr><td class="label">Forward Secrecy</td><td>${data.forwardSecrecy ? '✓ Activé' : '✗ Non'}</td></tr>` : ''}
-            ${data.heartbleed !== undefined ? `<tr><td class="label">Heartbleed</td><td>${!data.heartbleed ? '✓ Protégé' : '⚠ Vulnérable'}</td></tr>` : ''}
-            ${data.poodle !== undefined ? `<tr><td class="label">POODLE</td><td>${!data.poodle ? '✓ Protégé' : '⚠ Vulnérable'}</td></tr>` : ''}
-            ${data.beast !== undefined ? `<tr><td class="label">BEAST</td><td>${!data.beast ? '✓ Protégé' : '⚠ Vulnérable'}</td></tr>` : ''}
+            ${data.hostname ? `<tr><td class="label">Hôte</td><td>${escapeHtml(data.hostname)}:${data.port || 443}</td></tr>` : ''}
+            ${data.protocol ? `<tr><td class="label">Protocole</td><td><strong>${escapeHtml(data.protocol)}</strong></td></tr>` : ''}
+            ${data.cipher ? `<tr><td class="label">Cipher Suite</td><td><code>${escapeHtml(data.cipher)}</code></td></tr>` : ''}
+            ${data.version ? `<tr><td class="label">Version</td><td>${escapeHtml(data.version)}</td></tr>` : ''}
+            ${cert.subject?.CN ? `<tr><td class="label">Certificat</td><td>${escapeHtml(cert.subject.CN)}</td></tr>` : ''}
+            ${cert.issuer?.O ? `<tr><td class="label">Émetteur</td><td>${escapeHtml(cert.issuer.O)} (${escapeHtml(cert.issuer.CN || '')})</td></tr>` : ''}
+            ${cert.daysRemaining !== undefined ? `<tr><td class="label">Jours restants</td><td>${cert.daysRemaining}</td></tr>` : ''}
+            ${data.available !== undefined ? `<tr><td class="label">TLS disponible</td><td>${data.available ? '✓ Oui' : '✗ Non'}</td></tr>` : ''}
           </table>
+          ${data.note ? `<p style="font-size: 8pt; color: #666; margin-top: 8px;">${escapeHtml(data.note)}</p>` : ''}
         </div>
       </div>
     `;
@@ -1288,49 +1741,58 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
   'tls-client-support': (data) => {
     if (!data || data.error) return '';
     
-    const clients = data.clients || data.supportedClients || data.compatibility || [];
+    const cert = data.certificate || {};
+    const securityLevel = data.securityLevel || 'unknown';
+    const isSecure = securityLevel === 'secure' || securityLevel === 'acceptable';
     
     return `
       <div class="plugin-card">
         <div class="plugin-header">
           <span class="plugin-icon">💻</span>
           <h3>Compatibilité TLS Clients</h3>
+          <span class="status-badge ${isSecure ? 'success' : 'warning'}">
+            ${escapeHtml(securityLevel)}
+          </span>
         </div>
         <div class="plugin-content">
-          ${clients.length > 0 ? `
-            <table class="info-table">
-              ${clients.slice(0, 6).map((c: any) => `
-                <tr>
-                  <td class="label">${escapeHtml(c.name || c.client || c)}</td>
-                  <td>${c.supported !== false ? '✓ Compatible' : '✗ Non compatible'}</td>
-                </tr>
-              `).join('')}
-            </table>
-          ` : '<p class="empty">Données de compatibilité non disponibles</p>'}
+          <table class="info-table">
+            ${data.hostname ? `<tr><td class="label">Hôte</td><td>${escapeHtml(data.hostname)}:${data.port || 443}</td></tr>` : ''}
+            ${data.protocol ? `<tr><td class="label">Protocole négocié</td><td><strong>${escapeHtml(data.protocol)}</strong></td></tr>` : ''}
+            ${data.cipher ? `<tr><td class="label">Cipher négocié</td><td><code>${escapeHtml(data.cipher)}</code></td></tr>` : ''}
+            ${data.version ? `<tr><td class="label">Version TLS</td><td>${escapeHtml(data.version)}</td></tr>` : ''}
+            ${cert.validFrom ? `<tr><td class="label">Valide depuis</td><td>${escapeHtml(cert.validFrom)}</td></tr>` : ''}
+            ${cert.validTo ? `<tr><td class="label">Valide jusqu'au</td><td>${escapeHtml(cert.validTo)}</td></tr>` : ''}
+            ${cert.daysRemaining !== undefined ? `<tr><td class="label">Jours restants</td><td>${cert.daysRemaining}</td></tr>` : ''}
+            ${data.available !== undefined ? `<tr><td class="label">Connexion TLS</td><td>${data.available ? '✓ Réussie' : '✗ Échouée'}</td></tr>` : ''}
+          </table>
+          ${data.note ? `<p style="font-size: 8pt; color: #666; margin-top: 8px;">${escapeHtml(data.note)}</p>` : ''}
         </div>
       </div>
     `;
   },
 
   // Security.txt
+  // Security.txt - Only show if present with data
   'security-txt': (data) => {
     if (!data) return '';
+    const isPresent = data.found || data.present || data.isPresent;
+    // Skip if not present
+    if (!isPresent) return '';
+    
     return `
       <div class="plugin-card">
         <div class="plugin-header">
           <span class="plugin-icon">🔒</span>
           <h3>Security.txt</h3>
-          <span class="status-badge ${data.found || data.present ? 'success' : 'warning'}">
-            ${data.found || data.present ? '✓ Présent' : '○ Absent'}
-          </span>
+          <span class="status-badge success">✓ Présent</span>
         </div>
         <div class="plugin-content">
-          ${data.found || data.present ? `
-            <table class="info-table">
-              ${data.contact ? `<tr><td class="label">Contact</td><td>${escapeHtml(data.contact)}</td></tr>` : ''}
-              ${data.expires ? `<tr><td class="label">Expire</td><td>${escapeHtml(data.expires)}</td></tr>` : ''}
-            </table>
-          ` : '<p class="empty">Fichier security.txt non trouvé</p>'}
+          <table class="info-table">
+            ${data.contact ? `<tr><td class="label">Contact</td><td>${escapeHtml(data.contact)}</td></tr>` : ''}
+            ${data.expires ? `<tr><td class="label">Expire</td><td>${escapeHtml(data.expires)}</td></tr>` : ''}
+            ${data.encryption ? `<tr><td class="label">Encryption</td><td>${escapeHtml(data.encryption)}</td></tr>` : ''}
+            ${data.policy ? `<tr><td class="label">Policy</td><td>${escapeHtml(data.policy)}</td></tr>` : ''}
+          </table>
         </div>
       </div>
     `;
@@ -1356,9 +1818,17 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
     `;
   },
 
-  // Server Info
+  // Server Info - Skip if all fields are empty
   'server-info': (data) => {
     if (!data || data.error) return '';
+    // Check if there's any meaningful data
+    const hasServer = data.server && data.server.trim();
+    const hasOs = data.os && data.os.trim();
+    const hasIp = data.ip && data.ip.trim();
+    const hasLoc = data.loc && data.loc.trim();
+    const hasType = data.type && data.type.trim();
+    if (!hasServer && !hasOs && !hasIp && !hasLoc && !hasType) return '';
+    
     return `
       <div class="plugin-card">
         <div class="plugin-header">
@@ -1367,9 +1837,11 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
         </div>
         <div class="plugin-content">
           <table class="info-table">
-            ${data.server ? `<tr><td class="label">Serveur</td><td>${escapeHtml(data.server)}</td></tr>` : ''}
-            ${data.os ? `<tr><td class="label">OS</td><td>${escapeHtml(data.os)}</td></tr>` : ''}
-            ${data.ip ? `<tr><td class="label">IP</td><td>${escapeHtml(data.ip)}</td></tr>` : ''}
+            ${hasServer ? `<tr><td class="label">Serveur</td><td>${escapeHtml(data.server)}</td></tr>` : ''}
+            ${hasOs ? `<tr><td class="label">OS</td><td>${escapeHtml(data.os)}</td></tr>` : ''}
+            ${hasIp ? `<tr><td class="label">IP</td><td>${escapeHtml(data.ip)}</td></tr>` : ''}
+            ${hasLoc ? `<tr><td class="label">Localisation</td><td>${escapeHtml(data.loc)}</td></tr>` : ''}
+            ${hasType ? `<tr><td class="label">Type</td><td>${escapeHtml(data.type)}</td></tr>` : ''}
           </table>
         </div>
       </div>
@@ -1377,9 +1849,13 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
   },
 
   // Host Names
+  // Hosts - Only show if hosts found
   'hosts': (data) => {
     if (!data || data.error) return '';
     const hosts = data.hostnames || data.hosts || [];
+    // Skip if no hosts
+    if (hosts.length === 0) return '';
+    
     return `
       <div class="plugin-card">
         <div class="plugin-header">
@@ -1388,11 +1864,10 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
           <span class="status-badge info">${hosts.length}</span>
         </div>
         <div class="plugin-content">
-          ${hosts.length > 0 ? `
-            <ul class="url-list">
-              ${hosts.slice(0, 6).map((h: any) => `<li>${escapeHtml(h)}</li>`).join('')}
-            </ul>
-          ` : '<p class="empty">Aucun nom d\'hôte</p>'}
+          <ul class="url-list">
+            ${hosts.slice(0, 10).map((h: any) => `<li>${escapeHtml(h)}</li>`).join('')}
+          </ul>
+          ${hosts.length > 10 ? `<p class="more">+ ${hosts.length - 10} autres...</p>` : ''}
         </div>
       </div>
     `;
@@ -1447,17 +1922,39 @@ const keyAliases: Record<string, string> = {
   'getIp': 'get-ip',
   'ip': 'get-ip',
   'robotsTxt': 'robots',
+  'enhancedComplianceSummary': 'enhanced-compliance-summary',
+  'compliance-summary': 'enhanced-compliance-summary',
 };
 
 /**
  * Generic fallback renderer for plugins without specific renderers
- * Shows all data in a readable format
+ * Shows all data in a readable format - ONLY if there's meaningful data
  */
 const genericPluginRenderer = (data: any, key: string): string => {
   if (!data || data.error) return '';
   
   // Skip if data is just a primitive
   if (typeof data !== 'object') return '';
+  
+  // Metadata fields to exclude from rendering
+  const metadataFields = [
+    'error', 'statusCode', 'timestamp', 'url', 'hostname', 'domain', 
+    'queryDomain', 'scanUrl', 'port', 'skipped', 'message'
+  ];
+  
+  // Check if a value is meaningful (not empty)
+  const isMeaningful = (value: any): boolean => {
+    if (value === null || value === undefined) return false;
+    if (typeof value === 'string') return value.trim().length > 0;
+    if (typeof value === 'number') return true;
+    if (typeof value === 'boolean') return true;
+    if (Array.isArray(value)) return value.length > 0;
+    if (typeof value === 'object') {
+      const entries = Object.entries(value).filter(([k]) => !metadataFields.includes(k));
+      return entries.some(([, v]) => isMeaningful(v));
+    }
+    return false;
+  };
   
   // Get plugin display name
   const displayName = key.replace(/-/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
@@ -1487,18 +1984,16 @@ const genericPluginRenderer = (data: any, key: string): string => {
     return '';
   };
   
-  // Get important fields to display
+  // Get important fields to display (excluding metadata)
   const importantFields = Object.entries(data)
     .filter(([k, v]) => 
-      v !== null && 
-      v !== undefined && 
-      k !== 'error' && 
-      k !== 'statusCode' &&
-      k !== 'timestamp' &&
-      typeof v !== 'function'
+      !metadataFields.includes(k) &&
+      typeof v !== 'function' &&
+      isMeaningful(v)
     )
     .slice(0, 10);
   
+  // Skip if no meaningful fields
   if (importantFields.length === 0) return '';
   
   return `
@@ -1534,8 +2029,9 @@ export const generateFullResultsHTML = (allResults: PluginResult, siteName: stri
   const pluginCards: string[] = [];
   const processedPlugins: string[] = [];
   
-  // Priority order - RGPD compliance first, then other important plugins
+  // Priority order - Compliance summary first, then other important plugins
   const priorityOrder = [
+    'enhanced-compliance-summary',
     'rgpd-compliance',
     'ssl',
     'tls',
@@ -1547,12 +2043,9 @@ export const generateFullResultsHTML = (allResults: PluginResult, siteName: stri
     'apdp-cookie-banner',
     'apdp-privacy-policy',
     'apdp-legal-notices',
-    'quality',
-    'lighthouse',
     'tech-stack',
     'dns',
     'dnssec',
-    'hsts',
     'threats',
     'vulnerabilities',
     'secrets',
@@ -1583,7 +2076,8 @@ export const generateFullResultsHTML = (allResults: PluginResult, siteName: stri
     'txt-records',
     'dns-server',
     'hosts',
-    'server-info'
+    'server-info',
+    'features'
   ];
   
   // Process plugins in priority order first

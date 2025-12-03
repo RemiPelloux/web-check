@@ -139,9 +139,28 @@ const ResourceList = styled.ul`
   }
 `;
 
+const ClickableLink = styled.a`
+  color: ${colors.primary};
+  text-decoration: none;
+  font-weight: 500;
+  
+  &:hover {
+    text-decoration: underline;
+  }
+`;
+
 // ============================================
 // Helpers
 // ============================================
+
+const isApdpDomain = (url: string): boolean => {
+  try {
+    const hostname = new URL(url).hostname;
+    return hostname.endsWith('apdp.mc') || hostname === 'apdp.mc';
+  } catch {
+    return false;
+  }
+};
 
 const makeAnchor = (title: string): string => {
   return title.toLowerCase()
@@ -208,21 +227,29 @@ const WikiChapter = ({
       {doc.resources && doc.resources.length > 0 && (
         <>
           <Heading as="h4" size="small">Ressources Utiles</Heading>
-          <Description style={{ fontSize: '12px', color: '#666', fontStyle: 'italic', marginBottom: '0.5rem', marginTop: '-0.5rem' }}>
-            (Les liens ne sont pas cliquables mais uniquement copiables car l'APDP n'est pas en mesure de confirmer la conformité du site et de son contenu)
-          </Description>
+          {doc.id !== 'apdp-privacy-policy' && (
+            <Description style={{ fontSize: '12px', color: '#666', fontStyle: 'italic', marginBottom: '0.5rem', marginTop: '-0.5rem', fontWeight: 'bold' }}>
+              (Les liens ne sont pas cliquables mais uniquement copiables car l'APDP n'est pas en mesure de confirmer la conformité du site et de son contenu)
+            </Description>
+          )}
           <ResourceList>
-            {doc.resources.map((link, linkIdx) => (
-              typeof link === 'string' ? (
+            {doc.resources.map((link, linkIdx) => {
+              const url = typeof link === 'string' ? link : link.link;
+              const label = typeof link === 'string' ? link : link.title;
+              const isClickable = isApdpDomain(url);
+              
+              return (
                 <li key={`link-${linkIdx}`}>
-                  <CopyableLink url={link} />
+                  {isClickable ? (
+                    <ClickableLink href={url} target="_blank" rel="noopener noreferrer">
+                      {label}
+                    </ClickableLink>
+                  ) : (
+                    <CopyableLink url={url} label={label !== url ? label : undefined} />
+                  )}
                 </li>
-              ) : (
-                <li key={`link-${linkIdx}`}>
-                  <CopyableLink url={link.link} label={link.title} />
-                </li>
-              )
-            ))}
+              );
+            })}
           </ResourceList>
         </>
       )}

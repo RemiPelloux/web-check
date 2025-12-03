@@ -2,6 +2,7 @@
 import styled from '@emotion/styled';
 import { Card } from 'web-check-live/components/Form/Card';
 import Heading from 'web-check-live/components/Form/Heading';
+import CopyableLink from 'web-check-live/components/misc/CopyableLink';
 import colors from 'web-check-live/styles/colors';
 
 const cardStyles = `
@@ -42,23 +43,22 @@ h4 {
 .tech-confidence {
   display: none;
 }
-.tech-description, .tech-website {
+.tech-description {
   font-size: 0.8rem;
   margin: 0.25rem 0;
   font-style: italic;
-
   display: -webkit-box;
   -webkit-line-clamp: 3;
   -webkit-box-orient: vertical;
   overflow: hidden;
-  &.tech-website {
-    -webkit-line-clamp: 1;
-  }
-  a {
-    color: ${colors.primary};
-    opacity: 0.75;
-    &:hover { opacity: 1; }
-  }
+}
+.tech-website {
+  font-size: 0.8rem;
+  margin: 0.25rem 0;
+  font-style: italic;
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
 }
 .tech-icon {
   min-width: 2.5rem;
@@ -100,7 +100,7 @@ const TechStackCard = (props: {data: any, title: string, actionButtons: any, ref
             <img className="tech-icon" width="10" src={`${iconsCdn}${tech.icon}`} alt={tech.name} />
             <div>
             <p className="tech-description">{tech.description}</p>
-            <p className="tech-website">En savoir plus : <a href={tech.website}>{tech.website}</a></p>
+            <div className="tech-website">En savoir plus : <CopyableLink url={tech.website} /></div>
             </div>
           </div>
           

@@ -521,11 +521,7 @@ const Home = (): JSX.Element => {
           <Logo>
             <img src="/assets/images/Logo-APDP.svg" alt="APDP Monaco" />
           </Logo>
-          <Title>Analyse de Conformité Loi 1.565</Title>
-          <Subtitle>
-            Outil professionnel d'analyse de la sécurité. 
-            Analysez la conformité avec la Loi et la posture de sécurité en quelques secondes.
-          </Subtitle>
+          <Title>Outil d'analyse de la sécurité</Title>
         </HeroSection>
 
         {/* Main Input Form */}

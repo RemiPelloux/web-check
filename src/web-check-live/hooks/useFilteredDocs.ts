@@ -56,11 +56,13 @@ const useFilteredDocs = (): UseFilteredDocsResult => {
       let useApiData = false;
       
       try {
-        const response = await fetch(`${API_BASE_URL}/wiki/plugins`, {
-          headers: {
-            'Authorization': `Bearer ${token}`
-          }
-        });
+        // Build headers - only include auth if token exists
+        const headers: HeadersInit = {};
+        if (token) {
+          headers['Authorization'] = `Bearer ${token}`;
+        }
+        
+        const response = await fetch(`${API_BASE_URL}/wiki/plugins`, { headers });
         
         if (response.ok) {
           const data = await response.json();

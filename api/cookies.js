@@ -445,13 +445,13 @@ const cookieHandler = async (url) => {
 
   // Generate recommendations
   if (cookieAnalysis.securityIssues.length > 0) {
-    cookieAnalysis.recommendations.push('Review and fix security issues with cookie attributes');
+    cookieAnalysis.recommendations.push('Vérifiez et corrigez les problèmes de sécurité des attributs des cookies');
   }
   if (cookieAnalysis.categories.tracking) {
-    cookieAnalysis.recommendations.push('Consider implementing cookie consent for tracking cookies');
+    cookieAnalysis.recommendations.push('Envisagez d\'implémenter un consentement pour les cookies de suivi');
   }
   if (cookieAnalysis.categories.advertising) {
-    cookieAnalysis.recommendations.push('Ensure compliance with privacy regulations for advertising cookies');
+    cookieAnalysis.recommendations.push('Assurez la conformité aux réglementations de confidentialité pour les cookies publicitaires');
   }
 
   return { 

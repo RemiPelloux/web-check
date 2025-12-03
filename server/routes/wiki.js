@@ -5,6 +5,7 @@
 import express from 'express';
 import {
   authMiddleware,
+  optionalAuthMiddleware,
   adminOnlyMiddleware,
   getClientIp
 } from '../middleware/auth.js';
@@ -31,9 +32,9 @@ const router = express.Router();
 
 /**
  * GET /api/wiki/sections
- * Get all wiki sections (admin sees all, DPD sees visible only)
+ * Get all wiki sections (PUBLIC - admin sees all, public/DPD sees visible only)
  */
-router.get('/sections', authMiddleware, (req, res) => {
+router.get('/sections', optionalAuthMiddleware, (req, res) => {
   try {
     const isAdmin = req.user?.role === 'APDP';
     const sections = isAdmin ? getWikiSections() : getVisibleWikiSections();
@@ -54,9 +55,9 @@ router.get('/sections', authMiddleware, (req, res) => {
 
 /**
  * GET /api/wiki/sections/:id
- * Get single wiki section
+ * Get single wiki section (PUBLIC)
  */
-router.get('/sections/:id', authMiddleware, (req, res) => {
+router.get('/sections/:id', optionalAuthMiddleware, (req, res) => {
   try {
     const section = getWikiSectionById(req.params.id);
     
@@ -84,15 +85,15 @@ router.get('/sections/:id', authMiddleware, (req, res) => {
 
 /**
  * GET /api/wiki/plugins
- * Get all plugin documentation (filtered by disabled plugins AND visibility for DPD users)
+ * Get all plugin documentation (PUBLIC - filtered by disabled plugins AND visibility for non-admin users)
  */
-router.get('/plugins', authMiddleware, (req, res) => {
+router.get('/plugins', optionalAuthMiddleware, (req, res) => {
   try {
     const isAdmin = req.user?.role === 'APDP';
-    // Admin sees all plugins, DPD sees only visible ones
+    // Admin sees all plugins, public/DPD sees only visible ones
     let pluginDocs = isAdmin ? getWikiPluginDocs() : getVisibleWikiPluginDocs();
     
-    // Also filter out disabled plugins for DPD
+    // Also filter out disabled plugins for non-admin users
     if (!isAdmin) {
       const disabledPlugins = getDisabledPlugins();
       pluginDocs = pluginDocs.filter(doc => !disabledPlugins.includes(doc.plugin_id));
@@ -114,9 +115,9 @@ router.get('/plugins', authMiddleware, (req, res) => {
 
 /**
  * GET /api/wiki/plugins/:id
- * Get single plugin documentation
+ * Get single plugin documentation (PUBLIC)
  */
-router.get('/plugins/:id', authMiddleware, (req, res) => {
+router.get('/plugins/:id', optionalAuthMiddleware, (req, res) => {
   try {
     const pluginDoc = getWikiPluginDocById(req.params.id);
     
@@ -141,16 +142,17 @@ router.get('/plugins/:id', authMiddleware, (req, res) => {
 
 /**
  * GET /api/wiki/content
- * Get full wiki content (public endpoint for wiki page, respects plugin filtering and visibility)
+ * Get full wiki content (PUBLIC endpoint - no auth required)
+ * Admin users see all content, public/DPD users see only visible content
  */
-router.get('/content', authMiddleware, (req, res) => {
+router.get('/content', optionalAuthMiddleware, (req, res) => {
   try {
     const isAdmin = req.user?.role === 'APDP';
     const sections = isAdmin ? getWikiSections() : getVisibleWikiSections();
-    // Admin sees all plugins, DPD sees only visible ones
+    // Admin sees all plugins, public/DPD sees only visible ones
     let pluginDocs = isAdmin ? getWikiPluginDocs() : getVisibleWikiPluginDocs();
     
-    // Also filter out disabled plugins for DPD
+    // Also filter out disabled plugins for non-admin users
     if (!isAdmin) {
       const disabledPlugins = getDisabledPlugins();
       pluginDocs = pluginDocs.filter(doc => !disabledPlugins.includes(doc.plugin_id));

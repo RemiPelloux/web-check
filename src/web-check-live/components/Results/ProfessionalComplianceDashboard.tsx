@@ -294,19 +294,9 @@ const StatLabel = styled.div`
 
 const ContentSection = styled.div`
   background: ${colors.background};
-  margin: 0 24px 24px 24px;
   border-radius: 8px;
   border: 1px solid ${colors.border};
   overflow: hidden;
-  
-  @media (max-width: 768px) {
-    margin: 0 16px 16px 16px;
-  }
-  
-  @media (max-width: 599px) {
-    margin: 0 12px 12px 12px;
-    border-radius: 8px;
-  }
 `;
 
 const SectionHeader = styled.div`

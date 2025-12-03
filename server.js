@@ -150,10 +150,15 @@ app.post(`${API_DIR}/audit/scan`, authMiddleware, (req, res) => {
 
 /**
  * GET /api/plugins/available
- * Get list of disabled plugins (for all authenticated users)
+ * Get list of disabled plugins (only for DPD users, APDP admins get all plugins)
  */
 app.get(`${API_DIR}/plugins/available`, authMiddleware, (req, res) => {
   try {
+    // APDP admins get all plugins - no restrictions
+    if (req.user && req.user.role === 'APDP') {
+      return res.json({ success: true, disabledPlugins: [] });
+    }
+    // DPD users get filtered plugins based on admin config
     const disabledPlugins = getDisabledPlugins();
     return res.json({ success: true, disabledPlugins });
   } catch (error) {

@@ -539,9 +539,9 @@ const Header = (): JSX.Element => {
                   <span>Accueil</span>
                 </HomeButton>
                 <VersionBadge>
-                  Version 2.1.0
+                  Version 1.0
                 </VersionBadge>
-                <WikiLink href="/wiki" target="_blank" rel="noopener noreferrer" title="Consulter le Wiki">
+                <WikiLink href="/wiki" title="Consulter le Wiki">
                   <span>📖</span>
                   <span>Wiki</span>
                 </WikiLink>
@@ -600,7 +600,7 @@ const Header = (): JSX.Element => {
             <span>Accueil</span>
           </HomeButton>
           
-          <MobileMenuItem href="/wiki" target="_blank" rel="noopener noreferrer" onClick={closeMobileMenu}>
+          <MobileMenuItem href="/wiki" onClick={closeMobileMenu}>
             <span className="icon">📖</span>
             <span>Wiki & Documentation</span>
           </MobileMenuItem>
@@ -615,7 +615,7 @@ const Header = (): JSX.Element => {
           <MobileMenuDivider />
           
           <VersionBadge style={{ textAlign: 'center' }}>
-            Version 2.1.0
+            Version 1.0
           </VersionBadge>
           
           {username && (

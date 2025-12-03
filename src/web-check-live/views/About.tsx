@@ -1,12 +1,11 @@
 import styled from '@emotion/styled';
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
 
 import colors from 'web-check-live/styles/colors';
 import Heading from 'web-check-live/components/Form/Heading';
 import Footer from 'web-check-live/components/misc/Footer';
 import Nav from 'web-check-live/components/Form/Nav';
-import Button from 'web-check-live/components/Form/Button';
 import CopyableLink from 'web-check-live/components/misc/CopyableLink';
 
 import { StyledCard } from 'web-check-live/components/Form/Card';
@@ -26,15 +25,6 @@ header {
 section {
   width: auto;
   .inner-heading { display: none; }
-}
-`;
-
-const HeaderLinkContainer = styled.nav`
-  display: flex;
-  flex-wrap: wrap;
-  gap: 1rem;
-  a {
-    text-decoration: none;
   }
 `;
 
@@ -270,21 +260,16 @@ const getSectionContent = (sections: any[], id: string) => {
   return section?.content || '';
 };
 
+// Helper to get section title by ID (with fallback)
+const getSectionTitle = (sections: any[], id: string, fallback: string) => {
+  const section = sections.find(s => s.id === id);
+  return section?.title || fallback;
+};
+
 const About = (): JSX.Element => {
   const location = useLocation();
   const { docs: filteredDocs, loading } = useFilteredDocs();
   const { sections: wikiSections, loading: wikiLoading } = useWikiContent();
-  const [hideDocs, setHideDocs] = useState(false);
-  const [isDPD, setIsDPD] = useState(false);
-  
-  // Check if user is DPD (client-side only)
-  useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const userProfileData = localStorage.getItem('checkitUser');
-      const userProfile = userProfileData ? JSON.parse(userProfileData) : null;
-      setIsDPD(userProfile?.role === 'DPD');
-    }
-  }, []);
 
   useEffect(() => {
     if (location.hash) {
@@ -300,13 +285,9 @@ const About = (): JSX.Element => {
   return (
     <div>
     <AboutContainer>
-      <Nav>
-        <HeaderLinkContainer>
-          <a href="/check"><Button>Démarrer l'Analyse</Button></a>
-        </HeaderLinkContainer>
-      </Nav>
+      <Nav />
 
-      <Heading as="h2" size="medium" color={colors.primary}>Introduction</Heading>
+      <Heading as="h2" size="medium" color={colors.primary}>{getSectionTitle(wikiSections, 'introduction', 'Introduction')}</Heading>
       <Section>
         {wikiLoading ? (
           <p style={{ textAlign: 'center', padding: '24px', color: colors.textColorSecondary }}>
@@ -317,7 +298,7 @@ const About = (): JSX.Element => {
         )}
       </Section>
 
-      <Heading as="h2" size="medium" color={colors.primary}>Comment Utiliser l'Outil d'analyse de la sécurité</Heading>
+      <Heading as="h2" size="medium" color={colors.primary}>{getSectionTitle(wikiSections, 'how-to-use', "Comment Utiliser l'Outil")}</Heading>
       <Section>
         {wikiLoading ? (
           <p style={{ textAlign: 'center', padding: '24px', color: colors.textColorSecondary }}>
@@ -328,7 +309,7 @@ const About = (): JSX.Element => {
         )}
       </Section>
 
-      <Heading as="h2" size="medium" color={colors.primary}>Comprendre les Résultats</Heading>
+      <Heading as="h2" size="medium" color={colors.primary}>{getSectionTitle(wikiSections, 'understanding-results', 'Comprendre les Résultats')}</Heading>
       <Section>
         {wikiLoading ? (
           <p style={{ textAlign: 'center', padding: '24px', color: colors.textColorSecondary }}>
@@ -339,39 +320,11 @@ const About = (): JSX.Element => {
         )}
       </Section>
       
-      <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: '0.5rem' }}>
-        <span style={{ margin: 0 }}><Heading as="h2" size="medium" color={colors.primary}>Analyses Disponibles</Heading></span>
-        {isDPD && (
-          <button
-            onClick={() => setHideDocs(!hideDocs)}
-            style={{
-              display: 'flex',
-              alignItems: 'center',
-              gap: '8px',
-              padding: '8px 16px',
-              backgroundColor: hideDocs ? colors.warning : 'transparent',
-              color: hideDocs ? 'white' : colors.textColor,
-              border: `2px solid ${hideDocs ? colors.warning : colors.primary}`,
-              borderRadius: '8px',
-              cursor: 'pointer',
-              fontSize: '14px',
-              fontWeight: '500',
-              transition: 'all 0.2s ease',
-            }}
-            title={hideDocs ? 'Afficher la documentation' : 'Masquer la documentation'}
-          >
-            <span>{hideDocs ? '📖 Afficher Docs' : '📕 Masquer Docs'}</span>
-          </button>
-        )}
-      </div>
+      <Heading as="h2" size="medium" color={colors.primary}>Analyses Disponibles</Heading>
       <Section>
         {loading ? (
           <p style={{ textAlign: 'center', padding: '24px', color: colors.textColorSecondary }}>
             Chargement des analyses...
-          </p>
-        ) : hideDocs ? (
-          <p style={{ textAlign: 'center', padding: '24px', color: colors.textColorSecondary, fontStyle: 'italic' }}>
-            Documentation masquée. Cliquez sur "Afficher Docs" pour voir les analyses disponibles.
           </p>
         ) : (
           <>
@@ -381,7 +334,7 @@ const About = (): JSX.Element => {
         )}
       </Section>
 
-      <Heading as="h2" size="medium" color={colors.primary}>Meilleures Pratiques</Heading>
+      <Heading as="h2" size="medium" color={colors.primary}>{getSectionTitle(wikiSections, 'best-practices', 'Meilleures Pratiques')}</Heading>
       <Section>
         {wikiLoading ? (
           <p style={{ textAlign: 'center', padding: '24px', color: colors.textColorSecondary }}>
@@ -392,7 +345,7 @@ const About = (): JSX.Element => {
         )}
       </Section>
 
-      <Heading as="h2" size="medium" color={colors.primary}>Questions Fréquentes</Heading>
+      <Heading as="h2" size="medium" color={colors.primary}>{getSectionTitle(wikiSections, 'faq', 'Questions Fréquentes')}</Heading>
       <Section>
         {wikiLoading ? (
           <p style={{ textAlign: 'center', padding: '24px', color: colors.textColorSecondary }}>
@@ -403,7 +356,7 @@ const About = (): JSX.Element => {
         )}
       </Section>
 
-      <Heading as="h2" size="medium" color={colors.primary}>Conditions d'Utilisation</Heading>
+      <Heading as="h2" size="medium" color={colors.primary}>{getSectionTitle(wikiSections, 'terms', "Conditions d'Utilisation")}</Heading>
       <Section>
         {wikiLoading ? (
           <p style={{ textAlign: 'center', padding: '24px', color: colors.textColorSecondary }}>

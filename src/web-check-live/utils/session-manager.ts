@@ -99,9 +99,14 @@ export const getSessionInfo = () => {
  * Redirects to login if session expired
  */
 export const initSessionCheck = (): void => {
-  if (!isAuthenticated()) {
-    // Only redirect if we're not already on the login page
-    if (window.location.pathname !== '/' && !window.location.pathname.includes('login')) {
+  // Public paths that don't require authentication
+  const publicPaths = ['/login', '/wiki', '/about'];
+  const currentPath = window.location.pathname;
+  const isPublicPath = publicPaths.some(path => currentPath === path || currentPath.startsWith(path + '/'));
+  
+  if (!isAuthenticated() && !isPublicPath) {
+    // Only redirect if we're not on a public page
+    if (currentPath !== '/') {
       clearSession();
       window.location.href = '/';
     }
@@ -109,11 +114,27 @@ export const initSessionCheck = (): void => {
 };
 
 /**
+ * Check if current page is a public path (no auth required)
+ * @returns boolean - true if on public page
+ */
+export const isPublicPage = (): boolean => {
+  const publicPaths = ['/login', '/wiki', '/about'];
+  const currentPath = window.location.pathname;
+  return publicPaths.some(path => currentPath === path || currentPath.startsWith(path + '/'));
+};
+
+/**
  * Setup periodic session validation (checks every minute)
+ * Skips redirect on public pages (wiki, about, login)
  * @param onExpire - Callback function to execute when session expires
  */
 export const setupSessionMonitor = (onExpire?: () => void): NodeJS.Timeout => {
   const checkInterval = setInterval(() => {
+    // Don't redirect on public pages
+    if (isPublicPage()) {
+      return;
+    }
+    
     if (!isSessionValid()) {
       clearSession();
       if (onExpire) {

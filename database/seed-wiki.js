@@ -118,7 +118,7 @@ const DEFAULT_SECTIONS = [
 <li>Les résultats sont fournis à titre informatif. Consultez des experts juridiques et de sécurité pour des audits officiels.</li>
 <li>N'utilisez pas les informations découvertes pour exploiter des vulnérabilités sans l'autorisation du propriétaire du site.</li>
 </ul>
-<h4>Confidentialité</h4>
+<h4>Conditions d'Utilisation</h4>
 <p>La mise en place de cet outil par l'APDP est justifiée par l'existence d'un motif d'intérêt public puisqu'il permet à l'APDP d'accompagner les responsables du traitement dans leurs démarches de mise en conformité avec la Loi.</p>
 <p>Les seules données collectées sont le nom de l'entité concernée, l'URL ou les URL(s) du ou des sites Internet à tester et l'Adresse IP publique utilisée par le DPD.</p>
 <p>Ces données sont conservées 1 an renouvelable, avec le consentement de l'utilisateur.</p>
@@ -263,10 +263,19 @@ const seedWikiContent = (force = false) => {
   // Initialize database schema first
   initDatabase();
   
-  // Check if already seeded
-  if (!force && isWikiSeeded()) {
-    console.log('ℹ️  Wiki content already seeded. Use --force to re-seed.');
+  // CRITICAL: Never auto-seed in production - this would overwrite admin edits!
+  // The upsert functions use ON CONFLICT DO UPDATE which REPLACES existing content
+  if (!force) {
+    console.log('⛔ SAFETY: Wiki seeding is disabled by default to protect production data.');
+    console.log('   If you REALLY want to overwrite all wiki content, use: node database/seed-wiki.js --force');
+    console.log('   ⚠️  WARNING: This will REPLACE all wiki sections and plugin docs with defaults!');
     return false;
+  }
+  
+  // Double-check with isWikiSeeded
+  if (isWikiSeeded()) {
+    console.log('⚠️  Wiki already has content! Running with --force will OVERWRITE everything.');
+    console.log('   Proceeding because --force flag was provided...');
   }
 
   console.log('🌱 Seeding wiki content...');

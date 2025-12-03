@@ -32,7 +32,6 @@ const ServerInfoCard = lazy(() => import('web-check-live/components/Results/Serv
 const HostNamesCard = lazy(() => import('web-check-live/components/Results/HostNames'));
 const WhoIsCard = lazy(() => import('web-check-live/components/Results/WhoIs'));
 const LighthouseCard = lazy(() => import('web-check-live/components/Results/Lighthouse'));
-const ScreenshotCard = lazy(() => import('web-check-live/components/Results/Screenshot'));
 const SslCertCard = lazy(() => import('web-check-live/components/Results/SslCert'));
 const HeadersCard = lazy(() => import('web-check-live/components/Results/Headers'));
 const CookiesCard = lazy(() => import('web-check-live/components/Results/Cookies'));
@@ -378,7 +377,6 @@ const Results = (props: { address?: string }): JSX.Element => {
   const [userProfile, setUserProfile] = useState<any>(null);
   const [allowedUrls, setAllowedUrls] = useState<string[]>([]);
   const [isCheckingAccess, setIsCheckingAccess] = useState(true);
-  const [hideDocs, setHideDocs] = useState(false);
 
   // Check URL restrictions for DPD users
   useEffect(() => {
@@ -778,14 +776,6 @@ const Results = (props: { address?: string }): JSX.Element => {
     fetchRequest: () => fetch(`${api}/rank?url=${address}`).then(res => parseJson(res)),
   });
 
-  // Take a screenshot of the website
-  const [screenshotResult, updateScreenshotResult] = useMotherHook({
-    jobId: 'screenshot',
-    updateLoadingJobs,
-    addressInfo: { address, addressType, expectedAddressTypes: urlTypeOnly },
-    fetchRequest: () => fetch(`${api}/screenshot?url=${address}`).then(res => parseJson(res)),
-  });
-
   // Get TLS security info, from Mozilla Observatory
   const [tlsResults, updateTlsResults] = useMotherHook({
     jobId: ['tls-cipher-suites', 'tls-security-config', 'tls-client-support'],
@@ -1086,7 +1076,6 @@ const Results = (props: { address?: string }): JSX.Element => {
     'tls-handshake': tlsResults, // TLS results contain handshake data
     'tls-cipher-suites': tlsResults, // TLS results contain cipher suite data
     'http-security': httpSecurityResults,
-    screenshot: screenshotResult,
     sitemap: sitemapResults,
     'social-tags': socialTagResults,
     'linked-pages': linkedPagesResults,
@@ -1336,15 +1325,6 @@ const Results = (props: { address?: string }): JSX.Element => {
       refresh: updateRankResults,
       tags: ['meta'],
     },
-    // Screenshot removed - not needed for APDP compliance
-    // {
-    //   id: 'screenshot',
-    //   title: 'Capture d\'Écran',
-    //   result: screenshotResult || lighthouseResults?.fullPageScreenshot?.screenshot,
-    //   Component: ScreenshotCard,
-    //   refresh: updateScreenshotResult,
-    //   tags: ['client', 'meta'],
-    // }, 
     {
       id: 'tls-cipher-suites',
       title: 'Suites de Chiffrement TLS',
@@ -1471,12 +1451,10 @@ const Results = (props: { address?: string }): JSX.Element => {
   ];
 
   const makeActionButtons = (title: string, refresh: () => void, showInfo: (id: string) => void): ReactNode => {
-    const actions = hideDocs 
-      ? [{ label: `Actualiser ${title}`, onClick: refresh, icon: '↻' }]
-      : [
-          { label: `À propos de ${title}`, onClick: showInfo, icon: 'ⓘ' },
-          { label: `Actualiser ${title}`, onClick: refresh, icon: '↻' },
-        ];
+    const actions = [
+      { label: `À propos de ${title}`, onClick: showInfo, icon: 'ⓘ' },
+      { label: `Actualiser ${title}`, onClick: refresh, icon: '↻' },
+    ];
     return (
       <ActionButtons actions={actions} />
     );
@@ -1533,7 +1511,7 @@ const Results = (props: { address?: string }): JSX.Element => {
               </Heading>
             }
           </Nav>
-      <ProgressBar loadStatus={loadingJobs} showModal={showErrorModal} showJobDocs={hideDocs ? () => {} : showInfo} />
+      <ProgressBar loadStatus={loadingJobs} showModal={showErrorModal} showJobDocs={showInfo} />
       {/* { address?.includes(window?.location?.hostname || 'web-check.xyz') && <SelfScanMsg />} */}
       <Loader show={loadingJobs.filter((job: LoadingJob) => job.state !== 'loading').length < 5} />
       
@@ -1625,28 +1603,6 @@ const Results = (props: { address?: string }): JSX.Element => {
               );
             })}
             
-            {/* Toggle Docs Button for DPD */}
-            <button
-              onClick={() => setHideDocs(!hideDocs)}
-              style={{
-                display: 'flex',
-                alignItems: 'center',
-                gap: '8px',
-                padding: '10px 18px',
-                backgroundColor: hideDocs ? colors.warning : 'transparent',
-                color: hideDocs ? 'white' : colors.textColor,
-                border: `2px solid ${hideDocs ? colors.warning : colors.textColorFaded}`,
-                borderRadius: '8px',
-                cursor: 'pointer',
-                fontSize: '14px',
-                fontWeight: '500',
-                transition: 'all 0.2s ease',
-                marginLeft: '16px'
-              }}
-              title={hideDocs ? 'Afficher la documentation' : 'Masquer la documentation'}
-            >
-              <span>{hideDocs ? '📖 Afficher Docs' : '📕 Masquer Docs'}</span>
-            </button>
           </div>
         </FilterButtons>
       )}

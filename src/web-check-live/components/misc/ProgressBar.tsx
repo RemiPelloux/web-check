@@ -330,7 +330,6 @@ const jobNames = [
   'mail-config',
   'archives',
   'rank',
-  // 'screenshot', // Removed - not needed for APDP compliance
   'tls-cipher-suites',
   'tls-security-config',
   'tls-client-support',

@@ -172,6 +172,12 @@ const API_BASE_URL = import.meta.env.VITE_API_URL || 'https://api.openpro.ai/api
           localStorage.setItem('checkitUserRole', data.user.role);
           localStorage.setItem('checkitUserData', JSON.stringify(data.user));
           
+          // Set session timestamps (24 hours)
+          const now = Date.now();
+          const expiry = now + (24 * 60 * 60 * 1000); // 24 hours
+          localStorage.setItem('checkitLoginTime', now.toString());
+          localStorage.setItem('checkitSessionExpiry', expiry.toString());
+          
           // Update UI
           document.getElementById('message').textContent = 'Authentification réussie !';
           document.getElementById('status').textContent = `Bienvenue ${data.user.company || data.user.username}`;

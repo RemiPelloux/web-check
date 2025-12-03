@@ -68,11 +68,13 @@ const useWikiContent = (): UseWikiContentResult => {
       
       const token = localStorage.getItem('checkitAuthToken');
       
-      const response = await fetch(`${API_BASE_URL}/wiki/content`, {
-        headers: {
-          'Authorization': `Bearer ${token}`
-        }
-      });
+      // Build headers - only include auth if token exists
+      const headers: HeadersInit = {};
+      if (token) {
+        headers['Authorization'] = `Bearer ${token}`;
+      }
+      
+      const response = await fetch(`${API_BASE_URL}/wiki/content`, { headers });
       
       if (!response.ok) {
         throw new Error('Failed to fetch wiki content');

@@ -54,3 +54,5 @@ export async function down(db) {
   console.log('✅ Removed 4 composite indexes');
 }
 
+
+

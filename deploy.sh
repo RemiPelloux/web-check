@@ -235,7 +235,7 @@ if [ "$DRY_RUN" = false ]; then
     # Don't exit - let deployment continue
   fi
 else
-  echo -e "${YELLOW}[DRY RUN]${NC} Would run database/migrate.js --seed"
+  echo -e "${YELLOW}[DRY RUN]${NC} Would run database/migrate.js (migrations only, NO wiki seeding)"
 fi
 
 # Step 7: Verify deployment
