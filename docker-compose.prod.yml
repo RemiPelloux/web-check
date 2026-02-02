@@ -1,0 +1,17 @@
+services:
+  web-check:
+    container_name: Web-Check-Checkit-Prod
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "3003:3000"  # Astro production serves on 3000
+      - "3004:3001"  # Backend API
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3001
+    volumes:
+      # Only mount database (persistent data)
+      - ./database:/app/database
+    # NO source code mounts in production!
