@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import colors from 'web-check-live/styles/colors';
 import { toast } from 'react-toastify';
+import ConfirmModal from './ConfirmModal';
 
 const API_BASE_URL = import.meta.env.PUBLIC_API_ENDPOINT || '/api';
 
@@ -289,18 +290,14 @@ const Statistics = (): JSX.Element => {
   const [error, setError] = useState<string | null>(null);
   const [stats, setStats] = useState<StatisticsData | null>(null);
   const [dateRange, setDateRange] = useState<DateRange>('30days');
-  const [resetting, setResetting] = useState(false);
+  const [resetConfirm, setResetConfirm] = useState({ open: false, loading: false });
 
-  const handleResetStats = async () => {
-    if (!confirm('⚠️ Êtes-vous sûr de vouloir réinitialiser TOUTES les statistiques ?\n\nCette action est irréversible et supprimera:\n• Toutes les statistiques agrégées\n• Tout l\'historique des scans')) {
-      return;
-    }
+  const handleResetClick = () => {
+    setResetConfirm({ open: true, loading: false });
+  };
 
-    setResetting(true);
-    const toastId = toast.loading('Réinitialisation des statistiques...', {
-      position: 'bottom-right',
-      theme: 'dark',
-    });
+  const handleResetConfirm = async () => {
+    setResetConfirm(prev => ({ ...prev, loading: true }));
 
     try {
       const token = localStorage.getItem('checkitAuthToken');
@@ -316,26 +313,25 @@ const Statistics = (): JSX.Element => {
       }
 
       const data = await response.json();
-      toast.update(toastId, {
-        render: `✓ Statistiques réinitialisées: ${data.deleted.statsDeleted} stats, ${data.deleted.historyDeleted} historiques supprimés`,
-        type: 'success',
-        isLoading: false,
-        autoClose: 5000,
-        closeButton: true,
+      toast.success(`Statistiques réinitialisées: ${data.deleted.statsDeleted} stats, ${data.deleted.historyDeleted} historiques supprimés`, {
+        position: 'bottom-right',
+        theme: 'dark',
       });
       
-      // Refresh statistics
+      setResetConfirm({ open: false, loading: false });
       fetchStatistics(dateRange);
     } catch (error: any) {
-      toast.update(toastId, {
-        render: 'Impossible de réinitialiser les statistiques',
-        type: 'error',
-        isLoading: false,
-        autoClose: 4000,
-        closeButton: true,
+      toast.error('Impossible de réinitialiser les statistiques', {
+        position: 'bottom-right',
+        theme: 'dark',
       });
-    } finally {
-      setResetting(false);
+      setResetConfirm(prev => ({ ...prev, loading: false }));
+    }
+  };
+
+  const handleResetCancel = () => {
+    if (!resetConfirm.loading) {
+      setResetConfirm({ open: false, loading: false });
     }
   };
 
@@ -442,9 +438,9 @@ const Statistics = (): JSX.Element => {
             </FilterButton>
           </FilterButtons>
         </FilterLeft>
-        <ResetButton onClick={handleResetStats} disabled={resetting}>
+        <ResetButton onClick={handleResetClick} disabled={resetConfirm.loading}>
           <span>🗑️</span>
-          <span>{resetting ? 'Réinitialisation...' : 'Réinitialiser les stats'}</span>
+          <span>Réinitialiser les stats</span>
         </ResetButton>
       </FilterSection>
 
@@ -489,6 +485,18 @@ const Statistics = (): JSX.Element => {
           </StatDescription>
         </StatCard>
       </StatsGrid>
+
+      <ConfirmModal
+        isOpen={resetConfirm.open}
+        title="Réinitialiser les statistiques"
+        message="Êtes-vous sûr de vouloir réinitialiser TOUTES les statistiques ? Cette action supprimera toutes les données agrégées et l'historique des scans."
+        confirmText="Réinitialiser"
+        cancelText="Annuler"
+        danger
+        loading={resetConfirm.loading}
+        onConfirm={handleResetConfirm}
+        onCancel={handleResetCancel}
+      />
     </Container>
   );
 };

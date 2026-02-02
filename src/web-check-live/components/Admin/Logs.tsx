@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import styled from '@emotion/styled';
 import colors from 'web-check-live/styles/colors';
 import { toast } from 'react-toastify';
+import ConfirmModal from './ConfirmModal';
 
 const API_BASE_URL = import.meta.env.PUBLIC_API_ENDPOINT || '/api';
 
@@ -426,7 +427,7 @@ const Logs = (): JSX.Element => {
   const [dateFilter, setDateFilter] = useState('');
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(20);
-  const [cleaning, setCleaning] = useState(false);
+  const [cleanConfirm, setCleanConfirm] = useState({ open: false, loading: false });
 
   useEffect(() => {
     fetchLogs();
@@ -466,12 +467,12 @@ const Logs = (): JSX.Element => {
     }
   };
 
-  const handleCleanLogs = async () => {
-    if (!confirm('Êtes-vous sûr de vouloir supprimer tous les logs ? Cette action est irréversible.')) {
-      return;
-    }
+  const handleCleanClick = () => {
+    setCleanConfirm({ open: true, loading: false });
+  };
 
-    setCleaning(true);
+  const handleCleanConfirm = async () => {
+    setCleanConfirm(prev => ({ ...prev, loading: true }));
     try {
       const token = localStorage.getItem('checkitAuthToken');
       const response = await fetch(`${API_BASE_URL}/admin/audit-log/clean`, {
@@ -490,7 +491,7 @@ const Logs = (): JSX.Element => {
         theme: 'dark',
       });
 
-      // Refresh logs
+      setCleanConfirm({ open: false, loading: false });
       await fetchLogs();
     } catch (error) {
       console.error('Error cleaning logs:', error);
@@ -498,8 +499,13 @@ const Logs = (): JSX.Element => {
         position: 'bottom-right',
         theme: 'dark',
       });
-    } finally {
-      setCleaning(false);
+      setCleanConfirm(prev => ({ ...prev, loading: false }));
+    }
+  };
+
+  const handleCleanCancel = () => {
+    if (!cleanConfirm.loading) {
+      setCleanConfirm({ open: false, loading: false });
     }
   };
 
@@ -682,8 +688,8 @@ const Logs = (): JSX.Element => {
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />
-        <ActionButton danger onClick={handleCleanLogs} disabled={cleaning || logs.length === 0}>
-          {cleaning ? 'Nettoyage...' : 'Nettoyer les logs'}
+        <ActionButton danger onClick={handleCleanClick} disabled={cleanConfirm.loading || logs.length === 0}>
+          Nettoyer les logs
         </ActionButton>
       </ControlsRow>
 
@@ -777,6 +783,18 @@ const Logs = (): JSX.Element => {
           </PaginationContainer>
         </>
       )}
+
+      <ConfirmModal
+        isOpen={cleanConfirm.open}
+        title="Nettoyer les logs"
+        message="Êtes-vous sûr de vouloir supprimer tous les logs ? Cette action est irréversible."
+        confirmText="Supprimer tout"
+        cancelText="Annuler"
+        danger
+        loading={cleanConfirm.loading}
+        onConfirm={handleCleanConfirm}
+        onCancel={handleCleanCancel}
+      />
     </Container>
   );
 };

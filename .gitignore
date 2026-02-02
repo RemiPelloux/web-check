@@ -61,5 +61,18 @@ Thumbs.db
 *.swp
 *.swo
 
+# ------------------------
+#   SECURITY & SENSITIVE
+# ------------------------
+.htpasswd
+.htaccess
+*.key
+*.pem
+*.crt
+*.p12
+*.pfx
+secrets/
+credentials/
+
 .env
 .env

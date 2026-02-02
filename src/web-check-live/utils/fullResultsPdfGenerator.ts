@@ -1192,6 +1192,136 @@ const pluginRenderers: Record<string, (data: any, key: string) => string> = {
     `;
   },
 
+  // API Security Scanner
+  'api-security': (data) => {
+    if (!data || data.error) return '';
+    
+    const issues = data.issues || [];
+    const findings = data.findings || [];
+    const graphql = data.graphql;
+    const openapi = data.openapi;
+    const corsConfig = data.corsConfig;
+    const apiEndpoints = data.apiEndpoints || [];
+    const exposedData = data.exposedData || [];
+    
+    // Count by severity
+    const critical = issues.filter((i: any) => i.severity === 'critical').length;
+    const high = issues.filter((i: any) => i.severity === 'high').length;
+    const medium = issues.filter((i: any) => i.severity === 'medium').length;
+    
+    // Determine status
+    let statusClass = 'success';
+    let statusText = 'Sécurisé';
+    if (critical > 0) {
+      statusClass = 'error';
+      statusText = 'Critique';
+    } else if (high > 0) {
+      statusClass = 'warning';
+      statusText = 'À Risque';
+    } else if (medium > 0) {
+      statusClass = 'warning';
+      statusText = 'Attention';
+    }
+    
+    // Skip if no issues
+    if (issues.length === 0 && !graphql && !openapi?.found) return '';
+    
+    return `
+      <div class="plugin-card wide api-security-card">
+        <div class="plugin-header">
+          <span class="plugin-icon">🔐</span>
+          <h3>Sécurité API</h3>
+          <span class="status-badge ${statusClass}">${statusText}</span>
+        </div>
+        <div class="plugin-content">
+          ${issues.length > 0 ? `
+            <div style="display: flex; gap: 1rem; margin-bottom: 1rem; flex-wrap: wrap;">
+              ${critical > 0 ? `<span style="background: rgba(220,38,38,0.1); color: #dc2626; padding: 0.3rem 0.6rem; border-radius: 4px; font-weight: 600;">${critical} Critiques</span>` : ''}
+              ${high > 0 ? `<span style="background: rgba(234,88,12,0.1); color: #ea580c; padding: 0.3rem 0.6rem; border-radius: 4px; font-weight: 600;">${high} Élevés</span>` : ''}
+              ${medium > 0 ? `<span style="background: rgba(202,138,4,0.1); color: #ca8a04; padding: 0.3rem 0.6rem; border-radius: 4px; font-weight: 600;">${medium} Moyens</span>` : ''}
+            </div>
+          ` : ''}
+          
+          ${graphql ? `
+            <div style="background: #f3f4f6; padding: 0.75rem; border-radius: 6px; margin-bottom: 0.75rem;">
+              <strong>◇ GraphQL ${graphql.introspectionEnabled ? '⚠️' : '✓'}</strong><br/>
+              <small>Endpoint: ${escapeHtml(graphql.endpoint)}</small>
+              ${graphql.introspectionEnabled ? `<br/><small style="color: #dc2626;">Introspection activée - ${graphql.typeCount || '?'} types exposés</small>` : ''}
+              ${graphql.sensitiveTypesFound?.length ? `<br/><small style="color: #dc2626;">Types sensibles: ${graphql.sensitiveTypesFound.join(', ')}</small>` : ''}
+            </div>
+          ` : ''}
+          
+          ${openapi?.found ? `
+            <div style="background: #f3f4f6; padding: 0.75rem; border-radius: 6px; margin-bottom: 0.75rem;">
+              <strong>📋 OpenAPI/Swagger Exposé</strong><br/>
+              <small>URL: ${escapeHtml(openapi.url || '')}</small>
+              ${openapi.pathCount ? `<br/><small>${openapi.pathCount} endpoints exposés</small>` : ''}
+              ${openapi.sensitiveEndpoints?.length ? `<br/><small style="color: #ea580c;">Endpoints sensibles: ${openapi.sensitiveEndpoints.slice(0, 5).join(', ')}</small>` : ''}
+            </div>
+          ` : ''}
+          
+          ${corsConfig?.vulnerable ? `
+            <div style="background: rgba(220,38,38,0.1); padding: 0.75rem; border-radius: 6px; margin-bottom: 0.75rem;">
+              <strong style="color: #dc2626;">🌐 CORS Vulnérable</strong><br/>
+              <small>Allow-Origin: ${escapeHtml(corsConfig.allowOrigin || 'reflected')}</small>
+            </div>
+          ` : ''}
+          
+          ${exposedData.length > 0 ? `
+            <div style="background: rgba(220,38,38,0.1); padding: 0.75rem; border-radius: 6px; margin-bottom: 0.75rem;">
+              <strong style="color: #dc2626;">🔑 Données Sensibles Exposées</strong>
+              <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
+                ${exposedData.slice(0, 5).map((d: any) => `<li><small>${escapeHtml(d.type)}: ${d.count} occurrence(s)</small></li>`).join('')}
+              </ul>
+            </div>
+          ` : ''}
+          
+          ${issues.length > 0 ? `
+            <div style="margin-top: 1rem;">
+              <strong>Problèmes (${issues.length})</strong>
+              <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
+                ${issues.slice(0, 8).map((issue: any) => `
+                  <li style="margin-bottom: 0.5rem;">
+                    <span style="display: inline-block; padding: 0.1rem 0.4rem; border-radius: 3px; font-size: 0.65rem; font-weight: 600; text-transform: uppercase; color: white; background: ${
+                      issue.severity === 'critical' ? '#dc2626' : 
+                      issue.severity === 'high' ? '#ea580c' : 
+                      issue.severity === 'medium' ? '#ca8a04' : '#3b82f6'
+                    };">${issue.severity}</span>
+                    <strong>${escapeHtml(issue.title)}</strong>
+                    <br/><small style="color: #6b7280;">${escapeHtml(issue.description)}</small>
+                    ${issue.recommendation ? `<br/><small style="color: #0284c7; font-style: italic;">→ ${escapeHtml(issue.recommendation)}</small>` : ''}
+                  </li>
+                `).join('')}
+              </ul>
+            </div>
+          ` : ''}
+          
+          ${apiEndpoints.length > 0 ? `
+            <div style="margin-top: 1rem;">
+              <strong>Endpoints Découverts (${apiEndpoints.length})</strong>
+              <ul style="margin: 0.5rem 0; padding-left: 1.5rem; font-family: monospace; font-size: 0.8rem;">
+                ${apiEndpoints.slice(0, 6).map((ep: any) => `
+                  <li>${escapeHtml(ep.type.toUpperCase())}: ${escapeHtml(ep.url)} ${ep.protected ? '🔒' : ''}</li>
+                `).join('')}
+              </ul>
+            </div>
+          ` : ''}
+          
+          ${findings.length > 0 ? `
+            <div style="margin-top: 1rem;">
+              <strong style="color: #10b981;">✓ Points Positifs (${findings.length})</strong>
+              <ul style="margin: 0.5rem 0; padding-left: 1.5rem;">
+                ${findings.slice(0, 5).map((item: any) => `
+                  <li style="color: #10b981;">${escapeHtml(item.title)}</li>
+                `).join('')}
+              </ul>
+            </div>
+          ` : ''}
+        </div>
+      </div>
+    `;
+  },
+
   // Trace Route - Skip if no meaningful hops
   'trace-route': (data) => {
     if (!data || data.error) return '';

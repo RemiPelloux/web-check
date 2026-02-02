@@ -22,7 +22,7 @@ const unwrapEnvVar = (varName, fallbackValue) => {
 // Determine the deploy target (vercel, netlify, cloudflare, node)
 const deployTarget = unwrapEnvVar('PLATFORM', 'node').toLowerCase();
 
-// Determine the output mode (server, hybrid or static)
+// Determine the output mode (server or static) - Astro 4 uses 'hybrid'
 const output = unwrapEnvVar('OUTPUT', 'hybrid');
 
 // The FQDN of where the site is hosted (used for sitemaps & canonical URLs)
@@ -94,6 +94,13 @@ export default defineConfig({
       },
     },
     server: {
+      host: true,
+      allowedHosts: [
+        'jetestemonsite.apdp.mc',
+        'localhost',
+        '127.0.0.1',
+        '172.18.0.2',
+      ],
       proxy: {
         '/api': {
           target: 'http://localhost:3001',

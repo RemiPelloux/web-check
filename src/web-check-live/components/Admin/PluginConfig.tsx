@@ -31,6 +31,7 @@ const PLUGINS = [
   { id: 'security-txt', name: 'Security.txt', category: 'Sécurité' },
   { id: 'exposed-files', name: 'Fichiers Exposés', category: 'Sécurité' },
   { id: 'subdomain-takeover', name: 'Subdomain Takeover', category: 'Sécurité' },
+  { id: 'api-security', name: 'Sécurité API', category: 'Sécurité' },
   { id: 'headers', name: 'En-têtes HTTP', category: 'Sécurité' },
   { id: 'ports', name: 'Ports Ouverts', category: 'Sécurité' },
   

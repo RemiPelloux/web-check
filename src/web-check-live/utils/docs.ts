@@ -679,6 +679,19 @@ const docs: Doc[] = [
       { title: 'Matomo Analytics', link: 'https://matomo.org/' },
     ],
   },
+  {
+    id: 'api-security',
+    title: 'Scanner de Sécurité API',
+    description: 'Ce scanner analyse de manière exhaustive la sécurité des APIs exposées par le site web. Il détecte les endpoints GraphQL avec introspection activée (risque majeur d\'exposition du schéma), les documentations OpenAPI/Swagger exposées publiquement, les mauvaises configurations CORS (wildcard, reflection d\'origine), les clés API exposées dans le code source ou les URLs, et évalue les mécanismes d\'authentification. L\'analyse couvre également la découverte d\'endpoints REST via robots.txt, sitemap et chemins courants (/api, /api/v1, /api/admin, etc.).',
+    use: 'Essentiel pour les audits de sécurité API modernes. Les applications web actuelles reposent massivement sur des APIs REST et GraphQL qui peuvent exposer des vulnérabilités critiques. Ce scanner identifie les risques OWASP API Security Top 10, notamment l\'exposition excessive de données (introspection GraphQL), les problèmes d\'authentification (Basic Auth faible, absence de tokens), et les mauvaises configurations de contrôle d\'accès (CORS). Les résultats permettent de prioriser les corrections et de documenter la posture de sécurité API pour les audits de conformité.',
+    resources: [
+      { title: 'OWASP API Security Top 10', link: 'https://owasp.org/API-Security/editions/2023/en/0x11-t10/' },
+      { title: 'GraphQL Security Best Practices', link: 'https://cheatsheetseries.owasp.org/cheatsheets/GraphQL_Cheat_Sheet.html' },
+      { title: 'CORS Security (Mozilla)', link: 'https://developer.mozilla.org/fr/docs/Web/HTTP/CORS' },
+      { title: 'API Key Best Practices', link: 'https://cloud.google.com/docs/authentication/api-keys' },
+      { title: 'OpenAPI Security Guide', link: 'https://swagger.io/docs/specification/authentication/' },
+    ],
+  },
 ];
 
 

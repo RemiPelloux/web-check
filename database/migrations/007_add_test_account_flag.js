@@ -55,3 +55,4 @@ export function down(db) {
   console.log('  ✓ Reset all test account flags');
 }
 
+

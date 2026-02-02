@@ -350,6 +350,7 @@ const jobNames = [
   'exposed-files',
   'subdomain-takeover',
   'lighthouse',
+  'api-security',
 ] as const;
 
 interface JobListItemProps {

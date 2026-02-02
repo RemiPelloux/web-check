@@ -310,6 +310,35 @@ const generateHTMLReport = (
         detail: `${technologies} ${technologies <= 1 ? 'technologie' : 'technologies'}`
       });
     }
+    
+    // API Security
+    if (allResults['api-security']) {
+      const apiData = allResults['api-security'];
+      const issues = apiData.issues || [];
+      const critical = issues.filter((i: any) => i.severity === 'critical').length;
+      const high = issues.filter((i: any) => i.severity === 'high').length;
+      const medium = issues.filter((i: any) => i.severity === 'medium').length;
+      
+      let status = '✓';
+      let detail = 'Aucun problème détecté';
+      
+      if (critical > 0) {
+        status = '✗';
+        detail = `${critical} critique(s), ${high} élevé(s)`;
+      } else if (high > 0) {
+        status = '!';
+        detail = `${high} élevé(s), ${medium} moyen(s)`;
+      } else if (medium > 0) {
+        status = '!';
+        detail = `${medium} moyen(s)`;
+      }
+      
+      analysisResults.push({
+        name: 'Sécurité API',
+        status,
+        detail
+      });
+    }
   }
 
   return `

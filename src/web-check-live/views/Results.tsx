@@ -71,6 +71,7 @@ const SecretsCard = lazy(() => import('web-check-live/components/Results/Secrets
 const LinkAuditCard = lazy(() => import('web-check-live/components/Results/LinkAudit'));
 const ExposedFilesCard = lazy(() => import('web-check-live/components/Results/ExposedFiles'));
 const SubdomainTakeoverCard = lazy(() => import('web-check-live/components/Results/SubdomainTakeover'));
+const ApiSecurityCard = lazy(() => import('web-check-live/components/Results/ApiSecurity'));
 
 // Loading fallback for lazy-loaded components
 const CardLoadingFallback = styled.div`
@@ -393,47 +394,47 @@ const Results = (props: { address?: string }): JSX.Element => {
         const profileResponse = await fetch('/api/auth/profile', {
           headers: { 'Authorization': `Bearer ${token}` }
         });
-        
+      
         if (profileResponse.ok) {
           const profileData = await profileResponse.json();
           if (profileData.success && profileData.user) {
             const profile = profileData.user;
-            setUserProfile(profile);
-            
+          setUserProfile(profile);
+          
             // Set allowed URLs ONLY from API (database source of truth)
-            if (profile.role === 'DPD' && profile.allowedUrls) {
-              const urls = profile.allowedUrls.split(',').map((url: string) => url.trim()).filter((url: string) => url);
-              setAllowedUrls(urls);
+          if (profile.role === 'DPD' && profile.allowedUrls) {
+            const urls = profile.allowedUrls.split(',').map((url: string) => url.trim()).filter((url: string) => url);
+            setAllowedUrls(urls);
             } else {
               setAllowedUrls([]);
-            }
-            
+          }
+          
             // Check if current URL is allowed for DPD users
             if (profile.role === 'DPD' && address) {
-              const checkResponse = await fetch('/api/check-url', {
-                method: 'POST',
-                headers: {
-                  'Authorization': `Bearer ${token}`,
-                  'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({ url: decodeURIComponent(address) })
-              });
+            const checkResponse = await fetch('/api/check-url', {
+              method: 'POST',
+              headers: {
+                'Authorization': `Bearer ${token}`,
+                'Content-Type': 'application/json'
+              },
+              body: JSON.stringify({ url: decodeURIComponent(address) })
+            });
 
-              if (checkResponse.ok) {
-                const checkData = await checkResponse.json();
-                if (!checkData.allowed) {
-                  setUrlBlocked(true);
-                }
+            if (checkResponse.ok) {
+              const checkData = await checkResponse.json();
+              if (!checkData.allowed) {
+                setUrlBlocked(true);
               }
+            }
             }
           }
         } else if (profileResponse.status === 401) {
           // Token invalid
           localStorage.removeItem('checkitAuthToken');
           localStorage.removeItem('checkitUser');
-        }
-      } catch (error) {
-        console.error('Error checking URL restrictions:', error);
+          }
+        } catch (error) {
+          console.error('Error checking URL restrictions:', error);
       }
       
       setIsCheckingAccess(false);
@@ -940,6 +941,14 @@ const Results = (props: { address?: string }): JSX.Element => {
     fetchRequest: () => fetch(`${api}/subdomain-takeover?url=${address}`).then(res => parseJson(res)),
   });
 
+  // API Security Scanner
+  const [apiSecurityResults, updateApiSecurityResults] = useMotherHook({
+    jobId: 'api-security',
+    updateLoadingJobs,
+    addressInfo: { address, addressType, expectedAddressTypes: urlTypeOnly },
+    fetchRequest: () => fetch(`${api}/api-security?url=${address}`).then(res => parseJson(res)),
+  });
+
   // Lighthouse (Updated)
   const [lighthouseNewResults, updateLighthouseNewResults] = useMotherHook({
     jobId: 'lighthouse',
@@ -1138,6 +1147,15 @@ const Results = (props: { address?: string }): JSX.Element => {
       refresh: updateSubdomainTakeoverResults,
       tags: ['security'],
       priority: 2,
+    },
+    {
+      id: 'api-security',
+      title: 'Sécurité API',
+      result: apiSecurityResults,
+      Component: ApiSecurityCard,
+      refresh: updateApiSecurityResults,
+      tags: ['security', 'api'],
+      priority: 1.5,
     },
     {
       id: 'lighthouse',

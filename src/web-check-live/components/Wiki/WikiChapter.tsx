@@ -55,7 +55,7 @@ const normalizeResources = (resources: (string | Resource)[]): Resource[] => {
   return resources.map(r => {
     if (typeof r === 'string') {
       return { title: r, link: r };
-    }
+  }
     return r;
   });
 };

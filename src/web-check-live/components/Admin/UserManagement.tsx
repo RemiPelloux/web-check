@@ -3,6 +3,7 @@ import styled from '@emotion/styled';
 import colors from 'web-check-live/styles/colors';
 import { toast } from 'react-toastify';
 import UserModal from './UserModal';
+import ConfirmModal from './ConfirmModal';
 
 const API_BASE_URL = import.meta.env.PUBLIC_API_ENDPOINT || '/api';
 
@@ -320,6 +321,11 @@ const UserManagement = (): JSX.Element => {
   const [currentPage, setCurrentPage] = useState(1);
   const [roleFilter, setRoleFilter] = useState<RoleFilter>('ALL');
   const [hideCertified, setHideCertified] = useState(true);
+  const [deleteConfirm, setDeleteConfirm] = useState<{ open: boolean; user: User | null; loading: boolean }>({
+    open: false,
+    user: null,
+    loading: false
+  });
 
   const fetchUsers = async () => {
     try {
@@ -401,15 +407,15 @@ const UserManagement = (): JSX.Element => {
     setModalOpen(true);
   };
 
-  const handleDeleteUser = async (user: User) => {
-    if (!confirm(`Êtes-vous sûr de vouloir supprimer l'utilisateur "${user.username}" ?`)) {
-      return;
-    }
+  const handleDeleteClick = (user: User) => {
+    setDeleteConfirm({ open: true, user, loading: false });
+  };
 
-    const toastId = toast.loading(`Suppression de "${user.username}"...`, {
-      position: 'bottom-right',
-      theme: 'dark',
-    });
+  const handleDeleteConfirm = async () => {
+    const user = deleteConfirm.user;
+    if (!user) return;
+
+    setDeleteConfirm(prev => ({ ...prev, loading: true }));
 
     try {
       const token = localStorage.getItem('checkitAuthToken');
@@ -425,23 +431,25 @@ const UserManagement = (): JSX.Element => {
         throw new Error(data.message || 'Échec de la suppression de l\'utilisateur');
       }
 
-      toast.update(toastId, {
-        render: `Utilisateur "${user.username}" supprimé avec succès`,
-        type: 'success',
-        isLoading: false,
-        autoClose: 3000,
-        closeButton: true,
+      toast.success(`Utilisateur "${user.company || user.username}" supprimé avec succès`, {
+        position: 'bottom-right',
+        theme: 'dark',
       });
+      setDeleteConfirm({ open: false, user: null, loading: false });
       fetchUsers();
     } catch (error: any) {
       console.error('Error deleting user:', error);
-      toast.update(toastId, {
-        render: `${error.message || 'Impossible de supprimer l\'utilisateur'}`,
-        type: 'error',
-        isLoading: false,
-        autoClose: 4000,
-        closeButton: true,
+      toast.error(error.message || 'Impossible de supprimer l\'utilisateur', {
+        position: 'bottom-right',
+        theme: 'dark',
       });
+      setDeleteConfirm(prev => ({ ...prev, loading: false }));
+    }
+  };
+
+  const handleDeleteCancel = () => {
+    if (!deleteConfirm.loading) {
+      setDeleteConfirm({ open: false, user: null, loading: false });
     }
   };
 
@@ -579,7 +587,7 @@ const UserManagement = (): JSX.Element => {
                         </ActionButton>
                         <ActionButton
                           danger
-                          onClick={() => handleDeleteUser(user)}
+                          onClick={() => handleDeleteClick(user)}
                         >
                           Supprimer
                         </ActionButton>
@@ -642,6 +650,18 @@ const UserManagement = (): JSX.Element => {
           onClose={handleModalClose}
         />
       )}
+
+      <ConfirmModal
+        isOpen={deleteConfirm.open}
+        title="Supprimer l'utilisateur"
+        message={`Êtes-vous sûr de vouloir supprimer "${deleteConfirm.user?.company || deleteConfirm.user?.username}" ? Cette action supprimera également tous les logs et l'historique associés.`}
+        confirmText="Supprimer"
+        cancelText="Annuler"
+        danger
+        loading={deleteConfirm.loading}
+        onConfirm={handleDeleteConfirm}
+        onCancel={handleDeleteCancel}
+      />
     </>
   );
 };

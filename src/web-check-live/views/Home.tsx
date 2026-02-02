@@ -419,11 +419,11 @@ const Home = (): JSX.Element => {
           const data = await response.json();
           if (data.success && data.user) {
             setUserProfile(data.user);
-            
+        
             // Set allowed URLs ONLY from API response (database source of truth)
             if (data.user.role === 'DPD' && data.user.allowedUrls) {
               const urls = data.user.allowedUrls.split(',').map((url: string) => url.trim()).filter((url: string) => url);
-              setAllowedUrls(urls);
+          setAllowedUrls(urls);
             } else {
               setAllowedUrls([]);
             }
@@ -437,7 +437,7 @@ const Home = (): JSX.Element => {
         console.error('Error fetching profile:', e);
       }
       
-      setIsProfileLoading(false);
+    setIsProfileLoading(false);
     };
     
     loadProfile();

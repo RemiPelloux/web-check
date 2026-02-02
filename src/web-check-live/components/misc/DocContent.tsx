@@ -79,34 +79,11 @@ const copyToClipboard = (text: string, btn: HTMLButtonElement) => {
   });
 };
 
-const isApdpDomain = (url: string): boolean => {
-  try {
-    const hostname = new URL(url).hostname;
-    return hostname.endsWith('apdp.mc') || hostname === 'apdp.mc';
-  } catch {
-    return false;
-  }
-};
-
-const ClickableLink = styled.a`
-  color: ${colors.primary};
-  text-decoration: none;
-  word-break: break-all;
-  flex: 1;
-  
-  &:hover {
-    text-decoration: underline;
-  }
-`;
-
 const DocContent = (id: string) => {
   console.log('[DocContent] Looking for id:', id);
   console.log('[DocContent] Available IDs:', docs.map(d => d.id));
   const doc = docs.filter((doc: Doc) => doc.id === id)[0] || null;
   console.log('[DocContent] Found doc:', doc ? doc.title : 'NULL');
-  
-  const isPrivacyPolicy = id === 'apdp-privacy-policy';
-  
   return (
     doc? (<JobDocsContainer>
       <Heading as="h3" size="medium" color={colors.primary}>{doc.title}</Heading>
@@ -115,28 +92,18 @@ const DocContent = (id: string) => {
       <Heading as="h4" size="small">Cas d'usage</Heading>
       <p className="doc-uses">{doc.use}</p>
       <Heading as="h4" size="small">Ressources Utiles</Heading>
-      {!isPrivacyPolicy && (
-        <p style={{ fontSize: '12px', color: '#666', fontStyle: 'italic', marginBottom: '1rem' }}>
-          (Les liens ne sont pas cliquables mais uniquement copiables car l'APDP n'est pas en mesure de confirmer la conformité du site et de son contenu)
-        </p>
-      )}
+      <p style={{ fontSize: '12px', color: '#666', fontStyle: 'italic', marginBottom: '1rem' }}>
+        (Les liens ne sont pas cliquables mais uniquement copiables car l'APDP n'est pas en mesure de confirmer la conformité du site et de son contenu)
+      </p>
       <ol>
         {doc.resources.map((resource: string | { title: string, link: string } , index: number) => {
           const url = typeof resource === 'string' ? resource : resource.link;
           const title = typeof resource === 'string' ? resource : resource.title;
-          const isClickable = isApdpDomain(url);
-          
           return (
             <ReferenceItem key={`ref-${index}`}>
               <span className="ref-title">{title}</span>
               <div className="ref-url-container">
-                {isClickable ? (
-                  <ClickableLink href={url} target="_blank" rel="noopener noreferrer">
-                    {url}
-                  </ClickableLink>
-                ) : (
-                  <span className="ref-url">{url}</span>
-                )}
+                <span className="ref-url">{url}</span>
                 <button 
                   className="copy-btn"
                   onClick={(e) => copyToClipboard(url, e.currentTarget)}

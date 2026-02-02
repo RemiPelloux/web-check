@@ -160,9 +160,19 @@ export const updateUser = (id, updates) => {
  * @returns {boolean} Success status
  */
 export const deleteUser = (id) => {
-  const stmt = db.prepare('DELETE FROM users WHERE id = ?');
-  const result = stmt.run(id);
-  return result.changes > 0;
+  // Use transaction to delete user and all related records
+  const deleteTransaction = db.transaction(() => {
+    // First, delete related records that have foreign key constraints
+    db.prepare('DELETE FROM audit_log WHERE user_id = ?').run(id);
+    db.prepare('DELETE FROM scan_history WHERE user_id = ?').run(id);
+    
+    // Then delete the user
+    const stmt = db.prepare('DELETE FROM users WHERE id = ?');
+    const result = stmt.run(id);
+    return result.changes > 0;
+  });
+  
+  return deleteTransaction();
 };
 
 // Plugin Management Functions
