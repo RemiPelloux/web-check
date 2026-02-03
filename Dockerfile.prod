@@ -1,38 +1,95 @@
-FROM node:21-bullseye
+# Production Dockerfile for Web-Check
+# Multi-stage build for optimized production image
+
+ARG NODE_VERSION=22
+ARG DEBIAN_VERSION=bullseye
+
+# ============================================
+# STAGE 1: Build Stage
+# ============================================
+FROM node:${NODE_VERSION}-${DEBIAN_VERSION} AS build
+
+SHELL ["/bin/bash", "-euo", "pipefail", "-c"]
+
+# Install system dependencies
+RUN apt-get update -qq --fix-missing && \
+    apt-get -qqy install --allow-unauthenticated gnupg wget && \
+    wget --quiet --output-document=- https://dl-ssl.google.com/linux/linux_signing_key.pub | gpg --dearmor > /etc/apt/trusted.gpg.d/google-archive.gpg && \
+    echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" > /etc/apt/sources.list.d/google.list && \
+    apt-get update -qq && \
+    apt-get -qqy --no-install-recommends install chromium traceroute python3 make g++ && \
+    rm -rf /var/lib/apt/lists/*
+
+RUN /usr/bin/chromium --no-sandbox --version > /etc/chromium-version
 
 WORKDIR /app
 
-# Install system dependencies
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    chromium \
-    traceroute \
-    && rm -rf /var/lib/apt/lists/*
-
-# Copy package files
+# Copy dependency files
 COPY package.json yarn.lock ./
 
-# Install dependencies
-RUN yarn install --network-timeout 100000
+# Install ALL dependencies (including devDependencies for build)
+RUN yarn install --frozen-lockfile --network-timeout 100000 && \
+    rm -rf /app/node_modules/.cache
 
 # Copy source code
 COPY . .
 
-# Build the application
-RUN yarn build
+# Build the Astro application for production
+# This creates static assets and server bundles
+RUN NODE_ENV=production yarn build
 
-# Set environment
-ENV CHROME_PATH="/usr/bin/chromium"
+# ============================================
+# STAGE 2: Production Stage
+# ============================================
+FROM node:${NODE_VERSION}-${DEBIAN_VERSION} AS production
+
+WORKDIR /app
+
+# Install only runtime system dependencies
+RUN apt-get update && \
+    apt-get install -y --no-install-recommends \
+    chromium \
+    traceroute \
+    && chmod 755 /usr/bin/chromium && \
+    rm -rf /var/lib/apt/lists/*
+
+# Copy package files from build stage
+COPY --from=build /app/package.json ./package.json
+COPY --from=build /app/yarn.lock ./yarn.lock
+
+# Install ONLY production dependencies (no devDependencies)
+RUN yarn install --frozen-lockfile --production --network-timeout 100000 && \
+    yarn cache clean && \
+    rm -rf /app/node_modules/.cache
+
+# Copy built application from build stage
+COPY --from=build /app/dist ./dist
+COPY --from=build /app/.astro ./.astro
+
+# Copy necessary source files for server runtime
+COPY --from=build /app/server.js ./server.js
+COPY server ./server
+COPY api ./api
+COPY database ./database
+COPY public ./public
+
+# Initialize database if needed
+RUN node database/setup.js || echo "Database setup completed"
+
+# Set environment variables
 ENV NODE_ENV=production
-ENV PORT=3001
-ENV HOST=0.0.0.0
+ENV CHROME_PATH="/usr/bin/chromium"
+ENV PORT=3000
 
 # Expose ports
-EXPOSE 3001 3000
+# Port 3000: Astro production server
+# Port 3000: App (frontend + API)
+EXPOSE 3000
 
-# Make start script executable
-RUN chmod +x start-prod.sh
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=40s --retries=3 \
+  CMD node -e "require('http').get('http://localhost:3000/api/health', (r) => {process.exit(r.statusCode === 200 ? 0 : 1)})"
 
-# Start production servers (backend API + frontend)
-CMD ["bash", "start-prod.sh"]
-
+# Start the production server
+# This runs the built Astro app (dist/) and the backend API
+CMD ["yarn", "start"]

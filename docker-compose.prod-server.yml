@@ -1,0 +1,16 @@
+services:
+  web-check:
+    container_name: Web-Check-Checkit-Prod
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    ports:
+      - "3003:3000"  # Frontend (Astro prod)
+      - "3004:3000"  # API (same app port)
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - SITE_URL=https://jetestemonsite.apdp.mc
+    volumes:
+      - ./database:/app/database

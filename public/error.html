@@ -7,33 +7,48 @@
   </head>
   <body>
     <section>
-      <a class="t" href="/"><h1><img src="https://i.ibb.co/q1gZN2p/web-check-logo.png" width="48" />Web-Check</h1></a>
-      <p class="moji">😪</p>
-      <p>There was an error finding this route.</p>
-      <span>Docs and Source: <a href="https://github.com/lissy93/web-check">github.com/lissy93/web-check</a></span>
+      <div class="brand">
+        <span class="logo">APDP</span>
+        <div class="titles">
+          <h1>Checkit</h1>
+          <p class="subtitle">Autorité de Protection des Données Personnelles</p>
+        </div>
+      </div>
+      <p class="title">Page introuvable</p>
+      <p class="message">
+        La page demandée n’existe pas ou a été déplacée.
+      </p>
+      <div class="actions">
+        <a class="btn" href="/">Retour à l’accueil</a>
+        <a class="btn secondary" href="/login/">Se connecter</a>
+      </div>
+      <p class="support">Support APDP : adpd@apdp.mc</p>
     </section>
     <style>
-      body { background: #141d2b; color: #fff; }
-      h1 {
-        color: #9fef00; text-shadow: #0f1620 2px 2px 0px;
-        font-size: 3rem; margin: 1rem auto; flex-wrap: wrap;
-        display: flex; align-items: flex-start; gap: 1rem;
-      }
+      body { background: #0f172a; color: #e2e8f0; }
+      h1 { margin: 0; font-size: 2rem; color: #f8fafc; }
       section {
-        display: flex; flex-direction: column; align-items: center; margin: 1rem; gap: 0.5rem;
-        background: #1a2332; box-shadow: #0f1620 4px 4px 0px; border-radius: 8px; padding: 1rem;
-        max-width: 800px; margin: 1rem auto;
+        display: flex; flex-direction: column; align-items: flex-start; gap: 0.75rem;
+        background: #111827; border: 1px solid #1f2937; border-radius: 12px;
+        padding: 1.5rem; max-width: 720px; margin: 2rem auto;
       }
-      p { font-size: 1.2rem; }
-      a { color: #9fef00; font-family: monospace; }
-      a.t { text-decoration: none; margin: 0;}
-      span { opacity: 0.8; font-size: 0.85rem; }
-      h1 {
-        font-family: PTMono, Ubuntu, Fira Sans, Helvetica, sans-serif;
+      .brand { display: flex; align-items: center; gap: 0.75rem; }
+      .logo {
+        display: inline-flex; align-items: center; justify-content: center;
+        width: 44px; height: 44px; border-radius: 10px; font-weight: 700;
+        background: #dc2626; color: #fff; letter-spacing: 0.5px;
       }
-      p, span, a, section, div { font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New', monospace; }
-      code { color: #9fef00cc;}
-      .moji { font-size: 8rem; margin: 0; }
+      .subtitle { margin: 0; font-size: 0.85rem; color: #94a3b8; }
+      .title { margin: 0.25rem 0 0; font-size: 1.4rem; color: #f8fafc; }
+      .message { margin: 0; color: #cbd5f5; }
+      .actions { display: flex; gap: 0.5rem; margin-top: 0.5rem; }
+      .btn {
+        display: inline-block; padding: 0.5rem 0.9rem; border-radius: 8px;
+        background: #dc2626; color: #fff; text-decoration: none; font-weight: 600;
+      }
+      .btn.secondary { background: #1f2937; color: #e2e8f0; border: 1px solid #334155; }
+      .support { margin-top: 0.5rem; font-size: 0.85rem; color: #94a3b8; }
+      * { font-family: Inter, system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif; }
     </style>
   </body>
 </html>

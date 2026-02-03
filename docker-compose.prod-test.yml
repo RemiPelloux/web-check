@@ -1,0 +1,22 @@
+services:
+  web-check-prod-test:
+    container_name: Web-Check-Prod-Test
+    build:
+      context: .
+      dockerfile: Dockerfile.prod
+    ports:
+      - "3005:3000"  # App (frontend + API on same port)
+    restart: unless-stopped
+    environment:
+      - NODE_ENV=production
+      - PORT=3000
+      - SITE_URL=http://localhost:3005
+    volumes:
+      # Only mount database for persistence
+      - ./database:/app/database
+    networks:
+      - prod-test-network
+
+networks:
+  prod-test-network:
+    driver: bridge
