@@ -15,7 +15,7 @@ on:
 
 env:
   IMAGE_NAME: web-check
-  DOCKER_USER: lissy93
+  DOCKER_USER: ${{ secrets.DOCKERHUB_USERNAME }}
   GHCR_REGISTRY: ghcr.io
   DOCKERHUB_REGISTRY: docker.io
 
